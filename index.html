@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Startpage</title>
+    
+    <link rel="icon" type="image/x-icon" href="./favicon.ico?v=2">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root { 
@@ -191,7 +195,7 @@
         <div class="settings-row" style="margin-top:15px;">
             <label>Search New City</label>
             <div style="display:flex; gap:8px;">
-                <input type="text" id="city-search" placeholder="e.g. Lisbon">
+                <input type="text" id="city-search" placeholder="e.g. Odivelas">
                 <button class="btn btn-add" style="margin:0; width:80px;" onclick="searchCities()">Search</button>
             </div>
             <div id="search-results-list" style="margin-top:10px;"></div>
@@ -297,8 +301,9 @@
 
         function loadCategoryData() {
             const cIdx = document.getElementById('col-select').value;
-            const col = masterData[currentProfile].data[cIdx];
-            if(!col) return;
+            const profile = masterData[currentProfile];
+            if (!profile.data[cIdx]) return;
+            const col = profile.data[cIdx];
             document.getElementById('edit-col-title').value = col.title;
             document.getElementById('edit-col-color').value = col.color;
             const list = document.getElementById('category-links-list');
@@ -317,7 +322,8 @@
 
         async function fetchWeather() { 
             if(!weatherVisible || !weatherLocs.length) return; 
-            const loc = weatherLocs[weatherIdx]; document.getElementById('loc-name').textContent = loc.name; 
+            const loc = weatherLocs[weatherIdx]; if(!loc) return;
+            document.getElementById('loc-name').textContent = loc.name; 
             const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}&daily=weathercode,temperature_2m_max&timezone=auto`); 
             const data = await res.json(); 
             const row = document.getElementById('forecast-row'); row.innerHTML = '';
