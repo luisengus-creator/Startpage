@@ -14,6 +14,16 @@
             overflow: hidden; transition: background-color 0.4s ease;
         }
 
+        /* Top Left Container */
+        .left-icons-container {
+            position: fixed; top: 20px; left: 20px;
+            display: flex; gap: 18px; z-index: 100;
+        }
+        .left-icons-container a {
+            font-size: 1.1rem; color: #fff; opacity: 0.5; transition: 0.3s; text-decoration: none;
+        }
+        .left-icons-container a:hover { opacity: 1; color: var(--accent); transform: scale(1.1); }
+
         #profile-switcher, #gear-icon { 
             font-size: 1.3rem; color: #fff; opacity: 0.5; transition: 0.3s; background: none;
             border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
@@ -52,7 +62,6 @@
             letter-spacing: 0.1vw; margin: 0; text-align: center; width: 100%; color: var(--accent);
             text-decoration: none;
         }
-        .category-header i { font-size: 1.2rem; margin-bottom: 5px; }
         .category-title.has-link:hover { opacity: 0.7; }
 
         .link-card {
@@ -93,6 +102,7 @@
         .del-btn { display: none; color: #ff4444; cursor: pointer; font-size: 10px; margin-top: 4px; text-align: center; font-weight: bold; }
         .edit-mode .del-btn { display: block; }
         .link-edit-item { background: #222; padding: 10px; border-radius: 6px; margin-top: 8px; border: 1px solid #333; }
+        .icon-config-item { display: flex; align-items: center; gap: 10px; margin-top: 10px; background: #222; padding: 8px; border-radius: 6px; }
     </style>
 </head>
 <body>
@@ -101,6 +111,8 @@
     <div id="gear-icon" onclick="toggleModal('settings-panel')"><i class="fa-solid fa-gear"></i></div>
     <button id="profile-switcher" onclick="toggleProfile()"></button>
     
+    <div class="left-icons-container" id="left-icons"></div>
+
     <div class="main-wrapper">
         <div class="container" id="grid"></div>
     </div>
@@ -128,30 +140,42 @@
         </div>
 
         <div class="settings-row">
+            <label>Top Corner Shortcut Icons</label>
+            <div id="corner-icons-settings">
+                <div class="icon-config-item">
+                    <input type="checkbox" id="check-spotify" onchange="updateProfileIcons()" style="width:auto;">
+                    <i class="fa-brands fa-spotify" style="width: 20px;"></i>
+                    <input type="text" id="url-spotify" placeholder="Spotify URL" oninput="updateProfileIcons()">
+                </div>
+                <div class="icon-config-item">
+                    <input type="checkbox" id="check-server" onchange="updateProfileIcons()" style="width:auto;">
+                    <i class="fa-solid fa-server" style="width: 20px;"></i>
+                    <input type="text" id="url-server" placeholder="Server URL" oninput="updateProfileIcons()">
+                </div>
+                <div class="icon-config-item">
+                    <input type="checkbox" id="check-music" onchange="updateProfileIcons()" style="width:auto;">
+                    <i class="fa-solid fa-music" style="width: 20px;"></i>
+                    <input type="text" id="url-music" placeholder="Music URL" oninput="updateProfileIcons()">
+                </div>
+                <div class="icon-config-item">
+                    <input type="checkbox" id="check-yamaha" onchange="updateProfileIcons()" style="width:auto;">
+                    <i class="fa-solid fa-audio-description" style="width: 20px;"></i>
+                    <input type="text" id="url-yamaha" placeholder="Yamaha URL" oninput="updateProfileIcons()">
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-row">
             <label>Category & Link Editor</label>
             <select id="col-select" onchange="loadCategoryData()"></select>
-            
             <div style="display: flex; gap: 8px; margin-top:10px;">
                 <div style="flex:2"><label>Name</label><input type="text" id="edit-col-title" oninput="liveUpdateHeader()"></div>
                 <div style="flex:1"><label>Color</label><input type="color" id="edit-col-color" oninput="liveUpdateHeader()" style="height:40px;"></div>
             </div>
-
             <div style="margin-top:10px;">
-                <label>Category Icon</label>
-                <select id="edit-col-icon" onchange="liveUpdateHeader()">
-                    <option value="">No Icon</option>
-                    <option value="fa-brands fa-spotify">Spotify</option>
-                    <option value="fa-solid fa-server">Server</option>
-                    <option value="fa-solid fa-music">Music</option>
-                    <option value="fa-solid fa-audio-description">Yamaha</option>
-                </select>
-            </div>
-
-            <div style="margin-top:10px;">
-                <label>Header Link (URL)</label>
+                <label>Optional Header Link</label>
                 <input type="text" id="edit-col-link" placeholder="e.g. https://google.com" oninput="liveUpdateHeader()">
             </div>
-
             <div id="links-editor-container" style="margin-top:20px;">
                 <label>Links in this Category</label>
                 <div id="category-links-list"></div>
@@ -197,16 +221,16 @@
     <script>
         const createLinks = (n) => Array.from({length:n}, (_,i)=>({name:`Link ${i+1}`, url:"#"}));
         const defaultHome = () => [
-            { title: "Social", color: "#00d4ff", url: "", icon: "", links: createLinks(3) },
-            { title: "News", color: "#00d4ff", url: "", icon: "", links: createLinks(3) },
-            { title: "Movies & Series", color: "#00d4ff", url: "", icon: "", links: createLinks(3) },
-            { title: "Music", color: "#00d4ff", url: "", icon: "fa-solid fa-music", links: createLinks(3) },
-            { title: "TV", color: "#00d4ff", url: "", icon: "", links: createLinks(3) }
+            { title: "Social", color: "#00d4ff", url: "", links: createLinks(3) },
+            { title: "News", color: "#00d4ff", url: "", links: createLinks(3) },
+            { title: "Movies & Series", color: "#00d4ff", url: "", links: createLinks(3) },
+            { title: "Music", color: "#00d4ff", url: "", links: createLinks(3) },
+            { title: "TV", color: "#00d4ff", url: "", links: createLinks(3) }
         ];
         const defaultWork = () => [
-            { title: "Dev", color: "#3498db", url: "", icon: "", links: createLinks(3) },
-            { title: "Tools", color: "#3498db", url: "", icon: "", links: createLinks(3) },
-            { title: "Docs", color: "#3498db", url: "", icon: "", links: createLinks(3) }
+            { title: "Dev", color: "#3498db", url: "", links: createLinks(3) },
+            { title: "Tools", color: "#3498db", url: "", links: createLinks(3) },
+            { title: "Docs", color: "#3498db", url: "", links: createLinks(3) }
         ];
 
         let weatherVisible = JSON.parse(localStorage.getItem('sp_v31_w_vis')) ?? true;
@@ -215,8 +239,26 @@
 
         let currentProfile = localStorage.getItem('sp_v31_profile') || 'home';
         let masterData = JSON.parse(localStorage.getItem('sp_v31_master')) || {
-            home: { data: defaultHome(), theme: {bg:"#0a0a0a", acc:"#00d4ff", lnk:"#ffffff"}},
-            work: { data: defaultWork(), theme: {bg:"#0a0e14", acc:"#3498db", lnk:"#ffffff"}}
+            home: { 
+                data: defaultHome(), 
+                theme: {bg:"#0a0a0a", acc:"#00d4ff", lnk:"#ffffff"}, 
+                icons: {
+                    spotify: {enabled: true, url: ""}, 
+                    server: {enabled: false, url: ""}, 
+                    music: {enabled: false, url: ""}, 
+                    yamaha: {enabled: false, url: ""}
+                }
+            },
+            work: { 
+                data: defaultWork(), 
+                theme: {bg:"#0a0e14", acc:"#3498db", lnk:"#ffffff"}, 
+                icons: {
+                    spotify: {enabled: false, url: ""}, 
+                    server: {enabled: true, url: ""}, 
+                    music: {enabled: false, url: ""}, 
+                    yamaha: {enabled: false, url: ""}
+                }
+            }
         };
 
         function render() {
@@ -225,22 +267,29 @@
             const lastSelectedCategory = colSel.value;
             grid.innerHTML = ''; colSel.innerHTML = '';
             
-            const theme = masterData[currentProfile].theme;
+            const profile = masterData[currentProfile];
+            const theme = profile.theme;
             document.documentElement.style.setProperty('--bg', theme.bg);
             document.documentElement.style.setProperty('--accent', theme.acc);
             document.documentElement.style.setProperty('--link-text', theme.lnk);
 
-            masterData[currentProfile].data.forEach((col, cIdx) => {
+            // Render Left Icons
+            const leftContainer = document.getElementById('left-icons');
+            leftContainer.innerHTML = '';
+            const ic = profile.icons;
+            if(ic.spotify.enabled) leftContainer.innerHTML += `<a href="${ic.spotify.url || '#'}" target="_blank"><i class="fa-brands fa-spotify"></i></a>`;
+            if(ic.server.enabled) leftContainer.innerHTML += `<a href="${ic.server.url || '#'}" target="_blank"><i class="fa-solid fa-server"></i></a>`;
+            if(ic.music.enabled) leftContainer.innerHTML += `<a href="${ic.music.url || '#'}" target="_blank"><i class="fa-solid fa-music"></i></a>`;
+            if(ic.yamaha.enabled) leftContainer.innerHTML += `<a href="${ic.yamaha.url || '#'}" target="_blank"><i class="fa-solid fa-audio-description"></i></a>`;
+
+            profile.data.forEach((col, cIdx) => {
                 const color = col.color || theme.acc;
                 const colDiv = document.createElement('div');
                 colDiv.className = 'column';
-                
                 const titleTag = col.url ? 'a' : 'h2';
                 const titleAttr = col.url ? `href="${col.url}" class="category-title has-link"` : 'class="category-title"';
-                const iconHtml = col.icon ? `<i class="${col.icon}" style="color:${color}"></i>` : '';
 
                 colDiv.innerHTML = `<div class="category-header" style="border-bottom-color:${color}">
-                    ${iconHtml}
                     <${titleTag} ${titleAttr} style="color:${color}">${col.title}</${titleTag}>
                     <span class="del-btn" onclick="deleteCol(${cIdx})">DELETE COLUMN</span>
                 </div>`;
@@ -253,9 +302,7 @@
                 colSel.innerHTML += `<option value="${cIdx}">${col.title}</option>`;
             });
 
-            if (lastSelectedCategory !== "" && colSel.options[lastSelectedCategory]) {
-                colSel.value = lastSelectedCategory;
-            }
+            if (lastSelectedCategory !== "" && colSel.options[lastSelectedCategory]) colSel.value = lastSelectedCategory;
 
             document.getElementById('weather-container').className = weatherVisible ? 'visible' : '';
             document.getElementById('weather-vis-check').checked = weatherVisible;
@@ -268,15 +315,39 @@
 
         function updateEditorInputs() {
             const cIdx = document.getElementById('col-select').value;
-            const col = masterData[currentProfile].data[cIdx];
+            const profile = masterData[currentProfile];
+            const col = profile.data[cIdx];
             if(!col) return;
             document.getElementById('edit-col-title').value = col.title;
             document.getElementById('edit-col-color').value = col.color;
             document.getElementById('edit-col-link').value = col.url || "";
-            document.getElementById('edit-col-icon').value = col.icon || "";
-            document.getElementById('color-bg').value = masterData[currentProfile].theme.bg;
-            document.getElementById('color-acc').value = masterData[currentProfile].theme.acc;
-            document.getElementById('color-lnk').value = masterData[currentProfile].theme.lnk;
+            document.getElementById('color-bg').value = profile.theme.bg;
+            document.getElementById('color-acc').value = profile.theme.acc;
+            document.getElementById('color-lnk').value = profile.theme.lnk;
+            
+            // Update Checkboxes & URLs
+            const ic = profile.icons;
+            document.getElementById('check-spotify').checked = ic.spotify.enabled;
+            document.getElementById('url-spotify').value = ic.spotify.url;
+            document.getElementById('check-server').checked = ic.server.enabled;
+            document.getElementById('url-server').value = ic.server.url;
+            document.getElementById('check-music').checked = ic.music.enabled;
+            document.getElementById('url-music').value = ic.music.url;
+            document.getElementById('check-yamaha').checked = ic.yamaha.enabled;
+            document.getElementById('url-yamaha').value = ic.yamaha.url;
+        }
+
+        function updateProfileIcons() {
+            const ic = masterData[currentProfile].icons;
+            ic.spotify.enabled = document.getElementById('check-spotify').checked;
+            ic.spotify.url = document.getElementById('url-spotify').value;
+            ic.server.enabled = document.getElementById('check-server').checked;
+            ic.server.url = document.getElementById('url-server').value;
+            ic.music.enabled = document.getElementById('check-music').checked;
+            ic.music.url = document.getElementById('url-music').value;
+            ic.yamaha.enabled = document.getElementById('check-yamaha').checked;
+            ic.yamaha.url = document.getElementById('url-yamaha').value;
+            render();
         }
 
         function loadCategoryData() {
@@ -295,15 +366,12 @@
         }
 
         function liveUpdateLink(cIdx, lIdx, prop, val) { masterData[currentProfile].data[cIdx].links[lIdx][prop] = val; render(); }
-        
         function liveUpdateHeader() { 
             const cIdx = document.getElementById('col-select').value; 
             const col = masterData[currentProfile].data[cIdx]; 
             col.title = document.getElementById('edit-col-title').value; 
             col.color = document.getElementById('edit-col-color').value; 
             col.url = document.getElementById('edit-col-link').value;
-            col.icon = document.getElementById('edit-col-icon').value;
-            document.querySelector(`#col-select option[value="${cIdx}"]`).textContent = col.title; 
             render(); 
         }
 
@@ -312,7 +380,7 @@
         function closeAllModals() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); document.getElementById('modal-overlay').style.display = 'none'; }
         function toggleProfile() { currentProfile = currentProfile === 'home' ? 'work' : 'home'; localStorage.setItem('sp_v31_profile', currentProfile); render(); fetchWeather(); }
         function updateMasterTheme() { const t = masterData[currentProfile].theme; t.bg = document.getElementById('color-bg').value; t.acc = document.getElementById('color-acc').value; t.lnk = document.getElementById('color-lnk').value; render(); }
-        function addFullCategory() { masterData[currentProfile].data.push({title:"New", color:"#00d4ff", url:"", icon:"", links:[]}); render(); }
+        function addFullCategory() { masterData[currentProfile].data.push({title:"New", color:"#00d4ff", url:"", links:[]}); render(); }
         function deleteLink(c, l) { masterData[currentProfile].data[c].links.splice(l, 1); render(); loadCategoryData();}
         function deleteCol(c) { if(confirm("Delete column?")) { masterData[currentProfile].data.splice(c, 1); render(); } }
         function toggleEditMode() { document.body.classList.toggle('edit-mode'); }
