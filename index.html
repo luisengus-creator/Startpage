@@ -52,6 +52,7 @@
             letter-spacing: 0.1vw; margin: 0; text-align: center; width: 100%; color: var(--accent);
             text-decoration: none;
         }
+        .category-header i { font-size: 1.2rem; margin-bottom: 5px; }
         .category-title.has-link:hover { opacity: 0.7; }
 
         .link-card {
@@ -129,12 +130,25 @@
         <div class="settings-row">
             <label>Category & Link Editor</label>
             <select id="col-select" onchange="loadCategoryData()"></select>
+            
             <div style="display: flex; gap: 8px; margin-top:10px;">
                 <div style="flex:2"><label>Name</label><input type="text" id="edit-col-title" oninput="liveUpdateHeader()"></div>
                 <div style="flex:1"><label>Color</label><input type="color" id="edit-col-color" oninput="liveUpdateHeader()" style="height:40px;"></div>
             </div>
+
             <div style="margin-top:10px;">
-                <label>Optional Header Link</label>
+                <label>Category Icon</label>
+                <select id="edit-col-icon" onchange="liveUpdateHeader()">
+                    <option value="">No Icon</option>
+                    <option value="fa-brands fa-spotify">Spotify</option>
+                    <option value="fa-solid fa-server">Server</option>
+                    <option value="fa-solid fa-music">Music</option>
+                    <option value="fa-solid fa-audio-description">Yamaha</option>
+                </select>
+            </div>
+
+            <div style="margin-top:10px;">
+                <label>Header Link (URL)</label>
                 <input type="text" id="edit-col-link" placeholder="e.g. https://google.com" oninput="liveUpdateHeader()">
             </div>
 
@@ -183,16 +197,16 @@
     <script>
         const createLinks = (n) => Array.from({length:n}, (_,i)=>({name:`Link ${i+1}`, url:"#"}));
         const defaultHome = () => [
-            { title: "Social", color: "#00d4ff", url: "", links: createLinks(3) },
-            { title: "News", color: "#00d4ff", url: "", links: createLinks(3) },
-            { title: "Movies & Series", color: "#00d4ff", url: "", links: createLinks(3) },
-            { title: "Music", color: "#00d4ff", url: "", links: createLinks(3) },
-            { title: "TV", color: "#00d4ff", url: "", links: createLinks(3) }
+            { title: "Social", color: "#00d4ff", url: "", icon: "", links: createLinks(3) },
+            { title: "News", color: "#00d4ff", url: "", icon: "", links: createLinks(3) },
+            { title: "Movies & Series", color: "#00d4ff", url: "", icon: "", links: createLinks(3) },
+            { title: "Music", color: "#00d4ff", url: "", icon: "fa-solid fa-music", links: createLinks(3) },
+            { title: "TV", color: "#00d4ff", url: "", icon: "", links: createLinks(3) }
         ];
         const defaultWork = () => [
-            { title: "Dev", color: "#3498db", url: "", links: createLinks(3) },
-            { title: "Tools", color: "#3498db", url: "", links: createLinks(3) },
-            { title: "Docs", color: "#3498db", url: "", links: createLinks(3) }
+            { title: "Dev", color: "#3498db", url: "", icon: "", links: createLinks(3) },
+            { title: "Tools", color: "#3498db", url: "", icon: "", links: createLinks(3) },
+            { title: "Docs", color: "#3498db", url: "", icon: "", links: createLinks(3) }
         ];
 
         let weatherVisible = JSON.parse(localStorage.getItem('sp_v31_w_vis')) ?? true;
@@ -223,8 +237,10 @@
                 
                 const titleTag = col.url ? 'a' : 'h2';
                 const titleAttr = col.url ? `href="${col.url}" class="category-title has-link"` : 'class="category-title"';
+                const iconHtml = col.icon ? `<i class="${col.icon}" style="color:${color}"></i>` : '';
 
                 colDiv.innerHTML = `<div class="category-header" style="border-bottom-color:${color}">
+                    ${iconHtml}
                     <${titleTag} ${titleAttr} style="color:${color}">${col.title}</${titleTag}>
                     <span class="del-btn" onclick="deleteCol(${cIdx})">DELETE COLUMN</span>
                 </div>`;
@@ -257,6 +273,7 @@
             document.getElementById('edit-col-title').value = col.title;
             document.getElementById('edit-col-color').value = col.color;
             document.getElementById('edit-col-link').value = col.url || "";
+            document.getElementById('edit-col-icon').value = col.icon || "";
             document.getElementById('color-bg').value = masterData[currentProfile].theme.bg;
             document.getElementById('color-acc').value = masterData[currentProfile].theme.acc;
             document.getElementById('color-lnk').value = masterData[currentProfile].theme.lnk;
@@ -285,6 +302,7 @@
             col.title = document.getElementById('edit-col-title').value; 
             col.color = document.getElementById('edit-col-color').value; 
             col.url = document.getElementById('edit-col-link').value;
+            col.icon = document.getElementById('edit-col-icon').value;
             document.querySelector(`#col-select option[value="${cIdx}"]`).textContent = col.title; 
             render(); 
         }
@@ -294,7 +312,7 @@
         function closeAllModals() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); document.getElementById('modal-overlay').style.display = 'none'; }
         function toggleProfile() { currentProfile = currentProfile === 'home' ? 'work' : 'home'; localStorage.setItem('sp_v31_profile', currentProfile); render(); fetchWeather(); }
         function updateMasterTheme() { const t = masterData[currentProfile].theme; t.bg = document.getElementById('color-bg').value; t.acc = document.getElementById('color-acc').value; t.lnk = document.getElementById('color-lnk').value; render(); }
-        function addFullCategory() { masterData[currentProfile].data.push({title:"New", color:"#00d4ff", url:"", links:[]}); render(); }
+        function addFullCategory() { masterData[currentProfile].data.push({title:"New", color:"#00d4ff", url:"", icon:"", links:[]}); render(); }
         function deleteLink(c, l) { masterData[currentProfile].data[c].links.splice(l, 1); render(); loadCategoryData();}
         function deleteCol(c) { if(confirm("Delete column?")) { masterData[currentProfile].data.splice(c, 1); render(); } }
         function toggleEditMode() { document.body.classList.toggle('edit-mode'); }
