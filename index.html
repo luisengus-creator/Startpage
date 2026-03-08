@@ -5,98 +5,118 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Startpage</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #0a0a0a; --card-bg: #1a1a1a; --accent: #00d4ff; --link-text: #ffffff; }
+        :root { 
+            --bg: #050505; 
+            --card-bg: rgba(255, 255, 255, 0.05); 
+            --blur: 12px;
+            --grad-opacity: 0.3;
+        }
 
         body {
-            background-color: var(--bg); color: #fff; font-family: 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg); color: #fff; font-family: 'Inter', sans-serif;
             margin: 0; display: flex; flex-direction: column; height: 100vh; width: 100vw;
-            overflow: hidden; transition: background-color 0.4s ease;
+            overflow: hidden; transition: background 0.5s ease;
+            position: relative;
         }
+
+        #full-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -2; pointer-events: none; transition: background 1s ease;
+            opacity: var(--grad-opacity);
+        }
+
+        #quick-links { position: fixed; top: 3vh; left: 2vw; display: flex; gap: 1.5vw; z-index: 100; }
+        .ql-icon {
+            font-size: clamp(1rem, 1.5vw, 1.4rem); color: #fff; opacity: 0.4; transition: 0.4s;
+            text-decoration: none; display: none; width: 40px; height: 40px; align-items: center; justify-content: center;
+        }
+        .ql-icon.visible { display: flex; }
+        .ql-icon:hover { opacity: 1; transform: scale(1.2); text-shadow: 0 0 15px #fff; }
 
         #profile-switcher, #gear-icon { 
-            font-size: 1.3rem; color: #fff; opacity: 0.5; transition: 0.3s; background: none;
+            font-size: 1.3rem; color: #fff; opacity: 0.4; transition: 0.3s; background: none;
             border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
-            width: 30px; height: 30px; z-index: 100;
+            width: 40px; height: 40px; z-index: 100;
         }
-        #profile-switcher { position: fixed; top: 20px; right: 20px; }
-        #gear-icon { position: fixed; top: 20px; right: 60px; }
-        #profile-switcher:hover, #gear-icon:hover { opacity: 1; transform: scale(1.1); color: var(--accent); }
+        #profile-switcher { position: fixed; top: 3vh; right: 2vw; }
+        #gear-icon { position: fixed; top: 3vh; right: 6vw; }
 
-        .main-wrapper {
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            flex-grow: 1; width: 100%;
-        }
-
-        .container {
-            display: flex; flex-direction: row; 
-            justify-content: center; 
-            align-items: flex-start; 
-            gap: 2.5vw; width: 100%; padding: 0 4vw; box-sizing: border-box;
-        }
+        .main-wrapper { display: flex; flex-direction: column; justify-content: center; align-items: center; flex-grow: 1; width: 100%; z-index: 10; }
+        .container { display: flex; flex-direction: row; justify-content: center; align-items: flex-start; gap: 3vw; width: 100%; padding: 0 5vw; box-sizing: border-box; }
         
-        .column { 
-            min-width: 160px; 
-            width: auto; 
-            max-width: 300px;
-            flex-shrink: 0; display: flex; flex-direction: column; gap: 1vh; 
+        .column { flex: 1; min-width: 140px; max-width: 350px; display: flex; flex-direction: column; gap: 1.2vh; position: relative; }
+
+        .column-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; opacity: var(--grad-opacity); border-radius: 12px; transition: 0.3s;
         }
 
         .category-header {
-            display: flex; flex-direction: column; align-items: center;
-            padding-bottom: 0.8vh; margin-bottom: 0.5vh; border-bottom: 2px solid var(--accent);
-            white-space: nowrap;
+            display: flex; height: 8vh; flex-direction: column; justify-content: center; align-items: center;
+            margin-bottom: 1vh; border-bottom: 1px solid rgba(255,255,255,0.1);
+            position: relative; z-index: 2;
         }
         .category-title {
-            font-size: clamp(0.8rem, 1.2vw, 1.3rem); font-weight: 800; text-transform: uppercase;
-            letter-spacing: 0.1vw; margin: 0; text-align: center; width: 100%; color: var(--accent);
-            text-decoration: none;
+            font-size: clamp(0.7rem, 1vw, 1rem); font-weight: 800; text-transform: uppercase;
+            letter-spacing: 0.2rem; margin: 0; text-align: center; width: 100%;
         }
-        .category-title.has-link:hover { opacity: 0.7; }
 
         .link-card {
-            background: var(--card-bg); padding: 0.9vh 0.8vw; border-radius: 6px;
-            text-decoration: none; color: var(--link-text); font-size: clamp(0.7rem, 0.9vw, 1rem);
-            text-align: center; transition: 0.2s; display: block; border: 1px solid transparent;
-            white-space: nowrap;
+            background: var(--card-bg); backdrop-filter: blur(var(--blur)); -webkit-backdrop-filter: blur(var(--blur));
+            padding: 1.2vh 1vw; border-radius: 8px; text-decoration: none; 
+            font-size: clamp(0.8rem, 0.9vw, 1.1rem); text-align: center; transition: 0.3s; 
+            display: block; border: 1px solid rgba(255,255,255,0.05);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; position: relative; z-index: 2;
         }
-        .link-card:hover { transform: translateY(-2px); border-color: var(--accent); background: #222; }
+        .link-card:hover { transform: translateY(-4px) scale(1.03); background: rgba(255, 255, 255, 0.12); border-color: rgba(255,255,255,0.3); }
 
-        #weather-container {
-            width: 100%; height: 90px; display: none; justify-content: center; align-items: center;
-            padding-bottom: 20px; transition: 0.3s; opacity: 0.7;
-        }
+        #weather-container { width: 100%; height: 100px; display: none; justify-content: center; align-items: center; padding-bottom: 3vh; opacity: 0.6; }
         #weather-container.visible { display: flex; }
-        .weather-location-label { font-size: 0.7rem; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-right: 25px; font-weight: bold; cursor: pointer; }
-        .forecast-wrapper { display: flex; gap: 30px; cursor: pointer; }
-        .forecast-day { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-        .day-name { font-size: 0.6rem; opacity: 0.5; text-transform: uppercase; }
-        .day-temp { font-size: 0.8rem; font-weight: bold; }
-
-        #modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0,0,0,0.6); z-index: 1000;
-        }
+        .weather-location-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; margin-right: 30px; font-weight: 800; cursor: pointer; }
+        .forecast-wrapper { display: flex; gap: 40px; cursor: pointer; }
+        .forecast-day { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .day-name { font-size: 0.6rem; opacity: 0.5; text-transform: uppercase; font-weight: 600; }
+        .day-temp { font-size: 0.9rem; font-weight: 800; }
 
         .modal {
             display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: #181818; padding: 25px; border-radius: 15px; box-shadow: 0 0 60px rgba(0,0,0,0.9);
-            z-index: 1001; width: 460px; border: 1px solid #333; max-height: 85vh; overflow-y: auto;
+            background: #111; padding: 30px; border-radius: 20px; box-shadow: 0 0 100px rgba(0,0,0,0.8);
+            z-index: 1001; width: 480px; border: 1px solid #222; max-height: 85vh; overflow-y: auto;
         }
-        .settings-row { margin-bottom: 18px; border-bottom: 1px solid #333; padding-bottom: 15px; }
-        label { font-weight: bold; font-size: 0.7rem; color: var(--accent); text-transform: uppercase; display: block; margin-bottom: 5px; }
-        input, select { width: 100%; padding: 10px; margin-top: 5px; background: #252525; border: 1px solid #444; color: #fff; border-radius: 6px; box-sizing: border-box; font-size: 0.85rem; }
-        .btn { padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 8px; font-size: 0.8rem; }
-        .btn-add { background: var(--accent); color: #000; }
-        .btn-close { background: #444; color: #fff; }
-        .del-btn { display: none; color: #ff4444; cursor: pointer; font-size: 10px; margin-top: 4px; text-align: center; font-weight: bold; }
+        #modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); z-index: 1000; backdrop-filter: blur(4px); }
+        .settings-row { margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 20px; }
+        label { font-weight: 800; font-size: 0.65rem; color: #888; text-transform: uppercase; display: block; margin-bottom: 8px; letter-spacing: 1px; }
+        input, select { width: 100%; padding: 12px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 8px; box-sizing: border-box; font-family: inherit; }
+        
+        .btn { padding: 14px; border: none; border-radius: 8px; cursor: pointer; font-weight: 800; width: 100%; margin-top: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-add { background: #fff; color: #000; }
+        .btn-close { background: #333; color: #fff; }
+        
+        /* New Weather Search Results Style */
+        .search-result-item {
+            padding: 10px; background: #222; margin-top: 5px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; border: 1px solid transparent;
+        }
+        .search-result-item:hover { border-color: #fff; background: #333; }
+        .search-result-item small { display: block; opacity: 0.5; font-size: 0.65rem; }
+
+        .del-btn { display: none; color: #ff4444; cursor: pointer; font-size: 10px; margin-top: 8px; text-align: center; font-weight: bold; }
         .edit-mode .del-btn { display: block; }
-        .link-edit-item { background: #222; padding: 10px; border-radius: 6px; margin-top: 8px; border: 1px solid #333; }
     </style>
 </head>
 <body>
 
+    <div id="full-bg"></div>
     <div id="modal-overlay" onclick="closeAllModals()"></div>
+
+    <div id="quick-links">
+        <a id="ql-spotify" class="ql-icon"><i class="fa-brands fa-spotify"></i></a>
+        <a id="ql-server" class="ql-icon"><i class="fa-solid fa-server"></i></a>
+        <a id="ql-music" class="ql-icon"><i class="fa-solid fa-music"></i></a>
+        <a id="ql-avr" class="ql-icon"><i class="fa-solid fa-volume-high"></i></a>
+    </div>
+
     <div id="gear-icon" onclick="toggleModal('settings-panel')"><i class="fa-solid fa-gear"></i></div>
     <button id="profile-switcher" onclick="toggleProfile()"></button>
     
@@ -106,207 +126,141 @@
 
     <div id="weather-container">
         <div id="weather-content" style="display: flex; align-items: center;">
-            <span class="weather-location-label" id="loc-name" onclick="cycleWeather()">Weather</span>
+            <span class="weather-location-label" id="loc-name" onclick="cycleWeather()">Add City</span>
             <div class="forecast-wrapper" id="forecast-row" onclick="toggleModal('weather-modal')"></div>
         </div>
     </div>
 
     <div id="settings-panel" class="modal">
-        <h3 style="color:var(--accent); margin:0 0 15px 0;">Configuration</h3>
-        
+        <h2 style="color:#fff; margin:0 0 20px 0; font-weight:800; text-transform:uppercase; letter-spacing:2px;">Engine</h2>
         <div class="settings-row">
-            <label>General Settings</label>
-            <div style="display: flex; align-items: center; gap: 10px; margin: 10px 0; cursor: pointer;" onclick="toggleWeatherVis()">
-                <input type="checkbox" id="weather-vis-check" style="width:auto;"> <small>Enable Weather Bar</small>
+            <label>Background Options</label>
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px;">
+                <div style="display: flex; align-items: center; gap: 10px;"><input type="checkbox" id="check-full-bg" style="width:auto;" onchange="updateBgSettings()"> <small>Full Screen Mesh</small></div>
+                <div style="display: flex; align-items: center; gap: 10px;"><input type="checkbox" id="check-col-bg" style="width:auto;" onchange="updateBgSettings()"> <small>Category Gradient</small></div>
             </div>
-            <label>Startup Default</label>
-            <select id="startup-select" onchange="setAsStartup()">
-                <option value="home">Home</option>
-                <option value="work">Work</option>
-            </select>
-        </div>
-
-        <div class="settings-row">
-            <label>Category & Link Editor</label>
-            <select id="col-select" onchange="loadCategoryData()"></select>
-            <div style="display: flex; gap: 8px; margin-top:10px;">
-                <div style="flex:2"><label>Name</label><input type="text" id="edit-col-title" oninput="liveUpdateHeader()"></div>
-                <div style="flex:1"><label>Color</label><input type="color" id="edit-col-color" oninput="liveUpdateHeader()" style="height:40px;"></div>
-            </div>
-            <div style="margin-top:10px;">
-                <label>Optional Header Link</label>
-                <input type="text" id="edit-col-link" placeholder="e.g. https://google.com" oninput="liveUpdateHeader()">
-            </div>
-
-            <div id="links-editor-container" style="margin-top:20px;">
-                <label>Links in this Category</label>
-                <div id="category-links-list"></div>
-                <div class="link-edit-item" style="border-style: dashed; border-color: var(--accent);">
-                    <small style="color:var(--accent)">Add New Link</small>
-                    <input type="text" id="new-link-name" placeholder="Name">
-                    <input type="text" id="new-link-url" placeholder="URL">
-                    <button class="btn btn-add" onclick="addNewLink()">+ Add Link</button>
-                </div>
-            </div>
-            <button class="btn btn-add" style="background:#2ecc71; color:white; margin-top:20px;" onclick="addFullCategory()">+ Add Entire New Category</button>
-        </div>
-
-        <div class="settings-row">
-            <label>Master Theme</label>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
-                <div><input type="color" id="color-bg" oninput="updateMasterTheme()"><br><small>BG</small></div>
-                <div><input type="color" id="color-acc" oninput="updateMasterTheme()"><br><small>Accent</small></div>
-                <div><input type="color" id="color-lnk" oninput="updateMasterTheme()"><br><small>Links</small></div>
-            </div>
-        </div>
-
-        <div style="display: flex; gap: 8px;">
-            <button class="btn btn-util" style="flex:1; background:#3498db; color:white;" onclick="exportConfig()">Backup</button>
-            <button class="btn btn-util" style="flex:1; background:#9b59b6; color:white;" onclick="document.getElementById('import-input').click()">Import</button>
-            <input type="file" id="import-input" style="display:none" accept=".json" onchange="importConfig(this)">
-            <button class="btn btn-util" style="flex:1; background:#ff4444; color:white;" onclick="toggleEditMode()">Delete Mode</button>
+            <label>Opacity</label><input type="range" id="grad-opacity-range" min="0" max="1" step="0.1" oninput="updateGradIntensity(this.value)">
+            <label style="margin-top:15px;">Solid Background</label><input type="color" id="color-bg" oninput="updateMasterTheme()">
         </div>
         <button class="btn btn-close" onclick="closeAllModals()">Close</button>
     </div>
 
     <div id="weather-modal" class="modal">
-        <h3 style="color:var(--accent); margin:0 0 15px 0;">City Manager</h3>
+        <h3 style="color:#fff; text-transform:uppercase; letter-spacing:2px;">City Manager</h3>
+        <label>Active Cities</label>
         <div id="weather-list"></div>
         <div class="settings-row" style="margin-top:15px;">
-            <label>Add City</label>
-            <input type="text" id="city-search" placeholder="e.g. Sombor">
-            <button class="btn btn-add" onclick="addCityByName()">Add to List</button>
+            <label>Search New City</label>
+            <div style="display:flex; gap:8px;">
+                <input type="text" id="city-search" placeholder="e.g. Odivelas">
+                <button class="btn btn-add" style="margin:0; width:80px;" onclick="searchCities()">Go</button>
+            </div>
+            <div id="search-results-list" style="margin-top:10px;"></div>
         </div>
         <button class="btn btn-close" onclick="closeAllModals()">Close</button>
     </div>
 
     <script>
-        const createLinks = (n) => Array.from({length:n}, (_,i)=>({name:`Link ${i+1}`, url:"#"}));
-        const defaultHome = () => [
-            { title: "Social", color: "#00d4ff", url: "", links: createLinks(3) },
-            { title: "News", color: "#00d4ff", url: "", links: createLinks(3) },
-            { title: "Movies & Series", color: "#00d4ff", url: "", links: createLinks(3) },
-            { title: "Music", color: "#00d4ff", url: "", links: createLinks(3) },
-            { title: "TV", color: "#00d4ff", url: "", links: createLinks(3) }
-        ];
-        const defaultWork = () => [
-            { title: "Dev", color: "#3498db", url: "", links: createLinks(3) },
-            { title: "Tools", color: "#3498db", url: "", links: createLinks(3) },
-            { title: "Docs", color: "#3498db", url: "", links: createLinks(3) }
-        ];
-
         let weatherVisible = JSON.parse(localStorage.getItem('sp_v31_w_vis')) ?? true;
-        let weatherLocs = JSON.parse(localStorage.getItem('sp_v31_weather')) || [{name:"Sombor", lat:45.77, lon:19.11}];
+        let weatherLocs = JSON.parse(localStorage.getItem('sp_v31_weather')) || [];
         let weatherIdx = 0;
-
+        let showFullMesh = JSON.parse(localStorage.getItem('sp_v31_fullmesh')) ?? true;
+        let showColGrad = JSON.parse(localStorage.getItem('sp_v31_colgrad')) ?? true;
+        let gradOpacity = localStorage.getItem('sp_v31_grad_op') || 0.3;
         let currentProfile = localStorage.getItem('sp_v31_profile') || 'home';
+        
         let masterData = JSON.parse(localStorage.getItem('sp_v31_master')) || {
-            home: { data: defaultHome(), theme: {bg:"#0a0a0a", acc:"#00d4ff", lnk:"#ffffff"}},
-            work: { data: defaultWork(), theme: {bg:"#0a0e14", acc:"#3498db", lnk:"#ffffff"}}
+            home: { data: [{title:"Social", color:"#00d4ff", links:[]}], theme: {bg:"#050505"}, ql: {} },
+            work: { data: [{title:"Work", color:"#3498db", links:[]}], theme: {bg:"#080808"}, ql: {} }
         };
 
         function render() {
             const grid = document.getElementById('grid');
-            const colSel = document.getElementById('col-select');
-            const lastSelectedCategory = colSel.value;
-            grid.innerHTML = ''; colSel.innerHTML = '';
-            
-            const theme = masterData[currentProfile].theme;
-            document.documentElement.style.setProperty('--bg', theme.bg);
-            document.documentElement.style.setProperty('--accent', theme.acc);
-            document.documentElement.style.setProperty('--link-text', theme.lnk);
+            grid.innerHTML = '';
+            const profile = masterData[currentProfile];
+            document.documentElement.style.setProperty('--grad-opacity', gradOpacity);
+            document.body.style.backgroundColor = profile.theme.bg || "#050505";
 
-            masterData[currentProfile].data.forEach((col, cIdx) => {
-                const color = col.color || theme.acc;
+            const colors = [];
+            profile.data.forEach((col, cIdx) => {
+                const color = col.color || "#00d4ff";
+                colors.push(color);
                 const colDiv = document.createElement('div');
                 colDiv.className = 'column';
-                
-                const titleTag = col.url ? 'a' : 'h2';
-                const titleAttr = col.url ? `href="${col.url}" class="category-title has-link"` : 'class="category-title"';
-
-                colDiv.innerHTML = `<div class="category-header" style="border-bottom-color:${color}">
-                    <${titleTag} ${titleAttr} style="color:${color}">${col.title}</${titleTag}>
-                    <span class="del-btn" onclick="deleteCol(${cIdx})">DELETE COLUMN</span>
-                </div>`;
-                col.links.forEach((l, lIdx) => {
-                    const row = document.createElement('div');
-                    row.innerHTML = `<a href="${l.url}" class="link-card">${l.name}</a><span class="del-btn" onclick="deleteLink(${cIdx},${lIdx})">✕</span>`;
-                    colDiv.appendChild(row);
+                if (showColGrad) {
+                    const colBg = document.createElement('div');
+                    colBg.className = 'column-bg';
+                    colBg.style.background = `linear-gradient(to bottom, ${color} 0%, transparent 100%)`;
+                    colDiv.appendChild(colBg);
+                }
+                colDiv.innerHTML += `<div class="category-header" style="border-bottom-color:${color}44"><h2 class="category-title" style="color:${color}">${col.title}</h2></div>`;
+                col.links.forEach(l => {
+                    colDiv.innerHTML += `<a href="${l.url}" class="link-card" style="color:${l.color || '#fff'}">${l.name}</a>`;
                 });
                 grid.appendChild(colDiv);
-                colSel.innerHTML += `<option value="${cIdx}">${col.title}</option>`;
             });
 
-            if (lastSelectedCategory !== "" && colSel.options[lastSelectedCategory]) {
-                colSel.value = lastSelectedCategory;
-            }
+            const fullBg = document.getElementById('full-bg');
+            if (showFullMesh && colors.length > 0) {
+                fullBg.style.background = colors.length > 1 ? `linear-gradient(135deg, ${colors.join(', ')})` : `radial-gradient(circle at top, ${colors[0]} 0%, transparent 70%)`;
+            } else { fullBg.style.background = 'transparent'; }
 
             document.getElementById('weather-container').className = weatherVisible ? 'visible' : '';
-            document.getElementById('weather-vis-check').checked = weatherVisible;
-            document.getElementById('profile-switcher').innerHTML = currentProfile === 'home' ? '<i class="fa-solid fa-house"></i>' : '<i class="fa-solid fa-user-tie"></i>';
-            document.getElementById('startup-select').value = localStorage.getItem('sp_v31_default') || 'home';
-            
-            updateEditorInputs();
             save();
         }
 
-        function updateEditorInputs() {
-            const cIdx = document.getElementById('col-select').value;
-            const col = masterData[currentProfile].data[cIdx];
-            if(!col) return;
-            document.getElementById('edit-col-title').value = col.title;
-            document.getElementById('edit-col-color').value = col.color;
-            document.getElementById('edit-col-link').value = col.url || "";
-            document.getElementById('color-bg').value = masterData[currentProfile].theme.bg;
-            document.getElementById('color-acc').value = masterData[currentProfile].theme.acc;
-            document.getElementById('color-lnk').value = masterData[currentProfile].theme.lnk;
+        async function searchCities() {
+            const query = document.getElementById('city-search').value;
+            if (query.length < 2) return;
+            const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${query}&count=5&language=en&format=json`);
+            const data = await res.json();
+            const list = document.getElementById('search-results-list');
+            list.innerHTML = '';
+            if (data.results) {
+                data.results.forEach(city => {
+                    const item = document.createElement('div');
+                    item.className = 'search-result-item';
+                    item.innerHTML = `<strong>${city.name}</strong><small>${city.country}${city.admin1 ? ', ' + city.admin1 : ''}</small>`;
+                    item.onclick = () => {
+                        weatherLocs.push({name: city.name, lat: city.latitude, lon: city.longitude});
+                        localStorage.setItem('sp_v31_weather', JSON.stringify(weatherLocs));
+                        list.innerHTML = '';
+                        document.getElementById('city-search').value = '';
+                        renderCityList();
+                        fetchWeather();
+                    };
+                    list.appendChild(item);
+                });
+            } else { list.innerHTML = '<small>No results found.</small>'; }
         }
 
-        function loadCategoryData() {
-            const cIdx = document.getElementById('col-select').value;
-            const col = masterData[currentProfile].data[cIdx];
-            if(!col) return;
-            updateEditorInputs();
-            const list = document.getElementById('category-links-list');
+        function renderCityList() {
+            const list = document.getElementById('weather-list');
             list.innerHTML = '';
-            col.links.forEach((l, lIdx) => {
-                list.innerHTML += `<div class="link-edit-item">
-                    <input type="text" value="${l.name}" placeholder="Name" oninput="liveUpdateLink(${cIdx}, ${lIdx}, 'name', this.value)">
-                    <input type="text" value="${l.url}" placeholder="URL" oninput="liveUpdateLink(${cIdx}, ${lIdx}, 'url', this.value)">
-                </div>`;
+            weatherLocs.forEach((l, i) => {
+                list.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; background:#1a1a1a; margin-top:5px; border-radius:8px;"><span>${l.name}</span><i class="fa-solid fa-trash" style="color:#ff4444; cursor:pointer;" onclick="weatherLocs.splice(${i},1); localStorage.setItem('sp_v31_weather', JSON.stringify(weatherLocs)); renderCityList(); fetchWeather();"></i></div>`;
             });
         }
 
-        function liveUpdateLink(cIdx, lIdx, prop, val) { masterData[currentProfile].data[cIdx].links[lIdx][prop] = val; render(); }
-        
-        function liveUpdateHeader() { 
-            const cIdx = document.getElementById('col-select').value; 
-            const col = masterData[currentProfile].data[cIdx]; 
-            col.title = document.getElementById('edit-col-title').value; 
-            col.color = document.getElementById('edit-col-color').value; 
-            col.url = document.getElementById('edit-col-link').value;
-            document.querySelector(`#col-select option[value="${cIdx}"]`).textContent = col.title; 
-            render(); 
+        async function fetchWeather() { 
+            if(!weatherVisible || !weatherLocs.length) return; 
+            const loc = weatherLocs[weatherIdx]; 
+            document.getElementById('loc-name').textContent = loc.name; 
+            const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}&daily=weathercode,temperature_2m_max&timezone=auto`); 
+            const data = await res.json(); 
+            const row = document.getElementById('forecast-row'); 
+            row.innerHTML = '';
+            data.daily.time.slice(0, 5).forEach((d, i) => { 
+                row.innerHTML += `<div class="forecast-day"><span class="day-name">${new Date(d).toLocaleDateString('en',{weekday:'short'})}</span><span class="day-temp">${Math.round(data.daily.temperature_2m_max[i])}°</span></div>`; 
+            }); 
         }
 
-        function addNewLink() { const cIdx = document.getElementById('col-select').value; const n = document.getElementById('new-link-name').value; const u = document.getElementById('new-link-url').value; if(n && u) { masterData[currentProfile].data[cIdx].links.push({name:n, url:u}); document.getElementById('new-link-name').value = ''; document.getElementById('new-link-url').value = ''; render(); loadCategoryData(); } }
-        function toggleModal(id) { const m = document.getElementById(id); const overlay = document.getElementById('modal-overlay'); const open = m.style.display === 'block'; closeAllModals(); if(!open) { m.style.display = 'block'; overlay.style.display = 'block'; if(id === 'weather-modal') renderCityList(); if(id === 'settings-panel') loadCategoryData();} }
+        function updateBgSettings() { showFullMesh = document.getElementById('check-full-bg').checked; showColGrad = document.getElementById('check-col-bg').checked; localStorage.setItem('sp_v31_fullmesh', showFullMesh); localStorage.setItem('sp_v31_colgrad', showColGrad); render(); }
+        function updateGradIntensity(val) { gradOpacity = val; localStorage.setItem('sp_v31_grad_op', val); render(); }
+        function toggleModal(id) { document.getElementById(id).style.display = 'block'; document.getElementById('modal-overlay').style.display = 'block'; if(id === 'weather-modal') renderCityList(); }
         function closeAllModals() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); document.getElementById('modal-overlay').style.display = 'none'; }
-        function toggleProfile() { currentProfile = currentProfile === 'home' ? 'work' : 'home'; localStorage.setItem('sp_v31_profile', currentProfile); render(); fetchWeather(); }
-        function updateMasterTheme() { const t = masterData[currentProfile].theme; t.bg = document.getElementById('color-bg').value; t.acc = document.getElementById('color-acc').value; t.lnk = document.getElementById('color-lnk').value; render(); }
-        function addFullCategory() { masterData[currentProfile].data.push({title:"New", color:"#00d4ff", url:"", links:[]}); render(); }
-        function deleteLink(c, l) { masterData[currentProfile].data[c].links.splice(l, 1); render(); loadCategoryData();}
-        function deleteCol(c) { if(confirm("Delete column?")) { masterData[currentProfile].data.splice(c, 1); render(); } }
-        function toggleEditMode() { document.body.classList.toggle('edit-mode'); }
-        function setAsStartup() { localStorage.setItem('sp_v31_default', document.getElementById('startup-select').value); }
+        function cycleWeather() { if(weatherLocs.length) { weatherIdx = (weatherIdx + 1) % weatherLocs.length; fetchWeather(); } }
         function save() { localStorage.setItem('sp_v31_master', JSON.stringify(masterData)); }
-        function exportConfig() { const blob = new Blob([JSON.stringify(masterData)], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'config_backup.json'; a.click(); }
-        function importConfig(input) { const file = input.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = (e) => { try { const imported = JSON.parse(e.target.result); masterData = imported; render(); alert("Configuration imported successfully!"); } catch { alert("Invalid backup file."); } }; reader.readAsText(file); }
-        async function fetchWeather() { if(!weatherVisible || !weatherLocs.length) return; const loc = weatherLocs[weatherIdx]; document.getElementById('loc-name').textContent = loc.name; try { const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}&daily=weathercode,temperature_2m_max&timezone=auto`); const data = await res.json(); const row = document.getElementById('forecast-row'); row.innerHTML = ''; const icons = {0:'fa-sun',1:'fa-cloud-sun',2:'fa-cloud-sun',3:'fa-cloud',45:'fa-smog',61:'fa-cloud-rain',95:'fa-bolt'}; data.daily.time.slice(0, 5).forEach((d, i) => { row.innerHTML += `<div class="forecast-day"><span class="day-name">${new Date(d).toLocaleDateString('en',{weekday:'short'})}</span><i class="fa-solid ${icons[data.daily.weathercode[i]] || 'fa-cloud'}"></i><span class="day-temp">${Math.round(data.daily.temperature_2m_max[i])}°</span></div>`; }); } catch { document.getElementById('loc-name').textContent = "Offline"; } }
-        async function addCityByName() { const city = document.getElementById('city-search').value; if(!city) return; const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=1`); const data = await res.json(); if(data.results) { const r = data.results[0]; weatherLocs.push({name: r.name, lat: r.latitude, lon: r.longitude}); localStorage.setItem('sp_v31_weather', JSON.stringify(weatherLocs)); renderCityList(); fetchWeather(); } }
-        function renderCityList() { const list = document.getElementById('weather-list'); list.innerHTML = ''; weatherLocs.forEach((l, i) => list.innerHTML += `<div style="display:flex; justify-content:space-between; padding:8px; background:#222; margin-bottom:4px; border-radius:4px;"><span>${l.name}</span><i class="fa-solid fa-trash" style="color:#ff4444; cursor:pointer;" onclick="weatherLocs.splice(${i},1); localStorage.setItem('sp_v31_weather', JSON.stringify(weatherLocs)); renderCityList();"></i></div>`); }
-        function cycleWeather() { weatherIdx = (weatherIdx + 1) % weatherLocs.length; fetchWeather(); }
-        function toggleWeatherVis() { weatherVisible = !weatherVisible; localStorage.setItem('sp_v31_w_vis', weatherVisible); render(); fetchWeather(); }
 
         render(); fetchWeather();
     </script>
