@@ -14,16 +14,6 @@
             overflow: hidden; transition: background-color 0.4s ease;
         }
 
-        /* Top Left Icons Styling */
-        .left-icons-container {
-            position: fixed; top: 20px; left: 20px;
-            display: flex; gap: 18px; z-index: 100;
-        }
-        .left-icons-container a {
-            font-size: 1.1rem; color: #fff; opacity: 0.5; transition: 0.3s; text-decoration: none;
-        }
-        .left-icons-container a:hover { opacity: 1; color: var(--accent); transform: scale(1.1); }
-
         #profile-switcher, #gear-icon { 
             font-size: 1.3rem; color: #fff; opacity: 0.5; transition: 0.3s; background: none;
             border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
@@ -46,7 +36,9 @@
         }
         
         .column { 
-            min-width: 160px; width: auto; max-width: 300px;
+            min-width: 160px; 
+            width: auto; 
+            max-width: 300px;
             flex-shrink: 0; display: flex; flex-direction: column; gap: 1vh; 
         }
 
@@ -81,8 +73,16 @@
         .day-name { font-size: 0.6rem; opacity: 0.5; text-transform: uppercase; }
         .day-temp { font-size: 0.8rem; font-weight: bold; }
 
-        #modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); z-index: 1000; }
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #181818; padding: 25px; border-radius: 15px; box-shadow: 0 0 60px rgba(0,0,0,0.9); z-index: 1001; width: 460px; border: 1px solid #333; max-height: 85vh; overflow-y: auto; }
+        #modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.6); z-index: 1000;
+        }
+
+        .modal {
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: #181818; padding: 25px; border-radius: 15px; box-shadow: 0 0 60px rgba(0,0,0,0.9);
+            z-index: 1001; width: 460px; border: 1px solid #333; max-height: 85vh; overflow-y: auto;
+        }
         .settings-row { margin-bottom: 18px; border-bottom: 1px solid #333; padding-bottom: 15px; }
         label { font-weight: bold; font-size: 0.7rem; color: var(--accent); text-transform: uppercase; display: block; margin-bottom: 5px; }
         input, select { width: 100%; padding: 10px; margin-top: 5px; background: #252525; border: 1px solid #444; color: #fff; border-radius: 6px; box-sizing: border-box; font-size: 0.85rem; }
@@ -92,7 +92,6 @@
         .del-btn { display: none; color: #ff4444; cursor: pointer; font-size: 10px; margin-top: 4px; text-align: center; font-weight: bold; }
         .edit-mode .del-btn { display: block; }
         .link-edit-item { background: #222; padding: 10px; border-radius: 6px; margin-top: 8px; border: 1px solid #333; }
-        .icon-config-item { display: flex; align-items: center; gap: 10px; margin-top: 10px; background: #222; padding: 8px; border-radius: 6px; }
     </style>
 </head>
 <body>
@@ -101,8 +100,6 @@
     <div id="gear-icon" onclick="toggleModal('settings-panel')"><i class="fa-solid fa-gear"></i></div>
     <button id="profile-switcher" onclick="toggleProfile()"></button>
     
-    <div class="left-icons-container" id="left-icons"></div>
-
     <div class="main-wrapper">
         <div class="container" id="grid"></div>
     </div>
@@ -130,26 +127,28 @@
         </div>
 
         <div class="settings-row">
-            <label>Shortcut Icons (Top Left)</label>
-            <div class="icon-config-item"><input type="checkbox" id="check-spotify" onchange="updateProfileIcons()" style="width:auto;"><i class="fa-brands fa-spotify" style="width:20px;"></i><input type="text" id="url-spotify" placeholder="Spotify URL" oninput="updateProfileIcons()"></div>
-            <div class="icon-config-item"><input type="checkbox" id="check-server" onchange="updateProfileIcons()" style="width:auto;"><i class="fa-solid fa-server" style="width:20px;"></i><input type="text" id="url-server" placeholder="Server URL" oninput="updateProfileIcons()"></div>
-            <div class="icon-config-item"><input type="checkbox" id="check-music" onchange="updateProfileIcons()" style="width:auto;"><i class="fa-solid fa-music" style="width:20px;"></i><input type="text" id="url-music" placeholder="Music URL" oninput="updateProfileIcons()"></div>
-            <div class="icon-config-item"><input type="checkbox" id="check-yamaha" onchange="updateProfileIcons()" style="width:auto;"><i class="fa-solid fa-audio-description" style="width:20px;"></i><input type="text" id="url-yamaha" placeholder="Yamaha URL" oninput="updateProfileIcons()"></div>
-        </div>
-
-        <div class="settings-row">
             <label>Category & Link Editor</label>
             <select id="col-select" onchange="loadCategoryData()"></select>
             <div style="display: flex; gap: 8px; margin-top:10px;">
                 <div style="flex:2"><label>Name</label><input type="text" id="edit-col-title" oninput="liveUpdateHeader()"></div>
                 <div style="flex:1"><label>Color</label><input type="color" id="edit-col-color" oninput="liveUpdateHeader()" style="height:40px;"></div>
             </div>
-            <div style="margin-top:10px;"><label>Optional Header Link</label><input type="text" id="edit-col-link" oninput="liveUpdateHeader()"></div>
-            <div id="category-links-list"></div>
-            <div class="link-edit-item" style="border-style: dashed; border-color: var(--accent);">
-                <input type="text" id="new-link-name" placeholder="Name"><input type="text" id="new-link-url" placeholder="URL"><button class="btn btn-add" onclick="addNewLink()">+ Add Link</button>
+            <div style="margin-top:10px;">
+                <label>Optional Header Link</label>
+                <input type="text" id="edit-col-link" placeholder="e.g. https://google.com" oninput="liveUpdateHeader()">
             </div>
-            <button class="btn btn-add" style="background:#2ecc71; color:white; margin-top:20px;" onclick="addFullCategory()">+ Add New Category</button>
+
+            <div id="links-editor-container" style="margin-top:20px;">
+                <label>Links in this Category</label>
+                <div id="category-links-list"></div>
+                <div class="link-edit-item" style="border-style: dashed; border-color: var(--accent);">
+                    <small style="color:var(--accent)">Add New Link</small>
+                    <input type="text" id="new-link-name" placeholder="Name">
+                    <input type="text" id="new-link-url" placeholder="URL">
+                    <button class="btn btn-add" onclick="addNewLink()">+ Add Link</button>
+                </div>
+            </div>
+            <button class="btn btn-add" style="background:#2ecc71; color:white; margin-top:20px;" onclick="addFullCategory()">+ Add Entire New Category</button>
         </div>
 
         <div class="settings-row">
@@ -174,50 +173,61 @@
         <h3 style="color:var(--accent); margin:0 0 15px 0;">City Manager</h3>
         <div id="weather-list"></div>
         <div class="settings-row" style="margin-top:15px;">
-            <label>Add City</label><input type="text" id="city-search" placeholder="e.g. Sombor"><button class="btn btn-add" onclick="addCityByName()">Add to List</button>
+            <label>Add City</label>
+            <input type="text" id="city-search" placeholder="e.g. Sombor">
+            <button class="btn btn-add" onclick="addCityByName()">Add to List</button>
         </div>
         <button class="btn btn-close" onclick="closeAllModals()">Close</button>
     </div>
 
     <script>
         const createLinks = (n) => Array.from({length:n}, (_,i)=>({name:`Link ${i+1}`, url:"#"}));
-        const defaultHome = () => [{ title: "Social", color: "#00d4ff", url: "", links: createLinks(3) }];
-        const defaultWork = () => [{ title: "Dev", color: "#3498db", url: "", links: createLinks(3) }];
+        const defaultHome = () => [
+            { title: "Social", color: "#00d4ff", url: "", links: createLinks(3) },
+            { title: "News", color: "#00d4ff", url: "", links: createLinks(3) },
+            { title: "Movies & Series", color: "#00d4ff", url: "", links: createLinks(3) },
+            { title: "Music", color: "#00d4ff", url: "", links: createLinks(3) },
+            { title: "TV", color: "#00d4ff", url: "", links: createLinks(3) }
+        ];
+        const defaultWork = () => [
+            { title: "Dev", color: "#3498db", url: "", links: createLinks(3) },
+            { title: "Tools", color: "#3498db", url: "", links: createLinks(3) },
+            { title: "Docs", color: "#3498db", url: "", links: createLinks(3) }
+        ];
 
         let weatherVisible = JSON.parse(localStorage.getItem('sp_v31_w_vis')) ?? true;
         let weatherLocs = JSON.parse(localStorage.getItem('sp_v31_weather')) || [{name:"Sombor", lat:45.77, lon:19.11}];
         let weatherIdx = 0;
+
         let currentProfile = localStorage.getItem('sp_v31_profile') || 'home';
-        
         let masterData = JSON.parse(localStorage.getItem('sp_v31_master')) || {
-            home: { data: defaultHome(), theme: {bg:"#0a0a0a", acc:"#00d4ff", lnk:"#ffffff"}, icons: {spotify:{enabled:true,url:""},server:{enabled:false,url:""},music:{enabled:false,url:""},yamaha:{enabled:false,url:""}}},
-            work: { data: defaultWork(), theme: {bg:"#0a0e14", acc:"#3498db", lnk:"#ffffff"}, icons: {spotify:{enabled:false,url:""},server:{enabled:true,url:""},music:{enabled:false,url:""},yamaha:{enabled:false,url:""}}}
+            home: { data: defaultHome(), theme: {bg:"#0a0a0a", acc:"#00d4ff", lnk:"#ffffff"}},
+            work: { data: defaultWork(), theme: {bg:"#0a0e14", acc:"#3498db", lnk:"#ffffff"}}
         };
 
         function render() {
             const grid = document.getElementById('grid');
             const colSel = document.getElementById('col-select');
-            const leftIcons = document.getElementById('left-icons');
-            const lastVal = colSel.value;
-            grid.innerHTML = ''; colSel.innerHTML = ''; leftIcons.innerHTML = '';
+            const lastSelectedCategory = colSel.value;
+            grid.innerHTML = ''; colSel.innerHTML = '';
             
-            const profile = masterData[currentProfile];
-            document.documentElement.style.setProperty('--bg', profile.theme.bg);
-            document.documentElement.style.setProperty('--accent', profile.theme.acc);
-            document.documentElement.style.setProperty('--link-text', profile.theme.lnk);
+            const theme = masterData[currentProfile].theme;
+            document.documentElement.style.setProperty('--bg', theme.bg);
+            document.documentElement.style.setProperty('--accent', theme.acc);
+            document.documentElement.style.setProperty('--link-text', theme.lnk);
 
-            // Render Icons
-            const ic = profile.icons;
-            if(ic.spotify?.enabled) leftIcons.innerHTML += `<a href="${ic.spotify.url || '#'}" target="_blank"><i class="fa-brands fa-spotify"></i></a>`;
-            if(ic.server?.enabled) leftIcons.innerHTML += `<a href="${ic.server.url || '#'}" target="_blank"><i class="fa-solid fa-server"></i></a>`;
-            if(ic.music?.enabled) leftIcons.innerHTML += `<a href="${ic.music.url || '#'}" target="_blank"><i class="fa-solid fa-music"></i></a>`;
-            if(ic.yamaha?.enabled) leftIcons.innerHTML += `<a href="${ic.yamaha.url || '#'}" target="_blank"><i class="fa-solid fa-audio-description"></i></a>`;
-
-            profile.data.forEach((col, cIdx) => {
-                const color = col.color || profile.theme.acc;
+            masterData[currentProfile].data.forEach((col, cIdx) => {
+                const color = col.color || theme.acc;
                 const colDiv = document.createElement('div');
                 colDiv.className = 'column';
-                colDiv.innerHTML = `<div class="category-header" style="border-bottom-color:${color}"><a ${col.url ? `href="${col.url}"` : ''} class="category-title" style="color:${color}">${col.title}</a><span class="del-btn" onclick="deleteCol(${cIdx})">DELETE</span></div>`;
+                
+                const titleTag = col.url ? 'a' : 'h2';
+                const titleAttr = col.url ? `href="${col.url}" class="category-title has-link"` : 'class="category-title"';
+
+                colDiv.innerHTML = `<div class="category-header" style="border-bottom-color:${color}">
+                    <${titleTag} ${titleAttr} style="color:${color}">${col.title}</${titleTag}>
+                    <span class="del-btn" onclick="deleteCol(${cIdx})">DELETE COLUMN</span>
+                </div>`;
                 col.links.forEach((l, lIdx) => {
                     const row = document.createElement('div');
                     row.innerHTML = `<a href="${l.url}" class="link-card">${l.name}</a><span class="del-btn" onclick="deleteLink(${cIdx},${lIdx})">✕</span>`;
@@ -227,55 +237,76 @@
                 colSel.innerHTML += `<option value="${cIdx}">${col.title}</option>`;
             });
 
-            if(lastVal && colSel.options[lastVal]) colSel.value = lastVal;
+            if (lastSelectedCategory !== "" && colSel.options[lastSelectedCategory]) {
+                colSel.value = lastSelectedCategory;
+            }
+
             document.getElementById('weather-container').className = weatherVisible ? 'visible' : '';
+            document.getElementById('weather-vis-check').checked = weatherVisible;
             document.getElementById('profile-switcher').innerHTML = currentProfile === 'home' ? '<i class="fa-solid fa-house"></i>' : '<i class="fa-solid fa-user-tie"></i>';
-            updateEditorInputs(); save();
+            document.getElementById('startup-select').value = localStorage.getItem('sp_v31_default') || 'home';
+            
+            updateEditorInputs();
+            save();
         }
 
         function updateEditorInputs() {
-            const profile = masterData[currentProfile];
-            const col = profile.data[document.getElementById('col-select').value];
-            if(col) { document.getElementById('edit-col-title').value = col.title; document.getElementById('edit-col-color').value = col.color; document.getElementById('edit-col-link').value = col.url || ""; }
-            document.getElementById('color-bg').value = profile.theme.bg;
-            document.getElementById('check-spotify').checked = profile.icons.spotify.enabled;
-            document.getElementById('url-spotify').value = profile.icons.spotify.url;
-            document.getElementById('check-server').checked = profile.icons.server.enabled;
-            document.getElementById('url-server').value = profile.icons.server.url;
-            document.getElementById('check-music').checked = profile.icons.music.enabled;
-            document.getElementById('url-music').value = profile.icons.music.url;
-            document.getElementById('check-yamaha').checked = profile.icons.yamaha.enabled;
-            document.getElementById('url-yamaha').value = profile.icons.yamaha.url;
-        }
-
-        function updateProfileIcons() {
-            const ic = masterData[currentProfile].icons;
-            ic.spotify.enabled = document.getElementById('check-spotify').checked; ic.spotify.url = document.getElementById('url-spotify').value;
-            ic.server.enabled = document.getElementById('check-server').checked; ic.server.url = document.getElementById('url-server').value;
-            ic.music.enabled = document.getElementById('check-music').checked; ic.music.url = document.getElementById('url-music').value;
-            ic.yamaha.enabled = document.getElementById('check-yamaha').checked; ic.yamaha.url = document.getElementById('url-yamaha').value;
-            render();
+            const cIdx = document.getElementById('col-select').value;
+            const col = masterData[currentProfile].data[cIdx];
+            if(!col) return;
+            document.getElementById('edit-col-title').value = col.title;
+            document.getElementById('edit-col-color').value = col.color;
+            document.getElementById('edit-col-link').value = col.url || "";
+            document.getElementById('color-bg').value = masterData[currentProfile].theme.bg;
+            document.getElementById('color-acc').value = masterData[currentProfile].theme.acc;
+            document.getElementById('color-lnk').value = masterData[currentProfile].theme.lnk;
         }
 
         function loadCategoryData() {
-            updateEditorInputs(); const cIdx = document.getElementById('col-select').value; const col = masterData[currentProfile].data[cIdx];
-            const list = document.getElementById('category-links-list'); list.innerHTML = '';
-            col.links.forEach((l, lIdx) => { list.innerHTML += `<div class="link-edit-item"><input type="text" value="${l.name}" oninput="liveUpdateLink(${cIdx},${lIdx},'name',this.value)"><input type="text" value="${l.url}" oninput="liveUpdateLink(${cIdx},${lIdx},'url',this.value)"></div>`; });
+            const cIdx = document.getElementById('col-select').value;
+            const col = masterData[currentProfile].data[cIdx];
+            if(!col) return;
+            updateEditorInputs();
+            const list = document.getElementById('category-links-list');
+            list.innerHTML = '';
+            col.links.forEach((l, lIdx) => {
+                list.innerHTML += `<div class="link-edit-item">
+                    <input type="text" value="${l.name}" placeholder="Name" oninput="liveUpdateLink(${cIdx}, ${lIdx}, 'name', this.value)">
+                    <input type="text" value="${l.url}" placeholder="URL" oninput="liveUpdateLink(${cIdx}, ${lIdx}, 'url', this.value)">
+                </div>`;
+            });
         }
 
-        function liveUpdateLink(c,l,p,v) { masterData[currentProfile].data[c].links[l][p] = v; render(); }
-        function liveUpdateHeader() { const c = masterData[currentProfile].data[document.getElementById('col-select').value]; c.title = document.getElementById('edit-col-title').value; c.color = document.getElementById('edit-col-color').value; c.url = document.getElementById('edit-col-link').value; render(); }
-        function addNewLink() { const c = document.getElementById('col-select').value; const n = document.getElementById('new-link-name').value; const u = document.getElementById('new-link-url').value; if(n && u) { masterData[currentProfile].data[c].links.push({name:n, url:u}); render(); loadCategoryData(); } }
-        function toggleModal(id) { closeAllModals(); document.getElementById(id).style.display = 'block'; document.getElementById('modal-overlay').style.display = 'block'; if(id==='settings-panel') loadCategoryData(); }
+        function liveUpdateLink(cIdx, lIdx, prop, val) { masterData[currentProfile].data[cIdx].links[lIdx][prop] = val; render(); }
+        
+        function liveUpdateHeader() { 
+            const cIdx = document.getElementById('col-select').value; 
+            const col = masterData[currentProfile].data[cIdx]; 
+            col.title = document.getElementById('edit-col-title').value; 
+            col.color = document.getElementById('edit-col-color').value; 
+            col.url = document.getElementById('edit-col-link').value;
+            document.querySelector(`#col-select option[value="${cIdx}"]`).textContent = col.title; 
+            render(); 
+        }
+
+        function addNewLink() { const cIdx = document.getElementById('col-select').value; const n = document.getElementById('new-link-name').value; const u = document.getElementById('new-link-url').value; if(n && u) { masterData[currentProfile].data[cIdx].links.push({name:n, url:u}); document.getElementById('new-link-name').value = ''; document.getElementById('new-link-url').value = ''; render(); loadCategoryData(); } }
+        function toggleModal(id) { const m = document.getElementById(id); const overlay = document.getElementById('modal-overlay'); const open = m.style.display === 'block'; closeAllModals(); if(!open) { m.style.display = 'block'; overlay.style.display = 'block'; if(id === 'weather-modal') renderCityList(); if(id === 'settings-panel') loadCategoryData();} }
         function closeAllModals() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); document.getElementById('modal-overlay').style.display = 'none'; }
-        function toggleProfile() { currentProfile = currentProfile === 'home' ? 'work' : 'home'; render(); fetchWeather(); }
+        function toggleProfile() { currentProfile = currentProfile === 'home' ? 'work' : 'home'; localStorage.setItem('sp_v31_profile', currentProfile); render(); fetchWeather(); }
         function updateMasterTheme() { const t = masterData[currentProfile].theme; t.bg = document.getElementById('color-bg').value; t.acc = document.getElementById('color-acc').value; t.lnk = document.getElementById('color-lnk').value; render(); }
-        function deleteCol(c) { if(confirm("Delete?")) { masterData[currentProfile].data.splice(c,1); render(); } }
         function addFullCategory() { masterData[currentProfile].data.push({title:"New", color:"#00d4ff", url:"", links:[]}); render(); }
-        function save() { localStorage.setItem('sp_v31_master', JSON.stringify(masterData)); }
+        function deleteLink(c, l) { masterData[currentProfile].data[c].links.splice(l, 1); render(); loadCategoryData();}
+        function deleteCol(c) { if(confirm("Delete column?")) { masterData[currentProfile].data.splice(c, 1); render(); } }
         function toggleEditMode() { document.body.classList.toggle('edit-mode'); }
-        async function fetchWeather() { if(!weatherVisible) return; const loc = weatherLocs[weatherIdx]; try { const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}&daily=weathercode,temperature_2m_max&timezone=auto`); const data = await res.json(); const row = document.getElementById('forecast-row'); row.innerHTML = ''; data.daily.time.slice(0,5).forEach((d,i)=>{ row.innerHTML += `<div class="forecast-day"><span>${new Date(d).toLocaleDateString('en',{weekday:'short'})}</span><i class="fa-solid fa-cloud"></i><span>${Math.round(data.daily.temperature_2m_max[i])}°</span></div>`; }); document.getElementById('loc-name').textContent = loc.name; } catch(e){} }
-        function toggleWeatherVis() { weatherVisible = !weatherVisible; render(); fetchWeather(); }
+        function setAsStartup() { localStorage.setItem('sp_v31_default', document.getElementById('startup-select').value); }
+        function save() { localStorage.setItem('sp_v31_master', JSON.stringify(masterData)); }
+        function exportConfig() { const blob = new Blob([JSON.stringify(masterData)], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'config_backup.json'; a.click(); }
+        function importConfig(input) { const file = input.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = (e) => { try { const imported = JSON.parse(e.target.result); masterData = imported; render(); alert("Configuration imported successfully!"); } catch { alert("Invalid backup file."); } }; reader.readAsText(file); }
+        async function fetchWeather() { if(!weatherVisible || !weatherLocs.length) return; const loc = weatherLocs[weatherIdx]; document.getElementById('loc-name').textContent = loc.name; try { const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}&daily=weathercode,temperature_2m_max&timezone=auto`); const data = await res.json(); const row = document.getElementById('forecast-row'); row.innerHTML = ''; const icons = {0:'fa-sun',1:'fa-cloud-sun',2:'fa-cloud-sun',3:'fa-cloud',45:'fa-smog',61:'fa-cloud-rain',95:'fa-bolt'}; data.daily.time.slice(0, 5).forEach((d, i) => { row.innerHTML += `<div class="forecast-day"><span class="day-name">${new Date(d).toLocaleDateString('en',{weekday:'short'})}</span><i class="fa-solid ${icons[data.daily.weathercode[i]] || 'fa-cloud'}"></i><span class="day-temp">${Math.round(data.daily.temperature_2m_max[i])}°</span></div>`; }); } catch { document.getElementById('loc-name').textContent = "Offline"; } }
+        async function addCityByName() { const city = document.getElementById('city-search').value; if(!city) return; const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=1`); const data = await res.json(); if(data.results) { const r = data.results[0]; weatherLocs.push({name: r.name, lat: r.latitude, lon: r.longitude}); localStorage.setItem('sp_v31_weather', JSON.stringify(weatherLocs)); renderCityList(); fetchWeather(); } }
+        function renderCityList() { const list = document.getElementById('weather-list'); list.innerHTML = ''; weatherLocs.forEach((l, i) => list.innerHTML += `<div style="display:flex; justify-content:space-between; padding:8px; background:#222; margin-bottom:4px; border-radius:4px;"><span>${l.name}</span><i class="fa-solid fa-trash" style="color:#ff4444; cursor:pointer;" onclick="weatherLocs.splice(${i},1); localStorage.setItem('sp_v31_weather', JSON.stringify(weatherLocs)); renderCityList();"></i></div>`); }
+        function cycleWeather() { weatherIdx = (weatherIdx + 1) % weatherLocs.length; fetchWeather(); }
+        function toggleWeatherVis() { weatherVisible = !weatherVisible; localStorage.setItem('sp_v31_w_vis', weatherVisible); render(); fetchWeather(); }
 
         render(); fetchWeather();
     </script>
