@@ -42,6 +42,7 @@
         }
         #profile-switcher { position: fixed; top: 3vh; right: 2vw; }
         #gear-icon { position: fixed; top: 3vh; right: 6vw; }
+        #profile-switcher:hover, #gear-icon:hover { opacity: 1; transform: rotate(15deg); }
 
         .main-wrapper { display: flex; flex-direction: column; justify-content: center; align-items: center; flex-grow: 1; width: 100%; z-index: 10; }
         .container { display: flex; flex-direction: row; justify-content: center; align-items: flex-start; gap: 3vw; width: 100%; padding: 0 5vw; box-sizing: border-box; }
@@ -94,15 +95,14 @@
         .btn-add { background: #fff; color: #000; }
         .btn-close { background: #333; color: #fff; }
         
-        /* New Weather Search Results Style */
-        .search-result-item {
-            padding: 10px; background: #222; margin-top: 5px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; border: 1px solid transparent;
-        }
+        .search-result-item { padding: 10px; background: #222; margin-top: 5px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; border: 1px solid transparent; }
         .search-result-item:hover { border-color: #fff; background: #333; }
         .search-result-item small { display: block; opacity: 0.5; font-size: 0.65rem; }
 
         .del-btn { display: none; color: #ff4444; cursor: pointer; font-size: 10px; margin-top: 8px; text-align: center; font-weight: bold; }
         .edit-mode .del-btn { display: block; }
+
+        .link-edit-item { background: #1a1a1a; padding: 12px; border-radius: 8px; margin-top: 10px; border: 1px solid #222; }
     </style>
 </head>
 <body>
@@ -133,14 +133,53 @@
 
     <div id="settings-panel" class="modal">
         <h2 style="color:#fff; margin:0 0 20px 0; font-weight:800; text-transform:uppercase; letter-spacing:2px;">Engine</h2>
+        
         <div class="settings-row">
+            <label>Interface</label>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;" onclick="toggleWeatherVis()">
+                <input type="checkbox" id="weather-vis-check" style="width:auto;"> <small>Show Weather Bar</small>
+            </div>
             <label>Background Options</label>
             <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px;">
                 <div style="display: flex; align-items: center; gap: 10px;"><input type="checkbox" id="check-full-bg" style="width:auto;" onchange="updateBgSettings()"> <small>Full Screen Mesh</small></div>
                 <div style="display: flex; align-items: center; gap: 10px;"><input type="checkbox" id="check-col-bg" style="width:auto;" onchange="updateBgSettings()"> <small>Category Gradient</small></div>
             </div>
-            <label>Opacity</label><input type="range" id="grad-opacity-range" min="0" max="1" step="0.1" oninput="updateGradIntensity(this.value)">
-            <label style="margin-top:15px;">Solid Background</label><input type="color" id="color-bg" oninput="updateMasterTheme()">
+            <label>Intensity</label>
+            <input type="range" id="grad-opacity-range" min="0" max="1" step="0.1" oninput="updateGradIntensity(this.value)">
+            <label style="margin-top:15px;">Solid Background</label>
+            <input type="color" id="color-bg" oninput="updateMasterTheme()">
+        </div>
+
+        <div class="settings-row">
+            <label>Quick Links Icons</label>
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;"><input type="checkbox" id="ql-vis-spotify" style="width:auto;" onchange="updateQLSettings()"><i class="fa-brands fa-spotify"></i><input type="text" id="ql-url-spotify" oninput="updateQLSettings()"></div>
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;"><input type="checkbox" id="ql-vis-server" style="width:auto;" onchange="updateQLSettings()"><i class="fa-solid fa-server"></i><input type="text" id="ql-url-server" oninput="updateQLSettings()"></div>
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;"><input type="checkbox" id="ql-vis-music" style="width:auto;" onchange="updateQLSettings()"><i class="fa-solid fa-music"></i><input type="text" id="ql-url-music" oninput="updateQLSettings()"></div>
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;"><input type="checkbox" id="ql-vis-avr" style="width:auto;" onchange="updateQLSettings()"><i class="fa-solid fa-volume-high"></i><input type="text" id="ql-url-avr" oninput="updateQLSettings()"></div>
+        </div>
+
+        <div class="settings-row">
+            <label>Categories & Links</label>
+            <select id="col-select" onchange="loadCategoryData()"></select>
+            <div style="display: flex; gap: 8px; margin-top:10px;">
+                <div style="flex:2"><label>Title</label><input type="text" id="edit-col-title" oninput="liveUpdateHeader()"></div>
+                <div style="flex:1"><label>Color</label><input type="color" id="edit-col-color" oninput="liveUpdateHeader()" style="height:44px; padding:2px;"></div>
+            </div>
+            <div id="category-links-list"></div>
+            <div class="link-edit-item" style="border: 1px dashed #444;">
+                <label>Add New Link</label>
+                <input type="text" id="new-link-name" placeholder="Name">
+                <input type="text" id="new-link-url" placeholder="URL">
+                <button class="btn btn-add" onclick="addNewLink()">+ Add Link</button>
+            </div>
+            <button class="btn" style="background:#2ecc71; color:white; margin-top:20px;" onclick="addFullCategory()">+ Add Category</button>
+        </div>
+
+        <div style="display: flex; gap: 8px;">
+            <button class="btn" style="flex:1; background:#3498db; color:white;" onclick="exportConfig()">Backup</button>
+            <button class="btn" style="flex:1; background:#9b59b6; color:white;" onclick="document.getElementById('import-input').click()">Import</button>
+            <input type="file" id="import-input" style="display:none" accept=".json" onchange="importConfig(this)">
+            <button class="btn" style="flex:1; background:#ff4444; color:white;" onclick="toggleEditMode()">Delete Mode</button>
         </div>
         <button class="btn btn-close" onclick="closeAllModals()">Close</button>
     </div>
@@ -152,8 +191,8 @@
         <div class="settings-row" style="margin-top:15px;">
             <label>Search New City</label>
             <div style="display:flex; gap:8px;">
-                <input type="text" id="city-search" placeholder="e.g. Odivelas">
-                <button class="btn btn-add" style="margin:0; width:80px;" onclick="searchCities()">Go</button>
+                <input type="text" id="city-search" placeholder="e.g. Lisbon">
+                <button class="btn btn-add" style="margin:0; width:80px;" onclick="searchCities()">Search</button>
             </div>
             <div id="search-results-list" style="margin-top:10px;"></div>
         </div>
@@ -176,7 +215,10 @@
 
         function render() {
             const grid = document.getElementById('grid');
-            grid.innerHTML = '';
+            const colSel = document.getElementById('col-select');
+            const lastVal = colSel.value;
+            grid.innerHTML = ''; colSel.innerHTML = '';
+
             const profile = masterData[currentProfile];
             document.documentElement.style.setProperty('--grad-opacity', gradOpacity);
             document.body.style.backgroundColor = profile.theme.bg || "#050505";
@@ -193,11 +235,15 @@
                     colBg.style.background = `linear-gradient(to bottom, ${color} 0%, transparent 100%)`;
                     colDiv.appendChild(colBg);
                 }
-                colDiv.innerHTML += `<div class="category-header" style="border-bottom-color:${color}44"><h2 class="category-title" style="color:${color}">${col.title}</h2></div>`;
-                col.links.forEach(l => {
-                    colDiv.innerHTML += `<a href="${l.url}" class="link-card" style="color:${l.color || '#fff'}">${l.name}</a>`;
+                colDiv.innerHTML += `<div class="category-header" style="border-bottom-color:${color}44">
+                    <h2 class="category-title" style="color:${color}">${col.title}</h2>
+                    <span class="del-btn" onclick="deleteCol(${cIdx})">DELETE COLUMN</span>
+                </div>`;
+                col.links.forEach((l, lIdx) => {
+                    colDiv.innerHTML += `<div><a href="${l.url}" class="link-card" style="color:${l.color || '#fff'}">${l.name}</a><span class="del-btn" onclick="deleteLink(${cIdx},${lIdx})">✕</span></div>`;
                 });
                 grid.appendChild(colDiv);
+                colSel.innerHTML += `<option value="${cIdx}">${col.title}</option>`;
             });
 
             const fullBg = document.getElementById('full-bg');
@@ -205,7 +251,24 @@
                 fullBg.style.background = colors.length > 1 ? `linear-gradient(135deg, ${colors.join(', ')})` : `radial-gradient(circle at top, ${colors[0]} 0%, transparent 70%)`;
             } else { fullBg.style.background = 'transparent'; }
 
+            ['spotify', 'server', 'music', 'avr'].forEach(key => {
+                const config = profile.ql[key] || {vis:true, url:'#'};
+                const el = document.getElementById(`ql-${key}`);
+                if(el){
+                    el.href = config.url; el.className = config.vis ? 'ql-icon visible' : 'ql-icon';
+                    document.getElementById(`ql-vis-${key}`).checked = config.vis;
+                    document.getElementById(`ql-url-${key}`).value = config.url;
+                }
+            });
+
+            if (lastVal !== "" && colSel.options[lastVal]) colSel.value = lastVal;
             document.getElementById('weather-container').className = weatherVisible ? 'visible' : '';
+            document.getElementById('weather-vis-check').checked = weatherVisible;
+            document.getElementById('check-full-bg').checked = showFullMesh;
+            document.getElementById('check-col-bg').checked = showColGrad;
+            document.getElementById('grad-opacity-range').value = gradOpacity;
+            document.getElementById('color-bg').value = profile.theme.bg || "#050505";
+            document.getElementById('profile-switcher').innerHTML = currentProfile === 'home' ? '<i class="fa-solid fa-house"></i>' : '<i class="fa-solid fa-user-tie"></i>';
             save();
         }
 
@@ -224,19 +287,29 @@
                     item.onclick = () => {
                         weatherLocs.push({name: city.name, lat: city.latitude, lon: city.longitude});
                         localStorage.setItem('sp_v31_weather', JSON.stringify(weatherLocs));
-                        list.innerHTML = '';
-                        document.getElementById('city-search').value = '';
-                        renderCityList();
-                        fetchWeather();
+                        list.innerHTML = ''; document.getElementById('city-search').value = '';
+                        renderCityList(); fetchWeather();
                     };
                     list.appendChild(item);
                 });
-            } else { list.innerHTML = '<small>No results found.</small>'; }
+            }
+        }
+
+        function loadCategoryData() {
+            const cIdx = document.getElementById('col-select').value;
+            const col = masterData[currentProfile].data[cIdx];
+            if(!col) return;
+            document.getElementById('edit-col-title').value = col.title;
+            document.getElementById('edit-col-color').value = col.color;
+            const list = document.getElementById('category-links-list');
+            list.innerHTML = '';
+            col.links.forEach((l, lIdx) => {
+                list.innerHTML += `<div class="link-edit-item"><input type="text" value="${l.name}" oninput="liveUpdateLink(${cIdx}, ${lIdx}, 'name', this.value)"><div style="display: flex; gap: 8px; margin-top: 5px;"><input type="text" value="${l.url}" oninput="liveUpdateLink(${cIdx}, ${lIdx}, 'url', this.value)" style="flex:3"><input type="color" value="${l.color || '#ffffff'}" oninput="liveUpdateLink(${cIdx}, ${lIdx}, 'color', this.value)" style="flex:1; height:40px; padding:2px;"></div></div>`;
+            });
         }
 
         function renderCityList() {
-            const list = document.getElementById('weather-list');
-            list.innerHTML = '';
+            const list = document.getElementById('weather-list'); list.innerHTML = '';
             weatherLocs.forEach((l, i) => {
                 list.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; background:#1a1a1a; margin-top:5px; border-radius:8px;"><span>${l.name}</span><i class="fa-solid fa-trash" style="color:#ff4444; cursor:pointer;" onclick="weatherLocs.splice(${i},1); localStorage.setItem('sp_v31_weather', JSON.stringify(weatherLocs)); renderCityList(); fetchWeather();"></i></div>`;
             });
@@ -244,22 +317,33 @@
 
         async function fetchWeather() { 
             if(!weatherVisible || !weatherLocs.length) return; 
-            const loc = weatherLocs[weatherIdx]; 
-            document.getElementById('loc-name').textContent = loc.name; 
+            const loc = weatherLocs[weatherIdx]; document.getElementById('loc-name').textContent = loc.name; 
             const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}&daily=weathercode,temperature_2m_max&timezone=auto`); 
             const data = await res.json(); 
-            const row = document.getElementById('forecast-row'); 
-            row.innerHTML = '';
+            const row = document.getElementById('forecast-row'); row.innerHTML = '';
             data.daily.time.slice(0, 5).forEach((d, i) => { 
                 row.innerHTML += `<div class="forecast-day"><span class="day-name">${new Date(d).toLocaleDateString('en',{weekday:'short'})}</span><span class="day-temp">${Math.round(data.daily.temperature_2m_max[i])}°</span></div>`; 
             }); 
         }
 
+        function liveUpdateLink(cIdx, lIdx, prop, val) { masterData[currentProfile].data[cIdx].links[lIdx][prop] = val; render(); }
+        function addNewLink() { const cIdx = document.getElementById('col-select').value; const n = document.getElementById('new-link-name').value; const u = document.getElementById('new-link-url').value; if(n && u) { masterData[currentProfile].data[cIdx].links.push({name:n, url:u, color:"#ffffff"}); render(); loadCategoryData(); } }
+        function deleteLink(c, l) { masterData[currentProfile].data[c].links.splice(l, 1); render(); loadCategoryData();}
+        function deleteCol(c) { if(confirm("Delete column?")) { masterData[currentProfile].data.splice(c, 1); render(); } }
+        function toggleEditMode() { document.body.classList.toggle('edit-mode'); }
+        function exportConfig() { const blob = new Blob([JSON.stringify(masterData)], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'config.json'; a.click(); }
+        function importConfig(input) { const file = input.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = (e) => { masterData = JSON.parse(e.target.result); render(); }; reader.readAsText(file); }
         function updateBgSettings() { showFullMesh = document.getElementById('check-full-bg').checked; showColGrad = document.getElementById('check-col-bg').checked; localStorage.setItem('sp_v31_fullmesh', showFullMesh); localStorage.setItem('sp_v31_colgrad', showColGrad); render(); }
         function updateGradIntensity(val) { gradOpacity = val; localStorage.setItem('sp_v31_grad_op', val); render(); }
-        function toggleModal(id) { document.getElementById(id).style.display = 'block'; document.getElementById('modal-overlay').style.display = 'block'; if(id === 'weather-modal') renderCityList(); }
-        function closeAllModals() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); document.getElementById('modal-overlay').style.display = 'none'; }
+        function updateMasterTheme() { masterData[currentProfile].theme.bg = document.getElementById('color-bg').value; render(); }
+        function updateQLSettings() { const p = masterData[currentProfile]; ['spotify', 'server', 'music', 'avr'].forEach(k => { if(!p.ql[k]) p.ql[k]={}; p.ql[k].vis = document.getElementById(`ql-vis-${k}`).checked; p.ql[k].url = document.getElementById(`ql-url-${k}`).value; }); render(); }
+        function liveUpdateHeader() { const cIdx = document.getElementById('col-select').value; const col = masterData[currentProfile].data[cIdx]; col.title = document.getElementById('edit-col-title').value; col.color = document.getElementById('edit-col-color').value; render(); }
+        function addFullCategory() { masterData[currentProfile].data.push({title:"New", color:"#00d4ff", links:[]}); render(); }
+        function toggleWeatherVis() { weatherVisible = !weatherVisible; localStorage.setItem('sp_v31_w_vis', weatherVisible); render(); fetchWeather(); }
         function cycleWeather() { if(weatherLocs.length) { weatherIdx = (weatherIdx + 1) % weatherLocs.length; fetchWeather(); } }
+        function toggleProfile() { currentProfile = currentProfile === 'home' ? 'work' : 'home'; localStorage.setItem('sp_v31_profile', currentProfile); render(); fetchWeather(); }
+        function toggleModal(id) { document.getElementById(id).style.display = 'block'; document.getElementById('modal-overlay').style.display = 'block'; if(id === 'settings-panel') loadCategoryData(); if(id === 'weather-modal') renderCityList(); }
+        function closeAllModals() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); document.getElementById('modal-overlay').style.display = 'none'; }
         function save() { localStorage.setItem('sp_v31_master', JSON.stringify(masterData)); }
 
         render(); fetchWeather();
