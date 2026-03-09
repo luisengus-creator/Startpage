@@ -38,7 +38,8 @@
             flex: 0 0 auto; width: max-content; min-width: 120px; text-align: center;
         }
 
-        .cat-title { margin: 0 0 0.8rem 0; font-size: 1.1rem; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.1); white-space: nowrap; }
+        .cat-title { margin: 0 0 0.8rem 0; font-size: 1.1rem; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.1); white-space: nowrap; cursor: pointer; text-decoration: none; display: block; }
+        .cat-title:hover { opacity: 0.8; }
         .link-row { display: flex; justify-content: center; align-items: center; padding: 0.4rem 0; border-bottom: 1px solid rgba(255,255,255,0.03); position: relative; white-space: nowrap; }
         .link-row a { text-decoration: none; transition: 0.2s; font-size: 0.95rem; }
 
@@ -50,7 +51,6 @@
         .weather-day-label { font-size: 0.55rem; opacity: 0.5; text-transform: uppercase; }
         .weather-temp { font-weight: bold; font-size: 0.85rem; }
 
-        /* Responsive Settings Panel */
         .modal { 
             display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
             background: #0a0a0a; padding: 2rem; border-radius: 20px; z-index: 2000; 
@@ -117,6 +117,8 @@
             <input type="text" id="cat-title" oninput="updateCatRealtime()" placeholder="Title">
             <input type="color" id="cat-color" oninput="updateCatRealtime()" style="width:60px; height:42px;">
         </div>
+        <input type="text" id="cat-url" oninput="updateCatRealtime()" placeholder="Category Click URL (Hidden Link)">
+        
         <div id="link-list-editor" style="margin-top:10px; border: 1px solid #1a1a1a; padding: 10px; border-radius: 10px; max-height: 200px; overflow-y: auto; background: #050505;"></div>
         <button onclick="addLinkInline()">+ Add Link</button>
         <button onclick="addCat()">+ New Category</button>
@@ -153,7 +155,7 @@
     </div>
 
 <script>
-    const KEY = "DASH_STABLE_V27_COMPLETE";
+    const KEY = "DASH_STABLE_V28_CATLINK";
     const ICON_LIST = ["fa-spotify", "fa-server", "fa-music", "fa-sliders", "fa-github", "fa-youtube", "fa-twitch", "fa-cloud", "fa-terminal", "fa-code", "fa-heart", "fa-star"];
     const W_ICONS = { 0: "fa-sun", 1: "fa-cloud-sun", 2: "fa-cloud-sun", 3: "fa-cloud", 45: "fa-smog", 51: "fa-cloud-rain", 61: "fa-cloud-showers-heavy", 95: "fa-bolt" };
 
@@ -162,7 +164,7 @@
         for(let i=1; i<=5; i++) {
             let links = [];
             for(let j=1; j<=5; j++) links.push({name:`Link ${j}`, url:"#"});
-            homeCats.push({title:`Category ${i}`, color:"#00d4ff", links: links});
+            homeCats.push({title:`Category ${i}`, color:"#00d4ff", url: "#", links: links});
         }
         const baseQl = [ {name:"fa-brands fa-spotify", url:"#", vis:false}, {name:"fa-solid fa-server", url:"#", vis:false}, {name:"fa-solid fa-music", url:"#", vis:false}, {name:"fa-solid fa-sliders", url:"#", vis:false} ];
         return {
@@ -190,7 +192,7 @@
         document.getElementById('grid').innerHTML = p.categories.map((c, ci) => `
             <div class="column">
                 <div style="position:absolute; inset:0; background:linear-gradient(${c.color}33, transparent); opacity:${state.opacity}; z-index:-1; border-radius:14px;"></div>
-                <h4 class="cat-title" style="color:${c.color};">${c.title}<span class="del-btn" onclick="delCat(${ci})">✕</span></h4>
+                <a href="${c.url || '#'}" target="${state.target}" class="cat-title" style="color:${c.color};">${c.title}<span class="del-btn" onclick="event.preventDefault(); delCat(${ci})">✕</span></a>
                 ${c.links.map((l, li) => `<div class="link-row"><a href="${l.url}" target="${state.target}" style="color:${state.linkColor}">${l.name}</a><span class="del-btn" onclick="delLink(${ci},${li})">✕</span></div>`).join('')}
             </div>`).join('');
 
@@ -207,7 +209,6 @@
         if(refreshModal) syncCategoryEditor();
     }
 
-    // Logic Functions
     function openModal(id) { document.getElementById(id).style.display = 'block'; document.getElementById('overlay').style.display = 'block'; if(id === 'settings-modal') renderSettings(); }
     function closeModals() { document.querySelectorAll('.modal').forEach(m => m.style.display='none'); document.getElementById('overlay').style.display='none'; }
 
@@ -241,11 +242,20 @@
             const c = p.categories[idx];
             document.getElementById('cat-title').value = c.title;
             document.getElementById('cat-color').value = c.color;
+            document.getElementById('cat-url').value = c.url || "";
             document.getElementById('link-list-editor').innerHTML = c.links.map((l, li) => `<div style="display:flex; gap:5px; margin-bottom:8px;"><input type="text" value="${l.name}" oninput="updateLinkRealtime(${idx}, ${li}, 'name', this.value)"><input type="text" value="${l.url}" oninput="updateLinkRealtime(${idx}, ${li}, 'url', this.value)"><button style="width:35px; margin:0; background:#300; color:red;" onclick="delLink(${idx}, ${li}); syncCategoryEditor();">✕</button></div>`).join('');
         }
     }
 
-    function updateCatRealtime() { const idx = document.getElementById('cat-sel').value; const c = state[state.profile].categories[idx]; c.title = document.getElementById('cat-title').value; c.color = document.getElementById('cat-color').value; saveAndRender(); }
+    function updateCatRealtime() { 
+        const idx = document.getElementById('cat-sel').value; 
+        const c = state[state.profile].categories[idx]; 
+        c.title = document.getElementById('cat-title').value; 
+        c.color = document.getElementById('cat-color').value; 
+        c.url = document.getElementById('cat-url').value; 
+        saveAndRender(); 
+    }
+    
     function updateLinkRealtime(ci, li, k, v) { state[state.profile].categories[ci].links[li][k] = v; saveAndRender(); }
     function updateQlRealtime(i, k, v) { state[state.profile].ql[i][k] = v; saveAndRender(); }
     function updateVisRealtime() {
@@ -282,7 +292,7 @@
     function toggleProfile() { state.profile = (state.profile === 'home' ? 'work' : 'home'); saveAndRender(); updateWeather(); }
     function renderWeatherManager() { document.getElementById('current-cities').innerHTML = state.cities.map((c, i) => `<div class="city-tag"><span>${c.name}</span><span onclick="removeCity(${i})">✕</span></div>`).join(''); }
     function addLinkInline() { const idx = document.getElementById('cat-sel').value; state[state.profile].categories[idx].links.push({name: "New Link", url: "#"}); saveAndRender(true); }
-    function addCat() { state[state.profile].categories.push({title:"New", color:"#00d4ff", links:[]}); saveAndRender(); openModal('settings-modal'); }
+    function addCat() { state[state.profile].categories.push({title:"New", color:"#00d4ff", url: "#", links:[]}); saveAndRender(); openModal('settings-modal'); }
     function delCat(i) { if(confirm("Delete?")) { state[state.profile].categories.splice(i,1); saveAndRender(); openModal('settings-modal'); } }
     function delLink(ci, li) { state[state.profile].categories[ci].links.splice(li,1); saveAndRender(); }
     function exportData() { const b = new Blob([JSON.stringify(state)], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download='startpage_backup.json'; a.click(); }
