@@ -48,7 +48,6 @@
         .del-btn { color: #ff4444; cursor: pointer; font-size: 0.7rem; position: absolute; right: 0; display: none; }
         .edit-mode .del-btn { display: inline; }
         
-        /* Form Layouts */
         .ql-row { display: grid; grid-template-columns: 30px 140px 1fr; gap: 10px; align-items: center; margin-bottom: 8px; }
         .ql-header { display: grid; grid-template-columns: 30px 140px 1fr; gap: 10px; font-size: 0.6rem; opacity: 0.4; margin-bottom: 5px; }
         .color-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 5px 0; font-size: 0.8rem; }
@@ -140,17 +139,34 @@
     </div>
 
 <script>
-    const KEY = "DASH_STABLE_V21_PRO";
+    const KEY = "DASH_STABLE_V22_DEFAULTS";
     const ICON_LIST = ["fa-spotify", "fa-server", "fa-music", "fa-sliders", "fa-github", "fa-youtube", "fa-twitch", "fa-cloud", "fa-terminal", "fa-code", "fa-heart", "fa-star"];
     const W_ICONS = { 0: "fa-sun", 1: "fa-cloud-sun", 2: "fa-cloud-sun", 3: "fa-cloud", 45: "fa-smog", 51: "fa-cloud-rain", 61: "fa-cloud-showers-heavy", 95: "fa-bolt" };
 
     function getDefaults() {
+        const homeCats = [];
+        for(let i=1; i<=5; i++) {
+            let links = [];
+            for(let j=1; j<=5; j++) links.push({name:`Link ${j}`, url:"#"});
+            homeCats.push({title:`${i}`, color:"#00d4ff", links: links});
+        }
+        const workCats = [
+            {title:"1", color:"#4682B4", links:[{name:"Link 1",url:"#"},{name:"Link 2",url:"#"},{name:"Link 3",url:"#"},{name:"Link 4",url:"#"}]},
+            {title:"2", color:"#4682B4", links:[{name:"Link 1",url:"#"},{name:"Link 2",url:"#"},{name:"Link 3",url:"#"},{name:"Link 4",url:"#"}]}
+        ];
+        const baseQl = [ 
+            {name:"fa-brands fa-spotify", url:"#", vis:false}, 
+            {name:"fa-solid fa-server", url:"#", vis:false}, 
+            {name:"fa-solid fa-music", url:"#", vis:false}, 
+            {name:"fa-solid fa-sliders", url:"#", vis:false} 
+        ];
+
         return {
             profile: 'home', opacity: 0.3, mesh: true, showWeather: true, target: '_blank',
             bgColor: "#1C1B22", iconColor: "#ffffff", weatherColor: "#ffffff", linkColor: "#cccccc",
             cities: [{name: "Lisboa", lat: 38.71, lon: -9.13}],
-            home: { ql: [ {name:"fa-brands fa-spotify", url:"#", vis:false}, {name:"fa-solid fa-server", url:"#", vis:false}, {name:"fa-solid fa-music", url:"#", vis:false}, {name:"fa-solid fa-sliders", url:"#", vis:false} ], categories: [] },
-            work: { ql: [ {name:"fa-brands fa-spotify", url:"#", vis:false}, {name:"fa-solid fa-server", url:"#", vis:false}, {name:"fa-solid fa-music", url:"#", vis:false}, {name:"fa-solid fa-sliders", url:"#", vis:false} ], categories: [] }
+            home: { ql: JSON.parse(JSON.stringify(baseQl)), categories: homeCats },
+            work: { ql: JSON.parse(JSON.stringify(baseQl)), categories: workCats }
         };
     }
 
