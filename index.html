@@ -23,7 +23,6 @@
             display: flex; flex-direction: column; 
         }
         
-        /* Icons increased to ~80% of original (1.1rem) with balanced click areas */
         .top-bar { display: flex; justify-content: space-between; align-items: center; z-index: 10; flex-shrink: 0; margin-bottom: 3vh; }
         .nav-group { display: flex; gap: 1.2rem; align-items: center; }
         .nav-link { cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; width: 1.8rem; height: 1.8rem; }
@@ -67,11 +66,12 @@
         }
         .link-row a { text-decoration: none; transition: 0.2s; font-size: 1rem; }
 
-        #weather-area { padding: 3vh 0; display: none; flex-direction: column; align-items: center; gap: 1rem; z-index: 10; flex-shrink: 0; }
+        #weather-area { padding: 2vh 0; display: none; flex-direction: column; align-items: center; gap: 0.8rem; z-index: 10; flex-shrink: 0; }
         #city-name { font-size: 0.8rem; opacity: 0.5; letter-spacing: 4px; cursor: pointer; text-transform: uppercase; }
-        #weather-grid { display: flex; gap: 1rem; align-items: center; cursor: pointer; }
-        .weather-card { background: rgba(255,255,255,0.03); padding: 0.8rem 1rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); text-align: center; min-width: 6.5rem; }
-        .weather-card i { font-size: 1.4rem; margin: 0.4rem 0; }
+        #weather-grid { display: flex; gap: 0.8rem; align-items: center; cursor: pointer; flex-wrap: nowrap; }
+        /* Slightly thinner cards to fit 7 across more easily */
+        .weather-card { background: rgba(255,255,255,0.03); padding: 0.7rem 0.9rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); text-align: center; min-width: 6rem; }
+        .weather-card i { font-size: 1.3rem; margin: 0.4rem 0; }
         .weather-day-label { font-size: 0.65rem; opacity: 0.5; text-transform: uppercase; }
         .weather-temp { font-weight: bold; font-size: 1rem; }
 
@@ -179,7 +179,7 @@
     </div>
 
 <script>
-    const KEY = "DASH_STABLE_V31_FIXED_SIZE";
+    const KEY = "DASH_STABLE_V32_WEEK_FORECAST";
     const ICON_LIST = ["fa-spotify", "fa-server", "fa-music", "fa-sliders", "fa-github", "fa-youtube", "fa-twitch", "fa-cloud", "fa-terminal", "fa-code", "fa-heart", "fa-star"];
     const W_ICONS = { 0: "fa-sun", 1: "fa-cloud-sun", 2: "fa-cloud-sun", 3: "fa-cloud", 45: "fa-smog", 51: "fa-cloud-rain", 61: "fa-cloud-showers-heavy", 95: "fa-bolt" };
 
@@ -298,9 +298,10 @@
         const city = state.cities[cityIdx]; if(!city) return;
         document.getElementById('city-name').textContent = city.name;
         try {
+            // Sliced to 7 days instead of 5
             const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&daily=weathercode,temperature_2m_max&timezone=auto`);
             const d = await r.json();
-            document.getElementById('weather-grid').innerHTML = d.daily.time.slice(0,5).map((t, i) => `
+            document.getElementById('weather-grid').innerHTML = d.daily.time.slice(0,7).map((t, i) => `
                 <div class="weather-card">
                     <div class="weather-day-label">${new Date(t).toLocaleDateString('en',{weekday:'short'})}</div>
                     <i class="fa-solid ${W_ICONS[d.daily.weathercode[i]] || 'fa-cloud'}" style="color:${state.weatherColor}"></i>
