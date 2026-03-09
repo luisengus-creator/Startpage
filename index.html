@@ -5,108 +5,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Startpage</title>
     
-    <link rel="icon" type="image/x-icon" href="./favicon.ico?v=2">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
     <style>
-        :root { 
-            --bg: #050505; 
-            --card-bg: rgba(255, 255, 255, 0.05); 
-            --blur: 12px;
-            --grad-opacity: 0.3;
-        }
+        :root { --bg: #050505; --card-bg: rgba(255, 255, 255, 0.05); --blur: 12px; --grad-opacity: 0.3; }
+        body { background-color: var(--bg); color: #fff; font-family: 'Inter', sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; width: 100vw; overflow: hidden; position: relative; }
+        
+        #full-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; pointer-events: none; transition: 0.5s ease; }
 
-        body {
-            background-color: var(--bg); color: #fff; font-family: 'Inter', sans-serif;
-            margin: 0; display: flex; flex-direction: column; height: 100vh; width: 100vw;
-            overflow: hidden; transition: background 0.5s ease;
-            position: relative;
-        }
-
-        #full-bg {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -2; pointer-events: none; transition: background 1s ease;
-            opacity: var(--grad-opacity);
-        }
-
-        #quick-links { position: fixed; top: 3vh; left: 2vw; display: flex; gap: 1.5vw; z-index: 100; }
-        .ql-icon {
-            font-size: clamp(1rem, 1.5vw, 1.4rem); color: #fff; opacity: 0.4; transition: 0.4s;
-            text-decoration: none; display: none; width: 40px; height: 40px; align-items: center; justify-content: center;
-        }
-        .ql-icon.visible { display: flex; }
-        .ql-icon:hover { opacity: 1; transform: scale(1.2); text-shadow: 0 0 15px #fff; }
-
-        #profile-switcher, #gear-icon { 
-            font-size: 1.3rem; color: #fff; opacity: 0.4; transition: 0.3s; background: none;
-            border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
-            width: 40px; height: 40px; z-index: 100;
-        }
-        #profile-switcher { position: fixed; top: 3vh; right: 2vw; }
-        #gear-icon { position: fixed; top: 3vh; right: 6vw; }
-        #profile-switcher:hover, #gear-icon:hover { opacity: 1; transform: rotate(15deg); }
+        .top-nav { position: fixed; top: 3vh; left: 2vw; right: 2vw; display: flex; justify-content: space-between; align-items: center; z-index: 1000; }
+        .nav-left, .nav-right { display: flex; gap: 0.8vw; align-items: center; }
+        .text-btn, .icon-btn { font-size: 0.65rem; font-weight: 800; color: #fff; opacity: 0.5; text-decoration: none; height: 34px; min-width: 38px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; transition: 0.2s; background: rgba(0,0,0,0.4); cursor: pointer; letter-spacing: 1px; padding: 0 10px; text-transform: uppercase; }
+        .icon-btn { font-size: 1rem; border: none; background: none; opacity: 0.4; }
+        .text-btn:hover, .icon-btn:hover { opacity: 1; background: rgba(255,255,255,0.1); border-color: #fff; }
+        .ql-hidden { display: none; }
 
         .main-wrapper { display: flex; flex-direction: column; justify-content: center; align-items: center; flex-grow: 1; width: 100%; z-index: 10; }
-        .container { display: flex; flex-direction: row; justify-content: center; align-items: flex-start; gap: 3vw; width: 100%; padding: 0 5vw; box-sizing: border-box; }
-        
-        .column { flex: 1; min-width: 140px; max-width: 350px; display: flex; flex-direction: column; gap: 1.2vh; position: relative; }
+        .container { display: flex; flex-direction: row; justify-content: center; align-items: flex-start; gap: 2.5vw; width: 100%; padding: 0 5vw; box-sizing: border-box; }
+        .column { flex: 1; min-width: 140px; max-width: 300px; display: flex; flex-direction: column; gap: 1vh; position: relative; }
+        .column-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: var(--grad-opacity); border-radius: 10px; display: none; }
+        .column-bg.visible { display: block; }
+        .category-header { display: flex; height: 7vh; flex-direction: column; justify-content: center; align-items: center; margin-bottom: 1vh; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .category-title { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.15rem; }
+        .link-card { background: var(--card-bg); backdrop-filter: blur(var(--blur)); padding: 1.2vh; border-radius: 6px; text-decoration: none; font-size: 0.9rem; text-align: center; transition: 0.2s; display: block; border: 1px solid rgba(255,255,255,0.03); color: #eee; }
+        .link-card:hover { transform: translateY(-3px); background: rgba(255, 255, 255, 0.08); border-color: rgba(255,255,255,0.2); }
 
-        .column-bg {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1; opacity: var(--grad-opacity); border-radius: 12px; transition: 0.3s;
-        }
-
-        .category-header {
-            display: flex; height: 8vh; flex-direction: column; justify-content: center; align-items: center;
-            margin-bottom: 1vh; border-bottom: 1px solid rgba(255,255,255,0.1);
-            position: relative; z-index: 2;
-        }
-        .category-title {
-            font-size: clamp(0.7rem, 1vw, 1rem); font-weight: 800; text-transform: uppercase;
-            letter-spacing: 0.2rem; margin: 0; text-align: center; width: 100%;
-        }
-
-        .link-card {
-            background: var(--card-bg); backdrop-filter: blur(var(--blur)); -webkit-backdrop-filter: blur(var(--blur));
-            padding: 1.2vh 1vw; border-radius: 8px; text-decoration: none; 
-            font-size: clamp(0.8rem, 0.9vw, 1.1rem); text-align: center; transition: 0.3s; 
-            display: block; border: 1px solid rgba(255,255,255,0.05);
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; position: relative; z-index: 2;
-        }
-        .link-card:hover { transform: translateY(-4px) scale(1.03); background: rgba(255, 255, 255, 0.12); border-color: rgba(255,255,255,0.3); }
-
-        #weather-container { width: 100%; height: 100px; display: none; justify-content: center; align-items: center; padding-bottom: 3vh; opacity: 0.6; }
+        #weather-container { width: 100%; height: 90px; display: none; justify-content: center; align-items: center; padding-bottom: 2vh; opacity: 0.7; z-index: 10; }
         #weather-container.visible { display: flex; }
-        .weather-location-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; margin-right: 30px; font-weight: 800; cursor: pointer; }
-        .forecast-wrapper { display: flex; gap: 40px; cursor: pointer; }
-        .forecast-day { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-        .day-name { font-size: 0.6rem; opacity: 0.5; text-transform: uppercase; font-weight: 600; }
-        .day-temp { font-size: 0.9rem; font-weight: 800; }
+        .weather-location-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; margin-right: 25px; font-weight: 800; cursor: pointer; }
+        .forecast-wrapper { display: flex; gap: 30px; cursor: pointer; }
+        .forecast-day { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .weather-icon { font-size: 1rem; margin: 2px 0; }
 
-        .modal {
-            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: #111; padding: 30px; border-radius: 20px; box-shadow: 0 0 100px rgba(0,0,0,0.8);
-            z-index: 1001; width: 480px; border: 1px solid #222; max-height: 85vh; overflow-y: auto;
-        }
-        #modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); z-index: 1000; backdrop-filter: blur(4px); }
-        .settings-row { margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 20px; }
-        label { font-weight: 800; font-size: 0.65rem; color: #888; text-transform: uppercase; display: block; margin-bottom: 8px; letter-spacing: 1px; }
-        input, select { width: 100%; padding: 12px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 8px; box-sizing: border-box; font-family: inherit; }
-        
-        .btn { padding: 14px; border: none; border-radius: 8px; cursor: pointer; font-weight: 800; width: 100%; margin-top: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #0e0e0e; padding: 25px; border-radius: 15px; z-index: 2000; width: 420px; border: 1px solid #222; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        #modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 1999; backdrop-filter: blur(4px); }
+        .settings-row { margin-bottom: 18px; border-bottom: 1px solid #1a1a1a; padding-bottom: 18px; }
+        label { font-weight: 800; font-size: 0.55rem; color: #555; text-transform: uppercase; display: block; margin-bottom: 6px; }
+        input, select { width: 100%; padding: 10px; background: #151515; border: 1px solid #222; color: #fff; border-radius: 6px; font-size: 0.8rem; box-sizing: border-box; }
+        .small-input { padding: 6px; font-size: 0.7rem; }
+        .btn { padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: 800; width: 100%; margin-top: 8px; text-transform: uppercase; font-size: 0.7rem; }
         .btn-add { background: #fff; color: #000; }
-        .btn-close { background: #333; color: #fff; }
-        
-        .search-result-item { padding: 10px; background: #222; margin-top: 5px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; border: 1px solid transparent; }
-        .search-result-item:hover { border-color: #fff; background: #333; }
-        .search-result-item small { display: block; opacity: 0.5; font-size: 0.65rem; }
-
-        .del-btn { display: none; color: #ff4444; cursor: pointer; font-size: 10px; margin-top: 8px; text-align: center; font-weight: bold; }
+        .del-btn { display: none; color: #ff4444; cursor: pointer; font-size: 9px; margin-top: 5px; text-align: center; }
         .edit-mode .del-btn { display: block; }
-
-        .link-edit-item { background: #1a1a1a; padding: 12px; border-radius: 8px; margin-top: 10px; border: 1px solid #222; }
+        .city-tag { background: #222; padding: 5px 10px; border-radius: 4px; font-size: 0.7rem; display: flex; justify-content: space-between; margin-bottom: 5px; }
     </style>
 </head>
 <body>
@@ -114,16 +56,21 @@
     <div id="full-bg"></div>
     <div id="modal-overlay" onclick="closeAllModals()"></div>
 
-    <div id="quick-links">
-        <a id="ql-spotify" class="ql-icon"><i class="fa-brands fa-spotify"></i></a>
-        <a id="ql-server" class="ql-icon"><i class="fa-solid fa-server"></i></a>
-        <a id="ql-music" class="ql-icon"><i class="fa-solid fa-music"></i></a>
-        <a id="ql-avr" class="ql-icon"><i class="fa-solid fa-volume-high"></i></a>
+    <div class="top-nav">
+        <div class="nav-left">
+            <button id="profile-switcher" class="text-btn" onclick="toggleProfile()"></button>
+            <div id="quick-links" style="display:flex; gap: 0.8vw;">
+                <a id="ql-spotify" class="text-btn ql-hidden"></a>
+                <a id="ql-server" class="text-btn ql-hidden"></a>
+                <a id="ql-music" class="text-btn ql-hidden"></a>
+                <a id="ql-avr" class="text-btn ql-hidden"></a>
+            </div>
+        </div>
+        <div class="nav-right">
+            <button id="gear-icon" class="icon-btn" onclick="toggleModal('settings-panel')"><i class="fa-solid fa-gear"></i></button>
+        </div>
     </div>
 
-    <div id="gear-icon" onclick="toggleModal('settings-panel')"><i class="fa-solid fa-gear"></i></div>
-    <button id="profile-switcher" onclick="toggleProfile()"></button>
-    
     <div class="main-wrapper">
         <div class="container" id="grid"></div>
     </div>
@@ -136,74 +83,77 @@
     </div>
 
     <div id="settings-panel" class="modal">
-        <h2 style="color:#fff; margin:0 0 20px 0; font-weight:800; text-transform:uppercase; letter-spacing:2px;">Engine</h2>
+        <h2 style="font-size:1rem; font-weight:800; text-transform:uppercase; margin-top:0;">Engine</h2>
         
         <div class="settings-row">
-            <label>Interface</label>
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;" onclick="toggleWeatherVis()">
-                <input type="checkbox" id="weather-vis-check" style="width:auto;"> <small>Show Weather Bar</small>
+            <label>Interface & Backgrounds</label>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 8px;"><input type="checkbox" id="weather-vis-check" style="width:auto;" onchange="updateWeatherVisFromCheck()"> <small>Weather</small></div>
+                <div style="display: flex; align-items: center; gap: 8px;"><input type="checkbox" id="check-full-bg" style="width:auto;" onchange="updateBgSettings()"> <small>Full Mesh</small></div>
+                <div style="display: flex; align-items: center; gap: 8px;"><input type="checkbox" id="check-col-bg" style="width:auto;" onchange="updateBgSettings()"> <small>Column Gradients</small></div>
             </div>
-            <label>Background Options</label>
-            <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px;">
-                <div style="display: flex; align-items: center; gap: 10px;"><input type="checkbox" id="check-full-bg" style="width:auto;" onchange="updateBgSettings()"> <small>Full Screen Mesh</small></div>
-                <div style="display: flex; align-items: center; gap: 10px;"><input type="checkbox" id="check-col-bg" style="width:auto;" onchange="updateBgSettings()"> <small>Category Gradient</small></div>
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <div style="flex:1"><label>Base Color</label><input type="color" id="color-bg" oninput="updateMasterTheme()" style="height:35px; padding:2px;"></div>
+                <div style="flex:1"><label>Opacity</label><input type="range" id="grad-opacity-range" min="0" max="1" step="0.1" oninput="updateGradIntensity(this.value)"></div>
             </div>
-            <label>Intensity</label>
-            <input type="range" id="grad-opacity-range" min="0" max="1" step="0.1" oninput="updateGradIntensity(this.value)">
-            <label style="margin-top:15px;">Solid Background</label>
-            <input type="color" id="color-bg" oninput="updateMasterTheme()">
         </div>
 
         <div class="settings-row">
-            <label>Quick Links Icons</label>
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;"><input type="checkbox" id="ql-vis-spotify" style="width:auto;" onchange="updateQLSettings()"><i class="fa-brands fa-spotify"></i><input type="text" id="ql-url-spotify" oninput="updateQLSettings()"></div>
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;"><input type="checkbox" id="ql-vis-server" style="width:auto;" onchange="updateQLSettings()"><i class="fa-solid fa-server"></i><input type="text" id="ql-url-server" oninput="updateQLSettings()"></div>
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;"><input type="checkbox" id="ql-vis-music" style="width:auto;" onchange="updateQLSettings()"><i class="fa-solid fa-music"></i><input type="text" id="ql-url-music" oninput="updateQLSettings()"></div>
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;"><input type="checkbox" id="ql-vis-avr" style="width:auto;" onchange="updateQLSettings()"><i class="fa-solid fa-volume-high"></i><input type="text" id="ql-url-avr" oninput="updateQLSettings()"></div>
+            <label>Buttons (Label | URL)</label>
+            <div id="ql-settings-list">
+                <div style="display: flex; gap: 5px; margin-bottom: 4px; align-items: center;">
+                    <input type="checkbox" id="ql-vis-spotify" style="width:auto;" onchange="updateQLSettings()"><input type="text" id="ql-label-spotify" class="small-input" style="width:60px" oninput="updateQLSettings()"><input type="text" id="ql-url-spotify" class="small-input" oninput="updateQLSettings()">
+                </div>
+                <div style="display: flex; gap: 5px; margin-bottom: 4px; align-items: center;">
+                    <input type="checkbox" id="ql-vis-server" style="width:auto;" onchange="updateQLSettings()"><input type="text" id="ql-label-server" class="small-input" style="width:60px" oninput="updateQLSettings()"><input type="text" id="ql-url-server" class="small-input" oninput="updateQLSettings()">
+                </div>
+                <div style="display: flex; gap: 5px; margin-bottom: 4px; align-items: center;">
+                    <input type="checkbox" id="ql-vis-music" style="width:auto;" onchange="updateQLSettings()"><input type="text" id="ql-label-music" class="small-input" style="width:60px" oninput="updateQLSettings()"><input type="text" id="ql-url-music" class="small-input" oninput="updateQLSettings()">
+                </div>
+                <div style="display: flex; gap: 5px; margin-bottom: 4px; align-items: center;">
+                    <input type="checkbox" id="ql-vis-avr" style="width:auto;" onchange="updateQLSettings()"><input type="text" id="ql-label-avr" class="small-input" style="width:60px" oninput="updateQLSettings()"><input type="text" id="ql-url-avr" class="small-input" oninput="updateQLSettings()">
+                </div>
+            </div>
         </div>
 
         <div class="settings-row">
-            <label>Categories & Links</label>
-            <select id="col-select" onchange="loadCategoryData()"></select>
-            <div style="display: flex; gap: 8px; margin-top:10px;">
-                <div style="flex:2"><label>Title</label><input type="text" id="edit-col-title" oninput="liveUpdateHeader()"></div>
-                <div style="flex:1"><label>Color</label><input type="color" id="edit-col-color" oninput="liveUpdateHeader()" style="height:44px; padding:2px;"></div>
+            <label>Categories</label>
+            <select id="col-select" onchange="loadCategoryData()" style="margin-bottom:10px;"></select>
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="edit-col-title" oninput="liveUpdateHeader()" placeholder="Name">
+                <input type="color" id="edit-col-color" oninput="liveUpdateHeader()" style="width:50px; height:38px;">
             </div>
-            <div id="category-links-list"></div>
-            <div class="link-edit-item" style="border: 1px dashed #444;">
-                <label>Add New Link</label>
-                <input type="text" id="new-link-name" placeholder="Name">
-                <input type="text" id="new-link-url" placeholder="URL">
-                <button class="btn btn-add" onclick="addNewLink()">+ Add Link</button>
+            <div id="category-links-list" style="margin-top:10px;"></div>
+            <div style="display:flex; gap:5px; margin-top:10px;">
+                <button class="btn btn-add" onclick="addNewLink()" style="flex:1">+ Link</button>
+                <button class="btn" onclick="addFullCategory()" style="flex:1; background:#2ecc71; color:white;">+ Category</button>
             </div>
-            <button class="btn" style="background:#2ecc71; color:white; margin-top:20px;" onclick="addFullCategory()">+ Add Category</button>
         </div>
 
-        <div style="display: flex; gap: 8px;">
-            <button class="btn" style="flex:1; background:#3498db; color:white;" onclick="exportConfig()">Backup</button>
-            <button class="btn" style="flex:1; background:#9b59b6; color:white;" onclick="document.getElementById('import-input').click()">Import</button>
-            <input type="file" id="import-input" style="display:none" accept=".json" onchange="importConfig(this)">
-            <button class="btn" style="flex:1; background:#ff4444; color:white;" onclick="toggleEditMode()">Delete Mode</button>
+        <div style="display: flex; gap: 5px;">
+            <button class="btn" style="background:#3498db; color:white;" onclick="exportConfig()">Backup</button>
+            <button class="btn" style="background:#9b59b6; color:white;" onclick="document.getElementById('import-input').click()">Restore</button>
+            <input type="file" id="import-input" style="display:none" onchange="importConfig(this)">
+            <button class="btn" style="background:#ff4444; color:white;" onclick="toggleEditMode()">Delete Mode</button>
         </div>
-        <button class="btn btn-close" onclick="closeAllModals()">Close</button>
+        <button class="btn" style="background:#333; color:white; margin-top:10px;" onclick="closeAllModals()">Close</button>
     </div>
 
     <div id="weather-modal" class="modal">
-        <h3 style="color:#fff; text-transform:uppercase; letter-spacing:2px;">City Manager</h3>
-        <label>Active Cities</label>
-        <div id="weather-list"></div>
-        <div class="settings-row" style="margin-top:15px;">
-            <label>Search New City</label>
-            <div style="display:flex; gap:8px;">
-                <input type="text" id="city-search" placeholder="e.g. Odivelas">
-                <button class="btn btn-add" style="margin:0; width:80px;" onclick="searchCities()">Search</button>
-            </div>
-            <div id="search-results-list" style="margin-top:10px;"></div>
+        <h3 style="font-size:0.9rem; text-transform:uppercase; margin-top:0;">Weather Settings</h3>
+        <label>Added Cities</label>
+        <div id="weather-list" style="margin-bottom:15px;"></div>
+        <label>Search New City</label>
+        <div style="display: flex; gap: 5px;">
+            <input type="text" id="city-search" placeholder="City name...">
+            <button class="btn btn-add" style="width:80px; margin:0;" onclick="searchCities()">Search</button>
         </div>
-        <button class="btn btn-close" onclick="closeAllModals()">Close</button>
+        <div id="search-results-list" style="margin-top:10px; max-height:150px; overflow-y:auto;"></div>
+        <button class="btn" style="background:#333; color:white; margin-top:15px;" onclick="closeAllModals()">Close</button>
     </div>
 
     <script>
+        const weatherIcons = { 0: "fa-sun", 1: "fa-cloud-sun", 2: "fa-cloud-sun", 3: "fa-cloud", 45: "fa-smog", 51: "fa-cloud-rain", 61: "fa-cloud-showers-heavy", 71: "fa-snowflake", 95: "fa-cloud-bolt" };
         let weatherVisible = JSON.parse(localStorage.getItem('sp_v31_w_vis')) ?? true;
         let weatherLocs = JSON.parse(localStorage.getItem('sp_v31_weather')) || [];
         let weatherIdx = 0;
@@ -213,110 +163,87 @@
         let currentProfile = localStorage.getItem('sp_v31_profile') || 'home';
         
         let masterData = JSON.parse(localStorage.getItem('sp_v31_master')) || {
-            home: { data: [{title:"Social", color:"#00d4ff", links:[]}], theme: {bg:"#050505"}, ql: {} },
-            work: { data: [{title:"Work", color:"#3498db", links:[]}], theme: {bg:"#080808"}, ql: {} }
+            home: { data: [{title:"Social", color:"#00d4ff", links:[]}], theme: {bg:"#050505"}, ql: { spotify:{vis:false,label:"",url:""}, server:{vis:false,label:"",url:""}, music:{vis:false,label:"",url:""}, avr:{vis:false,label:"",url:""} } },
+            work: { data: [{title:"Work", color:"#3498db", links:[]}], theme: {bg:"#080808"}, ql: { spotify:{vis:false,label:"",url:""}, server:{vis:false,label:"",url:""}, music:{vis:false,label:"",url:""}, avr:{vis:false,label:"",url:""} } }
         };
 
         function render() {
             const grid = document.getElementById('grid');
             const colSel = document.getElementById('col-select');
-            const lastVal = colSel.value;
+            const currentSelVal = colSel.value;
             grid.innerHTML = ''; colSel.innerHTML = '';
-
             const profile = masterData[currentProfile];
             document.documentElement.style.setProperty('--grad-opacity', gradOpacity);
-            document.body.style.backgroundColor = profile.theme.bg || "#050505";
+            document.body.style.backgroundColor = profile.theme.bg;
 
             const colors = [];
             profile.data.forEach((col, cIdx) => {
-                const color = col.color || "#00d4ff";
-                colors.push(color);
-                const colDiv = document.createElement('div');
-                colDiv.className = 'column';
-                if (showColGrad) {
-                    const colBg = document.createElement('div');
-                    colBg.className = 'column-bg';
-                    colBg.style.background = `linear-gradient(to bottom, ${color} 0%, transparent 100%)`;
-                    colDiv.appendChild(colBg);
-                }
-                colDiv.innerHTML += `<div class="category-header" style="border-bottom-color:${color}44">
-                    <h2 class="category-title" style="color:${color}">${col.title}</h2>
-                    <span class="del-btn" onclick="deleteCol(${cIdx})">DELETE COLUMN</span>
-                </div>`;
-                col.links.forEach((l, lIdx) => {
-                    colDiv.innerHTML += `<div><a href="${l.url}" class="link-card" style="color:${l.color || '#fff'}">${l.name}</a><span class="del-btn" onclick="deleteLink(${cIdx},${lIdx})">✕</span></div>`;
-                });
+                const color = col.color || "#00d4ff"; colors.push(color);
+                const colDiv = document.createElement('div'); colDiv.className = 'column';
+                colDiv.innerHTML = `<div class="column-bg ${showColGrad ? 'visible' : ''}" style="background: linear-gradient(to bottom, ${color} 0%, transparent 100%)"></div>
+                <div class="category-header" style="border-bottom:1px solid ${color}44"><h2 class="category-title" style="color:${color}">${col.title}</h2><span class="del-btn" onclick="deleteCol(${cIdx})">DELETE</span></div>`;
+                col.links.forEach((l, lIdx) => { colDiv.innerHTML += `<div><a href="${l.url}" class="link-card" style="color:${l.color || '#fff'}">${l.name}</a><span class="del-btn" onclick="deleteLink(${cIdx},${lIdx})">✕</span></div>`; });
                 grid.appendChild(colDiv);
                 colSel.innerHTML += `<option value="${cIdx}">${col.title}</option>`;
             });
 
-            const fullBg = document.getElementById('full-bg');
+            // FIXED: Full Mesh logic ensured
+            const fullBgEl = document.getElementById('full-bg');
             if (showFullMesh && colors.length > 0) {
-                fullBg.style.background = colors.length > 1 ? `linear-gradient(135deg, ${colors.join(', ')})` : `radial-gradient(circle at top, ${colors[0]} 0%, transparent 70%)`;
-            } else { fullBg.style.background = 'transparent'; }
+                fullBgEl.style.background = colors.length > 1 ? `linear-gradient(135deg, ${colors.join(', ')})` : `radial-gradient(circle at top, ${colors[0]}, transparent)`;
+                fullBgEl.style.opacity = gradOpacity;
+            } else {
+                fullBgEl.style.background = 'transparent';
+                fullBgEl.style.opacity = '0';
+            }
 
-            ['spotify', 'server', 'music', 'avr'].forEach(key => {
-                const config = profile.ql[key] || {vis:true, url:'#'};
-                const el = document.getElementById(`ql-${key}`);
-                if(el){
-                    el.href = config.url; el.className = config.vis ? 'ql-icon visible' : 'ql-icon';
-                    document.getElementById(`ql-vis-${key}`).checked = config.vis;
-                    document.getElementById(`ql-url-${key}`).value = config.url;
+            // FIXED: Ensure all Quick Link fields are empty if no data exists
+            ['spotify', 'server', 'music', 'avr'].forEach(k => {
+                const q = profile.ql[k] || {vis:false, label:"", url:""};
+                const el = document.getElementById(`ql-${k}`);
+                if(el){ 
+                    el.href = q.url || ""; 
+                    el.textContent = q.label || ""; 
+                    el.className = q.vis ? 'text-btn' : 'text-btn ql-hidden';
+                    document.getElementById(`ql-vis-${k}`).checked = q.vis;
+                    document.getElementById(`ql-label-${k}`).value = q.label || "";
+                    document.getElementById(`ql-url-${k}`).value = q.url || "";
                 }
             });
 
-            if (lastVal !== "" && colSel.options[lastVal]) colSel.value = lastVal;
             document.getElementById('weather-container').className = weatherVisible ? 'visible' : '';
             document.getElementById('weather-vis-check').checked = weatherVisible;
             document.getElementById('check-full-bg').checked = showFullMesh;
             document.getElementById('check-col-bg').checked = showColGrad;
             document.getElementById('grad-opacity-range').value = gradOpacity;
-            document.getElementById('color-bg').value = profile.theme.bg || "#050505";
-            document.getElementById('profile-switcher').innerHTML = currentProfile === 'home' ? '<i class="fa-solid fa-house"></i>' : '<i class="fa-solid fa-user-tie"></i>';
+            document.getElementById('color-bg').value = profile.theme.bg;
+            document.getElementById('profile-switcher').textContent = currentProfile;
+            
+            if(currentSelVal !== "" && colSel.options[currentSelVal]) colSel.value = currentSelVal;
             save();
         }
 
         async function searchCities() {
             const query = document.getElementById('city-search').value;
-            if (query.length < 2) return;
-            const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${query}&count=5&language=en&format=json`);
+            if(!query) return;
+            const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${query}&count=5`);
             const data = await res.json();
-            const list = document.getElementById('search-results-list');
-            list.innerHTML = '';
+            const list = document.getElementById('search-results-list'); list.innerHTML = '';
             if (data.results) {
                 data.results.forEach(city => {
                     const item = document.createElement('div');
-                    item.className = 'search-result-item';
-                    item.innerHTML = `<strong>${city.name}</strong><small>${city.country}${city.admin1 ? ', ' + city.admin1 : ''}</small>`;
-                    item.onclick = () => {
-                        weatherLocs.push({name: city.name, lat: city.latitude, lon: city.longitude});
-                        localStorage.setItem('sp_v31_weather', JSON.stringify(weatherLocs));
-                        list.innerHTML = ''; document.getElementById('city-search').value = '';
-                        renderCityList(); fetchWeather();
-                    };
+                    item.className = 'city-tag'; item.style.cursor='pointer';
+                    item.innerHTML = `<span>${city.name}, ${city.country}</span> <i class="fa-solid fa-plus"></i>`;
+                    item.onclick = () => { weatherLocs.push({name: city.name, lat: city.latitude, lon: city.longitude}); save(); fetchWeather(); renderCityList(); list.innerHTML=''; };
                     list.appendChild(item);
                 });
             }
         }
 
-        function loadCategoryData() {
-            const cIdx = document.getElementById('col-select').value;
-            const profile = masterData[currentProfile];
-            if (!profile.data[cIdx]) return;
-            const col = profile.data[cIdx];
-            document.getElementById('edit-col-title').value = col.title;
-            document.getElementById('edit-col-color').value = col.color;
-            const list = document.getElementById('category-links-list');
-            list.innerHTML = '';
-            col.links.forEach((l, lIdx) => {
-                list.innerHTML += `<div class="link-edit-item"><input type="text" value="${l.name}" oninput="liveUpdateLink(${cIdx}, ${lIdx}, 'name', this.value)"><div style="display: flex; gap: 8px; margin-top: 5px;"><input type="text" value="${l.url}" oninput="liveUpdateLink(${cIdx}, ${lIdx}, 'url', this.value)" style="flex:3"><input type="color" value="${l.color || '#ffffff'}" oninput="liveUpdateLink(${cIdx}, ${lIdx}, 'color', this.value)" style="flex:1; height:40px; padding:2px;"></div></div>`;
-            });
-        }
-
         function renderCityList() {
             const list = document.getElementById('weather-list'); list.innerHTML = '';
-            weatherLocs.forEach((l, i) => {
-                list.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; background:#1a1a1a; margin-top:5px; border-radius:8px;"><span>${l.name}</span><i class="fa-solid fa-trash" style="color:#ff4444; cursor:pointer;" onclick="weatherLocs.splice(${i},1); localStorage.setItem('sp_v31_weather', JSON.stringify(weatherLocs)); renderCityList(); fetchWeather();"></i></div>`;
+            weatherLocs.forEach((loc, i) => {
+                list.innerHTML += `<div class="city-tag"><span>${loc.name}</span><i class="fa-solid fa-trash" onclick="weatherLocs.splice(${i},1); save(); renderCityList(); fetchWeather();" style="cursor:pointer; color:#ff4444;"></i></div>`;
             });
         }
 
@@ -328,29 +255,30 @@
             const data = await res.json(); 
             const row = document.getElementById('forecast-row'); row.innerHTML = '';
             data.daily.time.slice(0, 5).forEach((d, i) => { 
-                row.innerHTML += `<div class="forecast-day"><span class="day-name">${new Date(d).toLocaleDateString('en',{weekday:'short'})}</span><span class="day-temp">${Math.round(data.daily.temperature_2m_max[i])}°</span></div>`; 
+                const icon = weatherIcons[data.daily.weathercode[i]] || "fa-sun";
+                row.innerHTML += `<div class="forecast-day"><span class="day-name">${new Date(d).toLocaleDateString('en',{weekday:'short'})}</span><i class="fa-solid ${icon} weather-icon"></i><span class="day-temp">${Math.round(data.daily.temperature_2m_max[i])}°</span></div>`; 
             }); 
         }
 
-        function liveUpdateLink(cIdx, lIdx, prop, val) { masterData[currentProfile].data[cIdx].links[lIdx][prop] = val; render(); }
-        function addNewLink() { const cIdx = document.getElementById('col-select').value; const n = document.getElementById('new-link-name').value; const u = document.getElementById('new-link-url').value; if(n && u) { masterData[currentProfile].data[cIdx].links.push({name:n, url:u, color:"#ffffff"}); render(); loadCategoryData(); } }
-        function deleteLink(c, l) { masterData[currentProfile].data[c].links.splice(l, 1); render(); loadCategoryData();}
-        function deleteCol(c) { if(confirm("Delete column?")) { masterData[currentProfile].data.splice(c, 1); render(); } }
-        function toggleEditMode() { document.body.classList.toggle('edit-mode'); }
-        function exportConfig() { const blob = new Blob([JSON.stringify(masterData)], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'config.json'; a.click(); }
-        function importConfig(input) { const file = input.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = (e) => { masterData = JSON.parse(e.target.result); render(); }; reader.readAsText(file); }
-        function updateBgSettings() { showFullMesh = document.getElementById('check-full-bg').checked; showColGrad = document.getElementById('check-col-bg').checked; localStorage.setItem('sp_v31_fullmesh', showFullMesh); localStorage.setItem('sp_v31_colgrad', showColGrad); render(); }
-        function updateGradIntensity(val) { gradOpacity = val; localStorage.setItem('sp_v31_grad_op', val); render(); }
+        function updateWeatherVisFromCheck() { weatherVisible = document.getElementById('weather-vis-check').checked; render(); fetchWeather(); }
+        function updateBgSettings() { showFullMesh = document.getElementById('check-full-bg').checked; showColGrad = document.getElementById('check-col-bg').checked; render(); }
+        function cycleWeather() { if(weatherLocs.length > 1) { weatherIdx = (weatherIdx + 1) % weatherLocs.length; fetchWeather(); } }
+        function toggleProfile() { currentProfile = currentProfile === 'home' ? 'work' : 'home'; render(); fetchWeather(); }
+        function updateQLSettings() { ['spotify', 'server', 'music', 'avr'].forEach(k => { const q = masterData[currentProfile].ql[k]; q.vis = document.getElementById(`ql-vis-${k}`).checked; q.label = document.getElementById(`ql-label-${k}`).value; q.url = document.getElementById(`ql-url-${k}`).value; }); render(); }
+        function updateGradIntensity(v) { gradOpacity = v; render(); }
         function updateMasterTheme() { masterData[currentProfile].theme.bg = document.getElementById('color-bg').value; render(); }
-        function updateQLSettings() { const p = masterData[currentProfile]; ['spotify', 'server', 'music', 'avr'].forEach(k => { if(!p.ql[k]) p.ql[k]={}; p.ql[k].vis = document.getElementById(`ql-vis-${k}`).checked; p.ql[k].url = document.getElementById(`ql-url-${k}`).value; }); render(); }
-        function liveUpdateHeader() { const cIdx = document.getElementById('col-select').value; const col = masterData[currentProfile].data[cIdx]; col.title = document.getElementById('edit-col-title').value; col.color = document.getElementById('edit-col-color').value; render(); }
-        function addFullCategory() { masterData[currentProfile].data.push({title:"New", color:"#00d4ff", links:[]}); render(); }
-        function toggleWeatherVis() { weatherVisible = !weatherVisible; localStorage.setItem('sp_v31_w_vis', weatherVisible); render(); fetchWeather(); }
-        function cycleWeather() { if(weatherLocs.length) { weatherIdx = (weatherIdx + 1) % weatherLocs.length; fetchWeather(); } }
-        function toggleProfile() { currentProfile = currentProfile === 'home' ? 'work' : 'home'; localStorage.setItem('sp_v31_profile', currentProfile); render(); fetchWeather(); }
-        function toggleModal(id) { document.getElementById(id).style.display = 'block'; document.getElementById('modal-overlay').style.display = 'block'; if(id === 'settings-panel') loadCategoryData(); if(id === 'weather-modal') renderCityList(); }
+        function liveUpdateHeader() { const colIdx = document.getElementById('col-select').value; if(colIdx === "") return; const col = masterData[currentProfile].data[colIdx]; col.title = document.getElementById('edit-col-title').value; col.color = document.getElementById('edit-col-color').value; render(); }
+        function loadCategoryData() { const colIdx = document.getElementById('col-select').value; if(colIdx === "") return; const col = masterData[currentProfile].data[colIdx]; document.getElementById('edit-col-title').value = col.title; document.getElementById('edit-col-color').value = col.color; const list = document.getElementById('category-links-list'); list.innerHTML = ''; col.links.forEach((l, i) => { list.innerHTML += `<div style="display:flex; gap:5px; margin-top:5px;"><input type="text" value="${l.name}" class="small-input" oninput="masterData['${currentProfile}'].data[${colIdx}].links[${i}].name=this.value; render()"><input type="text" value="${l.url}" class="small-input" oninput="masterData['${currentProfile}'].data[${colIdx}].links[${i}].url=this.value; render()"></div>`; }); }
+        function toggleModal(id) { document.getElementById(id).style.display = 'block'; document.getElementById('modal-overlay').style.display = 'block'; if(id==='weather-modal') renderCityList(); if(id==='settings-panel') loadCategoryData(); }
         function closeAllModals() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); document.getElementById('modal-overlay').style.display = 'none'; }
-        function save() { localStorage.setItem('sp_v31_master', JSON.stringify(masterData)); }
+        function toggleEditMode() { document.body.classList.toggle('edit-mode'); }
+        function exportConfig() { const b = new Blob([JSON.stringify(masterData)], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'backup.json'; a.click(); }
+        function importConfig(i) { const r = new FileReader(); r.onload = (e) => { masterData = JSON.parse(e.target.result); render(); }; r.readAsText(i.files[0]); }
+        function save() { localStorage.setItem('sp_v31_master', JSON.stringify(masterData)); localStorage.setItem('sp_v31_weather', JSON.stringify(weatherLocs)); localStorage.setItem('sp_v31_w_vis', weatherVisible); localStorage.setItem('sp_v31_fullmesh', showFullMesh); localStorage.setItem('sp_v31_colgrad', showColGrad); localStorage.setItem('sp_v31_grad_op', gradOpacity); localStorage.setItem('sp_v31_profile', currentProfile); }
+        function deleteLink(c, l) { masterData[currentProfile].data[c].links.splice(l, 1); render(); }
+        function deleteCol(c) { if(confirm("Delete this category?")) { masterData[currentProfile].data.splice(c, 1); render(); } }
+        function addNewLink() { const idx = document.getElementById('col-select').value; if(idx !== "") { masterData[currentProfile].data[idx].links.push({name:"", url:""}); render(); loadCategoryData(); } }
+        function addFullCategory() { masterData[currentProfile].data.push({title:"New Category", color:"#00d4ff", links:[]}); render(); }
 
         render(); fetchWeather();
     </script>
