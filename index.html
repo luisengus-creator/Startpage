@@ -7,29 +7,45 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         :root { --accent: #00d4ff; --bg: #050505; }
-        body { margin: 0; padding: 0; font-family: sans-serif; background-color: var(--bg); color: white; min-height: 100vh; }
+        body { margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; background-color: var(--bg); color: white; min-height: 100vh; display: flex; flex-direction: column; }
+        
         #full-bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; transition: 0.8s; opacity: 0.3; }
-        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; flex-grow: 1; width: 100%; box-sizing: border-box; }
+        
+        /* Top Navigation */
         .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         .nav-group { display: flex; gap: 20px; align-items: center; }
-        .nav-link { cursor: pointer; font-size: 0.8rem; font-weight: 700; color: #888; text-decoration: none; text-transform: uppercase; }
+        .nav-link { cursor: pointer; font-size: 0.8rem; font-weight: 700; color: #888; text-decoration: none; text-transform: uppercase; letter-spacing: 1px; }
         .nav-link:hover { color: var(--accent); }
+
+        /* Main Grid */
         #grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-        .column { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 20px; position: relative; border: 1px solid rgba(255,255,255,0.1); }
-        .link-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .link-row a { color: #eee; text-decoration: none; }
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #111; padding: 30px; border-radius: 15px; z-index: 2000; width: 90%; max-width: 450px; border: 1px solid #333; }
-        #overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; }
-        input, select { background: #222; border: 1px solid #444; color: white; padding: 10px; border-radius: 5px; width: 100%; margin: 5px 0; box-sizing: border-box; }
-        button { cursor: pointer; background: var(--accent); border: none; padding: 10px; border-radius: 5px; width: 100%; font-weight: bold; margin-top: 10px; }
+        .column { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 20px; position: relative; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); }
+        .link-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .link-row a { color: #eee; text-decoration: none; font-size: 0.95rem; }
+        .link-row a:hover { color: var(--accent); }
+
+        /* Weather - Centered at Bottom */
+        #weather-area { margin: 40px auto 20px auto; text-align: center; max-width: 800px; }
+        #weather-grid { display: flex; gap: 25px; justify-content: center; margin-top: 15px; }
+        .weather-card { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 12px; min-width: 90px; border: 1px solid rgba(255,255,255,0.05); }
+        .weather-icon { font-size: 1.5rem; margin: 10px 0; display: block; color: var(--accent); }
+
+        /* Modals */
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #111; padding: 30px; border-radius: 15px; z-index: 2000; width: 95%; max-width: 500px; border: 1px solid #333; max-height: 85vh; overflow-y: auto; }
+        #overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; backdrop-filter: blur(5px); }
+        
+        input, select { background: #1a1a1a; border: 1px solid #333; color: white; padding: 10px; border-radius: 6px; width: 100%; margin: 8px 0; box-sizing: border-box; }
+        button { cursor: pointer; background: var(--accent); border: none; padding: 12px; border-radius: 6px; width: 100%; font-weight: bold; margin-top: 10px; transition: 0.2s; }
+        button:hover { filter: brightness(1.2); }
+        
+        .ql-edit-row { display: flex; gap: 10px; align-items: center; background: #222; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
         .del-btn { color: #ff4444; cursor: pointer; font-size: 0.7rem; display: none; }
         .edit-mode .del-btn { display: inline; }
-        #error-log { color: #ff4444; background: #200; padding: 10px; display: none; position: fixed; bottom: 0; width: 100%; z-index: 9999; }
     </style>
 </head>
 <body>
 
-    <div id="error-log"></div>
     <div id="full-bg"></div>
     <div id="overlay" onclick="closeModals()"></div>
 
@@ -44,57 +60,69 @@
             </div>
         </header>
 
-        <section id="weather-area">
-            <h2 id="city-name" style="cursor:pointer;" onclick="cycleCity()">---</h2>
-            <div id="weather-grid" style="display:flex; gap:15px; margin-bottom:30px;"></div>
-        </section>
-
         <main id="grid"></main>
+
+        <section id="weather-area">
+            <h3 id="city-name" style="cursor:pointer; opacity: 0.7;" onclick="cycleCity()">---</h3>
+            <div id="weather-grid"></div>
+        </section>
     </div>
 
     <div id="settings-modal" class="modal">
-        <h3>Dashboard Engine</h3>
-        <label>Edit Category</label>
-        <select id="cat-sel" onchange="syncPanel()"></select>
-        <input type="text" id="cat-title" oninput="updateCat()" placeholder="Title">
-        <input type="color" id="cat-color" oninput="updateCat()">
+        <h2 style="margin-top:0">Dashboard Engine</h2>
         
-        <button onclick="addLink()">+ Add Link to Category</button>
-        <button onclick="addCat()">+ Create New Category</button>
+        <div style="margin-bottom:20px;">
+            <label style="font-size:0.8rem; color:var(--accent)">1. QUICK LINKS (TOP LEFT)</label>
+            <div id="ql-list-editor" style="margin-top:10px;"></div>
+        </div>
+
+        <div style="margin-bottom:20px; border-top:1px solid #333; padding-top:15px;">
+            <label style="font-size:0.8rem; color:var(--accent)">2. CATEGORIES & LINKS</label>
+            <select id="cat-sel" onchange="syncPanel()"></select>
+            <div style="display:flex; gap:10px;">
+                <input type="text" id="cat-title" oninput="updateCat()" placeholder="Title">
+                <input type="color" id="cat-color" oninput="updateCat()" style="width:60px;">
+            </div>
+            <button onclick="addLink()">+ Add Link to Category</button>
+            <button style="background:#222; color:white" onclick="addCat()">+ Create New Category</button>
+        </div>
         
-        <div style="margin-top:15px; border-top:1px solid #333; padding-top:10px;">
+        <div style="margin-bottom:20px; border-top:1px solid #333; padding-top:15px;">
+            <label style="font-size:0.8rem; color:var(--accent)">3. VISUALS</label>
             <input type="range" id="op-slide" min="0" max="1" step="0.1" oninput="updateVis()">
             <label><input type="checkbox" id="mesh-check" onchange="updateVis()"> Mesh Background</label>
         </div>
         
-        <button style="background:#333; color:white;" onclick="openModal('weather-modal')">Weather Config</button>
-        <button style="background:#333; color:white;" onclick="exportData()">Backup JSON</button>
+        <div style="display:flex; gap:10px;">
+            <button style="background:#333; color:white;" onclick="openModal('weather-modal')">Weather</button>
+            <button style="background:#333; color:white;" onclick="exportData()">Backup</button>
+        </div>
     </div>
 
     <div id="weather-modal" class="modal">
-        <h3>Weather</h3>
-        <input type="text" placeholder="Search City..." oninput="searchCity(this.value)">
-        <div id="search-res"></div>
-        <button onclick="openModal('settings-modal')">Back</button>
+        <h3>Weather Search</h3>
+        <input type="text" placeholder="Type city name..." oninput="searchCity(this.value)">
+        <div id="search-res" style="max-height: 200px; overflow-y: auto;"></div>
+        <button onclick="openModal('settings-modal')">Back to Settings</button>
     </div>
 
 <script>
-    // --- SAFETY WRAPPER ---
-    window.onerror = function(msg, url, line) {
-        const log = document.getElementById('error-log');
-        log.style.display = 'block';
-        log.innerHTML = "JS Error: " + msg + " on line " + line;
-    };
+    const KEY = "STABLE_V7_FINAL";
+    const W_ICONS = { 0: "fa-sun", 1: "fa-cloud-sun", 2: "fa-cloud-sun", 3: "fa-cloud", 45: "fa-smog", 51: "fa-cloud-rain", 61: "fa-cloud-showers-heavy", 95: "fa-bolt" };
 
-    const KEY = "STABLE_V6";
-    
     let state = JSON.parse(localStorage.getItem(KEY)) || {
         profile: 'home',
         opacity: 0.3,
         mesh: true,
         cities: [{name: "Odivelas", lat: 38.79, lon: -9.18}],
-        home: { categories: [{title: "Social", color: "#00d4ff", links: [{name: "YouTube", url: "https://youtube.com"}]}] },
-        work: { categories: [{title: "Work", color: "#3498db", links: []}] }
+        home: { 
+            ql: [{name: "SPOTIFY", url: "#", vis: true}, {name: "SERVER", url: "#", vis: false}],
+            categories: [{title: "Social", color: "#00d4ff", links: [{name: "YouTube", url: "https://youtube.com"}]}] 
+        },
+        work: { 
+            ql: [{name: "SERVER", url: "#", vis: true}],
+            categories: [{title: "Work", color: "#3498db", links: []}] 
+        }
     };
 
     let cityIdx = 0;
@@ -107,13 +135,19 @@
     function render() {
         const p = state[state.profile];
         const grid = document.getElementById('grid');
+        const qlNav = document.getElementById('ql-nav');
         
         document.getElementById('prof-display').textContent = state.profile.toUpperCase();
         
+        // Render Top Left Quicklinks
+        const qlHtml = p.ql.filter(l => l.vis).map(l => `<a href="${l.url}" class="nav-link" target="_blank">${l.name}</a>`).join('');
+        qlNav.innerHTML = `<span class="nav-link" onclick="toggleProfile()">${state.profile.toUpperCase()}</span>` + qlHtml;
+
+        // Render Grid
         grid.innerHTML = p.categories.map((c, ci) => `
             <div class="column">
-                <div style="position:absolute; inset:0; background:linear-gradient(${c.color}, transparent); opacity:${state.mesh ? state.opacity : 0}; z-index:-1; border-radius:12px;"></div>
-                <h3 style="color:${c.color}; margin:0 0 15px 0;">${c.title} <span class="del-btn" onclick="delCat(${ci})"> (DEL)</span></h3>
+                <div style="position:absolute; inset:0; background:linear-gradient(${c.color}33, transparent); opacity:${state.mesh ? state.opacity : 0}; z-index:-1; border-radius:12px;"></div>
+                <h3 style="color:${c.color}; margin:0 0 15px 0; border-bottom: 1px solid ${c.color}33; padding-bottom:5px;">${c.title} <span class="del-btn" onclick="delCat(${ci})"> (DEL)</span></h3>
                 ${c.links.map((l, li) => `
                     <div class="link-row">
                         <a href="${l.url}" target="_blank">${l.name}</a>
@@ -123,6 +157,7 @@
             </div>
         `).join('');
 
+        // Visuals
         const bg = document.getElementById('full-bg');
         if(state.mesh) {
             const cols = p.categories.map(x => x.color);
@@ -131,6 +166,7 @@
         } else { bg.style.opacity = 0; }
     }
 
+    // --- LOGIC ---
     function toggleProfile() { state.profile = state.profile === 'home' ? 'work' : 'home'; save(); updateWeather(); }
 
     function syncPanel() {
@@ -139,14 +175,25 @@
         sel.innerHTML = p.categories.map((c, i) => `<option value="${i}">${c.title}</option>`).join('');
         
         const idx = sel.value;
-        if(idx !== "") {
+        if(idx !== "" && p.categories[idx]) {
             document.getElementById('cat-title').value = p.categories[idx].title;
             document.getElementById('cat-color').value = p.categories[idx].color;
         }
+
+        // Quicklink Editor
+        document.getElementById('ql-list-editor').innerHTML = p.ql.map((l, i) => `
+            <div class="ql-edit-row">
+                <input type="checkbox" ${l.vis ? 'checked' : ''} onchange="updateQl(${i},'vis',this.checked)" style="width:20px;">
+                <input type="text" value="${l.name}" oninput="updateQl(${i},'name',this.value)" placeholder="Name">
+                <input type="text" value="${l.url}" oninput="updateQl(${i},'url',this.value)" placeholder="URL">
+            </div>
+        `).join('');
+
         document.getElementById('op-slide').value = state.opacity;
         document.getElementById('mesh-check').checked = state.mesh;
     }
 
+    function updateQl(i, key, val) { state[state.profile].ql[i][key] = val; save(); }
     function updateCat() {
         const idx = document.getElementById('cat-sel').value;
         if(idx === "") return;
@@ -154,20 +201,14 @@
         state[state.profile].categories[idx].color = document.getElementById('cat-color').value;
         save();
     }
-
-    function updateVis() {
-        state.opacity = document.getElementById('op-slide').value;
-        state.mesh = document.getElementById('mesh-check').checked;
-        save();
-    }
+    function updateVis() { state.opacity = document.getElementById('op-slide').value; state.mesh = document.getElementById('mesh-check').checked; save(); }
 
     function addCat() { state[state.profile].categories.push({title:"New", color:"#00d4ff", links:[]}); save(); syncPanel(); }
     function delCat(i) { if(confirm("Delete?")) { state[state.profile].categories.splice(i,1); save(); syncPanel(); } }
     
     function addLink() {
         const idx = document.getElementById('cat-sel').value;
-        const n = prompt("Name:");
-        const u = prompt("URL:");
+        const n = prompt("Name:"); const u = prompt("URL:");
         if(n && u) { state[state.profile].categories[idx].links.push({name:n, url:u}); save(); }
     }
     function delLink(ci, li) { state[state.profile].categories[ci].links.splice(li,1); save(); }
@@ -177,14 +218,18 @@
         if(!city) return;
         document.getElementById('city-name').textContent = city.name.toUpperCase();
         try {
-            const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&daily=temperature_2m_max&timezone=auto`);
+            const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&daily=weathercode,temperature_2m_max&timezone=auto`);
             const d = await r.json();
-            document.getElementById('weather-grid').innerHTML = d.daily.time.slice(0,5).map((t, i) => `
-                <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:8px; text-align:center;">
-                    <div style="font-size:0.7rem; opacity:0.5;">${new Date(t).toLocaleDateString('en',{weekday:'short'})}</div>
-                    <div style="font-weight:bold;">${Math.round(d.daily.temperature_2m_max[i])}°</div>
-                </div>
-            `).join('');
+            document.getElementById('weather-grid').innerHTML = d.daily.time.slice(0,5).map((t, i) => {
+                const code = d.daily.weathercode[i];
+                const icon = W_ICONS[code] || "fa-cloud";
+                return `
+                <div class="weather-card">
+                    <div style="font-size:0.7rem; opacity:0.6;">${new Date(t).toLocaleDateString('en',{weekday:'short'})}</div>
+                    <i class="fa-solid ${icon} weather-icon"></i>
+                    <div style="font-weight:bold; font-size:1.1rem;">${Math.round(d.daily.temperature_2m_max[i])}°</div>
+                </div>`;
+            }).join('');
         } catch(e) {}
     }
 
@@ -195,7 +240,7 @@
         const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${v}&count=5`);
         const d = await r.json();
         document.getElementById('search-res').innerHTML = (d.results || []).map(res => `
-            <div onclick="addCity('${res.name}',${res.latitude},${res.longitude})" style="background:#222; padding:8px; margin:5px; cursor:pointer;">${res.name}, ${res.country_code}</div>
+            <div onclick="addCity('${res.name}',${res.latitude},${res.longitude})" style="background:#222; padding:10px; margin:5px 0; cursor:pointer; border-radius:5px;">${res.name}, ${res.country_code}</div>
         `).join('');
     }
 
