@@ -6,12 +6,13 @@
     <title>Startpage</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
-        :root { --bg: #050505; --fs-base: clamp(0.85rem, 0.9vw, 1.1rem); }
+        :root { --bg: #1C1B22; --fs-base: clamp(0.85rem, 0.9vw, 1.1rem); }
         * { box-sizing: border-box; }
         body { 
             margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif; 
             background-color: var(--bg); color: white; height: 100vh; 
             display: flex; flex-direction: column; overflow: hidden; font-size: var(--fs-base);
+            transition: background-color 0.5s ease;
         }
         #full-bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; transition: 0.8s; }
         .container { width: 100%; max-width: 95vw; margin: 0 auto; padding: 2rem; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
@@ -91,8 +92,9 @@
         <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
             <label style="flex:1; font-size:0.7rem;"><input type="checkbox" id="w-toggle" onchange="updateVisRealtime()"> Weather</label>
             <label style="flex:1; font-size:0.7rem;"><input type="checkbox" id="mesh-check" onchange="updateVisRealtime()"> Mesh</label>
+            <input type="color" id="bg-color" oninput="updateVisRealtime()" style="flex:1; height:30px;" title="Background Color">
             <input type="color" id="w-color" oninput="updateVisRealtime()" style="flex:1; height:30px;" title="Weather Color">
-            <input type="color" id="l-color" oninput="updateVisRealtime()" style="flex:1; height:30px;" title="Global Link Color">
+            <input type="color" id="l-color" oninput="updateVisRealtime()" style="flex:1; height:30px;" title="Link Color">
         </div>
         <div class="section-h">Background Opacity</div>
         <input type="range" id="op-slide" min="0" max="1" step="0.05" oninput="updateVisRealtime()">
@@ -113,7 +115,7 @@
     </div>
 
 <script>
-    const KEY = "DASH_STABLE_V17_REBOOT";
+    const KEY = "DASH_STABLE_V18_FINAL";
     const W_ICONS = { 0: "fa-sun", 1: "fa-cloud-sun", 2: "fa-cloud-sun", 3: "fa-cloud", 45: "fa-smog", 51: "fa-cloud-rain", 61: "fa-cloud-showers-heavy", 95: "fa-bolt" };
 
     function getDefaults() {
@@ -129,7 +131,7 @@
         ];
         return {
             profile: 'home', opacity: 0.3, mesh: true, showWeather: true,
-            weatherColor: "#ffffff", linkColor: "#cccccc",
+            bgColor: "#1C1B22", weatherColor: "#ffffff", linkColor: "#cccccc",
             cities: [{name: "Lisboa", lat: 38.71, lon: -9.13}],
             home: { ql: [ {name:"", url:"", vis:false}, {name:"", url:"", vis:false}, {name:"", url:"", vis:false}, {name:"", url:"", vis:false} ], categories: homeCats },
             work: { ql: [ {name:"", url:"", vis:false}, {name:"", url:"", vis:false}, {name:"", url:"", vis:false}, {name:"", url:"", vis:false} ], categories: workCats }
@@ -143,6 +145,9 @@
         localStorage.setItem(KEY, JSON.stringify(state));
         const p = state[state.profile];
         
+        // Update Body Background
+        document.body.style.backgroundColor = state.bgColor;
+
         const qlHtml = p.ql.filter(l => l.vis && l.name).map(l => `<a href="${l.url}" class="nav-link active" target="_blank">${l.name}</a>`).join('');
         document.getElementById('ql-nav').innerHTML = `<span class="nav-link active" onclick="toggleProfile()">${state.profile}</span>` + qlHtml;
 
@@ -167,7 +172,7 @@
         const bg = document.getElementById('full-bg');
         if (state.mesh) {
             const cols = p.categories.map(x => x.color);
-            bg.style.background = cols.length > 1 ? `linear-gradient(135deg, ${cols.join(',')})` : (cols[0] || '#050505');
+            bg.style.background = cols.length > 1 ? `linear-gradient(135deg, ${cols.join(',')})` : (cols[0] || state.bgColor);
             bg.style.opacity = state.opacity;
         } else {
             bg.style.opacity = 0;
@@ -191,6 +196,7 @@
 
         document.getElementById('w-toggle').checked = state.showWeather;
         document.getElementById('mesh-check').checked = state.mesh;
+        document.getElementById('bg-color').value = state.bgColor;
         document.getElementById('w-color').value = state.weatherColor;
         document.getElementById('l-color').value = state.linkColor;
         document.getElementById('op-slide').value = state.opacity;
@@ -223,13 +229,11 @@
         saveAndRender();
     }
     function updateLinkRealtime(ci, li, k, v) { state[state.profile].categories[ci].links[li][k] = v; saveAndRender(); }
-    function updateQlRealtime(i, k, v) { 
-        state[state.profile].ql[i][k] = v; 
-        saveAndRender(); 
-    }
+    function updateQlRealtime(i, k, v) { state[state.profile].ql[i][k] = v; saveAndRender(); }
     function updateVisRealtime() {
         state.showWeather = document.getElementById('w-toggle').checked;
         state.mesh = document.getElementById('mesh-check').checked;
+        state.bgColor = document.getElementById('bg-color').value;
         state.weatherColor = document.getElementById('w-color').value;
         state.linkColor = document.getElementById('l-color').value;
         state.opacity = document.getElementById('op-slide').value;
