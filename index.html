@@ -69,7 +69,6 @@
         #weather-area { padding: 2vh 0; display: none; flex-direction: column; align-items: center; gap: 0.8rem; z-index: 10; flex-shrink: 0; }
         #city-name { font-size: 0.8rem; opacity: 0.5; letter-spacing: 4px; cursor: pointer; text-transform: uppercase; }
         #weather-grid { display: flex; gap: 0.8rem; align-items: center; cursor: pointer; flex-wrap: nowrap; }
-        /* Slightly thinner cards to fit 7 across more easily */
         .weather-card { background: rgba(255,255,255,0.03); padding: 0.7rem 0.9rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); text-align: center; min-width: 6rem; }
         .weather-card i { font-size: 1.3rem; margin: 0.4rem 0; }
         .weather-day-label { font-size: 0.65rem; opacity: 0.5; text-transform: uppercase; }
@@ -155,7 +154,7 @@
 
         <div style="display:flex; gap:10px; margin-top:15px;">
             <label style="font-size:0.75rem;"><input type="checkbox" id="w-toggle" onchange="updateVisRealtime()"> Enable Weather</label>
-            <label style="font-size:0.75rem;"><input type="checkbox" id="mesh-check" onchange="updateVisRealtime()"> Mesh Effect</label>
+            <label style="font-size:0.75rem;"><input type="checkbox" id="mesh-check" onchange="updateVisRealtime()"> Gradient Effect</label>
         </div>
         
         <div class="section-h">Background Opacity</div>
@@ -179,7 +178,7 @@
     </div>
 
 <script>
-    const KEY = "DASH_STABLE_V32_WEEK_FORECAST";
+    const KEY = "DASH_STABLE_V33_SPLIT_W";
     const ICON_LIST = ["fa-spotify", "fa-server", "fa-music", "fa-sliders", "fa-github", "fa-youtube", "fa-twitch", "fa-cloud", "fa-terminal", "fa-code", "fa-heart", "fa-star"];
     const W_ICONS = { 0: "fa-sun", 1: "fa-cloud-sun", 2: "fa-cloud-sun", 3: "fa-cloud", 45: "fa-smog", 51: "fa-cloud-rain", 61: "fa-cloud-showers-heavy", 95: "fa-bolt" };
 
@@ -192,11 +191,11 @@
         }
         const baseQl = [ {name:"fa-brands fa-spotify", url:"#", vis:false}, {name:"fa-solid fa-server", url:"#", vis:false}, {name:"fa-solid fa-music", url:"#", vis:false}, {name:"fa-solid fa-sliders", url:"#", vis:false} ];
         return {
-            profile: 'home', opacity: 0.3, mesh: true, showWeather: true, target: '_blank',
+            profile: 'home', opacity: 0.3, mesh: true, target: '_blank',
             bgColor: "#1C1B22", iconColor: "#ffffff", weatherColor: "#ffffff", linkColor: "#cccccc",
             cities: [{name: "Lisboa", lat: 38.71, lon: -9.13}],
-            home: { ql: JSON.parse(JSON.stringify(baseQl)), categories: homeCats },
-            work: { ql: JSON.parse(JSON.stringify(baseQl)), categories: [] }
+            home: { ql: JSON.parse(JSON.stringify(baseQl)), categories: homeCats, showWeather: true },
+            work: { ql: JSON.parse(JSON.stringify(baseQl)), categories: [], showWeather: true }
         };
     }
 
@@ -221,7 +220,7 @@
             </div>`).join('');
 
         const wArea = document.getElementById('weather-area');
-        wArea.style.display = state.showWeather ? 'flex' : 'none';
+        wArea.style.display = p.showWeather ? 'flex' : 'none';
         wArea.style.color = state.weatherColor;
         
         const bg = document.getElementById('full-bg');
@@ -249,7 +248,7 @@
             </div>`).join('');
         
         document.getElementById('target-mode').value = state.target || '_blank';
-        document.getElementById('w-toggle').checked = state.showWeather;
+        document.getElementById('w-toggle').checked = p.showWeather;
         document.getElementById('mesh-check').checked = state.mesh;
         document.getElementById('bg-color').value = state.bgColor;
         document.getElementById('icon-color-picker').value = state.iconColor;
@@ -284,7 +283,7 @@
     function updateQlRealtime(i, k, v) { state[state.profile].ql[i][k] = v; saveAndRender(); }
     function updateVisRealtime() {
         state.target = document.getElementById('target-mode').value;
-        state.showWeather = document.getElementById('w-toggle').checked;
+        state[state.profile].showWeather = document.getElementById('w-toggle').checked;
         state.mesh = document.getElementById('mesh-check').checked;
         state.bgColor = document.getElementById('bg-color').value;
         state.iconColor = document.getElementById('icon-color-picker').value;
@@ -298,7 +297,6 @@
         const city = state.cities[cityIdx]; if(!city) return;
         document.getElementById('city-name').textContent = city.name;
         try {
-            // Sliced to 7 days instead of 5
             const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&daily=weathercode,temperature_2m_max&timezone=auto`);
             const d = await r.json();
             document.getElementById('weather-grid').innerHTML = d.daily.time.slice(0,7).map((t, i) => `
@@ -317,7 +315,7 @@
     function toggleProfile() { state.profile = (state.profile === 'home' ? 'work' : 'home'); saveAndRender(); updateWeather(); }
     function renderWeatherManager() { document.getElementById('current-cities').innerHTML = state.cities.map((c, i) => `<div class="city-tag"><span>${c.name}</span><span onclick="removeCity(${i})">✕</span></div>`).join(''); }
     function addLinkInline() { const idx = document.getElementById('cat-sel').value; state[state.profile].categories[idx].links.push({name: "New Link", url: "#"}); saveAndRender(true); }
-    function addCat() { state[state.profile].categories.push({title:"New", color:"#00d4ff", url: "#", links:[]}); saveAndRender(); openModal('settings-modal'); }
+    function addCat() { state[state.profile].categories.push({title:"New", color:"#00d4ff", url: "#", links:[], showWeather: true}); saveAndRender(); openModal('settings-modal'); }
     function delCat(i) { if(confirm("Delete?")) { state[state.profile].categories.splice(i,1); saveAndRender(); openModal('settings-modal'); } }
     function delLink(ci, li) { state[state.profile].categories[ci].links.splice(li,1); saveAndRender(); }
     function exportData() { const b = new Blob([JSON.stringify(state)], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download='startpage_backup.json'; a.click(); }
