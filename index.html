@@ -21,7 +21,6 @@
         
         .top-bar { display: flex; justify-content: space-between; align-items: center; z-index: 10; flex-shrink: 0; }
         .nav-group { display: flex; gap: 1.2rem; align-items: center; }
-        
         .nav-link { cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; width: 2.2rem; height: 2.2rem; }
         .nav-link i { font-size: 1.3rem; color: var(--icon-color, #ffffff); transition: 0.3s; }
         .nav-link:hover i { opacity: 0.6; }
@@ -43,44 +42,20 @@
         .link-row { display: flex; justify-content: center; align-items: center; padding: 0.4rem 0; border-bottom: 1px solid rgba(255,255,255,0.03); position: relative; white-space: nowrap; }
         .link-row a { text-decoration: none; transition: 0.2s; font-size: 0.95rem; }
 
-        /* Centered Adaptive Weather Section */
-        #weather-area { 
-            padding: 1.5rem 0; 
-            display: none; 
-            flex-direction: column; 
-            align-items: center; 
-            gap: 0.8rem; 
-            z-index: 10; 
-            flex-shrink: 0; 
-        }
-        
-        #city-name { 
-            font-size: 0.7rem; 
-            opacity: 0.5; 
-            letter-spacing: 3px; 
-            cursor: pointer; 
-            text-transform: uppercase; 
-            transition: 0.3s;
-        }
-        #city-name:hover { opacity: 1; }
-
+        #weather-area { padding: 1.5rem 0; display: none; flex-direction: column; align-items: center; gap: 0.8rem; z-index: 10; flex-shrink: 0; }
+        #city-name { font-size: 0.7rem; opacity: 0.5; letter-spacing: 3px; cursor: pointer; text-transform: uppercase; }
         #weather-grid { display: flex; gap: 0.8rem; align-items: center; cursor: pointer; }
-        
-        .weather-card { 
-            background: rgba(255,255,255,0.03); 
-            padding: 0.5rem 0.8rem; 
-            border-radius: 10px; 
-            border: 1px solid rgba(255,255,255,0.05); 
-            text-align: center; 
-            min-width: 5.5rem; 
-            transition: 0.3s;
-        }
-        .weather-card:hover { background: rgba(255,255,255,0.06); }
+        .weather-card { background: rgba(255,255,255,0.03); padding: 0.5rem 0.8rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); text-align: center; min-width: 5.5rem; }
         .weather-card i { font-size: 1.1rem; margin: 0.3rem 0; }
         .weather-day-label { font-size: 0.55rem; opacity: 0.5; text-transform: uppercase; }
         .weather-temp { font-weight: bold; font-size: 0.85rem; }
 
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #0a0a0a; padding: 2rem; border-radius: 20px; z-index: 2000; width: min(600px, 95vw); max-height: 85vh; overflow-y: auto; border: 1px solid #222; }
+        /* Responsive Settings Panel */
+        .modal { 
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            background: #0a0a0a; padding: 2rem; border-radius: 20px; z-index: 2000; 
+            width: min(600px, 95vw); max-height: 85vh; overflow-y: auto; border: 1px solid #222; 
+        }
         #overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; backdrop-filter: blur(5px); }
         .section-h { font-size:0.65rem; color:#00d4ff; font-weight:900; margin: 1.5rem 0 0.8rem 0; text-transform: uppercase; letter-spacing: 1px; }
         
@@ -90,6 +65,9 @@
         .edit-mode .del-btn { display: inline; }
         
         .ql-row { display: grid; grid-template-columns: 30px 140px 1fr; gap: 10px; align-items: center; margin-bottom: 8px; }
+        .ql-header { display: grid; grid-template-columns: 30px 140px 1fr; gap: 10px; font-size: 0.6rem; opacity: 0.4; margin-bottom: 5px; }
+        .color-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 5px 0; font-size: 0.8rem; }
+        .color-row input[type="color"] { width: 50px; height: 32px; padding: 2px; flex-shrink: 0; }
         .city-tag { display: flex; justify-content: space-between; align-items: center; background: #151515; padding: 8px 12px; border-radius: 6px; margin: 5px 0; font-size: 0.85rem; }
     </style>
 </head>
@@ -119,29 +97,63 @@
 
     <div id="settings-modal" class="modal">
         <h2 style="margin:0 0 1rem 0; font-size: 1.1rem;">Dashboard Settings</h2>
+        
+        <div class="section-h">Quick Links Configuration</div>
+        <div class="ql-header"><span>Vis</span><span>Icon</span><span>Target URL</span></div>
         <div id="ql-list-editor"></div>
+
+        <div class="section-h">Navigation Behavior</div>
+        <div class="color-row">
+            <span>Open links in:</span>
+            <select id="target-mode" onchange="updateVisRealtime()" style="width: 140px; margin:0;">
+                <option value="_blank">New Tab</option>
+                <option value="_self">Current Tab</option>
+            </select>
+        </div>
+
         <div class="section-h">Categories</div>
         <select id="cat-sel" onchange="syncCategoryEditor()"></select>
-        <div style="display:flex; gap:10px;"><input type="text" id="cat-title" oninput="updateCatRealtime()" placeholder="Title"><input type="color" id="cat-color" oninput="updateCatRealtime()" style="width:60px; height:42px;"></div>
+        <div style="display:flex; gap:10px;">
+            <input type="text" id="cat-title" oninput="updateCatRealtime()" placeholder="Title">
+            <input type="color" id="cat-color" oninput="updateCatRealtime()" style="width:60px; height:42px;">
+        </div>
         <div id="link-list-editor" style="margin-top:10px; border: 1px solid #1a1a1a; padding: 10px; border-radius: 10px; max-height: 200px; overflow-y: auto; background: #050505;"></div>
-        <button onclick="addLinkInline()">+ Add Link</button><button onclick="addCat()">+ New Category</button>
+        <button onclick="addLinkInline()">+ Add Link</button>
+        <button onclick="addCat()">+ New Category</button>
+
         <div class="section-h">Visual Style</div>
-        <div class="color-row" style="display:flex; justify-content:space-between; align-items:center;"><span>Background Color</span> <input type="color" id="bg-color" oninput="updateVisRealtime()" style="width:50px;"></div>
-        <div class="color-row" style="display:flex; justify-content:space-between; align-items:center;"><span>Global Icon Color</span> <input type="color" id="icon-color-picker" oninput="updateVisRealtime()" style="width:50px;"></div>
-        <div style="display:flex; gap:10px; margin-top:15px;"><label><input type="checkbox" id="w-toggle" onchange="updateVisRealtime()"> Weather</label><label><input type="checkbox" id="mesh-check" onchange="updateVisRealtime()"> Mesh</label></div>
-        <input type="range" id="op-slide" min="0" max="1" step="0.05" oninput="updateVisRealtime()" style="margin-top:10px;">
+        <div class="color-row"><span>Background Color</span> <input type="color" id="bg-color" oninput="updateVisRealtime()"></div>
+        <div class="color-row"><span>Global Icon Color</span> <input type="color" id="icon-color-picker" oninput="updateVisRealtime()"></div>
+        <div class="color-row"><span>Category Links Text</span> <input type="color" id="l-color" oninput="updateVisRealtime()"></div>
+        <div class="color-row"><span>Weather UI Color</span> <input type="color" id="w-color" oninput="updateVisRealtime()"></div>
+
+        <div style="display:flex; gap:10px; margin-top:15px;">
+            <label style="font-size:0.75rem;"><input type="checkbox" id="w-toggle" onchange="updateVisRealtime()"> Enable Weather</label>
+            <label style="font-size:0.75rem;"><input type="checkbox" id="mesh-check" onchange="updateVisRealtime()"> Mesh Effect</label>
+        </div>
+        
+        <div class="section-h">Background Opacity</div>
+        <input type="range" id="op-slide" min="0" max="1" step="0.05" oninput="updateVisRealtime()">
+
+        <div class="section-h">System</div>
+        <div style="display:flex; gap:10px;">
+            <button style="background:#333;" onclick="exportData()">Backup</button>
+            <button style="background:#333;" onclick="document.getElementById('file-input').click()">Import</button>
+            <input type="file" id="file-input" style="display:none" onchange="importData(this)">
+        </div>
     </div>
 
     <div id="weather-modal" class="modal">
         <h3>Weather Locations</h3>
         <div id="current-cities"></div>
-        <input type="text" placeholder="Search city..." oninput="searchCity(this.value)" style="margin-top:15px;">
+        <div class="section-h">Add New City</div>
+        <input type="text" placeholder="Search city name..." oninput="searchCity(this.value)">
         <div id="search-res"></div>
-        <button onclick="closeModals()">Close</button>
+        <button onclick="closeModals()">Back to Settings</button>
     </div>
 
 <script>
-    const KEY = "DASH_STABLE_V26_FINAL_TOUCH";
+    const KEY = "DASH_STABLE_V27_COMPLETE";
     const ICON_LIST = ["fa-spotify", "fa-server", "fa-music", "fa-sliders", "fa-github", "fa-youtube", "fa-twitch", "fa-cloud", "fa-terminal", "fa-code", "fa-heart", "fa-star"];
     const W_ICONS = { 0: "fa-sun", 1: "fa-cloud-sun", 2: "fa-cloud-sun", 3: "fa-cloud", 45: "fa-smog", 51: "fa-cloud-rain", 61: "fa-cloud-showers-heavy", 95: "fa-bolt" };
 
@@ -152,16 +164,13 @@
             for(let j=1; j<=5; j++) links.push({name:`Link ${j}`, url:"#"});
             homeCats.push({title:`Category ${i}`, color:"#00d4ff", links: links});
         }
-        const workCats = [
-            {title:"1", color:"#4682B4", links:[{name:"Link 1",url:"#"},{name:"Link 2",url:"#"},{name:"Link 3",url:"#"},{name:"Link 4",url:"#"}]},
-            {title:"2", color:"#4682B4", links:[{name:"Link 1",url:"#"},{name:"Link 2",url:"#"},{name:"Link 3",url:"#"},{name:"Link 4",url:"#"}]}
-        ];
+        const baseQl = [ {name:"fa-brands fa-spotify", url:"#", vis:false}, {name:"fa-solid fa-server", url:"#", vis:false}, {name:"fa-solid fa-music", url:"#", vis:false}, {name:"fa-solid fa-sliders", url:"#", vis:false} ];
         return {
             profile: 'home', opacity: 0.3, mesh: true, showWeather: true, target: '_blank',
             bgColor: "#1C1B22", iconColor: "#ffffff", weatherColor: "#ffffff", linkColor: "#cccccc",
             cities: [{name: "Lisboa", lat: 38.71, lon: -9.13}],
-            home: { ql: [{name:"fa-brands fa-spotify", url:"#", vis:false}, {name:"fa-solid fa-server", url:"#", vis:false}], categories: homeCats },
-            work: { ql: [{name:"fa-brands fa-spotify", url:"#", vis:false}, {name:"fa-solid fa-server", url:"#", vis:false}], categories: workCats }
+            home: { ql: JSON.parse(JSON.stringify(baseQl)), categories: homeCats },
+            work: { ql: JSON.parse(JSON.stringify(baseQl)), categories: [] }
         };
     }
 
@@ -198,11 +207,59 @@
         if(refreshModal) syncCategoryEditor();
     }
 
-    // Modal / Setup logic
-    function openModal(id) { document.getElementById(id).style.display = 'block'; document.getElementById('overlay').style.display = 'block'; if(id === 'weather-modal') renderWeatherManager(); }
+    // Logic Functions
+    function openModal(id) { document.getElementById(id).style.display = 'block'; document.getElementById('overlay').style.display = 'block'; if(id === 'settings-modal') renderSettings(); }
     function closeModals() { document.querySelectorAll('.modal').forEach(m => m.style.display='none'); document.getElementById('overlay').style.display='none'; }
-    function renderWeatherManager() { document.getElementById('current-cities').innerHTML = state.cities.map((c, i) => `<div class="city-tag"><span>${c.name}</span><span onclick="removeCity(${i})">✕</span></div>`).join(''); }
-    
+
+    function renderSettings() {
+        const p = state[state.profile];
+        document.getElementById('cat-sel').innerHTML = p.categories.map((c, i) => `<option value="${i}">${c.title}</option>`).join('');
+        document.getElementById('ql-list-editor').innerHTML = p.ql.map((l, i) => `
+            <div class="ql-row">
+                <input type="checkbox" ${l.vis ? 'checked' : ''} onchange="updateQlRealtime(${i},'vis',this.checked)" style="width:16px;">
+                <select onchange="updateQlRealtime(${i},'name',this.value)" style="margin:0;">
+                    ${ICON_LIST.map(ic => `<option value="${ic.includes('spotify') ? 'fa-brands '+ic : 'fa-solid '+ic}" ${l.name.includes(ic) ? 'selected' : ''}>${ic.replace('fa-','')}</option>`).join('')}
+                </select>
+                <input type="text" value="${l.url}" oninput="updateQlRealtime(${i},'url',this.value)" style="margin:0;">
+            </div>`).join('');
+        
+        document.getElementById('target-mode').value = state.target || '_blank';
+        document.getElementById('w-toggle').checked = state.showWeather;
+        document.getElementById('mesh-check').checked = state.mesh;
+        document.getElementById('bg-color').value = state.bgColor;
+        document.getElementById('icon-color-picker').value = state.iconColor;
+        document.getElementById('w-color').value = state.weatherColor;
+        document.getElementById('l-color').value = state.linkColor;
+        document.getElementById('op-slide').value = state.opacity;
+        syncCategoryEditor();
+    }
+
+    function syncCategoryEditor() {
+        const p = state[state.profile];
+        const idx = document.getElementById('cat-sel').value;
+        if(idx !== "" && p.categories[idx]) {
+            const c = p.categories[idx];
+            document.getElementById('cat-title').value = c.title;
+            document.getElementById('cat-color').value = c.color;
+            document.getElementById('link-list-editor').innerHTML = c.links.map((l, li) => `<div style="display:flex; gap:5px; margin-bottom:8px;"><input type="text" value="${l.name}" oninput="updateLinkRealtime(${idx}, ${li}, 'name', this.value)"><input type="text" value="${l.url}" oninput="updateLinkRealtime(${idx}, ${li}, 'url', this.value)"><button style="width:35px; margin:0; background:#300; color:red;" onclick="delLink(${idx}, ${li}); syncCategoryEditor();">✕</button></div>`).join('');
+        }
+    }
+
+    function updateCatRealtime() { const idx = document.getElementById('cat-sel').value; const c = state[state.profile].categories[idx]; c.title = document.getElementById('cat-title').value; c.color = document.getElementById('cat-color').value; saveAndRender(); }
+    function updateLinkRealtime(ci, li, k, v) { state[state.profile].categories[ci].links[li][k] = v; saveAndRender(); }
+    function updateQlRealtime(i, k, v) { state[state.profile].ql[i][k] = v; saveAndRender(); }
+    function updateVisRealtime() {
+        state.target = document.getElementById('target-mode').value;
+        state.showWeather = document.getElementById('w-toggle').checked;
+        state.mesh = document.getElementById('mesh-check').checked;
+        state.bgColor = document.getElementById('bg-color').value;
+        state.iconColor = document.getElementById('icon-color-picker').value;
+        state.weatherColor = document.getElementById('w-color').value;
+        state.linkColor = document.getElementById('l-color').value;
+        state.opacity = document.getElementById('op-slide').value;
+        saveAndRender(); updateWeather();
+    }
+
     async function updateWeather() {
         const city = state.cities[cityIdx]; if(!city) return;
         document.getElementById('city-name').textContent = city.name;
@@ -223,6 +280,13 @@
     function addCity(n, la, lo) { state.cities.push({name:n, lat:la, lon:lo}); document.getElementById('search-res').innerHTML=''; renderWeatherManager(); saveAndRender(); updateWeather(); }
     function removeCity(i) { state.cities.splice(i,1); if(cityIdx >= state.cities.length) cityIdx = 0; renderWeatherManager(); saveAndRender(); updateWeather(); }
     function toggleProfile() { state.profile = (state.profile === 'home' ? 'work' : 'home'); saveAndRender(); updateWeather(); }
+    function renderWeatherManager() { document.getElementById('current-cities').innerHTML = state.cities.map((c, i) => `<div class="city-tag"><span>${c.name}</span><span onclick="removeCity(${i})">✕</span></div>`).join(''); }
+    function addLinkInline() { const idx = document.getElementById('cat-sel').value; state[state.profile].categories[idx].links.push({name: "New Link", url: "#"}); saveAndRender(true); }
+    function addCat() { state[state.profile].categories.push({title:"New", color:"#00d4ff", links:[]}); saveAndRender(); openModal('settings-modal'); }
+    function delCat(i) { if(confirm("Delete?")) { state[state.profile].categories.splice(i,1); saveAndRender(); openModal('settings-modal'); } }
+    function delLink(ci, li) { state[state.profile].categories[ci].links.splice(li,1); saveAndRender(); }
+    function exportData() { const b = new Blob([JSON.stringify(state)], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download='startpage_backup.json'; a.click(); }
+    function importData(input) { const file = input.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = (e) => { try { state = JSON.parse(e.target.result); saveAndRender(); alert("Import successful!"); } catch(err) { alert("Error: Invalid JSON file."); } }; reader.readAsText(file); }
 
     window.onload = () => { saveAndRender(); updateWeather(); };
 </script>
