@@ -15,10 +15,17 @@
         }
         #full-bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; transition: 0.8s; }
         .container { width: 100%; max-width: 95vw; margin: 0 auto; padding: 2rem; flex: 1; display: flex; flex-direction: column; }
+        
+        /* TOP BAR COLOR UNIFICATION */
         .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
         .nav-group { display: flex; gap: 1.5rem; align-items: center; }
-        .nav-link { cursor: pointer; font-size: 0.75rem; font-weight: 800; color: #555; text-decoration: none; text-transform: uppercase; letter-spacing: 1.5px; transition: 0.3s; }
-        .nav-link:hover, .nav-link.active { color: #fff; }
+        .nav-link { 
+            cursor: pointer; font-size: 0.75rem; font-weight: 800; 
+            color: #555; text-decoration: none; text-transform: uppercase; 
+            letter-spacing: 1.5px; transition: 0.3s; 
+        }
+        /* Active/Icons color set to white to match Profile label */
+        .nav-link:hover, .nav-link.active, .nav-link i { color: #fff; }
 
         #grid { display: flex; flex-wrap: wrap; gap: 2rem; justify-content: center; align-content: flex-start; flex-grow: 1; }
         .column { 
@@ -31,17 +38,22 @@
         .link-row { display: flex; justify-content: center; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.03); position: relative; }
         .link-row a { text-decoration: none; transition: 0.2s; }
 
+        /* WEATHER STYLES */
         #weather-area { margin-top: auto; padding: 2rem 0; display: none; justify-content: center; align-items: center; gap: 20px; }
-        #weather-grid { display: flex; gap: 10px; align-items: center; }
+        #weather-grid { display: flex; gap: 10px; align-items: center; cursor: pointer; } /* Grid opens config */
         .weather-card { background: rgba(255,255,255,0.03); padding: 0.6rem 1rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); text-align: center; min-width: 70px; }
-        #city-name { font-size: 0.7rem; opacity: 0.4; letter-spacing: 2px; cursor: pointer; text-transform: uppercase; border-right: 1px solid rgba(255,255,255,0.1); padding-right: 20px; }
+        #city-name { 
+            font-size: 0.7rem; opacity: 0.4; letter-spacing: 2px; cursor: pointer; 
+            text-transform: uppercase; border-right: 1px solid rgba(255,255,255,0.1); 
+            padding-right: 20px; transition: opacity 0.2s;
+        }
+        #city-name:hover { opacity: 1; }
 
         .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #0a0a0a; padding: 2rem; border-radius: 20px; z-index: 2000; width: min(550px, 95vw); max-height: 85vh; overflow-y: auto; border: 1px solid #222; }
         #overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; backdrop-filter: blur(5px); }
         .section-h { font-size:0.6rem; color:var(--accent, #00d4ff); font-weight:900; margin: 1.5rem 0 0.5rem 0; text-transform: uppercase; }
         input, select { background: #111; border: 1px solid #222; color: white; padding: 10px; border-radius: 6px; width: 100%; margin: 5px 0; }
         button { cursor: pointer; background: #222; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; margin-top: 10px; color: white; transition: 0.2s; }
-        button:hover { background: #333; }
         .del-btn { color: #ff4444; cursor: pointer; font-size: 0.7rem; position: absolute; right: 0; display: none; }
         .edit-mode .del-btn { display: inline; }
     </style>
@@ -63,8 +75,8 @@
         <main id="grid"></main>
 
         <section id="weather-area">
-            <span id="city-name" onclick="cycleCity()">---</span>
-            <div id="weather-grid"></div>
+            <span id="city-name" onclick="cycleCity()" title="Click to change location">---</span>
+            <div id="weather-grid" onclick="openModal('weather-modal')" title="Click to search city"></div>
         </section>
     </div>
 
@@ -113,7 +125,7 @@
     </div>
 
 <script>
-    const KEY = "DASH_STABLE_V13";
+    const KEY = "DASH_STABLE_V14";
     const W_ICONS = { 0: "fa-sun", 1: "fa-cloud-sun", 2: "fa-cloud-sun", 3: "fa-cloud", 45: "fa-smog", 51: "fa-cloud-rain", 61: "fa-cloud-showers-heavy", 95: "fa-bolt" };
 
     function getDefaults() {
@@ -125,7 +137,7 @@
         }
         return {
             profile: 'home', opacity: 0.3, mesh: true, showWeather: true,
-            weatherColor: "#00d4ff", linkColor: "#cccccc",
+            weatherColor: "#ffffff", linkColor: "#cccccc",
             cities: [{name: "Odivelas", lat: 38.79, lon: -9.18}],
             home: { 
                 ql: [{name:"", url:"", vis:false},{name:"", url:"", vis:false},{name:"", url:"", vis:false},{name:"", url:"", vis:false}],
@@ -142,8 +154,8 @@
         localStorage.setItem(KEY, JSON.stringify(state));
         const p = state[state.profile];
         
-        // Nav
-        const qlHtml = p.ql.filter(l => l.vis && l.name).map(l => `<a href="${l.url}" class="nav-link" target="_blank">${l.name}</a>`).join('');
+        // Nav - All navigation text/icons forced to White
+        const qlHtml = p.ql.filter(l => l.vis && l.name).map(l => `<a href="${l.url}" class="nav-link active" target="_blank">${l.name}</a>`).join('');
         document.getElementById('ql-nav').innerHTML = `<span class="nav-link active" onclick="toggleProfile()">${state.profile}</span>` + qlHtml;
 
         // Grid
@@ -167,7 +179,6 @@
         const wArea = document.getElementById('weather-area');
         wArea.style.display = state.showWeather ? 'flex' : 'none';
         wArea.style.color = state.weatherColor;
-        document.querySelectorAll('.weather-icon').forEach(i => i.style.color = state.weatherColor);
 
         const bg = document.getElementById('full-bg');
         if(state.mesh) {
@@ -236,6 +247,7 @@
         state.opacity = document.getElementById('op-slide').value;
         state.mesh = document.getElementById('mesh-check').checked;
         saveAndRender();
+        updateWeather(); // Instant color update for weather icons
     }
     
     function addLinkInline() { const idx = document.getElementById('cat-sel').value; state[state.profile].categories[idx].links.push({name: "New Link", url: "#"}); saveAndRender(true); }
@@ -259,7 +271,7 @@
         } catch(e) {}
     }
 
-    function cycleCity() { cityIdx = (cityIdx + 1) % state.cities.length; updateWeather(); }
+    function cycleCity() { if(state.cities.length > 1) { cityIdx = (cityIdx + 1) % state.cities.length; updateWeather(); } }
     async function searchCity(v) {
         if(v.length < 3) return;
         const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${v}&count=5`);
