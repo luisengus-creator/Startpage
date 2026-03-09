@@ -75,6 +75,7 @@
         <h2 style="margin:0 0 1rem 0; font-size: 1.1rem;">Startpage Engine</h2>
         <div class="section-h">Quick Links</div>
         <div id="ql-list-editor"></div>
+
         <div class="section-h">Categories</div>
         <select id="cat-sel" onchange="syncCategoryEditor()"></select>
         <div style="display:flex; gap:10px;">
@@ -85,12 +86,17 @@
         <div id="link-list-editor" style="margin-top:10px; border: 1px solid #1a1a1a; padding: 10px; border-radius: 10px; max-height: 200px; overflow-y: auto; background: #050505;"></div>
         <button onclick="addLinkInline()">+ Add Link</button>
         <button onclick="addCat()">+ New Category</button>
-        <div class="section-h">Weather & Styles</div>
-        <div style="display:flex; flex-wrap:wrap; gap:10px;">
+
+        <div class="section-h">Visuals & Weather</div>
+        <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
             <label style="flex:1; font-size:0.7rem;"><input type="checkbox" id="w-toggle" onchange="updateVisRealtime()"> Weather</label>
-            <input type="color" id="w-color" oninput="updateVisRealtime()" style="flex:1; height:30px;">
-            <input type="color" id="l-color" oninput="updateVisRealtime()" style="flex:1; height:30px;">
+            <label style="flex:1; font-size:0.7rem;"><input type="checkbox" id="mesh-check" onchange="updateVisRealtime()"> Mesh</label>
+            <input type="color" id="w-color" oninput="updateVisRealtime()" style="flex:1; height:30px;" title="Weather Color">
+            <input type="color" id="l-color" oninput="updateVisRealtime()" style="flex:1; height:30px;" title="Global Link Color">
         </div>
+        <div class="section-h">Background Opacity</div>
+        <input type="range" id="op-slide" min="0" max="1" step="0.05" oninput="updateVisRealtime()">
+
         <div class="section-h">Backup & Restore</div>
         <div style="display:flex; gap:10px;">
             <button style="background:#333;" onclick="exportData()">Backup</button>
@@ -107,7 +113,7 @@
     </div>
 
 <script>
-    const KEY = "DASH_STABLE_V16_FINAL";
+    const KEY = "DASH_STABLE_V17_REBOOT";
     const W_ICONS = { 0: "fa-sun", 1: "fa-cloud-sun", 2: "fa-cloud-sun", 3: "fa-cloud", 45: "fa-smog", 51: "fa-cloud-rain", 61: "fa-cloud-showers-heavy", 95: "fa-bolt" };
 
     function getDefaults() {
@@ -125,8 +131,8 @@
             profile: 'home', opacity: 0.3, mesh: true, showWeather: true,
             weatherColor: "#ffffff", linkColor: "#cccccc",
             cities: [{name: "Lisboa", lat: 38.71, lon: -9.13}],
-            home: { ql: Array(4).fill({name:"", url:"", vis:false}), categories: homeCats },
-            work: { ql: Array(4).fill({name:"", url:"", vis:false}), categories: workCats }
+            home: { ql: [ {name:"", url:"", vis:false}, {name:"", url:"", vis:false}, {name:"", url:"", vis:false}, {name:"", url:"", vis:false} ], categories: homeCats },
+            work: { ql: [ {name:"", url:"", vis:false}, {name:"", url:"", vis:false}, {name:"", url:"", vis:false}, {name:"", url:"", vis:false} ], categories: workCats }
         };
     }
 
@@ -136,6 +142,7 @@
     function saveAndRender(refreshModal = false) {
         localStorage.setItem(KEY, JSON.stringify(state));
         const p = state[state.profile];
+        
         const qlHtml = p.ql.filter(l => l.vis && l.name).map(l => `<a href="${l.url}" class="nav-link active" target="_blank">${l.name}</a>`).join('');
         document.getElementById('ql-nav').innerHTML = `<span class="nav-link active" onclick="toggleProfile()">${state.profile}</span>` + qlHtml;
 
@@ -158,9 +165,14 @@
         wArea.style.color = state.weatherColor;
 
         const bg = document.getElementById('full-bg');
-        const cols = p.categories.map(x => x.color);
-        bg.style.background = cols.length > 1 ? `linear-gradient(135deg, ${cols.join(',')})` : (cols[0] || '#050505');
-        bg.style.opacity = state.opacity;
+        if (state.mesh) {
+            const cols = p.categories.map(x => x.color);
+            bg.style.background = cols.length > 1 ? `linear-gradient(135deg, ${cols.join(',')})` : (cols[0] || '#050505');
+            bg.style.opacity = state.opacity;
+        } else {
+            bg.style.opacity = 0;
+        }
+
         if(refreshModal) syncCategoryEditor();
     }
 
@@ -169,15 +181,19 @@
         document.getElementById('overlay').style.display = 'block';
         const p = state[state.profile];
         document.getElementById('cat-sel').innerHTML = p.categories.map((c, i) => `<option value="${i}">${c.title}</option>`).join('');
+        
         document.getElementById('ql-list-editor').innerHTML = p.ql.map((l, i) => `
             <div style="display:flex; gap:5px; align-items:center; margin-bottom:5px;">
                 <input type="checkbox" ${l.vis ? 'checked' : ''} onchange="updateQlRealtime(${i},'vis',this.checked)">
                 <input type="text" value="${l.name}" placeholder="Label" oninput="updateQlRealtime(${i},'name',this.value)">
                 <input type="text" value="${l.url}" placeholder="URL" oninput="updateQlRealtime(${i},'url',this.value)">
             </div>`).join('');
+
         document.getElementById('w-toggle').checked = state.showWeather;
+        document.getElementById('mesh-check').checked = state.mesh;
         document.getElementById('w-color').value = state.weatherColor;
         document.getElementById('l-color').value = state.linkColor;
+        document.getElementById('op-slide').value = state.opacity;
         syncCategoryEditor();
     }
 
@@ -207,12 +223,18 @@
         saveAndRender();
     }
     function updateLinkRealtime(ci, li, k, v) { state[state.profile].categories[ci].links[li][k] = v; saveAndRender(); }
-    function updateQlRealtime(i, k, v) { state[state.profile].ql[i][k] = v; saveAndRender(); }
+    function updateQlRealtime(i, k, v) { 
+        state[state.profile].ql[i][k] = v; 
+        saveAndRender(); 
+    }
     function updateVisRealtime() {
         state.showWeather = document.getElementById('w-toggle').checked;
+        state.mesh = document.getElementById('mesh-check').checked;
         state.weatherColor = document.getElementById('w-color').value;
         state.linkColor = document.getElementById('l-color').value;
-        saveAndRender(); updateWeather();
+        state.opacity = document.getElementById('op-slide').value;
+        saveAndRender(); 
+        updateWeather();
     }
     
     function addLinkInline() { const idx = document.getElementById('cat-sel').value; state[state.profile].categories[idx].links.push({name: "New Link", url: "#"}); saveAndRender(true); }
@@ -245,7 +267,6 @@
     }
     function addCity(n, la, lo) { state.cities.push({name:n, lat:la, lon:lo}); document.getElementById('search-res').innerHTML=''; saveAndRender(); updateWeather(); }
     function closeModals() { document.querySelectorAll('.modal').forEach(m => m.style.display='none'); document.getElementById('overlay').style.display='none'; }
-    
     function exportData() {
         const b = new Blob([JSON.stringify(state)], {type:'application/json'});
         const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download='startpage_backup.json'; a.click();
@@ -256,8 +277,7 @@
         const reader = new FileReader();
         reader.onload = (e) => {
             try {
-                const imported = JSON.parse(e.target.result);
-                state = imported;
+                state = JSON.parse(e.target.result);
                 saveAndRender();
                 alert("Import successful!");
             } catch(err) { alert("Error: Invalid JSON file."); }
