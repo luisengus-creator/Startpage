@@ -142,8 +142,8 @@
             <div class="color-row">
                 <span>Open links in:</span>
                 <select id="target-mode" onchange="updateVisRealtime()" style="width: 140px; margin:0;">
-                    <option value="_blank">New Tab</option>
                     <option value="_self">Current Tab</option>
+                    <option value="_blank">New Tab</option>
                 </select>
             </div>
         </div>
@@ -207,40 +207,34 @@
     </div>
 
 <script>
-    const KEY = "DASH_STABLE_V42_LAYOUT_FIX";
-    const ICON_LIST = ["fa-spotify", "fa-server", "fa-music", "fa-sliders", "fa-github", "fa-terminal", "fa-code", "fa-heart", "fa-star", "fa-circle", "fa-square", "fa-play", "fa-diamond", "fa-hexagon", "fa-a", "fa-b", "fa-c", "fa-1", "fa-2", "fa-3"];
-    
-    const W_DATA = { 
-        0: { icon: "fa-sun", color: "#FFD700" }, 
-        1: { icon: "fa-cloud-sun", color: "#FFB800" }, 
-        2: { icon: "fa-cloud-sun", color: "#FFB800" }, 
-        3: { icon: "fa-cloud", color: "#B0C4DE" }, 
-        45: { icon: "fa-smog", color: "#778899" }, 
-        51: { icon: "fa-cloud-rain", color: "#00BFFF" }, 
-        61: { icon: "fa-cloud-showers-heavy", color: "#1E90FF" }, 
-        95: { icon: "fa-bolt", color: "#BA55D3" } 
-    };
+    const KEY = "STARTPAGE_V45_TAB_FIX";
+    const ICON_LIST = ["fa-solid fa-server", "fa-solid fa-sliders", "fa-brands fa-spotify", "fa-solid fa-star", "fa-solid fa-music", "fa-brands fa-github", "fa-solid fa-terminal", "fa-solid fa-code", "fa-solid fa-heart", "fa-solid fa-play"];
+    const W_DATA = { 0: { icon: "fa-sun", color: "#FFD700" }, 1: { icon: "fa-cloud-sun", color: "#FFB800" }, 2: { icon: "fa-cloud-sun", color: "#FFB800" }, 3: { icon: "fa-cloud", color: "#B0C4DE" }, 45: { icon: "fa-smog", color: "#778899" }, 51: { icon: "fa-cloud-rain", color: "#00BFFF" }, 61: { icon: "fa-cloud-showers-heavy", color: "#1E90FF" }, 95: { icon: "fa-bolt", color: "#BA55D3" } };
 
-    function getDefaults() {
-        const homeCats = [];
-        for(let i=1; i<=5; i++) {
+    function generateDefaultCats(count, prefix) {
+        const cats = [];
+        for(let i=1; i<=count; i++) {
             let links = [];
             for(let j=1; j<=5; j++) links.push({name:`Link ${j}`, url:"#"});
-            homeCats.push({title:`Category ${i}`, color:"#00d4ff", url: "#", links: links});
+            cats.push({title:`${prefix} ${i}`, color: prefix === "Work" ? "#ff8800" : "#00d4ff", url: "#", links: links});
         }
-        const workCats = [];
-        for(let i=1; i<=3; i++) {
-            let links = [];
-            for(let j=1; j<=3; j++) links.push({name:`Work Link ${j}`, url:"#"});
-            workCats.push({title:`Work Cat ${i}`, color:"#ff8800", url: "#", links: links});
-        }
-        const baseQl = [{name:"fa-brands fa-spotify",url:"#",vis:false},{name:"fa-solid fa-server",url:"#",vis:false},{name:"fa-solid fa-music",url:"#",vis:false},{name:"fa-solid fa-sliders",url:"#",vis:false}];
+        return cats;
+    }
+
+    function getDefaults() {
+        const baseQl = [
+            {name:"fa-solid fa-server", url:"#", vis:false},
+            {name:"fa-solid fa-sliders", url:"#", vis:false},
+            {name:"fa-brands fa-spotify", url:"#", vis:false},
+            {name:"fa-solid fa-star", url:"#", vis:false}
+        ];
+
         return {
-            profile: 'home', opacity: 0.3, mesh: true, target: '_blank', realWeatherColors: true,
+            profile: 'home', opacity: 0.3, mesh: true, target: '_self', realWeatherColors: true,
             bgColor: "#1C1B22", iconColor: "#ffffff", weatherColor: "#ffffff", linkColor: "#cccccc",
             cities: [{name: "Lisboa", lat: 38.71, lon: -9.13}],
-            home: { ql: JSON.parse(JSON.stringify(baseQl)), categories: homeCats, showWeather: true },
-            work: { ql: JSON.parse(JSON.stringify(baseQl)), categories: workCats, showWeather: true }
+            home: { ql: JSON.parse(JSON.stringify(baseQl)), categories: generateDefaultCats(5, "Category"), showWeather: true },
+            work: { ql: JSON.parse(JSON.stringify(baseQl)), categories: generateDefaultCats(3, "Work"), showWeather: true }
         };
     }
 
@@ -295,14 +289,11 @@
             <div class="ql-row">
                 <input type="checkbox" ${l.vis ? 'checked' : ''} onchange="updateQlRealtime(${i},'vis',this.checked)">
                 <select onchange="updateQlRealtime(${i},'name',this.value)" style="margin:0;">
-                    ${ICON_LIST.map(ic => {
-                        let prefix = ic.includes('spotify') ? 'fa-brands ' : 'fa-solid ';
-                        return `<option value="${prefix}${ic}" ${l.name.includes(ic) ? 'selected' : ''}>${ic.replace('fa-','')}</option>`;
-                    }).join('')}
+                    ${ICON_LIST.map(ic => `<option value="${ic}" ${l.name === ic ? 'selected' : ''}>${ic.split('-').pop()}</option>`).join('')}
                 </select>
                 <input type="text" value="${l.url}" oninput="updateQlRealtime(${i},'url',this.value)" style="margin:0;">
             </div>`).join('');
-        document.getElementById('target-mode').value = state.target || '_blank';
+        document.getElementById('target-mode').value = state.target || '_self';
         document.getElementById('w-toggle').checked = p.showWeather;
         document.getElementById('mesh-check').checked = state.mesh;
         document.getElementById('w-real-color').checked = state.realWeatherColors;
@@ -391,7 +382,10 @@
     function exportData() { const b = new Blob([JSON.stringify(state)], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download='startpage_backup.json'; a.click(); }
     function importData(input) { const file = input.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = (e) => { try { state = JSON.parse(e.target.result); saveAndRender(); alert("Import successful!"); } catch(err) { alert("Error: Invalid JSON file."); } }; reader.readAsText(file); }
 
-    window.onload = () => { saveAndRender(); updateWeather(); };
+    window.onload = () => { 
+        saveAndRender(); 
+        updateWeather(); 
+    };
 </script>
 </body>
 </html>
