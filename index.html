@@ -210,30 +210,23 @@
     </div>
 
 <script>
-    const KEY = "DASH_STABLE_V45_FIXED_ICONS";
+    const KEY = "DASH_STABLE_V46_FINAL_QL";
     
     // Explicit list with labels for the dropdown
     const ICON_SET = [
-        { class: "fa-solid fa-server", label: "Server Solid" },
-        { class: "fa-solid fa-sliders", label: "Sliders Solid" },
-        { class: "fa-brands fa-spotify", label: "Spotify Brand" },
-        { class: "fa-solid fa-music", label: "Music Solid" },
-        { class: "fa-solid fa-1", label: "1 Solid" },
-        { class: "fa-solid fa-2", label: "2 Solid" },
-        { class: "fa-solid fa-3", label: "3 Solid" },
-        { class: "fa-solid fa-4", label: "4 Solid" },
-        { class: "fa-solid fa-5", label: "5 Solid" },
-        { class: "fa-solid fa-6", label: "6 Solid" },
-        { class: "fa-solid fa-7", label: "7 Solid" },
-        { class: "fa-solid fa-8", label: "8 Solid" },
-        { class: "fa-solid fa-9", label: "9 Solid" }
-    ];
-    // Add Alphabet
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").forEach(l => {
-        ICON_SET.push({ class: `fa-solid fa-${l}`, label: `${l} Solid` });
-    });
-    // Add Shapes
-    ICON_SET.push(
+        { class: "fa-solid fa-server", label: "Server" },
+        { class: "fa-solid fa-sliders", label: "Sliders" },
+        { class: "fa-brands fa-spotify", label: "Spotify" },
+        { class: "fa-solid fa-music", label: "Music" },
+        { class: "fa-solid fa-1", label: "1" },
+        { class: "fa-solid fa-2", label: "2" },
+        { class: "fa-solid fa-3", label: "3" },
+        { class: "fa-solid fa-4", label: "4" },
+        { class: "fa-solid fa-5", label: "5" },
+        { class: "fa-solid fa-6", label: "6" },
+        { class: "fa-solid fa-7", label: "7" },
+        { class: "fa-solid fa-8", label: "8" },
+        { class: "fa-solid fa-9", label: "9" },
         { class: "fa-regular fa-star", label: "Star Outline" },
         { class: "fa-solid fa-star", label: "Star Solid" },
         { class: "fa-regular fa-circle", label: "Circle Outline" },
@@ -242,7 +235,7 @@
         { class: "fa-solid fa-square", label: "Square Solid" },
         { class: "fa-solid fa-diamond", label: "Diamond Solid" },
         { class: "fa-solid fa-hexagon", label: "Hexagon Solid" }
-    );
+    ];
     
     const W_DATA = { 
         0: { icon: "fa-sun", color: "#FFD700" }, 
@@ -412,7 +405,7 @@
             const d = await r.json();
             document.getElementById('weather-grid').innerHTML = d.daily.time.slice(0,7).map((t, i) => {
                 const code = d.daily.weathercode[i];
-                const weather = W_DATA[code] || { icon: "fa-cloud", color: "#B0C4DE" };
+                const weather = W_DATA[code] || { icon: "fa-sun", color: "#FFD700" };
                 const iconColor = state.realWeatherColors ? weather.color : state.weatherColor;
                 return `
                 <div class="weather-card">
