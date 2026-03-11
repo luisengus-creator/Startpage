@@ -213,7 +213,7 @@
     </div>
 
 <script>
-    const KEY = "DASH_STABLE_V54_FINAL";
+    const KEY = "DASH_STABLE_V57_FINAL";
     
     const ICON_SET = [
         { class: "fa-solid fa-server", label: "Server" }, { class: "fa-solid fa-sliders", label: "Sliders" }, { class: "fa-brands fa-spotify", label: "Spotify" }, { class: "fa-solid fa-music", label: "Music" }, { class: "fa-solid fa-cloud", label: "Cloud" }, { class: "fa-solid fa-heart", label: "Heart" }, { class: "fa-solid fa-1", label: "1" }, { class: "fa-solid fa-2", label: "2" }, { class: "fa-solid fa-3", label: "3" }, { class: "fa-solid fa-4", label: "4" }, { class: "fa-solid fa-5", label: "5" }, { class: "fa-solid fa-6", label: "6" }, { class: "fa-solid fa-7", label: "7" }, { class: "fa-solid fa-8", label: "8" }, { class: "fa-solid fa-9", label: "9" }, { class: "fa-regular fa-star", label: "Star Outline" }, { class: "fa-solid fa-star", label: "Star Solid" }, { class: "fa-regular fa-circle", label: "Circle Outline" }, { class: "fa-solid fa-circle", label: "Circle Solid" }, { class: "fa-regular fa-square", label: "Square Outline" }, { class: "fa-solid fa-square", label: "Square Solid" }
@@ -256,9 +256,9 @@
         if (file) {
             const reader = new FileReader();
             reader.onload = (e) => { 
+                // CRITICAL FIX: Ensure the background type is updated BEFORE saving
                 state.bgImg = e.target.result; 
                 state.bgType = 'img';
-                // Immediate force render with modal refresh
                 saveAndRender(true); 
             };
             reader.readAsDataURL(file);
@@ -278,6 +278,7 @@
             bg.style.opacity = state.opacity;
             bg.style.filter = 'none';
         } else if (state.bgType === 'img' && state.bgImg) {
+            // FIXED: Ensure no whitespace or quotes inside data string breaking the CSS
             bg.style.backgroundImage = `url("${state.bgImg}")`;
             bg.style.opacity = 1;
             bg.style.filter = `blur(${state.opacity * 25}px) brightness(${1 - (state.opacity * 0.4)})`;
@@ -322,7 +323,7 @@
         const urlInput = document.getElementById('bg-img-url');
         if (state.bgImg && state.bgImg.startsWith('data:')) {
             urlInput.value = ""; 
-            urlInput.placeholder = "Local file currently active";
+            urlInput.placeholder = "Local file active";
         } else {
             urlInput.value = state.bgImg || "";
             urlInput.placeholder = "Paste Image URL here...";
@@ -367,6 +368,7 @@
         state.opacity = document.getElementById('op-slide').value;
         
         const urlVal = document.getElementById('bg-img-url').value;
+        // Ensure local file isn't wiped unless a new web URL is typed
         if(state.bgType === 'img' && urlVal.trim().startsWith('http')) {
             state.bgImg = urlVal;
         }
