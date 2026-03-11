@@ -170,29 +170,25 @@
     </div>
 
 <script>
-    const KEY = "DASH_STABLE_V35_RESTORED";
-    const ICON_LIST = ["fa-spotify", "fa-server", "fa-music", "fa-sliders", "fa-github", "fa-youtube", "fa-twitch", "fa-cloud", "fa-terminal", "fa-code", "fa-heart", "fa-star"];
+    const KEY = "DASH_STABLE_V36_ICONS";
+    // Removed youtube/twitch, added shapes, letters, and numbers
+    const ICON_LIST = ["fa-spotify", "fa-server", "fa-music", "fa-sliders", "fa-github", "fa-terminal", "fa-code", "fa-heart", "fa-star", "fa-circle", "fa-square", "fa-play", "fa-diamond", "fa-hexagon", "fa-a", "fa-b", "fa-c", "fa-1", "fa-2", "fa-3"];
     const W_ICONS = { 0: "fa-sun", 1: "fa-cloud-sun", 2: "fa-cloud-sun", 3: "fa-cloud", 45: "fa-smog", 51: "fa-cloud-rain", 61: "fa-cloud-showers-heavy", 95: "fa-bolt" };
 
     function getDefaults() {
-        // Build Home: 5 categories with 5 links each
         const homeCats = [];
         for(let i=1; i<=5; i++) {
             let links = [];
             for(let j=1; j<=5; j++) links.push({name:`Link ${j}`, url:"#"});
             homeCats.push({title:`Category ${i}`, color:"#00d4ff", url: "#", links: links});
         }
-        
-        // Build Work: 3 categories with 3 links each
         const workCats = [];
         for(let i=1; i<=3; i++) {
             let links = [];
             for(let j=1; j<=3; j++) links.push({name:`Work Link ${j}`, url:"#"});
             workCats.push({title:`Work Cat ${i}`, color:"#ff8800", url: "#", links: links});
         }
-
         const baseQl = [{name:"fa-brands fa-spotify",url:"#",vis:false},{name:"fa-solid fa-server",url:"#",vis:false},{name:"fa-solid fa-music",url:"#",vis:false},{name:"fa-solid fa-sliders",url:"#",vis:false}];
-        
         return {
             profile: 'home', opacity: 0.3, mesh: true, target: '_blank',
             bgColor: "#1C1B22", iconColor: "#ffffff", weatherColor: "#ffffff", linkColor: "#cccccc",
@@ -253,7 +249,10 @@
             <div class="ql-row" style="display:grid; grid-template-columns:30px 140px 1fr; gap:10px; align-items:center; margin-bottom:8px;">
                 <input type="checkbox" ${l.vis ? 'checked' : ''} onchange="updateQlRealtime(${i},'vis',this.checked)">
                 <select onchange="updateQlRealtime(${i},'name',this.value)" style="margin:0;">
-                    ${ICON_LIST.map(ic => `<option value="${ic.includes('spotify') ? 'fa-brands '+ic : 'fa-solid '+ic}" ${l.name.includes(ic) ? 'selected' : ''}>${ic.replace('fa-','')}</option>`).join('')}
+                    ${ICON_LIST.map(ic => {
+                        let prefix = ic.includes('spotify') ? 'fa-brands ' : 'fa-solid ';
+                        return `<option value="${prefix}${ic}" ${l.name.includes(ic) ? 'selected' : ''}>${ic.replace('fa-','')}</option>`;
+                    }).join('')}
                 </select>
                 <input type="text" value="${l.url}" oninput="updateQlRealtime(${i},'url',this.value)" style="margin:0;">
             </div>`).join('');
