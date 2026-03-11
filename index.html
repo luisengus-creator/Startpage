@@ -90,7 +90,6 @@
         .edit-mode .del-btn { display: inline; }
         
         .ql-row { display: grid; grid-template-columns: 30px 140px 1fr; gap: 10px; align-items: center; margin-bottom: 8px; }
-        .ql-header { display: grid; grid-template-columns: 30px 140px 1fr; gap: 10px; font-size: 0.6rem; opacity: 0.4; margin-bottom: 5px; }
         .color-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 5px 0; font-size: 0.8rem; }
         .color-row input[type="color"] { width: 50px; height: 32px; padding: 2px; flex-shrink: 0; }
         .city-tag { display: flex; justify-content: space-between; align-items: center; background: #151515; padding: 12px; border-radius: 10px; margin: 8px 0; font-size: 0.85rem; border: 1px solid #222; }
@@ -148,9 +147,10 @@
         <div class="color-row"><span>Global Icon Color</span> <input type="color" id="icon-color-picker" oninput="updateVisRealtime()"></div>
         <div class="color-row"><span>Category Links Text</span> <input type="color" id="l-color" oninput="updateVisRealtime()"></div>
         <div class="color-row"><span>Weather UI Color</span> <input type="color" id="w-color" oninput="updateVisRealtime()"></div>
-        <div style="display:flex; gap:10px; margin-top:15px;">
+        <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:15px;">
             <label style="font-size:0.75rem;"><input type="checkbox" id="w-toggle" onchange="updateVisRealtime()"> Enable Weather</label>
             <label style="font-size:0.75rem;"><input type="checkbox" id="mesh-check" onchange="updateVisRealtime()"> Gradient Effect</label>
+            <label style="font-size:0.75rem;"><input type="checkbox" id="w-real-color" onchange="updateVisRealtime()"> Realistic Colors</label>
         </div>
         <div class="section-h">Background Opacity</div>
         <input type="range" id="op-slide" min="0" max="1" step="0.05" oninput="updateVisRealtime()">
@@ -170,10 +170,20 @@
     </div>
 
 <script>
-    const KEY = "DASH_STABLE_V36_ICONS";
-    // Removed youtube/twitch, added shapes, letters, and numbers
+    const KEY = "DASH_STABLE_V37_W_COLORS";
     const ICON_LIST = ["fa-spotify", "fa-server", "fa-music", "fa-sliders", "fa-github", "fa-terminal", "fa-code", "fa-heart", "fa-star", "fa-circle", "fa-square", "fa-play", "fa-diamond", "fa-hexagon", "fa-a", "fa-b", "fa-c", "fa-1", "fa-2", "fa-3"];
-    const W_ICONS = { 0: "fa-sun", 1: "fa-cloud-sun", 2: "fa-cloud-sun", 3: "fa-cloud", 45: "fa-smog", 51: "fa-cloud-rain", 61: "fa-cloud-showers-heavy", 95: "fa-bolt" };
+    
+    // Icon and Color Data
+    const W_DATA = { 
+        0: { icon: "fa-sun", color: "#FFD700" }, 
+        1: { icon: "fa-cloud-sun", color: "#FFB800" }, 
+        2: { icon: "fa-cloud-sun", color: "#FFB800" }, 
+        3: { icon: "fa-cloud", color: "#B0C4DE" }, 
+        45: { icon: "fa-smog", color: "#778899" }, 
+        51: { icon: "fa-cloud-rain", color: "#00BFFF" }, 
+        61: { icon: "fa-cloud-showers-heavy", color: "#1E90FF" }, 
+        95: { icon: "fa-bolt", color: "#BA55D3" } 
+    };
 
     function getDefaults() {
         const homeCats = [];
@@ -190,7 +200,7 @@
         }
         const baseQl = [{name:"fa-brands fa-spotify",url:"#",vis:false},{name:"fa-solid fa-server",url:"#",vis:false},{name:"fa-solid fa-music",url:"#",vis:false},{name:"fa-solid fa-sliders",url:"#",vis:false}];
         return {
-            profile: 'home', opacity: 0.3, mesh: true, target: '_blank',
+            profile: 'home', opacity: 0.3, mesh: true, target: '_blank', realWeatherColors: true,
             bgColor: "#1C1B22", iconColor: "#ffffff", weatherColor: "#ffffff", linkColor: "#cccccc",
             cities: [{name: "Lisboa", lat: 38.71, lon: -9.13}],
             home: { ql: JSON.parse(JSON.stringify(baseQl)), categories: homeCats, showWeather: true },
@@ -246,7 +256,7 @@
         const p = state[state.profile];
         document.getElementById('cat-sel').innerHTML = p.categories.map((c, i) => `<option value="${i}">${c.title}</option>`).join('');
         document.getElementById('ql-list-editor').innerHTML = p.ql.map((l, i) => `
-            <div class="ql-row" style="display:grid; grid-template-columns:30px 140px 1fr; gap:10px; align-items:center; margin-bottom:8px;">
+            <div class="ql-row">
                 <input type="checkbox" ${l.vis ? 'checked' : ''} onchange="updateQlRealtime(${i},'vis',this.checked)">
                 <select onchange="updateQlRealtime(${i},'name',this.value)" style="margin:0;">
                     ${ICON_LIST.map(ic => {
@@ -259,6 +269,7 @@
         document.getElementById('target-mode').value = state.target || '_blank';
         document.getElementById('w-toggle').checked = p.showWeather;
         document.getElementById('mesh-check').checked = state.mesh;
+        document.getElementById('w-real-color').checked = state.realWeatherColors;
         document.getElementById('bg-color').value = state.bgColor;
         document.getElementById('icon-color-picker').value = state.iconColor;
         document.getElementById('w-color').value = state.weatherColor;
@@ -298,10 +309,12 @@
     
     function updateLinkRealtime(ci, li, k, v) { state[state.profile].categories[ci].links[li][k] = v; saveAndRender(); }
     function updateQlRealtime(i, k, v) { state[state.profile].ql[i][k] = v; saveAndRender(); }
+    
     function updateVisRealtime() {
         state.target = document.getElementById('target-mode').value;
         state[state.profile].showWeather = document.getElementById('w-toggle').checked;
         state.mesh = document.getElementById('mesh-check').checked;
+        state.realWeatherColors = document.getElementById('w-real-color').checked;
         state.bgColor = document.getElementById('bg-color').value;
         state.iconColor = document.getElementById('icon-color-picker').value;
         state.weatherColor = document.getElementById('w-color').value;
@@ -316,12 +329,17 @@
         try {
             const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&daily=weathercode,temperature_2m_max&timezone=auto`);
             const d = await r.json();
-            document.getElementById('weather-grid').innerHTML = d.daily.time.slice(0,7).map((t, i) => `
+            document.getElementById('weather-grid').innerHTML = d.daily.time.slice(0,7).map((t, i) => {
+                const code = d.daily.weathercode[i];
+                const weather = W_DATA[code] || { icon: "fa-cloud", color: "#B0C4DE" };
+                const iconColor = state.realWeatherColors ? weather.color : state.weatherColor;
+                return `
                 <div class="weather-card">
                     <div class="weather-day-label">${new Date(t).toLocaleDateString('en',{weekday:'short'})}</div>
-                    <i class="fa-solid ${W_ICONS[d.daily.weathercode[i]] || 'fa-cloud'}" style="color:${state.weatherColor}"></i>
+                    <i class="fa-solid ${weather.icon}" style="color:${iconColor}"></i>
                     <div class="weather-temp">${Math.round(d.daily.temperature_2m_max[i])}°</div>
-                </div>`).join('');
+                </div>`;
+            }).join('');
         } catch(e) {}
     }
 
