@@ -213,30 +213,10 @@
     </div>
 
 <script>
-    const KEY = "DASH_STABLE_V52_FINAL";
+    const KEY = "DASH_STABLE_V53_FINAL";
     
     const ICON_SET = [
-        { class: "fa-solid fa-server", label: "Server" },
-        { class: "fa-solid fa-sliders", label: "Sliders" },
-        { class: "fa-brands fa-spotify", label: "Spotify" },
-        { class: "fa-solid fa-music", label: "Music" },
-        { class: "fa-solid fa-cloud", label: "Cloud" },
-        { class: "fa-solid fa-heart", label: "Heart" },
-        { class: "fa-solid fa-1", label: "1" },
-        { class: "fa-solid fa-2", label: "2" },
-        { class: "fa-solid fa-3", label: "3" },
-        { class: "fa-solid fa-4", label: "4" },
-        { class: "fa-solid fa-5", label: "5" },
-        { class: "fa-solid fa-6", label: "6" },
-        { class: "fa-solid fa-7", label: "7" },
-        { class: "fa-solid fa-8", label: "8" },
-        { class: "fa-solid fa-9", label: "9" },
-        { class: "fa-regular fa-star", label: "Star Outline" },
-        { class: "fa-solid fa-star", label: "Star Solid" },
-        { class: "fa-regular fa-circle", label: "Circle Outline" },
-        { class: "fa-solid fa-circle", label: "Circle Solid" },
-        { class: "fa-regular fa-square", label: "Square Outline" },
-        { class: "fa-solid fa-square", label: "Square Solid" }
+        { class: "fa-solid fa-server", label: "Server" }, { class: "fa-solid fa-sliders", label: "Sliders" }, { class: "fa-brands fa-spotify", label: "Spotify" }, { class: "fa-solid fa-music", label: "Music" }, { class: "fa-solid fa-cloud", label: "Cloud" }, { class: "fa-solid fa-heart", label: "Heart" }, { class: "fa-solid fa-1", label: "1" }, { class: "fa-solid fa-2", label: "2" }, { class: "fa-solid fa-3", label: "3" }, { class: "fa-solid fa-4", label: "4" }, { class: "fa-solid fa-5", label: "5" }, { class: "fa-solid fa-6", label: "6" }, { class: "fa-solid fa-7", label: "7" }, { class: "fa-solid fa-8", label: "8" }, { class: "fa-solid fa-9", label: "9" }, { class: "fa-regular fa-star", label: "Star Outline" }, { class: "fa-solid fa-star", label: "Star Solid" }, { class: "fa-regular fa-circle", label: "Circle Outline" }, { class: "fa-solid fa-circle", label: "Circle Solid" }, { class: "fa-regular fa-square", label: "Square Outline" }, { class: "fa-solid fa-square", label: "Square Solid" }
     ];
 
     const W_DATA = { 0: { icon: "fa-sun", color: "#FFD700" }, 1: { icon: "fa-cloud-sun", color: "#FFB800" }, 2: { icon: "fa-cloud-sun", color: "#FFB800" }, 3: { icon: "fa-cloud", color: "#B0C4DE" }, 45: { icon: "fa-smog", color: "#778899" }, 51: { icon: "fa-cloud-rain", color: "#00BFFF" }, 61: { icon: "fa-cloud-showers-heavy", color: "#1E90FF" }, 95: { icon: "fa-bolt", color: "#BA55D3" } };
@@ -255,10 +235,7 @@
             workCats.push({title:`Category ${i}`, color:"#ff8800", url: "#", links: links});
         }
         const baseQl = [
-            {name:"fa-solid fa-server",url:"#",vis:false},
-            {name:"fa-solid fa-sliders",url:"#",vis:false},
-            {name:"fa-brands fa-spotify",url:"#",vis:false},
-            {name:"fa-solid fa-music",url:"#",vis:false}
+            {name:"fa-solid fa-server",url:"#",vis:false}, {name:"fa-solid fa-sliders",url:"#",vis:false}, {name:"fa-brands fa-spotify",url:"#",vis:false}, {name:"fa-solid fa-music",url:"#",vis:false}
         ];
         return {
             profile: 'home', opacity: 0.3, bgType: 'mesh', bgImg: '', target: '_blank', realWeatherColors: true,
@@ -321,7 +298,6 @@
         document.getElementById('weather-area').style.display = p.showWeather ? 'flex' : 'none';
         document.getElementById('weather-area').style.color = state.weatherColor;
         
-        // Use timeout to prevent the flash but keep transitions smooth later
         setTimeout(() => bg.classList.add('ready'), 50);
         if(refreshModal) renderSettings();
     }
@@ -343,10 +319,9 @@
         document.getElementById('img-input-area').style.display = state.bgType === 'img' ? 'block' : 'none';
         
         const urlInput = document.getElementById('bg-img-url');
-        // Clear value if local image is set so it doesn't try to save placeholder text
         if (state.bgImg && state.bgImg.startsWith('data:')) {
             urlInput.value = ""; 
-            urlInput.placeholder = "Local file active...";
+            urlInput.placeholder = "Local file currently active";
         } else {
             urlInput.value = state.bgImg || "";
             urlInput.placeholder = "Paste Image URL here...";
@@ -391,8 +366,9 @@
         state.opacity = document.getElementById('op-slide').value;
         
         const urlVal = document.getElementById('bg-img-url').value;
-        // Only update bgImg if it's a real link, don't overwrite local storage if blank
-        if(state.bgType === 'img' && urlVal.startsWith('http')) {
+        // CRITICAL FIX: Only overwrite bgImg if it's a real web link. 
+        // This prevents the empty input box from deleting your local data.
+        if(state.bgType === 'img' && urlVal.trim().startsWith('http')) {
             state.bgImg = urlVal;
         }
         saveAndRender(); updateWeather();
