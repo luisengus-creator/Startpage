@@ -210,16 +210,39 @@
     </div>
 
 <script>
-    const KEY = "DASH_STABLE_V44_CLEAN_ICONS";
+    const KEY = "DASH_STABLE_V45_FIXED_ICONS";
     
-    // Customized Icon List based on your requested order
-    const ICON_LIST = [
-        "fa-solid fa-server", "fa-solid fa-sliders", "fa-brands fa-spotify", "fa-solid fa-music",
-        "fa-solid fa-1", "fa-solid fa-2", "fa-solid fa-3", "fa-solid fa-4", "fa-solid fa-5", 
-        "fa-solid fa-6", "fa-solid fa-7", "fa-solid fa-8", "fa-solid fa-9", "fa-solid fa-10",
-        "fa-solid fa-A", "fa-solid fa-B", "fa-solid fa-C", "fa-solid fa-D", "fa-solid fa-E", "fa-solid fa-F", "fa-solid fa-G", "fa-solid fa-H", "fa-solid fa-I", "fa-solid fa-J", "fa-solid fa-K", "fa-solid fa-L", "fa-solid fa-M", "fa-solid fa-N", "fa-solid fa-O", "fa-solid fa-P", "fa-solid fa-Q", "fa-solid fa-R", "fa-solid fa-S", "fa-solid fa-T", "fa-solid fa-U", "fa-solid fa-V", "fa-solid fa-W", "fa-solid fa-X", "fa-solid fa-Y", "fa-solid fa-Z",
-        "fa-regular fa-star", "fa-solid fa-star", "fa-regular fa-circle", "fa-solid fa-circle", "fa-regular fa-square", "fa-solid fa-square", "fa-solid fa-diamond", "fa-solid fa-hexagon"
+    // Explicit list with labels for the dropdown
+    const ICON_SET = [
+        { class: "fa-solid fa-server", label: "Server Solid" },
+        { class: "fa-solid fa-sliders", label: "Sliders Solid" },
+        { class: "fa-brands fa-spotify", label: "Spotify Brand" },
+        { class: "fa-solid fa-music", label: "Music Solid" },
+        { class: "fa-solid fa-1", label: "1 Solid" },
+        { class: "fa-solid fa-2", label: "2 Solid" },
+        { class: "fa-solid fa-3", label: "3 Solid" },
+        { class: "fa-solid fa-4", label: "4 Solid" },
+        { class: "fa-solid fa-5", label: "5 Solid" },
+        { class: "fa-solid fa-6", label: "6 Solid" },
+        { class: "fa-solid fa-7", label: "7 Solid" },
+        { class: "fa-solid fa-8", label: "8 Solid" },
+        { class: "fa-solid fa-9", label: "9 Solid" }
     ];
+    // Add Alphabet
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").forEach(l => {
+        ICON_SET.push({ class: `fa-solid fa-${l}`, label: `${l} Solid` });
+    });
+    // Add Shapes
+    ICON_SET.push(
+        { class: "fa-regular fa-star", label: "Star Outline" },
+        { class: "fa-solid fa-star", label: "Star Solid" },
+        { class: "fa-regular fa-circle", label: "Circle Outline" },
+        { class: "fa-solid fa-circle", label: "Circle Solid" },
+        { class: "fa-regular fa-square", label: "Square Outline" },
+        { class: "fa-solid fa-square", label: "Square Solid" },
+        { class: "fa-solid fa-diamond", label: "Diamond Solid" },
+        { class: "fa-solid fa-hexagon", label: "Hexagon Solid" }
+    );
     
     const W_DATA = { 
         0: { icon: "fa-sun", color: "#FFD700" }, 
@@ -314,15 +337,7 @@
             <div class="ql-row">
                 <input type="checkbox" ${l.vis ? 'checked' : ''} onchange="updateQlRealtime(${i},'vis',this.checked)">
                 <select onchange="updateQlRealtime(${i},'name',this.value)" style="margin:0;">
-                    ${ICON_LIST.map(fullClass => {
-                        let label = fullClass.split('-').pop().toUpperCase();
-                        if(fullClass.includes('spotify')) label = "Spotify";
-                        if(fullClass.includes('server')) label = "Server";
-                        if(fullClass.includes('sliders')) label = "Sliders";
-                        if(fullClass.includes('music')) label = "Music";
-                        if(fullClass.includes('star')) label = fullClass.includes('regular') ? "Star Outline" : "Star Solid";
-                        return `<option value="${fullClass}" ${l.name === fullClass ? 'selected' : ''}>${label}</option>`;
-                    }).join('')}
+                    ${ICON_SET.map(item => `<option value="${item.class}" ${l.name === item.class ? 'selected' : ''}>${item.label}</option>`).join('')}
                 </select>
                 <input type="text" value="${l.url}" oninput="updateQlRealtime(${i},'url',this.value)" style="margin:0;">
             </div>`).join('');
