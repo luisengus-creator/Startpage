@@ -16,7 +16,10 @@
             background-color: var(--bg); color: white; height: 100vh; 
             display: flex; flex-direction: column; overflow: hidden; font-size: var(--fs-base);
         }
-        #full-bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; transition: 0.8s; }
+        /* Fixed initial glow by removing transition on first load and setting default opacity to 0 */
+        #full-bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0; }
+        #full-bg.ready { transition: opacity 0.8s ease-in-out, background 1.2s ease-in-out; }
+
         .container { 
             width: 100%; height: 100%; margin: 0 auto; 
             padding: 3vh 4vw; 
@@ -91,7 +94,8 @@
         .ql-header { display: grid; grid-template-columns: 30px 140px 1fr; gap: 10px; font-size: 0.6rem; opacity: 0.4; margin-bottom: 5px; }
         .color-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 5px 0; font-size: 0.8rem; }
         .color-row input[type="color"] { width: 50px; height: 32px; padding: 2px; flex-shrink: 0; }
-        .city-tag { display: flex; justify-content: space-between; align-items: center; background: #151515; padding: 8px 12px; border-radius: 6px; margin: 5px 0; font-size: 0.85rem; }
+        .city-tag { display: flex; justify-content: space-between; align-items: center; background: #151515; padding: 12px; border-radius: 10px; margin: 8px 0; font-size: 0.85rem; border: 1px solid #222; }
+        .city-tag span:last-child { cursor: pointer; color: #ff4444; font-weight: bold; padding: 5px 10px; }
     </style>
 </head>
 <body>
@@ -120,11 +124,8 @@
 
     <div id="settings-modal" class="modal">
         <h2 style="margin:0 0 1rem 0; font-size: 1.1rem;">Dashboard Settings</h2>
-        
         <div class="section-h">Quick Links Configuration</div>
-        <div class="ql-header"><span>Vis</span><span>Icon</span><span>Target URL</span></div>
         <div id="ql-list-editor"></div>
-
         <div class="section-h">Navigation Behavior</div>
         <div class="color-row">
             <span>Open links in:</span>
@@ -133,69 +134,54 @@
                 <option value="_self">Current Tab</option>
             </select>
         </div>
-
         <div class="section-h">Categories</div>
         <select id="cat-sel" onchange="syncCategoryEditor()"></select>
         <div style="display:flex; gap:10px;">
             <input type="text" id="cat-title" oninput="updateCatRealtime()" placeholder="Title">
             <input type="color" id="cat-color" oninput="updateCatRealtime()" style="width:60px; height:42px;">
         </div>
-        <input type="text" id="cat-url" oninput="updateCatRealtime()" placeholder="Category Click URL (Hidden Link)">
-        
+        <input type="text" id="cat-url" oninput="updateCatRealtime()" placeholder="Category Click URL">
         <div id="link-list-editor" style="margin-top:10px; border: 1px solid #1a1a1a; padding: 10px; border-radius: 10px; max-height: 200px; overflow-y: auto; background: #050505;"></div>
         <button onclick="addLinkInline()">+ Add Link</button>
         <button onclick="addCat()">+ New Category</button>
-
         <div class="section-h">Visual Style</div>
         <div class="color-row"><span>Background Color</span> <input type="color" id="bg-color" oninput="updateVisRealtime()"></div>
         <div class="color-row"><span>Global Icon Color</span> <input type="color" id="icon-color-picker" oninput="updateVisRealtime()"></div>
         <div class="color-row"><span>Category Links Text</span> <input type="color" id="l-color" oninput="updateVisRealtime()"></div>
         <div class="color-row"><span>Weather UI Color</span> <input type="color" id="w-color" oninput="updateVisRealtime()"></div>
-
         <div style="display:flex; gap:10px; margin-top:15px;">
             <label style="font-size:0.75rem;"><input type="checkbox" id="w-toggle" onchange="updateVisRealtime()"> Enable Weather</label>
             <label style="font-size:0.75rem;"><input type="checkbox" id="mesh-check" onchange="updateVisRealtime()"> Gradient Effect</label>
         </div>
-        
         <div class="section-h">Background Opacity</div>
         <input type="range" id="op-slide" min="0" max="1" step="0.05" oninput="updateVisRealtime()">
-
         <div class="section-h">System</div>
-        <div style="display:flex; gap:10px;">
-            <button style="background:#333;" onclick="exportData()">Backup</button>
-            <button style="background:#333;" onclick="document.getElementById('file-input').click()">Import</button>
-            <input type="file" id="file-input" style="display:none" onchange="importData(this)">
-        </div>
+        <div style="display:flex; gap:10px;"><button onclick="exportData()">Backup</button><button onclick="document.getElementById('file-input').click()">Import</button></div>
+        <input type="file" id="file-input" style="display:none" onchange="importData(this)">
     </div>
 
     <div id="weather-modal" class="modal">
-        <h3>Weather Locations</h3>
+        <h3 style="margin:0 0 1rem 0;">Weather Management</h3>
+        <div class="section-h">Current Locations</div>
         <div id="current-cities"></div>
         <div class="section-h">Add New City</div>
         <input type="text" placeholder="Search city name..." oninput="searchCity(this.value)">
         <div id="search-res"></div>
-        <button onclick="closeModals()">Back to Settings</button>
+        <button onclick="closeModals()">Close</button>
     </div>
 
 <script>
-    const KEY = "DASH_STABLE_V33_SPLIT_W";
+    const KEY = "DASH_STABLE_V34_UI_FIX";
     const ICON_LIST = ["fa-spotify", "fa-server", "fa-music", "fa-sliders", "fa-github", "fa-youtube", "fa-twitch", "fa-cloud", "fa-terminal", "fa-code", "fa-heart", "fa-star"];
     const W_ICONS = { 0: "fa-sun", 1: "fa-cloud-sun", 2: "fa-cloud-sun", 3: "fa-cloud", 45: "fa-smog", 51: "fa-cloud-rain", 61: "fa-cloud-showers-heavy", 95: "fa-bolt" };
 
     function getDefaults() {
-        const homeCats = [];
-        for(let i=1; i<=5; i++) {
-            let links = [];
-            for(let j=1; j<=5; j++) links.push({name:`Link ${j}`, url:"#"});
-            homeCats.push({title:`Category ${i}`, color:"#00d4ff", url: "#", links: links});
-        }
-        const baseQl = [ {name:"fa-brands fa-spotify", url:"#", vis:false}, {name:"fa-solid fa-server", url:"#", vis:false}, {name:"fa-solid fa-music", url:"#", vis:false}, {name:"fa-solid fa-sliders", url:"#", vis:false} ];
         return {
             profile: 'home', opacity: 0.3, mesh: true, target: '_blank',
             bgColor: "#1C1B22", iconColor: "#ffffff", weatherColor: "#ffffff", linkColor: "#cccccc",
             cities: [{name: "Lisboa", lat: 38.71, lon: -9.13}],
-            home: { ql: JSON.parse(JSON.stringify(baseQl)), categories: homeCats, showWeather: true },
-            work: { ql: JSON.parse(JSON.stringify(baseQl)), categories: [], showWeather: true }
+            home: { ql: [{name:"fa-brands fa-spotify",url:"#",vis:false},{name:"fa-solid fa-server",url:"#",vis:false},{name:"fa-solid fa-music",url:"#",vis:false},{name:"fa-solid fa-sliders",url:"#",vis:false}], categories: [], showWeather: true },
+            work: { ql: [{name:"fa-brands fa-spotify",url:"#",vis:false},{name:"fa-solid fa-server",url:"#",vis:false},{name:"fa-solid fa-music",url:"#",vis:false},{name:"fa-solid fa-sliders",url:"#",vis:false}], categories: [], showWeather: true }
         };
     }
 
@@ -229,24 +215,32 @@
             bg.style.background = cols.length > 1 ? `linear-gradient(135deg, ${cols.join(',')})` : (cols[0] || state.bgColor);
             bg.style.opacity = state.opacity;
         } else { bg.style.opacity = 0; }
+        
+        // Add transition class after first render to prevent initial glow flash
+        setTimeout(() => bg.classList.add('ready'), 100);
         if(refreshModal) syncCategoryEditor();
     }
 
-    function openModal(id) { document.getElementById(id).style.display = 'block'; document.getElementById('overlay').style.display = 'block'; if(id === 'settings-modal') renderSettings(); }
+    function openModal(id) { 
+        document.getElementById(id).style.display = 'block'; 
+        document.getElementById('overlay').style.display = 'block'; 
+        if(id === 'settings-modal') renderSettings();
+        if(id === 'weather-modal') renderWeatherManager();
+    }
+    
     function closeModals() { document.querySelectorAll('.modal').forEach(m => m.style.display='none'); document.getElementById('overlay').style.display='none'; }
 
     function renderSettings() {
         const p = state[state.profile];
         document.getElementById('cat-sel').innerHTML = p.categories.map((c, i) => `<option value="${i}">${c.title}</option>`).join('');
         document.getElementById('ql-list-editor').innerHTML = p.ql.map((l, i) => `
-            <div class="ql-row">
-                <input type="checkbox" ${l.vis ? 'checked' : ''} onchange="updateQlRealtime(${i},'vis',this.checked)" style="width:16px;">
+            <div class="ql-row" style="display:grid; grid-template-columns:30px 140px 1fr; gap:10px; align-items:center; margin-bottom:8px;">
+                <input type="checkbox" ${l.vis ? 'checked' : ''} onchange="updateQlRealtime(${i},'vis',this.checked)">
                 <select onchange="updateQlRealtime(${i},'name',this.value)" style="margin:0;">
                     ${ICON_LIST.map(ic => `<option value="${ic.includes('spotify') ? 'fa-brands '+ic : 'fa-solid '+ic}" ${l.name.includes(ic) ? 'selected' : ''}>${ic.replace('fa-','')}</option>`).join('')}
                 </select>
                 <input type="text" value="${l.url}" oninput="updateQlRealtime(${i},'url',this.value)" style="margin:0;">
             </div>`).join('');
-        
         document.getElementById('target-mode').value = state.target || '_blank';
         document.getElementById('w-toggle').checked = p.showWeather;
         document.getElementById('mesh-check').checked = state.mesh;
@@ -256,6 +250,14 @@
         document.getElementById('l-color').value = state.linkColor;
         document.getElementById('op-slide').value = state.opacity;
         syncCategoryEditor();
+    }
+
+    function renderWeatherManager() { 
+        document.getElementById('current-cities').innerHTML = state.cities.map((c, i) => `
+            <div class="city-tag">
+                <span>${c.name}</span>
+                <span onclick="removeCity(${i})">✕</span>
+            </div>`).join(''); 
     }
 
     function syncCategoryEditor() {
@@ -313,9 +315,8 @@
     function addCity(n, la, lo) { state.cities.push({name:n, lat:la, lon:lo}); document.getElementById('search-res').innerHTML=''; renderWeatherManager(); saveAndRender(); updateWeather(); }
     function removeCity(i) { state.cities.splice(i,1); if(cityIdx >= state.cities.length) cityIdx = 0; renderWeatherManager(); saveAndRender(); updateWeather(); }
     function toggleProfile() { state.profile = (state.profile === 'home' ? 'work' : 'home'); saveAndRender(); updateWeather(); }
-    function renderWeatherManager() { document.getElementById('current-cities').innerHTML = state.cities.map((c, i) => `<div class="city-tag"><span>${c.name}</span><span onclick="removeCity(${i})">✕</span></div>`).join(''); }
     function addLinkInline() { const idx = document.getElementById('cat-sel').value; state[state.profile].categories[idx].links.push({name: "New Link", url: "#"}); saveAndRender(true); }
-    function addCat() { state[state.profile].categories.push({title:"New", color:"#00d4ff", url: "#", links:[], showWeather: true}); saveAndRender(); openModal('settings-modal'); }
+    function addCat() { state[state.profile].categories.push({title:"New", color:"#00d4ff", url: "#", links:[]}); saveAndRender(); openModal('settings-modal'); }
     function delCat(i) { if(confirm("Delete?")) { state[state.profile].categories.splice(i,1); saveAndRender(); openModal('settings-modal'); } }
     function delLink(ci, li) { state[state.profile].categories[ci].links.splice(li,1); saveAndRender(); }
     function exportData() { const b = new Blob([JSON.stringify(state)], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download='startpage_backup.json'; a.click(); }
