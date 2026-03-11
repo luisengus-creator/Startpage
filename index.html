@@ -16,13 +16,16 @@
             font-family: 'Inter', system-ui, sans-serif; 
             color: white; height: 100vh; display: flex; flex-direction: column; 
             font-size: var(--fs-base); transition: background-color 0.4s ease;
+            position: relative;
         }
 
-        /* FIXED: This layer is forced to the full size of the browser window */
+        /* GRADIENT FIX: Applied to a fixed overlay that covers the full viewport */
         #full-bg { 
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
-            z-index: -1; pointer-events: none; background-size: cover; 
-            background-position: center; transition: opacity 0.5s ease, filter 0.5s ease; 
+            z-index: -1; pointer-events: none; 
+            background-repeat: no-repeat;
+            background-size: cover;
+            transition: opacity 0.5s ease, filter 0.5s ease; 
         }
 
         .container { 
@@ -118,7 +121,7 @@
         <h2 style="margin:0 0 1.5rem 0; font-size: 1.1rem;">Dashboard Settings</h2>
         
         <div class="setting-block">
-            <div class="section-h">Quick Links Configuration</div>
+            <div class="section-h">Quick Links (Max 4)</div>
             <div id="ql-list-editor"></div>
         </div>
 
@@ -211,7 +214,8 @@
     if (state) { document.body.style.backgroundColor = state[state.profile].bgColor; }
 
     const ICON_SET = [
-        { class: "fa-solid fa-server", label: "Server" }, { class: "fa-solid fa-sliders", label: "Sliders" }, { class: "fa-brands fa-spotify", label: "Spotify" }, { class: "fa-solid fa-music", label: "Music" }, { class: "fa-solid fa-cloud", label: "Cloud" }, { class: "fa-solid fa-heart", label: "Heart" }, { class: "fa-regular fa-star", label: "Star Outline" }, { class: "fa-solid fa-star", label: "Star Solid" }
+        { class: "fa-solid fa-server", label: "Server" }, { class: "fa-solid fa-sliders", label: "Sliders" }, { class: "fa-brands fa-spotify", label: "Spotify" }, { class: "fa-solid fa-music", label: "Music" }, { class: "fa-solid fa-cloud", label: "Cloud" }, { class: "fa-solid fa-heart", label: "Heart" }, { class: "fa-regular fa-star", label: "Star Outline" }, { class: "fa-solid fa-star", label: "Star Solid" },
+        { class: "fa-solid fa-1", label: "1" }, { class: "fa-solid fa-2", label: "2" }, { class: "fa-solid fa-3", label: "3" }, { class: "fa-solid fa-4", label: "4" }, { class: "fa-solid fa-5", label: "5" }
     ];
 
     const W_DATA = { 0: { icon: "fa-sun", color: "#FFD700" }, 1: { icon: "fa-cloud-sun", color: "#FFB800" }, 2: { icon: "fa-cloud-sun", color: "#FFB800" }, 3: { icon: "fa-cloud", color: "#B0C4DE" }, 45: { icon: "fa-smog", color: "#778899" }, 51: { icon: "fa-cloud-rain", color: "#00BFFF" }, 61: { icon: "fa-cloud-showers-heavy", color: "#1E90FF" }, 95: { icon: "fa-bolt", color: "#BA55D3" } };
@@ -221,10 +225,12 @@
             const cats = [];
             const count = (name === 'home' ? 5 : 3);
             for(let i=1; i<= count; i++) {
-                cats.push({title:`Category ${i}`, color: col, url: "#", links: [{name:"Link 1", url:"#", color: ""}]});
+                let links = [];
+                for(let j=1; j<= 5; j++) links.push({name:`Link ${j}`, url:"#", color: ""});
+                cats.push({title:`Category ${i}`, color: col, url: "#", links: links});
             }
             return {
-                ql: ICON_SET.map(icon => ({name: icon.class, url: "#", vis: false})), // ALL DISABLED
+                ql: [{name:"fa-solid fa-server",url:"#",vis:false}, {name:"fa-solid fa-sliders",url:"#",vis:false}, {name:"fa-brands fa-spotify",url:"#",vis:false}, {name:"fa-solid fa-music",url:"#",vis:false}],
                 categories: cats,
                 showWeather: true,
                 bgType: 'mesh',
@@ -234,7 +240,7 @@
                 iconColor: "#ffffff",
                 weatherColor: "#ffffff",
                 linkColor: "#cccccc",
-                target: '_self' // DEFAULT CURRENT PAGE
+                target: '_self'
             };
         };
         return {
@@ -282,12 +288,18 @@
         document.documentElement.style.setProperty('--icon-color', p.iconColor);
 
         const bg = document.getElementById('full-bg');
-        bg.style.backgroundImage = ''; bg.style.backgroundColor = 'transparent'; bg.style.filter = 'none';
+        bg.style.backgroundImage = 'none'; 
+        bg.style.backgroundColor = 'transparent'; 
+        bg.style.filter = 'none';
 
         if (p.bgType === 'mesh') {
             const cols = p.categories.map(x => x.color);
-            if (cols.length > 1) bg.style.backgroundImage = `linear-gradient(135deg, ${cols.join(',')})`;
-            else if (cols.length === 1) bg.style.backgroundColor = cols[0];
+            if (cols.length > 1) {
+                // GRADIENT FIX: Using background-image with linear-gradient string
+                bg.style.backgroundImage = `linear-gradient(135deg, ${cols.join(',')})`;
+            } else if (cols.length === 1) {
+                bg.style.backgroundColor = cols[0];
+            }
             bg.style.opacity = p.opacity;
         } else if (p.bgType === 'img' && p.bgImg) {
             bg.style.backgroundImage = `url("${p.bgImg}")`;
@@ -313,7 +325,8 @@
 
     function renderSettings() {
         const p = state[state.profile];
-        document.getElementById('ql-list-editor').innerHTML = p.ql.map((l, i) => `
+        // ONLY SHOWING TOP 4 QL
+        document.getElementById('ql-list-editor').innerHTML = p.ql.slice(0, 4).map((l, i) => `
             <div class="ql-row">
                 <input type="checkbox" ${l.vis ? 'checked' : ''} onchange="updateQlRealtime(${i},'vis',this.checked)">
                 <select onchange="updateQlRealtime(${i},'name',this.value)">${ICON_SET.map(it => `<option value="${it.class}" ${l.name === it.class ? 'selected' : ''}>${it.label}</option>`).join('')}</select>
