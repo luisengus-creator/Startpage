@@ -103,6 +103,10 @@
         .control-group { display: flex; align-items: center; gap: 15px; margin-top: 5px; }
         .label-inline { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; cursor: pointer; margin-top: 5px; }
         .label-inline input[type="checkbox"] { width: auto; margin: 0; }
+        
+        /* Link Editor Grid Adjustment */
+        .link-edit-row { display: grid; grid-template-columns: 1fr 1fr 40px 35px; gap: 5px; margin-bottom: 8px; align-items: center; }
+        .link-edit-row input[type="color"] { width: 100%; height: 38px; padding: 2px; margin: 0; }
     </style>
 </head>
 <body>
@@ -156,7 +160,7 @@
                 <input type="color" id="cat-color" oninput="updateCatRealtime()" style="width:60px; height:42px;">
             </div>
             <input type="text" id="cat-url" oninput="updateCatRealtime()" placeholder="Category Click URL">
-            <div id="link-list-editor" style="margin-top:10px; border: 1px solid #1a1a1a; padding: 10px; border-radius: 10px; max-height: 200px; overflow-y: auto; background: #050505;"></div>
+            <div id="link-list-editor" style="margin-top:10px; border: 1px solid #1a1a1a; padding: 10px; border-radius: 10px; max-height: 250px; overflow-y: auto; background: #050505;"></div>
             <button onclick="addLinkInline()">+ Add Link</button>
             <button onclick="addCat()">+ New Category</button>
         </div>
@@ -207,7 +211,7 @@
     </div>
 
 <script>
-    const KEY = "DASH_STABLE_V42_LAYOUT_FIX";
+    const KEY = "DASH_STABLE_V43_LINK_COLORS";
     const ICON_LIST = ["fa-spotify", "fa-server", "fa-music", "fa-sliders", "fa-github", "fa-terminal", "fa-code", "fa-heart", "fa-star", "fa-circle", "fa-square", "fa-play", "fa-diamond", "fa-hexagon", "fa-a", "fa-b", "fa-c", "fa-1", "fa-2", "fa-3"];
     
     const W_DATA = { 
@@ -225,13 +229,13 @@
         const homeCats = [];
         for(let i=1; i<=5; i++) {
             let links = [];
-            for(let j=1; j<=5; j++) links.push({name:`Link ${j}`, url:"#"});
+            for(let j=1; j<=5; j++) links.push({name:`Link ${j}`, url:"#", color: ""});
             homeCats.push({title:`Category ${i}`, color:"#00d4ff", url: "#", links: links});
         }
         const workCats = [];
         for(let i=1; i<=3; i++) {
             let links = [];
-            for(let j=1; j<=3; j++) links.push({name:`Work Link ${j}`, url:"#"});
+            for(let j=1; j<=3; j++) links.push({name:`Work Link ${j}`, url:"#", color: ""});
             workCats.push({title:`Work Cat ${i}`, color:"#ff8800", url: "#", links: links});
         }
         const baseQl = [{name:"fa-brands fa-spotify",url:"#",vis:false},{name:"fa-solid fa-server",url:"#",vis:false},{name:"fa-solid fa-music",url:"#",vis:false},{name:"fa-solid fa-sliders",url:"#",vis:false}];
@@ -261,7 +265,10 @@
             <div class="column">
                 <div style="position:absolute; inset:0; background:linear-gradient(${c.color}33, transparent); opacity:${state.opacity}; z-index:-1; border-radius:14px;"></div>
                 <a href="${c.url || '#'}" target="${state.target}" class="cat-title" style="color:${c.color};">${c.title}<span class="del-btn" onclick="event.preventDefault(); delCat(${ci})">✕</span></a>
-                ${c.links.map((l, li) => `<div class="link-row"><a href="${l.url}" target="${state.target}" style="color:${state.linkColor}">${l.name}</a><span class="del-btn" onclick="delLink(${ci},${li})">✕</span></div>`).join('')}
+                ${c.links.map((l, li) => {
+                    const lColor = l.color && l.color !== "" ? l.color : state.linkColor;
+                    return `<div class="link-row"><a href="${l.url}" target="${state.target}" style="color:${lColor}">${l.name}</a><span class="del-btn" onclick="delLink(${ci},${li})">✕</span></div>`;
+                }).join('')}
             </div>`).join('');
 
         const wArea = document.getElementById('weather-area');
@@ -330,7 +337,13 @@
             document.getElementById('cat-title').value = c.title;
             document.getElementById('cat-color').value = c.color;
             document.getElementById('cat-url').value = c.url || "";
-            document.getElementById('link-list-editor').innerHTML = c.links.map((l, li) => `<div style="display:flex; gap:5px; margin-bottom:8px;"><input type="text" value="${l.name}" oninput="updateLinkRealtime(${idx}, ${li}, 'name', this.value)"><input type="text" value="${l.url}" oninput="updateLinkRealtime(${idx}, ${li}, 'url', this.value)"><button style="width:35px; margin:0; background:#300; color:red;" onclick="delLink(${idx}, ${li}); syncCategoryEditor();">✕</button></div>`).join('');
+            document.getElementById('link-list-editor').innerHTML = c.links.map((l, li) => `
+                <div class="link-edit-row">
+                    <input type="text" value="${l.name}" placeholder="Name" oninput="updateLinkRealtime(${idx}, ${li}, 'name', this.value)">
+                    <input type="text" value="${l.url}" placeholder="URL" oninput="updateLinkRealtime(${idx}, ${li}, 'url', this.value)">
+                    <input type="color" value="${l.color || state.linkColor}" oninput="updateLinkRealtime(${idx}, ${li}, 'color', this.value)">
+                    <button style="margin:0; background:#300; color:red;" onclick="delLink(${idx}, ${li}); syncCategoryEditor();">✕</button>
+                </div>`).join('');
         }
     }
 
@@ -384,7 +397,7 @@
     function addCity(n, la, lo) { state.cities.push({name:n, lat:la, lon:lo}); document.getElementById('search-res').innerHTML=''; renderWeatherManager(); saveAndRender(); updateWeather(); }
     function removeCity(i) { state.cities.splice(i,1); if(cityIdx >= state.cities.length) cityIdx = 0; renderWeatherManager(); saveAndRender(); updateWeather(); }
     function toggleProfile() { state.profile = (state.profile === 'home' ? 'work' : 'home'); saveAndRender(); updateWeather(); }
-    function addLinkInline() { const idx = document.getElementById('cat-sel').value; state[state.profile].categories[idx].links.push({name: "New Link", url: "#"}); saveAndRender(true); }
+    function addLinkInline() { const idx = document.getElementById('cat-sel').value; state[state.profile].categories[idx].links.push({name: "New Link", url: "#", color: ""}); saveAndRender(true); }
     function addCat() { state[state.profile].categories.push({title:"New", color:"#00d4ff", url: "#", links:[]}); saveAndRender(); openModal('settings-modal'); }
     function delCat(i) { if(confirm("Delete?")) { state[state.profile].categories.splice(i,1); saveAndRender(); openModal('settings-modal'); } }
     function delLink(ci, li) { state[state.profile].categories[ci].links.splice(li,1); saveAndRender(); }
