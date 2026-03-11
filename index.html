@@ -6,26 +6,28 @@
     <title>Startpage</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
-        /* CRITICAL: Stops white flash */
         html, body { background-color: #1C1B22; height: 100%; margin: 0; padding: 0; overflow: hidden; }
-        
         :root { --fs-base: clamp(0.9rem, 1.1vw, 1.4rem); }
         * { box-sizing: border-box; }
 
         body { 
             font-family: 'Inter', system-ui, sans-serif; 
             color: white; height: 100vh; display: flex; flex-direction: column; 
-            font-size: var(--fs-base); transition: background-color 0.4s ease;
-            position: relative;
+            font-size: var(--fs-base); position: relative;
         }
 
-        /* GRADIENT FIX: Applied to a fixed overlay that covers the full viewport */
+        /* FIXED: This layer is now the ONLY thing handling the gradient/image */
         #full-bg { 
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
-            z-index: -1; pointer-events: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100vw; 
+            height: 100vh; 
+            z-index: -2; 
+            pointer-events: none; 
             background-repeat: no-repeat;
             background-size: cover;
-            transition: opacity 0.5s ease, filter 0.5s ease; 
+            background-position: center;
         }
 
         .container { 
@@ -43,7 +45,7 @@
         #grid { display: flex; flex-wrap: wrap; gap: clamp(1.5rem, 3vw, 4rem); justify-content: center; align-content: center; width: 100%; }
         
         .column { 
-            background: rgba(255,255,255,0.02); border-radius: 16px; padding: 1.5rem 1.8rem; 
+            background: rgba(255,255,255,0.03); border-radius: 16px; padding: 1.5rem 1.8rem; 
             position: relative; border: 1px solid rgba(255,255,255,0.06); backdrop-filter: blur(12px);
             flex: 0 0 auto; width: max-content; min-width: 180px; text-align: center;
         }
@@ -208,10 +210,7 @@
 
 <script>
     const KEY = "DASH_TOTAL_INDEPENDENCE_V100";
-    
-    // LOAD STATE FIRST
     let state = JSON.parse(localStorage.getItem(KEY));
-    if (state) { document.body.style.backgroundColor = state[state.profile].bgColor; }
 
     const ICON_SET = [
         { class: "fa-solid fa-server", label: "Server" }, { class: "fa-solid fa-sliders", label: "Sliders" }, { class: "fa-brands fa-spotify", label: "Spotify" }, { class: "fa-solid fa-music", label: "Music" }, { class: "fa-solid fa-cloud", label: "Cloud" }, { class: "fa-solid fa-heart", label: "Heart" }, { class: "fa-regular fa-star", label: "Star Outline" }, { class: "fa-solid fa-star", label: "Star Solid" },
@@ -254,29 +253,6 @@
     if (!state) state = getDefaults();
     let cityIdx = 0;
 
-    function handleLocalImg(input) {
-        const file = input.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const img = new Image();
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                let width = img.width, height = img.height;
-                const MAX_WIDTH = 1920;
-                if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
-                canvas.width = width; canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, width, height);
-                state[state.profile].bgImg = canvas.toDataURL('image/jpeg', 0.7); 
-                state[state.profile].bgType = 'img';
-                saveAndRender(true);
-            };
-            img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-    }
-
     function toggleBgType(type) { state[state.profile].bgType = type; saveAndRender(true); }
     function resetBgImage() { state[state.profile].bgImg = ''; state[state.profile].bgType = 'mesh'; saveAndRender(true); }
     function resetToBaseColor() { state[state.profile].bgColor = "#1C1B22"; document.getElementById('bg-color').value = "#1C1B22"; saveAndRender(); }
@@ -289,31 +265,30 @@
 
         const bg = document.getElementById('full-bg');
         bg.style.backgroundImage = 'none'; 
-        bg.style.backgroundColor = 'transparent'; 
-        bg.style.filter = 'none';
+        bg.style.backgroundColor = 'transparent';
 
         if (p.bgType === 'mesh') {
             const cols = p.categories.map(x => x.color);
             if (cols.length > 1) {
-                // GRADIENT FIX: Using background-image with linear-gradient string
+                // FIXED: Direct injection of the full-page gradient
                 bg.style.backgroundImage = `linear-gradient(135deg, ${cols.join(',')})`;
             } else if (cols.length === 1) {
                 bg.style.backgroundColor = cols[0];
             }
             bg.style.opacity = p.opacity;
+            bg.style.filter = 'none';
         } else if (p.bgType === 'img' && p.bgImg) {
             bg.style.backgroundImage = `url("${p.bgImg}")`;
             bg.style.opacity = 1;
             bg.style.filter = `blur(${p.opacity * 25}px) brightness(${1 - (p.opacity * 0.4)})`;
-        } else { bg.style.opacity = 0; }
+        }
 
-        const qlHtml = p.ql.filter(l => l.vis).map(l => `<a href="${l.url}" class="nav-link" target="${p.target}"><i class="${l.name}"></i></a>`).join('');
+        const qlHtml = p.ql.slice(0, 4).filter(l => l.vis).map(l => `<a href="${l.url}" class="nav-link" target="${p.target}"><i class="${l.name}"></i></a>`).join('');
         const profileIcon = state.profile === 'home' ? 'fa-house' : 'fa-user-tie';
         document.getElementById('ql-nav').innerHTML = `<span class="nav-link" onclick="toggleProfile()"><i class="fa-solid ${profileIcon}"></i></span>` + qlHtml;
 
         document.getElementById('grid').innerHTML = p.categories.map((c, ci) => `
             <div class="column">
-                <div style="position:absolute; inset:0; background:linear-gradient(${c.color}33, transparent); opacity:${p.opacity}; z-index:-1; border-radius:14px;"></div>
                 <a href="${c.url || '#'}" target="${p.target}" class="cat-title" style="color:${c.color};">${c.title}<span class="del-btn" onclick="delCat(${ci})">✕</span></a>
                 ${c.links.map((l, li) => `<div class="link-row"><a href="${l.url}" target="${p.target}" style="color:${l.color || p.linkColor}">${l.name}</a><span class="del-btn" onclick="delLink(${ci},${li})">✕</span></div>`).join('')}
             </div>`).join('');
@@ -325,7 +300,6 @@
 
     function renderSettings() {
         const p = state[state.profile];
-        // ONLY SHOWING TOP 4 QL
         document.getElementById('ql-list-editor').innerHTML = p.ql.slice(0, 4).map((l, i) => `
             <div class="ql-row">
                 <input type="checkbox" ${l.vis ? 'checked' : ''} onchange="updateQlRealtime(${i},'vis',this.checked)">
