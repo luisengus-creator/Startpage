@@ -185,10 +185,10 @@
             <div id="img-input-area" style="display:none;">
                 <input type="text" id="bg-img-url" placeholder="Paste Image URL here..." oninput="updateVisRealtime()">
                 <div style="display:flex; gap:5px;">
-                    <button onclick="document.getElementById('local-img').click()" style="font-size: 0.75rem;">Upload (PNG/JPG)</button>
+                    <button onclick="document.getElementById('local-img').click()" style="font-size: 0.75rem;">Upload Photo</button>
                     <button onclick="resetBgImage()" style="font-size: 0.75rem; background:#331111; color:#ff6666;">Clear Image</button>
                 </div>
-                <input type="file" id="local-img" hidden accept="image/png, image/jpeg, image/jpg, image/webp" onchange="handleLocalImg(this)">
+                <input type="file" id="local-img" hidden accept=".png, .jpg, .jpeg, .webp, image/png, image/jpeg" onchange="handleLocalImg(this)">
             </div>
 
             <div style="margin: 15px 0 10px 0;">
@@ -213,7 +213,7 @@
     </div>
 
 <script>
-    const KEY = "DASH_STABLE_V62_PNG_FIX";
+    const KEY = "DASH_STABLE_V65_PNG_FINAL";
     
     const ICON_SET = [
         { class: "fa-solid fa-server", label: "Server" }, { class: "fa-solid fa-sliders", label: "Sliders" }, { class: "fa-brands fa-spotify", label: "Spotify" }, { class: "fa-solid fa-music", label: "Music" }, { class: "fa-solid fa-cloud", label: "Cloud" }, { class: "fa-solid fa-heart", label: "Heart" }, { class: "fa-solid fa-1", label: "1" }, { class: "fa-solid fa-2", label: "2" }, { class: "fa-solid fa-3", label: "3" }, { class: "fa-solid fa-4", label: "4" }, { class: "fa-solid fa-5", label: "5" }, { class: "fa-solid fa-6", label: "6" }, { class: "fa-solid fa-7", label: "7" }, { class: "fa-solid fa-8", label: "8" }, { class: "fa-solid fa-9", label: "9" }, { class: "fa-regular fa-star", label: "Star Outline" }, { class: "fa-solid fa-star", label: "Star Solid" }, { class: "fa-regular fa-circle", label: "Circle Outline" }, { class: "fa-solid fa-circle", label: "Circle Solid" }, { class: "fa-regular fa-square", label: "Square Outline" }, { class: "fa-solid fa-square", label: "Square Solid" }
@@ -249,7 +249,6 @@
 
     function toggleBgType(type) { 
         state.bgType = type; 
-        if (type === 'mesh') state.bgImg = ''; // Explicitly clear image when choosing gradient
         saveAndRender(true); 
     }
 
@@ -261,15 +260,17 @@
 
     function handleLocalImg(input) {
         const file = input.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => { 
-                state.bgImg = e.target.result; 
-                state.bgType = 'img';
-                saveAndRender(true); 
-            };
-            reader.readAsDataURL(file);
-        }
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => { 
+            // Forced update: Clear existing background first
+            document.getElementById('full-bg').style.backgroundImage = 'none';
+            state.bgImg = e.target.result; 
+            state.bgType = 'img';
+            saveAndRender(true); 
+        };
+        reader.readAsDataURL(file);
     }
 
     function saveAndRender(refreshModal = false) {
@@ -279,7 +280,8 @@
         document.documentElement.style.setProperty('--icon-color', state.iconColor);
 
         const bg = document.getElementById('full-bg');
-        bg.style.backgroundImage = 'none';
+        bg.style.backgroundImage = ''; 
+        bg.style.backgroundColor = 'transparent';
         bg.style.filter = 'none';
 
         if (state.bgType === 'mesh') {
