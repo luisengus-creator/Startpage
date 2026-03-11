@@ -82,10 +82,14 @@
             width: min(600px, 95vw); max-height: 85vh; overflow-y: auto; border: 1px solid #222; 
         }
         #overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; backdrop-filter: blur(5px); }
-        .section-h { font-size:0.65rem; color:#00d4ff; font-weight:900; margin: 1.5rem 0 0.8rem 0; text-transform: uppercase; letter-spacing: 1px; }
+        .section-h { font-size:0.65rem; color:#00d4ff; font-weight:900; margin: 0 0 1rem 0; text-transform: uppercase; letter-spacing: 1px; }
+        .setting-block { margin-bottom: 2.5rem; }
         
         input, select { background: #111; border: 1px solid #222; color: white; padding: 10px; border-radius: 6px; width: 100%; margin: 5px 0; font-size: 0.85rem; }
-        button { cursor: pointer; background: #222; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; margin-top: 10px; color: white; }
+        button { cursor: pointer; background: #222; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; margin-top: 10px; color: white; transition: 0.2s; }
+        button:hover { opacity: 0.8; }
+        .btn-backup { background: #1e3a5f; color: #a5c9ff; border: 1px solid #2a4a7a; }
+        
         .del-btn { color: #ff4444; cursor: pointer; font-size: 0.7rem; position: absolute; right: 0; display: none; }
         .edit-mode .del-btn { display: inline; }
         
@@ -94,7 +98,7 @@
         .color-row input[type="color"] { width: 50px; height: 32px; padding: 2px; flex-shrink: 0; }
         .city-tag { display: flex; justify-content: space-between; align-items: center; background: #151515; padding: 12px; border-radius: 10px; margin: 8px 0; font-size: 0.85rem; border: 1px solid #222; }
         .city-tag span:last-child { cursor: pointer; color: #ff4444; font-weight: bold; padding: 5px 10px; }
-        .control-group { display: flex; align-items: center; gap: 15px; margin-top: 10px; }
+        .control-group { display: flex; align-items: center; gap: 15px; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -122,53 +126,69 @@
     </div>
 
     <div id="settings-modal" class="modal">
-        <h2 style="margin:0 0 1rem 0; font-size: 1.1rem;">Dashboard Settings</h2>
+        <h2 style="margin:0 0 1.5rem 0; font-size: 1.1rem;">Dashboard Settings</h2>
         
-        <div class="section-h">Quick Links Configuration</div>
-        <div id="ql-list-editor"></div>
+        <div class="setting-block">
+            <div class="section-h">Quick Links Configuration</div>
+            <div id="ql-list-editor"></div>
+        </div>
         
-        <div class="section-h">Navigation Behavior</div>
-        <div class="color-row">
-            <span>Open links in:</span>
-            <select id="target-mode" onchange="updateVisRealtime()" style="width: 140px; margin:0;">
-                <option value="_blank">New Tab</option>
-                <option value="_self">Current Tab</option>
-            </select>
+        <div class="setting-block">
+            <div class="section-h">Navigation Behavior</div>
+            <div class="color-row">
+                <span>Open links in:</span>
+                <select id="target-mode" onchange="updateVisRealtime()" style="width: 140px; margin:0;">
+                    <option value="_blank">New Tab</option>
+                    <option value="_self">Current Tab</option>
+                </select>
+            </div>
         </div>
 
-        <div class="section-h">Categories</div>
-        <select id="cat-sel" onchange="syncCategoryEditor()"></select>
-        <div style="display:flex; gap:10px;">
-            <input type="text" id="cat-title" oninput="updateCatRealtime()" placeholder="Title">
-            <input type="color" id="cat-color" oninput="updateCatRealtime()" style="width:60px; height:42px;">
-        </div>
-        <input type="text" id="cat-url" oninput="updateCatRealtime()" placeholder="Category Click URL">
-        <div id="link-list-editor" style="margin-top:10px; border: 1px solid #1a1a1a; padding: 10px; border-radius: 10px; max-height: 200px; overflow-y: auto; background: #050505;"></div>
-        <button onclick="addLinkInline()">+ Add Link</button>
-        <button onclick="addCat()">+ New Category</button>
-
-        <div class="section-h">Visual Style</div>
-        <div class="color-row"><span>Background Color</span> <input type="color" id="bg-color" oninput="updateVisRealtime()"></div>
-        <div class="color-row"><span>Global Icon Color</span> <input type="color" id="icon-color-picker" oninput="updateVisRealtime()"></div>
-        <div class="color-row"><span>Category Links Text</span> <input type="color" id="l-color" oninput="updateVisRealtime()"></div>
-        <div class="section-h">Background Opacity</div>
-        <input type="range" id="op-slide" min="0" max="1" step="0.05" oninput="updateVisRealtime()">
-
-        <div class="section-h">Weather</div>
-        <div class="control-group">
-            <label style="font-size:0.75rem;"><input type="checkbox" id="w-toggle" onchange="updateVisRealtime()"> Enable Weather</label>
-            <label style="font-size:0.75rem;"><input type="checkbox" id="w-real-color" onchange="updateVisRealtime()"> Colored Icons</label>
-        </div>
-        <div class="color-row" style="margin-top:10px;">
-            <span>Weather UI Color</span> 
-            <input type="color" id="w-color" oninput="updateVisRealtime()">
+        <div class="setting-block">
+            <div class="section-h">Categories</div>
+            <select id="cat-sel" onchange="syncCategoryEditor()"></select>
+            <div style="display:flex; gap:10px;">
+                <input type="text" id="cat-title" oninput="updateCatRealtime()" placeholder="Title">
+                <input type="color" id="cat-color" oninput="updateCatRealtime()" style="width:60px; height:42px;">
+            </div>
+            <input type="text" id="cat-url" oninput="updateCatRealtime()" placeholder="Category Click URL">
+            <div id="link-list-editor" style="margin-top:10px; border: 1px solid #1a1a1a; padding: 10px; border-radius: 10px; max-height: 200px; overflow-y: auto; background: #050505;"></div>
+            <button onclick="addLinkInline()">+ Add Link</button>
+            <button onclick="addCat()">+ New Category</button>
         </div>
 
-        <div class="section-h">Background Options</div>
-        <label style="font-size:0.75rem;"><input type="checkbox" id="mesh-check" onchange="updateVisRealtime()"> Gradient Effect</label>
+        <div class="setting-block">
+            <div class="section-h">Icon & Text Colors</div>
+            <div class="color-row"><span>Global Icon Color</span> <input type="color" id="icon-color-picker" oninput="updateVisRealtime()"></div>
+            <div class="color-row"><span>Category Links Text</span> <input type="color" id="l-color" oninput="updateVisRealtime()"></div>
+        </div>
 
-        <div class="section-h">System</div>
-        <div style="display:flex; gap:10px;"><button onclick="exportData()">Backup</button><button onclick="document.getElementById('file-input').click()">Import</button></div>
+        <div class="setting-block">
+            <div class="section-h">Weather</div>
+            <div class="control-group">
+                <label style="font-size:0.75rem;"><input type="checkbox" id="w-toggle" onchange="updateVisRealtime()"> Enable Weather</label>
+                <label style="font-size:0.75rem;"><input type="checkbox" id="w-real-color" onchange="updateVisRealtime()"> Colored Icons</label>
+            </div>
+            <div class="color-row" style="margin-top:10px;">
+                <span>Weather UI Color</span> 
+                <input type="color" id="w-color" oninput="updateVisRealtime()">
+            </div>
+        </div>
+
+        <div class="setting-block">
+            <div class="section-h">Background Options</div>
+            <div class="color-row"><span>Background Color</span> <input type="color" id="bg-color" oninput="updateVisRealtime()"></div>
+            <div style="margin: 10px 0;">
+                <span style="font-size: 0.8rem; opacity: 0.8;">Background Opacity</span>
+                <input type="range" id="op-slide" min="0" max="1" step="0.05" oninput="updateVisRealtime()">
+            </div>
+            <label style="font-size:0.75rem;"><input type="checkbox" id="mesh-check" onchange="updateVisRealtime()"> Gradient Effect</label>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top: 1rem;">
+            <button class="btn-backup" onclick="exportData()">Backup Settings</button>
+            <button onclick="document.getElementById('file-input').click()">Import Settings</button>
+        </div>
         <input type="file" id="file-input" style="display:none" onchange="importData(this)">
     </div>
 
@@ -183,7 +203,7 @@
     </div>
 
 <script>
-    const KEY = "DASH_STABLE_V38_UI_FIX";
+    const KEY = "DASH_STABLE_V40_FINAL_UI";
     const ICON_LIST = ["fa-spotify", "fa-server", "fa-music", "fa-sliders", "fa-github", "fa-terminal", "fa-code", "fa-heart", "fa-star", "fa-circle", "fa-square", "fa-play", "fa-diamond", "fa-hexagon", "fa-a", "fa-b", "fa-c", "fa-1", "fa-2", "fa-3"];
     
     const W_DATA = { 
