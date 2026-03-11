@@ -58,16 +58,14 @@
         }
 
         .cat-title { 
-            margin: 0 0 1rem 0; 
-            font-size: 1.3rem; 
-            font-weight: 700;
+            margin: 0 0 1rem 0; font-size: 1.3rem; font-weight: 700;
             padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); 
             white-space: nowrap; cursor: pointer; text-decoration: none; display: block; 
         }
         .link-row { 
             display: flex; justify-content: center; align-items: center; 
-            padding: 0.6rem 0; 
-            border-bottom: 1px solid rgba(255,255,255,0.03); position: relative; white-space: nowrap; 
+            padding: 0.6rem 0; border-bottom: 1px solid rgba(255,255,255,0.03); 
+            position: relative; white-space: nowrap; 
         }
         .link-row a { text-decoration: none; transition: 0.2s; font-size: 1rem; }
 
@@ -186,8 +184,11 @@
 
             <div id="img-input-area" style="display:none;">
                 <input type="text" id="bg-img-url" placeholder="Paste Image URL here..." oninput="updateVisRealtime()">
-                <button onclick="document.getElementById('local-img').click()" style="font-size: 0.7rem; padding: 5px; margin-top:5px;">Upload Local Photo</button>
-                <input type="file" id="local-img" hidden accept="image/*" onchange="handleLocalImg(this)">
+                <div style="display:flex; gap:5px;">
+                    <button onclick="document.getElementById('local-img').click()" style="font-size: 0.75rem;">Upload (PNG/JPG)</button>
+                    <button onclick="resetBgImage()" style="font-size: 0.75rem; background:#331111; color:#ff6666;">Clear Image</button>
+                </div>
+                <input type="file" id="local-img" hidden accept="image/png, image/jpeg, image/jpg, image/webp" onchange="handleLocalImg(this)">
             </div>
 
             <div style="margin: 15px 0 10px 0;">
@@ -212,7 +213,7 @@
     </div>
 
 <script>
-    const KEY = "DASH_STABLE_V60_FINAL";
+    const KEY = "DASH_STABLE_V62_PNG_FIX";
     
     const ICON_SET = [
         { class: "fa-solid fa-server", label: "Server" }, { class: "fa-solid fa-sliders", label: "Sliders" }, { class: "fa-brands fa-spotify", label: "Spotify" }, { class: "fa-solid fa-music", label: "Music" }, { class: "fa-solid fa-cloud", label: "Cloud" }, { class: "fa-solid fa-heart", label: "Heart" }, { class: "fa-solid fa-1", label: "1" }, { class: "fa-solid fa-2", label: "2" }, { class: "fa-solid fa-3", label: "3" }, { class: "fa-solid fa-4", label: "4" }, { class: "fa-solid fa-5", label: "5" }, { class: "fa-solid fa-6", label: "6" }, { class: "fa-solid fa-7", label: "7" }, { class: "fa-solid fa-8", label: "8" }, { class: "fa-solid fa-9", label: "9" }, { class: "fa-regular fa-star", label: "Star Outline" }, { class: "fa-solid fa-star", label: "Star Solid" }, { class: "fa-regular fa-circle", label: "Circle Outline" }, { class: "fa-solid fa-circle", label: "Circle Solid" }, { class: "fa-regular fa-square", label: "Square Outline" }, { class: "fa-solid fa-square", label: "Square Solid" }
@@ -233,9 +234,7 @@
             for(let j=1; j<=3; j++) links.push({name:`Link ${j}`, url:"#", color: ""});
             workCats.push({title:`Category ${i}`, color:"#ff8800", url: "#", links: links});
         }
-        const baseQl = [
-            {name:"fa-solid fa-server",url:"#",vis:false}, {name:"fa-solid fa-sliders",url:"#",vis:false}, {name:"fa-brands fa-spotify",url:"#",vis:false}, {name:"fa-solid fa-music",url:"#",vis:false}
-        ];
+        const baseQl = [{name:"fa-solid fa-server",url:"#",vis:false}, {name:"fa-solid fa-sliders",url:"#",vis:false}, {name:"fa-brands fa-spotify",url:"#",vis:false}, {name:"fa-solid fa-music",url:"#",vis:false}];
         return {
             profile: 'home', opacity: 0.3, bgType: 'mesh', bgImg: '', target: '_blank', realWeatherColors: true,
             bgColor: "#1C1B22", iconColor: "#ffffff", weatherColor: "#ffffff", linkColor: "#cccccc",
@@ -250,9 +249,14 @@
 
     function toggleBgType(type) { 
         state.bgType = type; 
-        const bg = document.getElementById('full-bg');
-        bg.style.backgroundImage = 'none'; // Clear old style immediately
+        if (type === 'mesh') state.bgImg = ''; // Explicitly clear image when choosing gradient
         saveAndRender(true); 
+    }
+
+    function resetBgImage() {
+        state.bgImg = '';
+        state.bgType = 'mesh';
+        saveAndRender(true);
     }
 
     function handleLocalImg(input) {
@@ -275,8 +279,6 @@
         document.documentElement.style.setProperty('--icon-color', state.iconColor);
 
         const bg = document.getElementById('full-bg');
-        
-        // Reset styles before applying new ones to prevent "stuck" states
         bg.style.backgroundImage = 'none';
         bg.style.filter = 'none';
 
@@ -331,11 +333,9 @@
         
         const urlInput = document.getElementById('bg-img-url');
         if (state.bgImg && state.bgImg.startsWith('data:')) {
-            urlInput.value = ""; 
-            urlInput.placeholder = "Local file active";
+            urlInput.value = ""; urlInput.placeholder = "Local file active";
         } else {
-            urlInput.value = state.bgImg || "";
-            urlInput.placeholder = "Paste Image URL here...";
+            urlInput.value = state.bgImg || ""; urlInput.placeholder = "Paste Image URL here...";
         }
 
         document.getElementById('op-slide').value = state.opacity;
@@ -375,11 +375,8 @@
         state.weatherColor = document.getElementById('w-color').value;
         state.linkColor = document.getElementById('l-color').value;
         state.opacity = document.getElementById('op-slide').value;
-        
         const urlVal = document.getElementById('bg-img-url').value;
-        if(state.bgType === 'img' && urlVal.trim().startsWith('http')) {
-            state.bgImg = urlVal;
-        }
+        if(state.bgType === 'img' && urlVal.trim().startsWith('http')) state.bgImg = urlVal;
         saveAndRender(); updateWeather();
     }
 
