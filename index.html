@@ -136,7 +136,7 @@
         </div>
 
         <div class="setting-block">
-            <div class="section-h">Categories</div>
+            <div class="section-h">Categories & Links</div>
             <select id="cat-sel" onchange="syncCategoryEditor()"></select>
             <div style="display:flex; gap:10px;">
                 <input type="text" id="cat-title" oninput="updateCatRealtime()" placeholder="Title">
@@ -149,12 +149,34 @@
         </div>
 
         <div class="setting-block">
+            <div class="section-h">Weather Settings</div>
+            <div class="control-group" style="display:flex; gap:15px; margin-bottom: 10px;">
+                <label class="label-inline"><input type="checkbox" id="w-toggle" onchange="updateVisRealtime()"> Enable Weather</label>
+                <label class="label-inline"><input type="checkbox" id="w-real-color" onchange="updateVisRealtime()"> Colored Icons</label>
+            </div>
+            <div class="color-row"><span>Weather UI Color</span> <input type="color" id="w-color" oninput="updateVisRealtime()"></div>
+        </div>
+
+        <div class="setting-block">
+            <div class="section-h">Navigation & Colors</div>
+            <div class="color-row">
+                <span>Open links in:</span>
+                <select id="target-mode" onchange="updateVisRealtime()" style="width: 140px; margin:0;">
+                    <option value="_blank">New Tab</option>
+                    <option value="_self">Current Tab</option>
+                </select>
+            </div>
+            <div class="color-row"><span>Global Icon Color</span> <input type="color" id="icon-color-picker" oninput="updateVisRealtime()"></div>
+            <div class="color-row"><span>Category Links Text</span> <input type="color" id="l-color" oninput="updateVisRealtime()"></div>
+        </div>
+
+        <div class="setting-block">
             <div class="section-h">Background Options</div>
-            <div class="color-row"><span>Base Color</span> <input type="color" id="bg-color" oninput="updateVisRealtime()"></div>
+            <div class="color-row"><span>Base Background Color</span> <input type="color" id="bg-color" oninput="updateVisRealtime()"></div>
             
             <div style="display: flex; gap: 20px; margin: 10px 0;">
-                <label class="label-inline"><input type="radio" name="bg-type" id="mesh-check" onchange="toggleBgType('mesh')"> Gradient</label>
-                <label class="label-inline"><input type="radio" name="bg-type" id="img-check" onchange="toggleBgType('img')"> Photo</label>
+                <label class="label-inline"><input type="radio" name="bg-type" id="mesh-check" onchange="toggleBgType('mesh')"> Gradient Effect</label>
+                <label class="label-inline"><input type="radio" name="bg-type" id="img-check" onchange="toggleBgType('img')"> Image Background</label>
             </div>
 
             <div id="img-input-area" style="display:none;">
@@ -168,49 +190,31 @@
             </div>
 
             <div style="margin: 15px 0 10px 0;">
-                <span style="font-size: 0.8rem; opacity: 0.8;">Filter (Blur/Opacity)</span>
+                <span style="font-size: 0.8rem; opacity: 0.8;">Background Filter (Opacity & Blur)</span>
                 <input type="range" id="op-slide" min="0" max="1" step="0.05" oninput="updateVisRealtime()">
             </div>
         </div>
 
-        <div class="setting-block">
-            <div class="section-h">Weather & Global Colors</div>
-            <div class="control-group" style="display:flex; gap:15px; margin-bottom: 10px;">
-                <label class="label-inline"><input type="checkbox" id="w-toggle" onchange="updateVisRealtime()"> Show Weather</label>
-                <label class="label-inline"><input type="checkbox" id="w-real-color" onchange="updateVisRealtime()"> Real Colors</label>
-            </div>
-            <div class="color-row"><span>Icon Color</span> <input type="color" id="icon-color-picker" oninput="updateVisRealtime()"></div>
-            <div class="color-row"><span>Weather Color</span> <input type="color" id="w-color" oninput="updateVisRealtime()"></div>
-            <div class="color-row"><span>Links Color</span> <input type="color" id="l-color" oninput="updateVisRealtime()"></div>
-            <div class="color-row">
-                <span>Link Target:</span>
-                <select id="target-mode" onchange="updateVisRealtime()" style="width: 140px; margin:0;">
-                    <option value="_blank">New Tab</option>
-                    <option value="_self">Current Tab</option>
-                </select>
-            </div>
-        </div>
-
         <div style="display:flex; gap:10px; margin-top: 1rem;">
-            <button onclick="exportData()" style="background:#1b3d2f;">Backup</button>
-            <button onclick="document.getElementById('file-input').click()" style="background:#1e3a5f;">Import</button>
+            <button onclick="exportData()" style="background:#1b3d2f;">Backup Settings</button>
+            <button onclick="document.getElementById('file-input').click()" style="background:#1e3a5f;">Import Settings</button>
         </div>
         <input type="file" id="file-input" style="display:none" onchange="importData(this)">
     </div>
 
     <div id="weather-modal" class="modal">
-        <h3 style="margin:0 0 1rem 0;">Cities</h3>
+        <h3 style="margin:0 0 1rem 0;">Weather Management</h3>
         <div id="current-cities"></div>
-        <input type="text" placeholder="Search city..." oninput="searchCity(this.value)">
+        <input type="text" placeholder="Search city name..." oninput="searchCity(this.value)">
         <div id="search-res"></div>
         <button onclick="closeModals()">Close</button>
     </div>
 
 <script>
-    const KEY = "DASH_RESTORE_V80";
+    const KEY = "DASH_STABLE_V85_PNG_FIX";
     
     const ICON_SET = [
-        { class: "fa-solid fa-server", label: "Server" }, { class: "fa-solid fa-sliders", label: "Sliders" }, { class: "fa-brands fa-spotify", label: "Spotify" }, { class: "fa-solid fa-music", label: "Music" }, { class: "fa-solid fa-cloud", label: "Cloud" }, { class: "fa-solid fa-heart", label: "Heart" }, { class: "fa-solid fa-1", label: "1" }, { class: "fa-solid fa-2", label: "2" }, { class: "fa-solid fa-3", label: "3" }, { class: "fa-solid fa-4", label: "4" }, { class: "fa-solid fa-5", label: "5" }, { class: "fa-solid fa-6", label: "6" }, { class: "fa-solid fa-7", label: "7" }, { class: "fa-solid fa-8", label: "8" }, { class: "fa-solid fa-9", label: "9" }
+        { class: "fa-solid fa-server", label: "Server" }, { class: "fa-solid fa-sliders", label: "Sliders" }, { class: "fa-brands fa-spotify", label: "Spotify" }, { class: "fa-solid fa-music", label: "Music" }, { class: "fa-solid fa-cloud", label: "Cloud" }, { class: "fa-solid fa-heart", label: "Heart" }, { class: "fa-regular fa-star", label: "Star Outline" }, { class: "fa-solid fa-star", label: "Star Solid" }, { class: "fa-solid fa-1", label: "1" }, { class: "fa-solid fa-2", label: "2" }, { class: "fa-solid fa-3", label: "3" }, { class: "fa-solid fa-4", label: "4" }, { class: "fa-solid fa-5", label: "5" }
     ];
 
     const W_DATA = { 0: { icon: "fa-sun", color: "#FFD700" }, 1: { icon: "fa-cloud-sun", color: "#FFB800" }, 2: { icon: "fa-cloud-sun", color: "#FFB800" }, 3: { icon: "fa-cloud", color: "#B0C4DE" }, 45: { icon: "fa-smog", color: "#778899" }, 51: { icon: "fa-cloud-rain", color: "#00BFFF" }, 61: { icon: "fa-cloud-showers-heavy", color: "#1E90FF" }, 95: { icon: "fa-bolt", color: "#BA55D3" } };
@@ -228,7 +232,7 @@
             for(let j=1; j<=3; j++) links.push({name:`Link ${j}`, url:"#", color: ""});
             workCats.push({title:`Category ${i}`, color:"#ff8800", url: "#", links: links});
         }
-        const baseQl = [{name:"fa-solid fa-server",url:"#",vis:false}, {name:"fa-solid fa-sliders",url:"#",vis:false}, {name:"fa-brands fa-spotify",url:"#",vis:false}, {name:"fa-solid fa-music",url:"#",vis:false}];
+        const baseQl = [{name:"fa-solid fa-server",url:"#",vis:false}, {name:"fa-solid fa-sliders",url:"#",vis:false}, {name:"fa-brands fa-spotify",url:"#",vis:false}, {name:"fa-solid fa-music",url:"#",vis:false}, {name:"fa-regular fa-star",url:"#",vis:false}];
         return {
             profile: 'home', opacity: 0.3, bgType: 'mesh', bgImg: '', target: '_blank', realWeatherColors: true,
             bgColor: "#1C1B22", iconColor: "#ffffff", weatherColor: "#ffffff", linkColor: "#cccccc",
@@ -245,7 +249,7 @@
         const file = input.files[0];
         if (!file) return;
         const status = document.getElementById('upload-status');
-        status.textContent = "Processing...";
+        status.textContent = "Processing image...";
 
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -260,7 +264,7 @@
                 ctx.drawImage(img, 0, 0, width, height);
                 state.bgImg = canvas.toDataURL('image/jpeg', 0.7); 
                 state.bgType = 'img';
-                status.textContent = "Photo Saved!";
+                status.textContent = "Ready!";
                 saveAndRender(true);
             };
             img.src = e.target.result;
