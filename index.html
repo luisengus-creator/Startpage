@@ -16,7 +16,6 @@
             background-color: var(--bg); color: white; height: 100vh; 
             display: flex; flex-direction: column; overflow: hidden; font-size: var(--fs-base);
         }
-        /* Fixed initial glow by removing transition on first load and setting default opacity to 0 */
         #full-bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0; }
         #full-bg.ready { transition: opacity 0.8s ease-in-out, background 1.2s ease-in-out; }
 
@@ -171,17 +170,35 @@
     </div>
 
 <script>
-    const KEY = "DASH_STABLE_V34_UI_FIX";
+    const KEY = "DASH_STABLE_V35_RESTORED";
     const ICON_LIST = ["fa-spotify", "fa-server", "fa-music", "fa-sliders", "fa-github", "fa-youtube", "fa-twitch", "fa-cloud", "fa-terminal", "fa-code", "fa-heart", "fa-star"];
     const W_ICONS = { 0: "fa-sun", 1: "fa-cloud-sun", 2: "fa-cloud-sun", 3: "fa-cloud", 45: "fa-smog", 51: "fa-cloud-rain", 61: "fa-cloud-showers-heavy", 95: "fa-bolt" };
 
     function getDefaults() {
+        // Build Home: 5 categories with 5 links each
+        const homeCats = [];
+        for(let i=1; i<=5; i++) {
+            let links = [];
+            for(let j=1; j<=5; j++) links.push({name:`Link ${j}`, url:"#"});
+            homeCats.push({title:`Category ${i}`, color:"#00d4ff", url: "#", links: links});
+        }
+        
+        // Build Work: 3 categories with 3 links each
+        const workCats = [];
+        for(let i=1; i<=3; i++) {
+            let links = [];
+            for(let j=1; j<=3; j++) links.push({name:`Work Link ${j}`, url:"#"});
+            workCats.push({title:`Work Cat ${i}`, color:"#ff8800", url: "#", links: links});
+        }
+
+        const baseQl = [{name:"fa-brands fa-spotify",url:"#",vis:false},{name:"fa-solid fa-server",url:"#",vis:false},{name:"fa-solid fa-music",url:"#",vis:false},{name:"fa-solid fa-sliders",url:"#",vis:false}];
+        
         return {
             profile: 'home', opacity: 0.3, mesh: true, target: '_blank',
             bgColor: "#1C1B22", iconColor: "#ffffff", weatherColor: "#ffffff", linkColor: "#cccccc",
             cities: [{name: "Lisboa", lat: 38.71, lon: -9.13}],
-            home: { ql: [{name:"fa-brands fa-spotify",url:"#",vis:false},{name:"fa-solid fa-server",url:"#",vis:false},{name:"fa-solid fa-music",url:"#",vis:false},{name:"fa-solid fa-sliders",url:"#",vis:false}], categories: [], showWeather: true },
-            work: { ql: [{name:"fa-brands fa-spotify",url:"#",vis:false},{name:"fa-solid fa-server",url:"#",vis:false},{name:"fa-solid fa-music",url:"#",vis:false},{name:"fa-solid fa-sliders",url:"#",vis:false}], categories: [], showWeather: true }
+            home: { ql: JSON.parse(JSON.stringify(baseQl)), categories: homeCats, showWeather: true },
+            work: { ql: JSON.parse(JSON.stringify(baseQl)), categories: workCats, showWeather: true }
         };
     }
 
@@ -216,7 +233,6 @@
             bg.style.opacity = state.opacity;
         } else { bg.style.opacity = 0; }
         
-        // Add transition class after first render to prevent initial glow flash
         setTimeout(() => bg.classList.add('ready'), 100);
         if(refreshModal) syncCategoryEditor();
     }
