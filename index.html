@@ -19,7 +19,6 @@
         #full-bg { 
             position: fixed; inset: 0; z-index: -1; pointer-events: none; 
             background-size: cover; background-position: center;
-            /* Instant render to prevent glow flash */
             transition: none; 
         }
         #full-bg.ready { transition: opacity 0.8s ease-in-out, background 1.2s ease-in-out, filter 0.5s ease; }
@@ -214,7 +213,7 @@
     </div>
 
 <script>
-    const KEY = "DASH_STABLE_V51_FIN";
+    const KEY = "DASH_STABLE_V52_FINAL";
     
     const ICON_SET = [
         { class: "fa-solid fa-server", label: "Server" },
@@ -322,8 +321,8 @@
         document.getElementById('weather-area').style.display = p.showWeather ? 'flex' : 'none';
         document.getElementById('weather-area').style.color = state.weatherColor;
         
-        // Remove flash by adding ready class after instant setup
-        setTimeout(() => bg.classList.add('ready'), 100);
+        // Use timeout to prevent the flash but keep transitions smooth later
+        setTimeout(() => bg.classList.add('ready'), 50);
         if(refreshModal) renderSettings();
     }
 
@@ -344,10 +343,10 @@
         document.getElementById('img-input-area').style.display = state.bgType === 'img' ? 'block' : 'none';
         
         const urlInput = document.getElementById('bg-img-url');
-        // Prevent clearing the base64 data string when navigating settings
+        // Clear value if local image is set so it doesn't try to save placeholder text
         if (state.bgImg && state.bgImg.startsWith('data:')) {
             urlInput.value = ""; 
-            urlInput.placeholder = "Local file active (Upload another to change)";
+            urlInput.placeholder = "Local file active...";
         } else {
             urlInput.value = state.bgImg || "";
             urlInput.placeholder = "Paste Image URL here...";
@@ -392,7 +391,7 @@
         state.opacity = document.getElementById('op-slide').value;
         
         const urlVal = document.getElementById('bg-img-url').value;
-        // Only override if the URL input actually has a web URL in it
+        // Only update bgImg if it's a real link, don't overwrite local storage if blank
         if(state.bgType === 'img' && urlVal.startsWith('http')) {
             state.bgImg = urlVal;
         }
