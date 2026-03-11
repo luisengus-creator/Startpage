@@ -212,7 +212,7 @@
     </div>
 
 <script>
-    const KEY = "DASH_STABLE_V49_CLEAN";
+    const KEY = "DASH_STABLE_V50_FIXED";
     
     const ICON_SET = [
         { class: "fa-solid fa-server", label: "Server" },
@@ -277,7 +277,11 @@
         const file = input.files[0];
         if (file) {
             const reader = new FileReader();
-            reader.onload = (e) => { state.bgImg = e.target.result; saveAndRender(true); };
+            reader.onload = (e) => { 
+                state.bgImg = e.target.result; 
+                state.bgType = 'img';
+                saveAndRender(true); 
+            };
             reader.readAsDataURL(file);
         }
     }
@@ -298,6 +302,8 @@
             bg.style.backgroundImage = `url(${state.bgImg})`;
             bg.style.opacity = 1;
             bg.style.filter = `blur(${state.opacity * 25}px) brightness(${1 - (state.opacity * 0.4)})`;
+        } else {
+            bg.style.backgroundImage = 'none';
         }
 
         const qlHtml = p.ql.filter(l => l.vis).map(l => `<a href="${l.url}" class="nav-link active" target="${state.target}"><i class="${l.name}"></i></a>`).join('');
@@ -333,7 +339,16 @@
         document.getElementById('mesh-check').checked = state.bgType === 'mesh';
         document.getElementById('img-check').checked = state.bgType === 'img';
         document.getElementById('img-input-area').style.display = state.bgType === 'img' ? 'block' : 'none';
-        document.getElementById('bg-img-url').value = state.bgImg.startsWith('data:') ? 'Local file loaded' : state.bgImg;
+        
+        const urlInput = document.getElementById('bg-img-url');
+        if (state.bgImg && state.bgImg.startsWith('data:')) {
+            urlInput.value = "";
+            urlInput.placeholder = "Local photo active...";
+        } else {
+            urlInput.value = state.bgImg || "";
+            urlInput.placeholder = "Paste Image URL here...";
+        }
+
         document.getElementById('op-slide').value = state.opacity;
         document.getElementById('w-toggle').checked = p.showWeather;
         document.getElementById('w-real-color').checked = state.realWeatherColors;
@@ -371,8 +386,10 @@
         state.weatherColor = document.getElementById('w-color').value;
         state.linkColor = document.getElementById('l-color').value;
         state.opacity = document.getElementById('op-slide').value;
-        if(state.bgType === 'img' && !document.getElementById('bg-img-url').value.includes('Local file')) {
-            state.bgImg = document.getElementById('bg-img-url').value;
+        
+        const urlVal = document.getElementById('bg-img-url').value;
+        if(state.bgType === 'img' && urlVal !== "") {
+            state.bgImg = urlVal;
         }
         saveAndRender(); updateWeather();
     }
