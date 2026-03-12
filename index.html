@@ -13,7 +13,7 @@
             background-color: var(--bg); color: white; height: 100vh; 
             display: flex; flex-direction: column; overflow: hidden; font-size: var(--fs-base);
         }
-        #full-bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; background-size: cover; background-position: center; transition: opacity 0.4s ease; }
+        #full-bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; background-size: cover; background-position: center; }
         .container { width: 100%; height: 100%; margin: 0 auto; padding: 3vh 4vw; display: flex; flex-direction: column; }
         .top-bar { display: flex; justify-content: space-between; align-items: center; z-index: 10; flex-shrink: 0; margin-bottom: 3vh; }
         .nav-group { display: flex; gap: 1.2rem; align-items: center; }
@@ -57,6 +57,7 @@
         .label-inline input[type="checkbox"] { width: auto; margin: 0; height: auto; }
         .btn-backup { background: #0066ff !important; color: white; margin-top: 0 !important; }
         .btn-import { background: #00cc66 !important; color: white; margin-top: 0 !important; }
+        .btn-reset { background: #660000 !important; color: #ffcccc !important; margin-top: 15px !important; }
         .flex-row { display: flex; gap: 10px; }
         .flex-row button { flex: 1; }
         
@@ -124,7 +125,8 @@
             <label class="label-inline"><input type="checkbox" id="mesh-check" onchange="toggleGradientMode(this.checked)"> Gradient Effect</label>
             <div style="margin: 15px 0;"><span id="slider-label" style="font-size: 0.8rem; opacity: 0.8;">Background Opacity</span><input type="range" id="unified-slider" min="0" max="1" step="0.05" oninput="updateVisRealtime()"></div>
         </div>
-        <div class="flex-row" style="margin-top: 20px;"><button class="btn-backup" onclick="exportData()">Backup</button><button class="btn-import" onclick="document.getElementById('file-input').click()">Import</button></div>
+        <div class="flex-row"><button class="btn-backup" onclick="exportData()">Backup</button><button class="btn-import" onclick="document.getElementById('file-input').click()">Import</button></div>
+        <button class="btn-reset" onclick="resetToDefaults()">Reset to Defaults</button>
         <input type="file" id="file-input" style="display:none" onchange="importData(this)">
     </div>
 
@@ -137,7 +139,7 @@
     </div>
 
 <script>
-    const KEY = "STARTPAGE_V57_FINAL_SYNC";
+    const KEY = "STARTPAGE_V58_FINAL_POLISH";
     const ICON_LIST = ["fa-solid fa-server", "fa-solid fa-sliders", "fa-brands fa-spotify", "fa-solid fa-star", "fa-solid fa-music", "fa-brands fa-github", "fa-solid fa-terminal", "fa-solid fa-code", "fa-solid fa-heart", "fa-solid fa-play"];
     const W_DATA = { 0: { icon: "fa-sun", color: "#FFD700" }, 1: { icon: "fa-cloud-sun", color: "#FFB800" }, 2: { icon: "fa-cloud-sun", color: "#FFB800" }, 3: { icon: "fa-cloud", color: "#B0C4DE" }, 45: { icon: "fa-smog", color: "#778899" }, 51: { icon: "fa-cloud-rain", color: "#00BFFF" }, 61: { icon: "fa-cloud-showers-heavy", color: "#1E90FF" }, 95: { icon: "fa-bolt", color: "#BA55D3" } };
 
@@ -293,6 +295,7 @@
     function delLink(ci, li) { state[state.profile].categories[ci].links.splice(li,1); saveAndRender(); }
     function exportData() { const b = new Blob([JSON.stringify(state)], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download='startpage_backup.json'; a.click(); }
     function importData(input) { const file = input.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = (e) => { try { state = JSON.parse(e.target.result); saveAndRender(); alert("Success!"); } catch(err) { alert("Invalid file."); } }; reader.readAsText(file); }
+    function resetToDefaults() { if(confirm("Are you sure? This will erase all your profiles and settings!")) { state = getDefaults(); saveAndRender(); renderSettings(); updateWeather(); } }
 
     async function updateWeather() {
         const city = state.cities[cityIdx]; if(!city || !state[state.profile].showWeather) return;
