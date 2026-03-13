@@ -61,9 +61,10 @@
             transition: gap 0.3s ease;
         }
 
+        /* Unified Column Styling */
         .column { 
             background: rgba(255,255,255,0.02); 
-            border-radius: calc(14px * var(--scale)); 
+            border-radius: 4px; /* Changed to square corners for both */
             padding: calc(1.5rem * var(--scale)); 
             position: relative; 
             border: 1px solid rgba(255,255,255,0.06); 
@@ -74,6 +75,7 @@
             min-width: calc(180px * var(--scale));
             max-width: 90vw;
             transition: all 0.3s ease;
+            overflow: hidden;
         }
 
         .cat-controls {
@@ -317,7 +319,7 @@
         document.getElementById('ql-nav').innerHTML = `<span class="nav-link active" onclick="toggleProfile()"><i class="fa-solid ${profileIcon}"></i></span>` + qlHtml;
         document.getElementById('grid').innerHTML = p.categories.map((c, ci) => `
             <div class="column">
-                <div style="position:absolute; inset:0; background:linear-gradient(${c.color}22, transparent); opacity:0.3; z-index:-1; border-radius:inherit;"></div>
+                <div style="position:absolute; inset:0; background:linear-gradient(${c.color}22, transparent); opacity:0.3; z-index:-1;"></div>
                 <div class="cat-controls"><i class="fa-solid fa-trash-can del-btn" onclick="delCat(${ci})"></i></div>
                 <div class="cat-title ${p.showHeaders ? '' : 'hidden-header'}" style="color:${c.color};">
                     <a href="${c.url || '#'}" target="${state.target}" style="color:inherit; text-decoration:none;">${c.title}</a>
