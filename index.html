@@ -45,7 +45,7 @@
             justify-content: center; 
             width: 100%; 
             overflow: hidden; 
-            padding: 2vh; 
+            padding: 1vh; 
         }
         .ready #main-content { transition: opacity var(--fade-speed) ease, transform var(--fade-speed) ease; }
         .fade-out { opacity: 0; transform: translateY(10px); }
@@ -53,7 +53,7 @@
         #grid { 
             display: flex;
             flex-wrap: wrap;
-            gap: calc(2rem * var(--scale));
+            gap: calc(1.5rem * var(--scale));
             justify-content: center;
             align-items: center;
             width: 100%;
@@ -127,7 +127,7 @@
         .del-btn:hover { color: #ff0000; opacity: 1; transform: scale(1.1); }
         .edit-mode .del-btn { display: inline-block; }
 
-        #weather-area { padding: 1.5vh 0; display: none; flex-direction: column; align-items: center; gap: 0.6rem; z-index: 10; flex-shrink: 0; }
+        #weather-area { padding: 1.5vh 0; display: none; flex-direction: column; align-items: center; gap: 0.6rem; z-index: 10; flex-shrink: 0; min-height: 120px; }
         .ready #weather-area { transition: opacity var(--fade-speed) ease; }
         #city-name { font-size: 0.75rem; opacity: 0.5; letter-spacing: 3px; cursor: pointer; text-transform: uppercase; }
         #weather-grid { display: flex; gap: 0.6rem; align-items: center; cursor: pointer; }
@@ -186,7 +186,10 @@
     </div>
 
     <div id="settings-modal" class="modal">
-        <div class="setting-block"><div class="section-h">Navigation</div><select id="target-mode" onchange="updateVisRealtime()"><option value="_self">Current Tab</option><option value="_blank">New Tab</option></select></div>
+        <div class="setting-block">
+            <div class="section-h">Navigation</div>
+            <select id="target-mode" onchange="updateVisRealtime()"><option value="_self">Current Tab</option><option value="_blank">New Tab</option></select>
+        </div>
         <div class="setting-block"><div class="section-h">Quick Links</div><div id="ql-list-editor"></div></div>
         <div class="setting-block">
             <div class="section-h">Categories & Individual Links</div>
@@ -263,17 +266,41 @@
 
     function applyDynamicScaling() {
         const p = state[state.profile];
+        const grid = document.getElementById('grid');
+        if (!grid) return;
+
+        // Calculate available space
+        const topBarHeight = 80;
+        const weatherHeight = p.showWeather ? 140 : 0;
+        const availableHeight = window.innerHeight - topBarHeight - weatherHeight - 40;
+
+        // Density Check
         const catCount = p.categories.length;
-        const totalLinks = p.categories.reduce((acc, cat) => acc + cat.links.length, 0);
-        let scale = 1.0;
-        const spaceFactor = p.showWeather ? 0.82 : 1.0;
-        if (catCount === 1) { scale = totalLinks < 4 ? 2.6 : 2.1; }
-        else if (catCount === 2) { scale = 1.8; }
-        else if (catCount <= 4) { scale = 1.35; }
-        else if (catCount <= 6) { scale = 1.1; }
-        else { scale = 0.9; }
-        document.documentElement.style.setProperty('--scale', scale * spaceFactor);
+        if (catCount === 0) return;
+        const maxLinks = Math.max(...p.categories.map(c => c.links.length), 1);
+        
+        // Vertical Scaling factor (standard size)
+        const rowHeight = 45; 
+        const headerHeight = p.showHeaders ? 60 : 10;
+        const estimatedHeight = (maxLinks * rowHeight) + headerHeight;
+        let vScale = availableHeight / estimatedHeight;
+
+        // Horizontal Scaling factor
+        const availableWidth = window.innerWidth * 0.95;
+        const estimatedWidth = catCount * 220; 
+        let hScale = availableWidth / estimatedWidth;
+
+        // Final composite scale
+        let scale = Math.min(vScale, hScale);
+        
+        // Boundaries
+        if (catCount === 1) scale = Math.min(vScale, 2.5);
+        else scale = Math.max(Math.min(scale, 1.8), 0.6);
+
+        document.documentElement.style.setProperty('--scale', scale);
     }
+
+    window.addEventListener('resize', applyDynamicScaling);
 
     function toggleProfile() {
         const main = document.getElementById('main-content');
@@ -410,7 +437,7 @@
             const c = p.categories[idx]; 
             document.getElementById('cat-title').value = c.title; 
             document.getElementById('cat-color').value = c.color; 
-            document.getElementById('cat-url').value = c.url || ""; // SYNC URL FIELD
+            document.getElementById('cat-url').value = c.url || ""; 
             document.getElementById('link-list-editor').innerHTML = c.links.map((l, li) => `<div class="editor-link-row"><input type="text" value="${l.name}" oninput="updateLinkRealtime(${idx}, ${li}, 'name', this.value)"><input type="text" value="${l.url}" oninput="updateLinkRealtime(${idx}, ${li}, 'url', this.value)"><input type="color" value="${l.color || state.linkColor}" oninput="updateLinkRealtime(${idx}, ${li}, 'color', this.value)"><div class="tiny-del" onclick="delLink(${idx}, ${li}); syncCategoryEditor();"><i class="fa-solid fa-trash-can"></i></div></div>`).join(''); 
         } 
     }
@@ -418,7 +445,7 @@
         const idx = document.getElementById('cat-sel').value, c = state[state.profile].categories[idx]; 
         c.title = document.getElementById('cat-title').value; 
         c.color = document.getElementById('cat-color').value; 
-        c.url = document.getElementById('cat-url').value; // UPDATE URL REALTIME
+        c.url = document.getElementById('cat-url').value; 
         saveAndRender(); 
     }
     function updateLinkRealtime(ci, li, k, v) { state[state.profile].categories[ci].links[li][k] = v; saveAndRender(); }
