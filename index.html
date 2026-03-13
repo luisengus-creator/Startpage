@@ -31,7 +31,7 @@
         }
         .zoom-effect { transform: scale(1.05); }
 
-        .container { width: 100%; height: 100%; margin: 0 auto; padding: 2vh 3vw; display: flex; flex-direction: column; }
+        .container { width: 100%; height: 100%; margin: 0 auto; padding: 2vh 2vw; display: flex; flex-direction: column; }
         .top-bar { display: flex; justify-content: space-between; align-items: center; z-index: 10; flex-shrink: 0; margin-bottom: 2vh; }
         .nav-group { display: flex; gap: 1.2rem; align-items: center; }
         .nav-link { cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; width: 2.2rem; height: 2.2rem; }
@@ -52,27 +52,25 @@
         
         #grid { 
             display: flex;
-            flex-wrap: wrap;
-            gap: calc(1.5rem * var(--scale));
+            flex-wrap: nowrap; /* Forced single row */
+            gap: calc(1.2rem * var(--scale));
             justify-content: center;
             align-items: center;
-            width: 100%;
+            width: fit-content;
             max-width: 100%;
-            transition: gap 0.3s ease;
         }
 
         .column { 
             background: rgba(255,255,255,0.02); 
             border-radius: 4px; 
-            padding: calc(1.5rem * var(--scale)); 
+            padding: calc(1.2rem * var(--scale)); 
             position: relative; 
             border: 1px solid rgba(255,255,255,0.06); 
             backdrop-filter: blur(12px); 
             text-align: center; 
-            flex: 0 1 auto;
+            flex: 0 0 auto; /* Do not grow or shrink columns unevenly */
             width: fit-content;
-            min-width: calc(180px * var(--scale));
-            max-width: 90vw;
+            min-width: calc(160px * var(--scale));
             transition: all 0.3s ease;
             overflow: hidden;
         }
@@ -88,7 +86,7 @@
 
         .cat-title { 
             margin: 0 0 calc(1rem * var(--scale)) 0; 
-            font-size: calc(1.4rem * var(--scale)); 
+            font-size: calc(1.3rem * var(--scale)); 
             font-weight: 700; 
             padding-bottom: calc(10px * var(--scale)); 
             border-bottom: 2px solid rgba(255,255,255,0.1); 
@@ -103,16 +101,16 @@
             display: flex; 
             justify-content: center; 
             align-items: center; 
-            padding: calc(0.6rem * var(--scale)) calc(1rem * var(--scale)); 
+            padding: calc(0.5rem * var(--scale)) calc(0.8rem * var(--scale)); 
             border-bottom: 1px solid rgba(255,255,255,0.03); 
             position: relative; 
             gap: 15px;
+            white-space: nowrap;
         }
         .link-row a { 
             text-decoration: none; 
             transition: 0.2s; 
-            font-size: calc(1.1rem * var(--scale));
-            white-space: nowrap;
+            font-size: calc(1rem * var(--scale));
         }
         
         .del-btn { 
@@ -269,20 +267,32 @@
     function applyDynamicScaling() {
         const p = state[state.profile];
         const grid = document.getElementById('grid');
-        if (!grid) return;
+        if (!grid || !p.categories.length) return;
+
+        // Reset scale briefly to measure true natural width
+        document.documentElement.style.setProperty('--scale', 1);
+        
         const topBarHeight = 80, weatherHeight = p.showWeather ? 140 : 0;
-        const availableHeight = window.innerHeight - topBarHeight - weatherHeight - 40;
-        const catCount = p.categories.length;
-        if (catCount === 0) return;
+        const availableHeight = window.innerHeight - topBarHeight - weatherHeight - 60;
+        const availableWidth = window.innerWidth * 0.94; // Safety margin
+        
         const maxLinks = Math.max(...p.categories.map(c => c.links.length), 1);
         const rowHeight = 45, headerHeight = p.showHeaders ? 60 : 10;
-        const estimatedHeight = (maxLinks * rowHeight) + headerHeight;
-        let vScale = availableHeight / estimatedHeight;
-        const availableWidth = window.innerWidth * 0.95, estimatedWidth = catCount * 220; 
-        let hScale = availableWidth / estimatedWidth;
+        const naturalHeight = (maxLinks * rowHeight) + headerHeight;
+        
+        // Measure horizontal width
+        const naturalWidth = grid.scrollWidth;
+
+        // Calculate scaling factors
+        let vScale = availableHeight / naturalHeight;
+        let hScale = availableWidth / naturalWidth;
+        
+        // Final scale is whichever is smaller (to fit both dimensions)
         let scale = Math.min(vScale, hScale);
-        if (catCount === 1) scale = Math.min(vScale, 2.5);
-        else scale = Math.max(Math.min(scale, 1.8), 0.6);
+        
+        // Set boundaries
+        scale = Math.max(Math.min(scale, 1.6), 0.5);
+        
         document.documentElement.style.setProperty('--scale', scale);
     }
 
@@ -301,7 +311,6 @@
 
     function saveAndRender(refreshModal = false) {
         localStorage.setItem(KEY, JSON.stringify(state));
-        applyDynamicScaling();
         const p = state[state.profile];
         if (!p) return; 
         document.body.style.backgroundColor = p.bgColor;
@@ -328,6 +337,8 @@
                 ${c.links.map((l, li) => `<div class="link-row"><a href="${l.url}" target="${state.target}" style="color:${l.color || state.linkColor}">${l.name}</a><i class="fa-solid fa-trash-can del-btn" onclick="delLink(${ci},${li})"></i></div>`).join('')}
             </div>`).join('');
         document.getElementById('weather-area').style.display = p.showWeather ? 'flex' : 'none';
+        
+        applyDynamicScaling();
         if(refreshModal) syncCategoryEditor();
     }
 
@@ -398,7 +409,6 @@
     function delLink(ci, li) { state[state.profile].categories[ci].links.splice(li,1); saveAndRender(); }
     function exportData() { const b = new Blob([JSON.stringify(state)], {type:'application/json'}), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download='startpage_backup.json'; a.click(); }
     
-    // SMART MERGE IMPORT
     function importData(input) {
         const file = input.files[0];
         if(!file) return;
@@ -407,33 +417,28 @@
             try {
                 const imported = JSON.parse(e.target.result);
                 const defaults = getDefaults();
-                
-                // Merge top-level settings
                 state.profile = imported.profile || defaults.profile;
                 state.target = imported.target || defaults.target;
                 state.linkColor = imported.linkColor || defaults.linkColor;
                 state.cities = imported.cities || defaults.cities;
-
-                // Merge profiles (Home/Work) individually to ensure new keys exist
                 ['home', 'work'].forEach(key => {
                     if (imported[key]) {
                         state[key] = { ...defaults[key], ...imported[key] };
                     }
                 });
-
                 saveAndRender();
                 renderSettings();
                 updateWeather();
-                alert("Backup imported successfully! Your links and settings have been merged.");
+                alert("Backup imported successfully!");
                 closeModals();
             } catch(err) {
-                alert("Could not read backup file. Make sure it's a valid .json file.");
+                alert("Could not read backup file.");
             }
         };
         reader.readAsText(file);
     }
 
-    function resetToDefaults() { if(confirm("Are you sure? This will erase all your profiles and settings!")) { state = getDefaults(); saveAndRender(); renderSettings(); updateWeather(); } }
+    function resetToDefaults() { if(confirm("Are you sure?")) { state = getDefaults(); saveAndRender(); renderSettings(); updateWeather(); } }
     function handleBgFile(input) { const file = input.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (e) => { const img = new Image(); img.onload = () => { const canvas = document.createElement('canvas'); const MAX_WIDTH = 1920; let width = img.width, height = img.height; if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } canvas.width = width; canvas.height = height; canvas.getContext('2d').drawImage(img, 0, 0, width, height); updateBgImg(canvas.toDataURL('image/jpeg', 0.7)); }; img.src = e.target.result; }; reader.readAsDataURL(file); }
     function updateIconColor(val) { state[state.profile].iconColor = val; saveAndRender(); }
     function handleGlobalLinkColor(val) { state.linkColor = val; state[state.profile].categories.forEach(cat => { cat.links.forEach(link => { link.color = val; }); }); saveAndRender(); syncCategoryEditor(); }
