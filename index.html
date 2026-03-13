@@ -143,6 +143,8 @@
         input, select { background: #111; border: 1px solid #222; color: white; padding: 10px; border-radius: 6px; width: 100%; font-size: 0.85rem; height: 40px; }
         button { cursor: pointer; background: #222; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; margin-top: 10px; color: white; transition: 0.2s; }
         button:hover { opacity: 0.8; }
+
+        ::placeholder { color: rgba(255, 255, 255, 0.2); }
         
         .city-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255,255,255,0.03); margin-bottom: 8px; border-radius: 8px; }
         .city-item .city-del { color: #ff4444; cursor: pointer; opacity: 0.6; transition: 0.2s; font-size: 0.85rem; padding-left: 20px; }
@@ -196,7 +198,7 @@
             <label class="label-inline" style="margin-bottom: 15px;"><input type="checkbox" id="header-vis-check" onchange="updateVisRealtime()"> Show Category Headers</label>
             <select id="cat-sel" onchange="syncCategoryEditor()" style="margin-bottom:10px;"></select>
             <div style="display:flex; gap:10px; margin-bottom:10px;"><input type="text" id="cat-title" oninput="updateCatRealtime()" placeholder="Title"><input type="color" id="cat-color" oninput="updateCatRealtime()" class="cat-color-picker"></div>
-            <input type="text" id="cat-url" oninput="updateCatRealtime()" placeholder="Category Link URL (Optional)" style="margin-bottom:10px;">
+            <input type="text" id="cat-url" oninput="updateCatRealtime()" placeholder="insert url" style="margin-bottom:10px;">
             <div id="link-list-editor" style="border: 1px solid #1a1a1a; padding: 12px; border-radius: 10px; max-height: 250px; overflow-y: auto; background: #050505; margin-bottom: 10px;"></div>
             <div class="flex-row"><button onclick="addCat()">+ Add Category</button><button onclick="addLinkInline()">+ Add Link</button></div>
         </div>
@@ -216,7 +218,7 @@
         </div>
         <div class="setting-block">
             <div class="section-h">Background Options</div>
-            <input type="text" id="bg-img-url" placeholder="Paste Image URL here..." oninput="updateBgImg(this.value)" style="margin-bottom:10px;">
+            <input type="text" id="bg-img-url" placeholder="insert url" oninput="updateBgImg(this.value)" style="margin-bottom:10px;">
             <div class="flex-row"><button onclick="document.getElementById('bg-file').click()">Upload Photo</button><button style="background:#311; color:#f88;" onclick="updateBgImg('')">Remove Photo</button></div>
             <input type="file" id="bg-file" style="display:none" accept="image/*" onchange="handleBgFile(this)">
             <div class="color-row" style="margin-top:15px;"><span>Profile Background Color</span> <input type="color" id="bg-color" oninput="updateVisRealtime()"></div>
@@ -245,14 +247,14 @@
         const cats = [];
         for(let i=1; i<=count; i++) {
             let links = [];
-            for(let j=1; j<=5; j++) links.push({name:`Link ${j}`, url:"#", color: ""});
-            cats.push({title:`${prefix} ${i}`, color: prefix === "Work" ? "#ff8800" : "#00d4ff", url: "#", links: links});
+            for(let j=1; j<=5; j++) links.push({name:`Link ${j}`, url:"", color: ""});
+            cats.push({title:`${prefix} ${i}`, color: prefix === "Work" ? "#ff8800" : "#00d4ff", url: "", links: links});
         }
         return cats;
     }
 
     function getDefaults() {
-        const baseQl = [{name:"fa-solid fa-server", url:"#", vis:false}, {name:"fa-solid fa-sliders", url:"#", vis:false}, {name:"fa-brands fa-spotify", url:"#", vis:false}, {name:"fa-solid fa-star", url:"#", vis:false}];
+        const baseQl = [{name:"fa-solid fa-server", url:"", vis:false}, {name:"fa-solid fa-sliders", url:"", vis:false}, {name:"fa-brands fa-spotify", url:"", vis:false}, {name:"fa-solid fa-star", url:"", vis:false}];
         return {
             profile: 'home', target: '_self', linkColor: "#cccccc",
             cities: [{name: "Lisboa", lat: 38.71, lon: -9.13}],
@@ -268,44 +270,26 @@
         const p = state[state.profile];
         const grid = document.getElementById('grid');
         if (!grid) return;
-
-        // Calculate available space
-        const topBarHeight = 80;
-        const weatherHeight = p.showWeather ? 140 : 0;
+        const topBarHeight = 80, weatherHeight = p.showWeather ? 140 : 0;
         const availableHeight = window.innerHeight - topBarHeight - weatherHeight - 40;
-
-        // Density Check
         const catCount = p.categories.length;
         if (catCount === 0) return;
         const maxLinks = Math.max(...p.categories.map(c => c.links.length), 1);
-        
-        // Vertical Scaling factor (standard size)
-        const rowHeight = 45; 
-        const headerHeight = p.showHeaders ? 60 : 10;
+        const rowHeight = 45, headerHeight = p.showHeaders ? 60 : 10;
         const estimatedHeight = (maxLinks * rowHeight) + headerHeight;
         let vScale = availableHeight / estimatedHeight;
-
-        // Horizontal Scaling factor
-        const availableWidth = window.innerWidth * 0.95;
-        const estimatedWidth = catCount * 220; 
+        const availableWidth = window.innerWidth * 0.95, estimatedWidth = catCount * 220; 
         let hScale = availableWidth / estimatedWidth;
-
-        // Final composite scale
         let scale = Math.min(vScale, hScale);
-        
-        // Boundaries
         if (catCount === 1) scale = Math.min(vScale, 2.5);
         else scale = Math.max(Math.min(scale, 1.8), 0.6);
-
         document.documentElement.style.setProperty('--scale', scale);
     }
 
     window.addEventListener('resize', applyDynamicScaling);
 
     function toggleProfile() {
-        const main = document.getElementById('main-content');
-        const weather = document.getElementById('weather-area');
-        const bg = document.getElementById('full-bg');
+        const main = document.getElementById('main-content'), weather = document.getElementById('weather-area'), bg = document.getElementById('full-bg');
         main.classList.add('fade-out'); weather.classList.add('fade-out'); bg.classList.add('zoom-effect');
         setTimeout(() => {
             state.profile = (state.profile === 'home' ? 'work' : 'home');
@@ -323,24 +307,13 @@
         document.documentElement.style.setProperty('--icon-color', p.iconColor);
         const bg = document.getElementById('full-bg');
         if(!bg) return;
-
-        bg.style.backgroundImage = "none";
-        bg.style.background = "none";
-
-        if (p.bgImg) { 
-            bg.style.backgroundImage = `url(${p.bgImg})`; 
-            bg.style.opacity = 1; 
-            bg.style.filter = `blur(${p.fuzzy || 0}px)`; 
-        } 
+        bg.style.backgroundImage = "none"; bg.style.background = "none";
+        if (p.bgImg) { bg.style.backgroundImage = `url(${p.bgImg})`; bg.style.opacity = 1; bg.style.filter = `blur(${p.fuzzy || 0}px)`; } 
         else if (p.mesh && p.categories.length > 0) {
             const cols = p.categories.map(x => x.color);
             bg.style.background = cols.length > 1 ? `linear-gradient(135deg, ${cols.join(',')})` : (cols[0] || p.bgColor); 
-            bg.style.opacity = p.opacity; 
-            bg.style.filter = "none";
-        } else { 
-            bg.style.opacity = 0; 
-        }
-
+            bg.style.opacity = p.opacity; bg.style.filter = "none";
+        } else { bg.style.opacity = 0; }
         const profileIcon = state.profile === 'home' ? 'fa-house' : 'fa-user-tie';
         const qlHtml = p.ql.filter(l => l.vis).map(l => `<a href="${l.url}" class="nav-link active" target="${state.target}"><i class="${l.name}"></i></a>`).join('');
         document.getElementById('ql-nav').innerHTML = `<span class="nav-link active" onclick="toggleProfile()"><i class="fa-solid ${profileIcon}"></i></span>` + qlHtml;
@@ -361,11 +334,10 @@
         const p = state[state.profile];
         document.getElementById('cat-sel').innerHTML = p.categories.map((c, i) => `<option value="${i}">${c.title}</option>`).join('');
         if(!p.categories[document.getElementById('cat-sel').value]) document.getElementById('cat-sel').value = 0;
-        const slider = document.getElementById('unified-slider');
-        const label = document.getElementById('slider-label');
+        const slider = document.getElementById('unified-slider'), label = document.getElementById('slider-label');
         if (p.bgImg) { label.textContent = "Photo Fuzzy Intensity"; slider.min = 0; slider.max = 30; slider.step = 1; slider.value = p.fuzzy || 0; } 
         else { label.textContent = "Gradient Opacity"; slider.min = 0; slider.max = 1; slider.step = 0.05; slider.value = p.opacity; }
-        document.getElementById('ql-list-editor').innerHTML = p.ql.map((l, i) => `<div class="ql-row"><input type="checkbox" ${l.vis ? 'checked' : ''} onchange="updateQlRealtime(${i},'vis',this.checked)"><select onchange="updateQlRealtime(${i},'name',this.value)" style="margin:0;">${ICON_LIST.map(ic => `<option value="${ic}" ${l.name === ic ? 'selected' : ''}>${ic.split('-').pop()}</option>`).join('')}</select><input type="text" value="${l.url}" oninput="updateQlRealtime(${i},'url',this.value)" style="margin:0;"></div>`).join('');
+        document.getElementById('ql-list-editor').innerHTML = p.ql.map((l, i) => `<div class="ql-row"><input type="checkbox" ${l.vis ? 'checked' : ''} onchange="updateQlRealtime(${i},'vis',this.checked)"><select onchange="updateQlRealtime(${i},'name',this.value)" style="margin:0;">${ICON_LIST.map(ic => `<option value="${ic}" ${l.name === ic ? 'selected' : ''}>${ic.split('-').pop()}</option>`).join('')}</select><input type="text" value="${l.url}" placeholder="insert url" oninput="updateQlRealtime(${i},'url',this.value)" style="margin:0;"></div>`).join('');
         document.getElementById('target-mode').value = state.target;
         document.getElementById('bg-img-url').value = p.bgImg.startsWith('data:') ? "Local Image Active" : p.bgImg;
         document.getElementById('mesh-check').checked = p.mesh;
@@ -391,70 +363,39 @@
         saveAndRender(); updateWeather();
     }
 
-    function renderCityManager() { 
-        document.getElementById('city-list-manager').innerHTML = state.cities.map((c, i) => `
-            <div class="city-item">
-                <span style="font-weight:600; font-size:0.9rem;">${c.name}</span>
-                <i class="fa-solid fa-trash-can city-del" onclick="removeCity(${i})"></i>
-            </div>`).join(''); 
-    }
-
-    async function searchCity(q) {
-        if(q.length < 3) { document.getElementById('search-results').innerHTML = ''; return; }
-        const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${q}&count=5&language=en&format=json`);
-        const d = await r.json();
-        document.getElementById('search-results').innerHTML = (d.results || []).map(c => `<div class="search-item" onclick="addCity('${c.name}', ${c.latitude}, ${c.longitude})">${c.name}, ${c.admin1 || ''} (${c.country_code})</div>`).join('');
-    }
-
+    function renderCityManager() { document.getElementById('city-list-manager').innerHTML = state.cities.map((c, i) => `<div class="city-item"><span style="font-weight:600; font-size:0.9rem;">${c.name}</span><i class="fa-solid fa-trash-can city-del" onclick="removeCity(${i})"></i></div>`).join(''); }
+    async function searchCity(q) { if(q.length < 3) { document.getElementById('search-results').innerHTML = ''; return; } const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${q}&count=5&language=en&format=json`); const d = await r.json(); document.getElementById('search-results').innerHTML = (d.results || []).map(c => `<div class="search-item" onclick="addCity('${c.name}', ${c.latitude}, ${c.longitude})">${c.name}, ${c.admin1 || ''} (${c.country_code})</div>`).join(''); }
     async function updateWeather() {
-        const p = state[state.profile];
-        const city = state.cities[cityIdx]; if(!city || !p.showWeather) return;
-        document.getElementById('city-name').textContent = city.name;
-        document.getElementById('city-name').style.color = p.weatherColor;
+        const p = state[state.profile], city = state.cities[cityIdx]; if(!city || !p.showWeather) return;
+        document.getElementById('city-name').textContent = city.name; document.getElementById('city-name').style.color = p.weatherColor;
         try {
-            const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&daily=weathercode,temperature_2m_max&timezone=auto`);
-            const d = await r.json();
+            const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&daily=weathercode,temperature_2m_max&timezone=auto`), d = await r.json();
             document.getElementById('weather-grid').innerHTML = d.daily.time.slice(0,7).map((t, i) => {
-                const weather = W_DATA[d.daily.weathercode[i]] || { icon: "fa-cloud", color: "#B0C4DE" };
-                const iconColor = p.wColored ? weather.color : p.weatherColor;
+                const weather = W_DATA[d.daily.weathercode[i]] || { icon: "fa-cloud", color: "#B0C4DE" }, iconColor = p.wColored ? weather.color : p.weatherColor;
                 return `<div class="weather-card"><div class="weather-day-label">${new Date(t).toLocaleDateString('en',{weekday:'short'})}</div><i class="fa-solid ${weather.icon}" style="color:${iconColor}"></i><div class="weather-temp" style="color:${p.weatherColor}">${Math.round(d.daily.temperature_2m_max[i])}°</div></div>`;
             }).join('');
         } catch(e) {}
     }
 
-    function toggleWeatherStyle(type) {
-        const p = state[state.profile];
-        if(type === 'colored') { p.wColored = true; document.getElementById('w-solid-check').checked = false; }
-        else { p.wColored = false; document.getElementById('w-colored-check').checked = false; }
-        updateVisRealtime();
-    }
-
+    function toggleWeatherStyle(type) { const p = state[state.profile]; if(type === 'colored') { p.wColored = true; document.getElementById('w-solid-check').checked = false; } else { p.wColored = false; document.getElementById('w-colored-check').checked = false; } updateVisRealtime(); }
     function openModal(id) { document.getElementById(id).style.display = 'block'; document.getElementById('overlay').style.display = 'block'; if(id === 'settings-modal') renderSettings(); if(id === 'weather-modal') renderCityManager(); }
     function closeModals() { document.querySelectorAll('.modal').forEach(m => m.style.display='none'); document.getElementById('overlay').style.display='none'; }
     function syncCategoryEditor() { 
         const p = state[state.profile], idx = document.getElementById('cat-sel').value; 
         if(idx !== "" && p.categories[idx]) { 
             const c = p.categories[idx]; 
-            document.getElementById('cat-title').value = c.title; 
-            document.getElementById('cat-color').value = c.color; 
-            document.getElementById('cat-url').value = c.url || ""; 
-            document.getElementById('link-list-editor').innerHTML = c.links.map((l, li) => `<div class="editor-link-row"><input type="text" value="${l.name}" oninput="updateLinkRealtime(${idx}, ${li}, 'name', this.value)"><input type="text" value="${l.url}" oninput="updateLinkRealtime(${idx}, ${li}, 'url', this.value)"><input type="color" value="${l.color || state.linkColor}" oninput="updateLinkRealtime(${idx}, ${li}, 'color', this.value)"><div class="tiny-del" onclick="delLink(${idx}, ${li}); syncCategoryEditor();"><i class="fa-solid fa-trash-can"></i></div></div>`).join(''); 
+            document.getElementById('cat-title').value = c.title; document.getElementById('cat-color').value = c.color; document.getElementById('cat-url').value = c.url || ""; 
+            document.getElementById('link-list-editor').innerHTML = c.links.map((l, li) => `<div class="editor-link-row"><input type="text" value="${l.name}" oninput="updateLinkRealtime(${idx}, ${li}, 'name', this.value)"><input type="text" value="${l.url}" placeholder="insert url" oninput="updateLinkRealtime(${idx}, ${li}, 'url', this.value)"><input type="color" value="${l.color || state.linkColor}" oninput="updateLinkRealtime(${idx}, ${li}, 'color', this.value)"><div class="tiny-del" onclick="delLink(${idx}, ${li}); syncCategoryEditor();"><i class="fa-solid fa-trash-can"></i></div></div>`).join(''); 
         } 
     }
-    function updateCatRealtime() { 
-        const idx = document.getElementById('cat-sel').value, c = state[state.profile].categories[idx]; 
-        c.title = document.getElementById('cat-title').value; 
-        c.color = document.getElementById('cat-color').value; 
-        c.url = document.getElementById('cat-url').value; 
-        saveAndRender(); 
-    }
+    function updateCatRealtime() { const idx = document.getElementById('cat-sel').value, c = state[state.profile].categories[idx]; c.title = document.getElementById('cat-title').value; c.color = document.getElementById('cat-color').value; c.url = document.getElementById('cat-url').value; saveAndRender(); }
     function updateLinkRealtime(ci, li, k, v) { state[state.profile].categories[ci].links[li][k] = v; saveAndRender(); }
     function updateQlRealtime(i, k, v) { state[state.profile].ql[i][k] = v; saveAndRender(); }
-    function addCat() { state[state.profile].categories.push({title:"New Category", color:"#00d4ff", url: "#", links:[]}); saveAndRender(true); renderSettings(); }
-    function addLinkInline() { const idx = document.getElementById('cat-sel').value; state[state.profile].categories[idx].links.push({name: "New Link", url: "#", color: state.linkColor}); saveAndRender(true); }
+    function addCat() { state[state.profile].categories.push({title:"New Category", color:"#00d4ff", url: "", links:[]}); saveAndRender(true); renderSettings(); }
+    function addLinkInline() { const idx = document.getElementById('cat-sel').value; state[state.profile].categories[idx].links.push({name: "New Link", url: "", color: state.linkColor}); saveAndRender(true); }
     function delCat(i) { if(confirm("Delete category?")) { state[state.profile].categories.splice(i,1); saveAndRender(); renderSettings(); } }
     function delLink(ci, li) { state[state.profile].categories[ci].links.splice(li,1); saveAndRender(); }
-    function exportData() { const b = new Blob([JSON.stringify(state)], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download='startpage_backup.json'; a.click(); }
+    function exportData() { const b = new Blob([JSON.stringify(state)], {type:'application/json'}), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download='startpage_backup.json'; a.click(); }
     function importData(input) { const file = input.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = (e) => { try { state = JSON.parse(e.target.result); saveAndRender(); alert("Success!"); } catch(err) { alert("Invalid file."); } }; reader.readAsText(file); }
     function resetToDefaults() { if(confirm("Are you sure? This will erase all your profiles and settings!")) { state = getDefaults(); saveAndRender(); renderSettings(); updateWeather(); } }
     function handleBgFile(input) { const file = input.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (e) => { const img = new Image(); img.onload = () => { const canvas = document.createElement('canvas'); const MAX_WIDTH = 1920; let width = img.width, height = img.height; if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } canvas.width = width; canvas.height = height; canvas.getContext('2d').drawImage(img, 0, 0, width, height); updateBgImg(canvas.toDataURL('image/jpeg', 0.7)); }; img.src = e.target.result; }; reader.readAsDataURL(file); }
