@@ -106,12 +106,28 @@
         .edit-mode .cat-del-btn { display: block; }
         .cat-del-btn:hover { color: #ff0000; opacity: 1; transform: scale(1.15); }
 
+        /* Animated category accent line */
+        @keyframes accent-shimmer {
+            0%   { background-position: -200% center; }
+            100% { background-position:  200% center; }
+        }
+        .cat-title {
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+            background-image: none;
+            background-size: 200% auto;
+            transition: border-color 0.3s;
+        }
+        .column:hover .cat-title {
+            border-bottom: 2px solid transparent;
+            border-image: linear-gradient(90deg, transparent, var(--cat-accent, #00d4ff), transparent) 1;
+            animation: accent-shimmer 2s linear infinite;
+        }
+
         .cat-title { 
             margin: 0 0 calc(1rem * var(--scale) * var(--density-mod)) 0; 
             font-size: calc(1.3rem * var(--scale) * var(--density-mod)); 
             font-weight: 700; 
             padding-bottom: calc(10px * var(--scale) * var(--density-mod)); 
-            border-bottom: 2px solid rgba(255,255,255,0.1); 
             white-space: nowrap; 
             cursor: pointer; 
             text-decoration: none; 
@@ -119,6 +135,61 @@
             font-family: var(--grid-font);
         }
         .cat-title.hidden-header { display: none; }
+        .column.dragging { opacity: 0.4; }
+        .column.drag-over { outline: 2px dashed var(--modal-accent, #00d4ff); outline-offset: 2px; }
+        .drag-handle { cursor: grab; opacity: 0.35; font-size: 0.65rem; padding: 0 4px; flex-shrink: 0; }
+        .drag-handle:hover { opacity: 0.8; }
+        .drag-handle:active { cursor: grabbing; }
+        .editor-link-row.dragging { opacity: 0.4; }
+        .editor-link-row.drag-over { border-top: 2px solid var(--modal-accent, #00d4ff); }
+        .city-item.drag-over { border-top: 2px solid var(--modal-accent, #00d4ff); }
+
+        /* Profile avatar */
+        #profile-avatar {
+            width: 2.2rem; height: 2.2rem; border-radius: 50%;
+            object-fit: cover; cursor: pointer;
+            border: 1.5px solid rgba(255,255,255,0.15);
+            transition: border-color 0.2s, opacity 0.2s;
+            flex-shrink: 0;
+        }
+        #profile-avatar:hover { border-color: rgba(255,255,255,0.45); opacity: 0.85; }
+        #profile-icon-btn {
+            width: 2.2rem; height: 2.2rem; display: flex; align-items: center;
+            justify-content: center; cursor: pointer; flex-shrink: 0;
+        }
+        #profile-icon-btn i { font-size: 1.2rem; transition: 0.3s; }
+        #profile-icon-btn:hover i { opacity: 0.6; }
+
+        /* Profile settings */
+        .profile-select-row { display: flex; gap: 6px; align-items: center; margin-bottom: 10px; }
+        .profile-select-row select { flex: 1; height: 32px; font-size: 0.82rem; }
+
+        /* Icon picker */
+        .icon-picker-btn {
+            display: flex; align-items: center; justify-content: center; gap: 5px;
+            width: 64px; height: 28px; border-radius: 5px; border: 1px solid #222;
+            background: #111; color: white; cursor: pointer; font-size: 0.72rem;
+            flex-shrink: 0; transition: border-color 0.15s;
+        }
+        .icon-picker-btn:hover { border-color: var(--modal-accent, #00d4ff); }
+        #profile-icon-picker-btn { width: 34px; height: 26px; min-width: 0; padding: 0; gap: 0; flex: none; }
+        .icon-picker-grid {
+            display: none; position: fixed; z-index: 4000;
+            background: #0e0e0e; border: 1px solid var(--modal-accent-border, #00d4ff33);
+            border-radius: 10px; padding: 8px; box-shadow: 0 8px 28px rgba(0,0,0,0.7);
+            width: 192px; max-height: 260px; overflow-y: scroll; overflow-x: hidden;
+            box-sizing: border-box; scrollbar-width: thin; scrollbar-color: #333 transparent;
+        }
+        .icon-picker-grid::-webkit-scrollbar { width: 6px; }
+        .icon-picker-grid::-webkit-scrollbar-track { background: transparent; }
+        .icon-picker-grid::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        .icon-picker-grid.open { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+        .ip-cell {
+            width: 28px; height: 28px; border-radius: 4px; border: 1px solid transparent;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 0.9rem; transition: 0.1s; color: #ccc;
+        }
+        .ip-cell:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); color: white; }
         
         .link-row { 
             display: flex; 
@@ -274,8 +345,72 @@
         .city-item i { color: #f44; cursor: pointer; font-size: 0.7rem; opacity: 0.5; transition: 0.2s; }
         .city-item i:hover { opacity: 1; }
 
-        /* Search results */
-        .search-result-item { 
+        /* Search bar */
+        #search-bar-wrap {
+            flex-shrink: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0 2vw 1.4vh;
+        }
+        #search-form {
+            display: flex;
+            align-items: center;
+            width: min(480px, 90%);
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 24px;
+            padding: 0 6px 0 16px;
+            transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+            gap: 4px;
+        }
+        #search-form:focus-within {
+            background: rgba(255,255,255,0.07);
+            border-color: rgba(255,255,255,0.18);
+            box-shadow: 0 0 0 2px var(--modal-accent-border, rgba(0,212,255,0.15));
+        }
+        #search-input {
+            flex: 1; background: transparent; border: none; outline: none;
+            color: white; font-size: 0.88rem; height: 38px; padding: 0;
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+        #search-input::placeholder { color: rgba(255,255,255,0.25); }
+        /* Search engine dropdown */
+        .se-dropdown {
+            position: relative; flex-shrink: 0;
+        }
+        .se-current {
+            display: flex; align-items: center; gap: 5px;
+            height: 28px; padding: 0 8px; border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.1); background: transparent;
+            color: rgba(255,255,255,0.6); cursor: pointer; font-size: 0.72rem;
+            white-space: nowrap; transition: border-color 0.15s, color 0.15s;
+        }
+        .se-current:hover { border-color: rgba(255,255,255,0.25); color: white; }
+        .se-current img { width: 14px; height: 14px; border-radius: 2px; flex-shrink: 0; }
+        .se-current i { font-size: 0.65rem; opacity: 0.5; }
+        .se-menu {
+            display: none; position: fixed; z-index: 4000;
+            background: #0e0e0e; border: 1px solid var(--modal-accent-border, #00d4ff33);
+            border-radius: 10px; padding: 4px; box-shadow: 0 8px 28px rgba(0,0,0,0.7);
+            min-width: 150px;
+        }
+        .se-menu.open { display: block; }
+        .se-option {
+            display: flex; align-items: center; gap: 8px;
+            padding: 7px 10px; border-radius: 6px; cursor: pointer;
+            font-size: 0.78rem; color: #aaa; transition: background 0.1s, color 0.1s;
+        }
+        .se-option:hover { background: rgba(255,255,255,0.06); color: white; }
+        .se-option.active { color: var(--modal-accent, #00d4ff); }
+        .se-option img { width: 15px; height: 15px; border-radius: 2px; flex-shrink: 0; }
+        #search-submit {
+            width: 30px; height: 30px; border-radius: 50%; border: none;
+            background: transparent; color: rgba(255,255,255,0.3); cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-size: 0.8rem;
+            transition: color 0.15s; flex-shrink: 0; padding: 0;
+        }
+        #search-submit:hover { color: white; } 
             padding: 6px 10px; border-bottom: 1px solid #161616; 
             cursor: pointer; font-size: 0.72rem; color: #999; transition: background 0.12s, color 0.12s;
         }
@@ -307,6 +442,11 @@
 
         .sub-disabled { opacity: 0.3; pointer-events: none; transition: opacity 0.2s; }
         .sub-enabled  { opacity: 1;   pointer-events: auto; transition: opacity 0.2s; }
+
+        .bg-mode-group { display: flex; gap: 4px; margin-bottom: 12px; }
+        .bg-mode-btn { flex: 1; height: 30px; border-radius: 5px; border: 1px solid #2a2a2a; background: #1a1a1a; color: #555; cursor: pointer; transition: 0.2s; font-weight: 600; font-size: 0.72rem; }
+        .bg-mode-btn:hover { border-color: #444; color: #ccc; }
+        .bg-mode-btn.active { background: var(--modal-accent, #00d4ff); border-color: var(--modal-accent, #00d4ff); color: #000; }
         #weather-stats { display: flex; gap: 1.2rem; align-items: center; justify-content: center; flex-wrap: wrap; position: relative; }
         .wstat { display: flex; align-items: center; gap: 0.3rem; font-size: 0.65rem; opacity: 0.6; white-space: nowrap; cursor: pointer; transition: opacity 0.15s; }
         .wstat:hover { opacity: 1; }
@@ -377,11 +517,15 @@
     </style>
 </head>
 <body>
+    <canvas id="bg-canvas" style="position:fixed;inset:0;z-index:-2;pointer-events:none;"></canvas>
     <div id="full-bg"></div>
     <div id="overlay" onclick="closeModals()"></div>
     <div class="container">
         <header class="top-bar">
-            <div id="ql-nav" class="nav-group"></div>
+            <div class="nav-group">
+                <span id="profile-nav-btn" class="nav-link active" onclick="toggleProfile()" style="overflow:hidden; display:flex; align-items:center; justify-content:center;"></span>
+                <div id="ql-nav" class="nav-group"></div>
+            </div>
             <div id="clock-display" onclick="openClockPopover(this)">
                 <span id="clock-time"></span>
                 <span id="clock-date"></span>
@@ -391,6 +535,18 @@
                 <span class="nav-link" onclick="openModal('settings-modal')"><i class="fa-solid fa-gear"></i></span>
             </div>
         </header>
+        <div id="search-bar-wrap">
+            <form id="search-form" onsubmit="doSearch(event)">
+                <div class="se-dropdown">
+                    <button type="button" class="se-current" id="se-current-btn" onclick="toggleSeMenu(event)">
+                        <img id="se-current-img" src="" alt=""><span id="se-current-name"></span><i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                    <div class="se-menu" id="se-menu"></div>
+                </div>
+                <input id="search-input" type="text" placeholder="Search..." autocomplete="off" autocorrect="off" spellcheck="false">
+                <button id="search-submit" type="submit"><i class="fa-solid fa-arrow-right"></i></button>
+            </form>
+        </div>
         <main id="main-content"><div id="grid"></div></main>
         <section id="weather-area">
             <span id="city-name" onclick="cycleCity()">---</span>
@@ -401,19 +557,59 @@
 
     <div id="settings-modal" class="modal">
         <div class="setting-block">
+            <div class="section-h">Profiles</div>
+            <div class="profile-select-row">
+                <select id="profile-select" onchange="switchProfile(parseInt(this.value))"></select>
+                <button class="btn-icon" onclick="addProfile()" title="Add profile"><i class="fa-solid fa-plus"></i></button>
+                <button class="btn-icon" onclick="deleteProfile()" style="color:#f44;" title="Delete"><i class="fa-solid fa-trash-can"></i></button>
+            </div>
+            <div class="flex-row" style="margin-bottom:10px;">
+                <input type="text" id="profile-name-input" placeholder="Name..." style="height:28px; font-size:0.78rem; min-width:0; flex:1;" oninput="renameProfile()">
+                <button class="icon-picker-btn" id="profile-icon-picker-btn" onclick="pipOpen(this)" title="Choose icon"><i id="profile-icon-preview" class="fa-solid fa-user"></i></button>
+                <div class="color-field" style="flex-shrink:0;">
+                    <input type="color" id="profile-icon-color" oninput="updateProfileIconColor(this.value)" style="display:none">
+                    <div class="cp-swatch" onclick="cpOpen('profile-icon-color')"></div>
+                    <button class="btn-icon" onclick="resetField('profile-icon-color','#ffffff','profileIconColor')" title="Reset"><i class="fa-solid fa-rotate-left"></i></button>
+                </div>
+            </div>
+            <div class="color-row" style="margin-bottom:8px;">
+                <span>Profile Photo URL</span>
+            </div>
+            <input type="text" id="profile-photo-url" placeholder="Paste photo URL..." oninput="updateProfilePhoto(this.value)" style="margin-bottom:8px;">
+            <div class="flex-row">
+                <button onclick="document.getElementById('profile-photo-file').click()">Upload Photo</button>
+                <button style="color:#f88;" onclick="updateProfilePhoto('')">Remove</button>
+            </div>
+            <input type="file" id="profile-photo-file" style="display:none" accept="image/*" onchange="handleProfilePhotoFile(this)">
+        </div>
+        <div class="setting-block">
             <div class="section-h">Display & Navigation</div>
             <div class="size-group">
                 <button class="size-btn" id="size-s" onclick="updateDensity('s')">Small</button>
                 <button class="size-btn" id="size-m" onclick="updateDensity('m')">Medium</button>
                 <button class="size-btn" id="size-l" onclick="updateDensity('l')">Large</button>
+                <button class="size-btn" id="size-xl" onclick="updateDensity('xl')">X-Large</button>
             </div>
             <div class="color-row" style="margin-bottom:12px;">
                 <span>Open Links On</span>
                 <select id="target-mode" onchange="updateVisRealtime()" class="select-inline"><option value="_self">Current Tab</option><option value="_blank">New Tab</option></select>
             </div>
+            <label class="label-inline"><input type="checkbox" id="search-enable" onchange="updateVisRealtime()"> Show Search Bar</label>
+            <div class="color-row">
+                <span>Search Engine</span>
+                <select id="search-engine" onchange="updateVisRealtime()" class="select-inline">
+                    <option value="google">Google</option>
+                    <option value="ddg">DuckDuckGo</option>
+                    <option value="startpage">Startpage</option>
+                    <option value="brave">Brave</option>
+                    <option value="qwant">Qwant</option>
+                    <option value="yandex">Yandex</option>
+                </select>
+            </div>
             <div class="color-row">
                 <span>Categories &amp; Links Font</span>
                 <select id="font-picker" onchange="updateVisRealtime()" class="select-inline">
+                    <optgroup label="── Sans-Serif ──" disabled></optgroup>
                     <option value="Inter">Inter</option>
                     <option value="Roboto">Roboto</option>
                     <option value="DM Sans">DM Sans</option>
@@ -421,9 +617,38 @@
                     <option value="Raleway">Raleway</option>
                     <option value="Sora">Sora</option>
                     <option value="Space Grotesk">Space Grotesk</option>
+                    <option value="Outfit">Outfit</option>
+                    <option value="Plus Jakarta Sans">Plus Jakarta Sans</option>
+                    <option value="Josefin Sans">Josefin Sans</option>
+                    <option value="Mulish">Mulish</option>
+                    <option value="Poppins">Poppins</option>
+                    <option value="Lato">Lato</option>
+                    <option value="Open Sans">Open Sans</option>
+                    <option value="Work Sans">Work Sans</option>
+                    <option value="Urbanist">Urbanist</option>
+                    <optgroup label="── Serif ──" disabled></optgroup>
+                    <option value="Playfair Display">Playfair Display</option>
+                    <option value="Merriweather">Merriweather</option>
+                    <option value="Lora">Lora</option>
+                    <option value="EB Garamond">EB Garamond</option>
+                    <option value="Cormorant Garamond">Cormorant Garamond</option>
+                    <option value="DM Serif Display">DM Serif Display</option>
+                    <optgroup label="── Monospace ──" disabled></optgroup>
                     <option value="Fira Code">Fira Code</option>
                     <option value="JetBrains Mono">JetBrains Mono</option>
-                    <option value="Playfair Display">Playfair Display</option>
+                    <option value="Source Code Pro">Source Code Pro</option>
+                    <option value="IBM Plex Mono">IBM Plex Mono</option>
+                    <option value="Space Mono">Space Mono</option>
+                    <option value="Inconsolata">Inconsolata</option>
+                    <optgroup label="── Display ──" disabled></optgroup>
+                    <option value="Bebas Neue">Bebas Neue</option>
+                    <option value="Righteous">Righteous</option>
+                    <option value="Orbitron">Orbitron</option>
+                    <option value="Exo 2">Exo 2</option>
+                    <option value="Oxanium">Oxanium</option>
+                    <option value="Audiowide">Audiowide</option>
+                    <option value="Rajdhani">Rajdhani</option>
+                    <option value="Teko">Teko</option>
                 </select>
             </div>
         </div>
@@ -452,12 +677,12 @@
 
         <div class="setting-block">
             <div class="section-h">Background</div>
-            <input type="text" id="bg-img-url" placeholder="Paste Image URL..." oninput="updateBgImg(this.value)" style="margin-bottom:8px;">
-            <div class="flex-row" style="margin-bottom:12px;">
-                <button onclick="document.getElementById('bg-file').click()">Upload</button>
-                <button style="color:#f88;" onclick="updateBgImg('')">Remove</button>
+            <div class="bg-mode-group">
+                <button class="bg-mode-btn" id="bgmode-gradient" onclick="setBgMode('gradient')">Gradient</button>
+                <button class="bg-mode-btn" id="bgmode-mesh" onclick="setBgMode('mesh')">Mesh</button>
+                <button class="bg-mode-btn" id="bgmode-particles" onclick="setBgMode('particles')">Particles</button>
+                <button class="bg-mode-btn" id="bgmode-time" onclick="setBgMode('time')">Time</button>
             </div>
-            <input type="file" id="bg-file" style="display:none" accept="image/*" onchange="handleBgFile(this)">
             <div class="color-row">
                 <span>Background Color</span>
                 <div class="color-field">
@@ -466,8 +691,13 @@
                     <button class="btn-icon" onclick="resetField('bg-color','#1C1B22','bgColor')" title="Reset"><i class="fa-solid fa-rotate-left"></i></button>
                 </div>
             </div>
-            <label class="label-inline"><input type="checkbox" id="mesh-check" onchange="toggleGradientMode(this.checked)"> Use Category Gradient</label>
-            <span class="slider-label" id="slider-label">Intensity / Opacity</span>
+            <input type="text" id="bg-img-url" placeholder="Photo URL (overrides mode)..." oninput="updateBgImg(this.value)" style="margin-bottom:8px;">
+            <div class="flex-row" style="margin-bottom:12px;">
+                <button onclick="document.getElementById('bg-file').click()">Upload Photo</button>
+                <button style="color:#f88;" onclick="updateBgImg('')">Remove Photo</button>
+            </div>
+            <input type="file" id="bg-file" style="display:none" accept="image/*" onchange="handleBgFile(this)">
+            <span class="slider-label" id="slider-label">Intensity</span>
             <input type="range" id="unified-slider" min="0" max="1" step="0.05" oninput="updateVisRealtime()">
         </div>
 
@@ -506,6 +736,7 @@
             <div class="color-row">
                 <span>Clock Font</span>
                 <select id="clock-font" onchange="updateVisRealtime()" class="select-inline">
+                    <optgroup label="── Sans-Serif ──" disabled></optgroup>
                     <option value="Inter">Inter</option>
                     <option value="Roboto">Roboto</option>
                     <option value="DM Sans">DM Sans</option>
@@ -513,9 +744,38 @@
                     <option value="Raleway">Raleway</option>
                     <option value="Sora">Sora</option>
                     <option value="Space Grotesk">Space Grotesk</option>
+                    <option value="Outfit">Outfit</option>
+                    <option value="Plus Jakarta Sans">Plus Jakarta Sans</option>
+                    <option value="Josefin Sans">Josefin Sans</option>
+                    <option value="Mulish">Mulish</option>
+                    <option value="Poppins">Poppins</option>
+                    <option value="Lato">Lato</option>
+                    <option value="Open Sans">Open Sans</option>
+                    <option value="Work Sans">Work Sans</option>
+                    <option value="Urbanist">Urbanist</option>
+                    <optgroup label="── Serif ──" disabled></optgroup>
+                    <option value="Playfair Display">Playfair Display</option>
+                    <option value="Merriweather">Merriweather</option>
+                    <option value="Lora">Lora</option>
+                    <option value="EB Garamond">EB Garamond</option>
+                    <option value="Cormorant Garamond">Cormorant Garamond</option>
+                    <option value="DM Serif Display">DM Serif Display</option>
+                    <optgroup label="── Monospace ──" disabled></optgroup>
                     <option value="Fira Code">Fira Code</option>
                     <option value="JetBrains Mono">JetBrains Mono</option>
-                    <option value="Playfair Display">Playfair Display</option>
+                    <option value="Source Code Pro">Source Code Pro</option>
+                    <option value="IBM Plex Mono">IBM Plex Mono</option>
+                    <option value="Space Mono">Space Mono</option>
+                    <option value="Inconsolata">Inconsolata</option>
+                    <optgroup label="── Display ──" disabled></optgroup>
+                    <option value="Bebas Neue">Bebas Neue</option>
+                    <option value="Righteous">Righteous</option>
+                    <option value="Orbitron">Orbitron</option>
+                    <option value="Exo 2">Exo 2</option>
+                    <option value="Oxanium">Oxanium</option>
+                    <option value="Audiowide">Audiowide</option>
+                    <option value="Rajdhani">Rajdhani</option>
+                    <option value="Teko">Teko</option>
                 </select>
             </div>
             <div class="color-row">
@@ -536,6 +796,7 @@
             <div class="color-row">
                 <span>Weather Font</span>
                 <select id="weather-font" onchange="updateVisRealtime()" class="select-inline">
+                    <optgroup label="── Sans-Serif ──" disabled></optgroup>
                     <option value="Inter">Inter</option>
                     <option value="Roboto">Roboto</option>
                     <option value="DM Sans">DM Sans</option>
@@ -543,9 +804,38 @@
                     <option value="Raleway">Raleway</option>
                     <option value="Sora">Sora</option>
                     <option value="Space Grotesk">Space Grotesk</option>
+                    <option value="Outfit">Outfit</option>
+                    <option value="Plus Jakarta Sans">Plus Jakarta Sans</option>
+                    <option value="Josefin Sans">Josefin Sans</option>
+                    <option value="Mulish">Mulish</option>
+                    <option value="Poppins">Poppins</option>
+                    <option value="Lato">Lato</option>
+                    <option value="Open Sans">Open Sans</option>
+                    <option value="Work Sans">Work Sans</option>
+                    <option value="Urbanist">Urbanist</option>
+                    <optgroup label="── Serif ──" disabled></optgroup>
+                    <option value="Playfair Display">Playfair Display</option>
+                    <option value="Merriweather">Merriweather</option>
+                    <option value="Lora">Lora</option>
+                    <option value="EB Garamond">EB Garamond</option>
+                    <option value="Cormorant Garamond">Cormorant Garamond</option>
+                    <option value="DM Serif Display">DM Serif Display</option>
+                    <optgroup label="── Monospace ──" disabled></optgroup>
                     <option value="Fira Code">Fira Code</option>
                     <option value="JetBrains Mono">JetBrains Mono</option>
-                    <option value="Playfair Display">Playfair Display</option>
+                    <option value="Source Code Pro">Source Code Pro</option>
+                    <option value="IBM Plex Mono">IBM Plex Mono</option>
+                    <option value="Space Mono">Space Mono</option>
+                    <option value="Inconsolata">Inconsolata</option>
+                    <optgroup label="── Display ──" disabled></optgroup>
+                    <option value="Bebas Neue">Bebas Neue</option>
+                    <option value="Righteous">Righteous</option>
+                    <option value="Orbitron">Orbitron</option>
+                    <option value="Exo 2">Exo 2</option>
+                    <option value="Oxanium">Oxanium</option>
+                    <option value="Audiowide">Audiowide</option>
+                    <option value="Rajdhani">Rajdhani</option>
+                    <option value="Teko">Teko</option>
                 </select>
             </div>
             <div class="color-row">
@@ -578,6 +868,8 @@
             <input type="file" id="file-input" style="display:none" onchange="importData(this)">
         </div>
     </div>
+
+    <div id="icon-picker-grid" class="icon-picker-grid"></div>
 
     <div id="cp-palette" class="cp-palette">
         <div class="cp-presets" id="cp-presets"></div>
@@ -635,7 +927,49 @@
 
 <script>
     const KEY = "STARTPAGE_V66_PROFILE_WEATHER";
-    const ICON_LIST = ["fa-solid fa-server", "fa-solid fa-sliders", "fa-brands fa-spotify", "fa-solid fa-star", "fa-solid fa-music", "fa-brands fa-github", "fa-solid fa-terminal", "fa-solid fa-code", "fa-solid fa-heart", "fa-solid fa-play"];
+    const ICON_LIST = [
+        // Tech & Dev
+        "fa-solid fa-server","fa-solid fa-terminal","fa-solid fa-code","fa-solid fa-database",
+        "fa-solid fa-microchip","fa-solid fa-network-wired","fa-solid fa-laptop","fa-solid fa-desktop",
+        "fa-solid fa-mobile","fa-solid fa-cloud","fa-solid fa-shield","fa-solid fa-lock",
+        "fa-solid fa-key","fa-solid fa-bug","fa-solid fa-robot","fa-solid fa-brain",
+        "fa-brands fa-github","fa-brands fa-gitlab","fa-brands fa-docker","fa-brands fa-linux",
+        "fa-brands fa-python","fa-brands fa-js","fa-brands fa-react","fa-brands fa-node",
+        // Media & Entertainment
+        "fa-solid fa-music","fa-solid fa-play","fa-solid fa-headphones","fa-solid fa-film",
+        "fa-solid fa-tv","fa-solid fa-camera","fa-solid fa-photo-film","fa-solid fa-podcast",
+        "fa-solid fa-radio","fa-solid fa-gamepad","fa-solid fa-dice","fa-solid fa-chess",
+        "fa-brands fa-spotify","fa-brands fa-youtube","fa-brands fa-twitch","fa-brands fa-soundcloud",
+        "fa-brands fa-netflix","fa-brands fa-steam","fa-brands fa-discord","fa-brands fa-slack",
+        // Work & Productivity
+        "fa-solid fa-sliders","fa-solid fa-briefcase","fa-solid fa-chart-line","fa-solid fa-chart-bar",
+        "fa-solid fa-chart-pie","fa-solid fa-calendar","fa-solid fa-clock","fa-solid fa-list-check",
+        "fa-solid fa-envelope","fa-solid fa-file","fa-solid fa-folder","fa-solid fa-magnifying-glass",
+        "fa-solid fa-pen","fa-solid fa-bookmark","fa-solid fa-note-sticky","fa-solid fa-table",
+        "fa-brands fa-google","fa-brands fa-microsoft","fa-brands fa-trello","fa-brands fa-figma",
+        // Social & Communication
+        "fa-brands fa-twitter","fa-brands fa-mastodon","fa-brands fa-reddit","fa-brands fa-linkedin",
+        "fa-brands fa-instagram","fa-brands fa-tiktok","fa-brands fa-whatsapp","fa-brands fa-telegram",
+        // Misc & Fun
+        "fa-solid fa-star","fa-solid fa-heart","fa-solid fa-fire","fa-solid fa-bolt",
+        "fa-solid fa-globe","fa-solid fa-map","fa-solid fa-house","fa-solid fa-user",
+        "fa-solid fa-users","fa-solid fa-gear","fa-solid fa-palette","fa-solid fa-wand-magic-sparkles",
+        "fa-solid fa-sun","fa-solid fa-moon","fa-solid fa-leaf","fa-solid fa-paw",
+        "fa-solid fa-mug-hot","fa-solid fa-pizza-slice","fa-solid fa-car","fa-solid fa-plane",
+        "fa-solid fa-graduation-cap","fa-solid fa-book","fa-solid fa-flask","fa-solid fa-atom"
+    ];
+    const PROFILE_ICON_LIST = [
+        "fa-solid fa-house", "fa-solid fa-user", "fa-solid fa-user-tie",
+        "fa-solid fa-user-ninja", "fa-solid fa-user-astronaut", "fa-solid fa-user-secret",
+        "fa-solid fa-person", "fa-solid fa-child", "fa-solid fa-people-group",
+        "fa-solid fa-briefcase", "fa-solid fa-laptop", "fa-solid fa-terminal",
+        "fa-solid fa-graduation-cap", "fa-solid fa-book", "fa-solid fa-flask",
+        "fa-solid fa-palette", "fa-solid fa-music", "fa-solid fa-gamepad",
+        "fa-solid fa-dumbbell", "fa-solid fa-heart", "fa-solid fa-star",
+        "fa-solid fa-fire", "fa-solid fa-bolt", "fa-solid fa-brain",
+        "fa-solid fa-robot", "fa-solid fa-cat", "fa-solid fa-dog",
+        "fa-solid fa-dragon", "fa-solid fa-ghost", "fa-solid fa-skull"
+    ];
     const W_DATA = { 0: { icon: "fa-sun", color: "#FFD700" }, 1: { icon: "fa-cloud-sun", color: "#FFB800" }, 2: { icon: "fa-cloud-sun", color: "#FFB800" }, 3: { icon: "fa-cloud", color: "#B0C4DE" }, 45: { icon: "fa-smog", color: "#778899" }, 51: { icon: "fa-cloud-rain", color: "#00BFFF" }, 61: { icon: "fa-cloud-showers-heavy", color: "#1E90FF" }, 95: { icon: "fa-bolt", color: "#BA55D3" } };
 
     function generateDefaultCats(count, prefix) {
@@ -650,21 +984,46 @@
 
     function getDefaults() {
         const baseQl = [{name:"fa-solid fa-server", url:"", vis:false, color:""}, {name:"fa-solid fa-sliders", url:"", vis:false, color:""}, {name:"fa-brands fa-spotify", url:"", vis:false, color:""}, {name:"fa-solid fa-star", url:"", vis:false, color:""}];
+        const makeProfile = (cats, density) => ({ ql: JSON.parse(JSON.stringify(baseQl)), categories: cats, showWeather: true, showHeaders: true, showClock: true, clockFormat: '24', clockSeconds: true, clockShowDate: true, clockDateFmt: 'long', clockSize: 'm', clockColor: '#ffffff', clockFont: 'Inter', iconColor: "#ffffff", bgColor: "#1C1B22", bgImg: "", bgMode: 'gradient', opacity: 0.3, fuzzy: 0, weatherColor: "#ffffff", weatherFont: 'Inter', wColored: true, wAqi: true, wUv: true, wPressure: true, wHumidity: true, wVisibility: true, wSunrise: true, density, gridFont: 'Inter', showSearch: true, searchEngine: 'startpage', profileIcon: 'fa-solid fa-user', profilePhoto: '', profileIconColor: '#ffffff' });
         return {
-            profile: 'home', target: '_self', linkColor: "#cccccc",
+            profile: 'p0', target: '_self', linkColor: "#cccccc",
             cities: [{name: "Lisboa", lat: 38.71, lon: -9.13}],
-            home: { ql: JSON.parse(JSON.stringify(baseQl)), categories: generateDefaultCats(5, "Category"), showWeather: true, showHeaders: true, showClock: true, clockFormat: '24', clockSeconds: true, clockShowDate: true, clockDateFmt: 'long', clockSize: 'm', clockColor: '#ffffff', clockFont: 'Inter', iconColor: "#ffffff", bgColor: "#1C1B22", bgImg: "", mesh: true, opacity: 0.3, fuzzy: 0, weatherColor: "#ffffff", weatherFont: 'Inter', wColored: true, wAqi: true, wUv: true, wPressure: true, wHumidity: true, wVisibility: true, wSunrise: true, density: 'l', gridFont: 'Inter' },
-            work: { ql: JSON.parse(JSON.stringify(baseQl)), categories: generateDefaultCats(3, "Work"), showWeather: true, showHeaders: true, showClock: true, clockFormat: '24', clockSeconds: true, clockShowDate: true, clockDateFmt: 'long', clockSize: 'm', clockColor: '#ffffff', clockFont: 'Inter', iconColor: "#ffffff", bgColor: "#1C1B22", bgImg: "", mesh: true, opacity: 0.3, fuzzy: 0, weatherColor: "#ffffff", weatherFont: 'Inter', wColored: true, wAqi: true, wUv: true, wPressure: true, wHumidity: true, wVisibility: true, wSunrise: true, density: 'm', gridFont: 'Inter' }
+            profileNames: ['Profile 1', 'Profile 2'],
+            profiles: [
+                makeProfile(generateDefaultCats(5, "Category"), 'm'),
+                makeProfile(generateDefaultCats(3, "Work"), 'm')
+            ]
         };
     }
 
     let state = JSON.parse(localStorage.getItem(KEY)) || getDefaults();
+    // Migrate old home/work structure to new profiles array
+    if (state.home || state.work) {
+        const d = getDefaults();
+        state.profiles = [state.home || d.profiles[0], state.work || d.profiles[1]];
+        state.profileNames = ['Profile 1', 'Profile 2'];
+        state.profile = 'p0';
+        delete state.home; delete state.work;
+    }
+    if (!state.profiles) { const d = getDefaults(); state.profiles = d.profiles; state.profileNames = d.profileNames; state.profile = 'p0'; }
+    if (!state.profileNames) state.profileNames = state.profiles.map((_,i) => 'Profile ' + (i+1));
+    // Ensure profile index is valid
+    const _pi = parseInt(state.profile.replace('p',''));
+    if (isNaN(_pi) || _pi >= state.profiles.length) state.profile = 'p0';
+    // Migrate old 'l' density to 'xl' in all profiles
+    state.profiles.forEach(p => { if (p && p.density === 'l') p.density = 'xl'; });
+    // Migrate old mesh boolean to bgMode in all profiles
+    state.profiles.forEach(p => { if (p && !p.bgMode) p.bgMode = 'gradient'; });
+    // Migrate missing profileIcon/profilePhoto
+    state.profiles.forEach(p => { if (p && !p.profileIcon) p.profileIcon = 'fa-solid fa-user'; if (p && p.profilePhoto === undefined) p.profilePhoto = ''; if (p && !p.profileIconColor) p.profileIconColor = '#ffffff'; });
     let cityIdx = 0;
+    function curProfile() { return state.profiles[parseInt(state.profile.replace('p',''))] || state.profiles[0]; }
+    function curProfileIdx() { return parseInt(state.profile.replace('p','')); }
 
     // ── Weather extra info popover ──
     let _wstatPopOpen = false;
     function syncWstatPopover() {
-        const p = state[state.profile];
+        const p = curProfile();
         ['humidity','uv','pressure','visibility','aqi','sunrise'].forEach(k => {
             const val = p['w' + k.charAt(0).toUpperCase() + k.slice(1)];
             document.getElementById('pop-' + k).checked = (val !== false);
@@ -673,7 +1032,7 @@
         });
     }
     function wstatPopChange() {
-        const p = state[state.profile];
+        const p = curProfile();
         p.wHumidity    = document.getElementById('pop-humidity').checked;
         p.wUv          = document.getElementById('pop-uv').checked;
         p.wPressure    = document.getElementById('pop-pressure').checked;
@@ -738,7 +1097,7 @@
     });
     let _clockPopOpen = false;
     function syncClockPopover() {
-        const p = state[state.profile];
+        const p = curProfile();
         document.getElementById('cpop-show').checked    = (p.showClock !== false);
         document.getElementById('cpop-seconds').checked = (p.clockSeconds !== false);
         document.getElementById('cpop-date').checked    = (p.clockShowDate !== false);
@@ -747,7 +1106,7 @@
         document.getElementById('cpop-size').value      = p.clockSize || 'm';
     }
     function clockPopChange() {
-        const p = state[state.profile];
+        const p = curProfile();
         p.showClock    = document.getElementById('cpop-show').checked;
         p.clockSeconds = document.getElementById('cpop-seconds').checked;
         p.clockShowDate= document.getElementById('cpop-date').checked;
@@ -855,7 +1214,7 @@
 
     // ── Section enable/disable graying ──
     function updateSectionStates() {
-        const p = state[state.profile];
+        const p = curProfile();
         const clockSub = document.getElementById('clock-sub');
         const weatherSub = document.getElementById('weather-sub');
         if (clockSub) clockSub.className = p.showClock ? 'sub-enabled' : 'sub-disabled';
@@ -866,7 +1225,7 @@
     function resetField(pickerId, defaultVal, stateKey) {
         const inp = document.getElementById(pickerId);
         if (inp) { inp.value = defaultVal; cpSyncSwatch(pickerId); }
-        state[state.profile][stateKey] = defaultVal;
+        curProfile()[stateKey] = defaultVal;
         saveAndRender(); updateWeather(); tickClock();
         if (document.getElementById('settings-modal').style.display === 'block') renderSettings();
     }
@@ -875,13 +1234,13 @@
         const defaultColor = '#00d4ff';
         const inp = document.getElementById('cat-color');
         if (inp) { inp.value = defaultColor; cpSyncSwatch('cat-color'); }
-        state[state.profile].categories[idx].color = defaultColor;
+        curProfile().categories[idx].color = defaultColor;
         saveAndRender();
         if (document.getElementById('settings-modal').style.display === 'block') renderSettings();
     }
 
     function updateDensity(size) {
-        state[state.profile].density = size;
+        curProfile().density = size;
         saveAndRender();
         renderSettings();
     }
@@ -898,7 +1257,7 @@
     let _lastLayoutKey = null;
 
     function applyDynamicScaling(force) {
-        const p = state[state.profile];
+        const p = curProfile();
         const grid = document.getElementById('grid');
         if (!grid || !p.categories.length) return;
 
@@ -906,10 +1265,16 @@
         if (!force && key === _lastLayoutKey) return;  // nothing layout-relevant changed
         _lastLayoutKey = key;
 
-        const mod = p.density === 's' ? 0.6 : p.density === 'm' ? 0.8 : 1.0;
+        const mod = p.density === 's' ? 0.6 : p.density === 'm' ? 0.73 : p.density === 'l' ? 0.86 : 1.0;
 
-        const topBarHeight = 80, weatherHeight = p.showWeather ? 140 : 0;
-        const availableHeight = window.innerHeight - topBarHeight - weatherHeight - 60;
+        const topBarEl = document.querySelector('.top-bar');
+        const weatherEl = document.getElementById('weather-area');
+        const searchEl = document.getElementById('search-bar-wrap');
+        const topBarHeight = topBarEl ? topBarEl.getBoundingClientRect().height : 80;
+        const weatherHeight = (weatherEl && p.showWeather) ? weatherEl.getBoundingClientRect().height : 0;
+        const searchHeight = (searchEl && p.showSearch !== false) ? searchEl.getBoundingClientRect().height : 0;
+        const containerPad = 40;
+        const availableHeight = window.innerHeight - topBarHeight - weatherHeight - searchHeight - containerPad;
         const availableWidth  = window.innerWidth * 0.94;
         const maxLinks      = Math.max(...p.categories.map(c => c.links.length), 1);
         const rowHeight     = 45 * mod, headerHeight = (p.showHeaders ? 60 : 10) * mod;
@@ -945,16 +1310,20 @@
 
     window.addEventListener('resize', () => applyDynamicScaling(true));
 
-    function toggleProfile() {
+    function switchProfile(idx) {
         const main = document.getElementById('main-content'), weather = document.getElementById('weather-area'), bg = document.getElementById('full-bg');
         main.classList.add('fade-out'); weather.classList.add('fade-out'); bg.classList.add('zoom-effect');
         setTimeout(() => {
-            state.profile = (state.profile === 'home' ? 'work' : 'home');
+            state.profile = 'p' + idx;
             _lastLayoutKey = null;
             saveAndRender(); updateWeather(); tickClock();
             main.classList.remove('fade-out'); weather.classList.remove('fade-out'); bg.classList.remove('zoom-effect');
             if(document.getElementById('settings-modal').style.display === 'block') renderSettings();
         }, 350);
+    }
+    function toggleProfile() {
+        const next = (curProfileIdx() + 1) % state.profiles.length;
+        switchProfile(next);
     }
 
     const SYSTEM_FONTS = ['Inter'];
@@ -980,7 +1349,7 @@
     }
 
     function updateModalAccent() {
-        const p = state[state.profile];
+        const p = curProfile();
         // Use the first category color as accent; fall back to cyan
         const accent = (p.categories && p.categories[0] && p.categories[0].color) ? p.categories[0].color : '#00d4ff';
         document.documentElement.style.setProperty('--modal-accent', accent);
@@ -988,32 +1357,133 @@
         document.documentElement.style.setProperty('--modal-accent-border', accent + '44');
     }
 
+    const SEARCH_ENGINES = {
+        google:    { name: 'Google',     url: 'https://www.google.com/search?q=',           favicon: 'https://www.google.com/favicon.ico' },
+        ddg:       { name: 'DuckDuckGo', url: 'https://duckduckgo.com/?q=',                  favicon: 'https://duckduckgo.com/favicon.ico' },
+        startpage: { name: 'Startpage',  url: 'https://www.startpage.com/search?q=',        favicon: 'https://www.startpage.com/favicon.ico' },
+        brave:     { name: 'Brave',      url: 'https://search.brave.com/search?q=',         favicon: 'https://brave.com/static-assets/images/brave-favicon.png' },
+        qwant:     { name: 'Qwant',      url: 'https://www.qwant.com/?q=',                   favicon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.qwant.com&size=32' },
+        yandex:    { name: 'Yandex',     url: 'https://yandex.com/search/?text=',            favicon: 'https://yandex.com/favicon.ico' }
+    };
+
+    let _seMenuOpen = false;
+    function toggleSeMenu(e) {
+        e.stopPropagation();
+        const menu = document.getElementById('se-menu');
+        _seMenuOpen = !_seMenuOpen;
+        menu.classList.toggle('open', _seMenuOpen);
+        if (_seMenuOpen) {
+            const rect = document.getElementById('se-current-btn').getBoundingClientRect();
+            const mh = Object.keys(SEARCH_ENGINES).length * 38 + 8;
+            menu.style.left = rect.left + 'px';
+            menu.style.top = (rect.bottom + 6) + 'px';
+        }
+    }
+    document.addEventListener('click', e => {
+        if (!_seMenuOpen) return;
+        if (!e.target.closest('.se-dropdown')) { _seMenuOpen = false; document.getElementById('se-menu').classList.remove('open'); }
+    });
+
+    function renderSearchBar() {
+        const p = curProfile();
+        const wrap = document.getElementById('search-bar-wrap');
+        if (!wrap) return;
+        const show = p.showSearch !== false;
+        wrap.style.display = show ? 'flex' : 'none';
+        if (!show) return;
+        const engine = p.searchEngine || 'startpage';
+        const se = SEARCH_ENGINES[engine] || SEARCH_ENGINES.google;
+        // Update current button
+        document.getElementById('se-current-img').src = se.favicon;
+        document.getElementById('se-current-name').textContent = se.name;
+        // Build menu
+        document.getElementById('se-menu').innerHTML = Object.entries(SEARCH_ENGINES).map(([key, s]) =>
+            `<div class="se-option ${key === engine ? 'active' : ''}" onclick="setSearchEngine('${key}')">
+                <img src="${s.favicon}" alt="${s.name}" onerror="this.style.display='none'">
+                ${s.name}
+            </div>`
+        ).join('');
+    }
+
+    function setSearchEngine(key) {
+        curProfile().searchEngine = key;
+        _seMenuOpen = false;
+        document.getElementById('se-menu').classList.remove('open');
+        saveAndRender();
+        if (document.getElementById('settings-modal').style.display === 'block') renderSettings();
+    }
+
+    function doSearch(e) {
+        e.preventDefault();
+        const q = document.getElementById('search-input').value.trim();
+        if (!q) return;
+        const engine = curProfile().searchEngine || 'startpage';
+        const url = SEARCH_ENGINES[engine].url + encodeURIComponent(q);
+        window.open(url, state.target || '_self');
+        document.getElementById('search-input').value = '';
+    }
+
     function saveAndRender(refreshModal = false) {
         localStorage.setItem(KEY, JSON.stringify(state));
-        const p = state[state.profile];
+        const p = curProfile();
         if (!p) return; 
         document.body.style.backgroundColor = p.bgColor;
         applyGridFont(p.gridFont);
         applyUiFonts(p.clockFont, p.weatherFont);
         updateModalAccent();
+        renderSearchBar();
         const bg = document.getElementById('full-bg');
         if(!bg) return;
-        bg.style.backgroundImage = "none"; bg.style.background = "none";
-        if (p.bgImg) { bg.style.backgroundImage = `url(${p.bgImg})`; bg.style.opacity = 1; bg.style.filter = `blur(${p.fuzzy || 0}px)`; } 
-        else if (p.mesh && p.categories && p.categories.length > 0) {
-            const cols = p.categories.map(x => x.color);
-            bg.style.background = cols.length > 1 ? `linear-gradient(135deg, ${cols.join(',')})` : (cols[0] || p.bgColor); 
-            bg.style.opacity = p.opacity; bg.style.filter = "none";
-        } else { bg.style.opacity = 0; }
-        const profileIcon = state.profile === 'home' ? 'fa-house' : 'fa-user-tie';
+        bg.style.backgroundImage = "none"; bg.style.background = "none"; bg.style.filter = "none"; bg.style.opacity = 1;
+        if (p.bgImg) {
+            bg.style.backgroundImage = `url(${p.bgImg})`;
+            bg.style.filter = `blur(${p.fuzzy || 0}px)`;
+            stopBgCanvas();
+        } else {
+            const mode = p.bgMode || 'gradient';
+            const intensity = parseFloat(p.opacity) || 0.3;
+            document.body.style.backgroundColor = p.bgColor;
+            if (mode === 'gradient') {
+                const cols = p.categories.map(x => x.color);
+                bg.style.background = cols.length > 1 ? `linear-gradient(135deg, ${cols.join(',')})` : (cols[0] || p.bgColor);
+                bg.style.opacity = intensity;
+                stopBgCanvas();
+            } else if (mode === 'mesh') {
+                startMeshBg(p.categories.map(x => x.color), intensity);
+                bg.style.opacity = 0;
+            } else if (mode === 'particles') {
+                startParticlesBg(p.categories.map(x => x.color), intensity);
+                bg.style.opacity = 0;
+            } else if (mode === 'time') {
+                startTimeBg(intensity);
+                bg.style.opacity = 0;
+            } else {
+                bg.style.opacity = 0;
+                stopBgCanvas();
+            }
+        }
+        const profileColor = p.profileIconColor || p.iconColor || '#ffffff';
+        const profileNavBtn = document.getElementById('profile-nav-btn');
+        if (profileNavBtn) {
+            if (p.profilePhoto) {
+                profileNavBtn.innerHTML = `<img src="${p.profilePhoto}" style="width:2.2rem;height:2.2rem;border-radius:50%;object-fit:cover;border:1.5px solid rgba(255,255,255,0.15);" alt="Profile">`;
+            } else {
+                const pIcon = p.profileIcon || 'fa-solid fa-user';
+                profileNavBtn.innerHTML = `<i class="${pIcon}" style="font-size:1.2rem;color:${profileColor};transition:0.3s;"></i>`;
+            }
+        }
         const qlHtml = p.ql.filter(l => l.vis).map(l => {
             const ic = l.color || p.iconColor || '#ffffff';
             return `<a href="${l.url}" class="nav-link active" target="${state.target}"><i class="${l.name}" style="color:${ic}"></i></a>`;
         }).join('');
-        const profileColor = p.iconColor || '#ffffff';
-        document.getElementById('ql-nav').innerHTML = `<span class="nav-link active" onclick="toggleProfile()"><i class="fa-solid ${profileIcon}" style="color:${profileColor}"></i></span>` + qlHtml;
+        document.getElementById('ql-nav').innerHTML = qlHtml;
         document.getElementById('grid').innerHTML = p.categories.map((c, ci) => `
-            <div class="column">
+            <div class="column" draggable="true" data-ci="${ci}"
+                ondragstart="colDragStart(event,${ci})"
+                ondragover="colDragOver(event,${ci})"
+                ondrop="colDrop(event,${ci})"
+                ondragleave="colDragLeave(event)"
+                style="--cat-accent:${c.color}">
                 <div style="position:absolute; inset:0; background:linear-gradient(${c.color}22, transparent); opacity:0.3; z-index:-1;"></div>
                 <i class="fa-solid fa-trash-can cat-del-btn" onclick="delCat(${ci})"></i>
                 <div class="cat-title ${p.showHeaders ? '' : 'hidden-header'}" style="color:${c.color};">
@@ -1030,19 +1500,20 @@
     }
 
     function renderSettings() {
-        const p = state[state.profile];
+        const p = curProfile();
         document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(`size-${p.density || 'l'}`).classList.add('active');
+        document.getElementById(`size-${p.density || 'xl'}`).classList.add('active');
         document.getElementById('cat-sel').innerHTML = p.categories.map((c, i) => `<option value="${i}">${c.title}</option>`).join('');
         if(!p.categories[document.getElementById('cat-sel').value]) document.getElementById('cat-sel').value = 0;
         const slider = document.getElementById('unified-slider'), label = document.querySelector('.slider-label');
-        if (p.bgImg) { label.textContent = "Photo Blur Intensity"; slider.min = 0; slider.max = 30; slider.step = 1; slider.value = p.fuzzy || 0; } 
-        else { label.textContent = "Gradient Opacity"; slider.min = 0; slider.max = 1; slider.step = 0.05; slider.value = p.opacity; }
+        if (p.bgImg) { label.textContent = "Photo Blur"; slider.min = 0; slider.max = 30; slider.step = 1; slider.value = p.fuzzy || 0; }
+        else { label.textContent = "Intensity"; slider.min = 0; slider.max = 1; slider.step = 0.05; slider.value = p.opacity || 0.3; }
+        renderProfileTabs();
         document.getElementById('ql-list-editor').innerHTML = p.ql.map((l, i) => {
             const ic = l.color || p.iconColor || '#ffffff';
             return `<div class="ql-row">
                 <input type="checkbox" ${l.vis ? 'checked' : ''} onchange="updateQlRealtime(${i},'vis',this.checked)">
-                <select onchange="updateQlRealtime(${i},'name',this.value)" style="margin:0;">${ICON_LIST.map(ic2 => `<option value="${ic2}" ${l.name === ic2 ? 'selected' : ''}>${ic2.split('-').pop()}</option>`).join('')}</select>
+                <button class="icon-picker-btn" onclick="ipOpen(${i},this)" title="Choose icon"><i class="${l.name}"></i> <span style="font-size:0.65rem;opacity:0.5;">▾</span></button>
                 <input type="text" value="${l.url}" placeholder="URL" oninput="updateQlRealtime(${i},'url',this.value)" style="margin:0;">
                 <div class="color-field">
                     <input type="color" id="ql-color-${i}" value="${ic}" oninput="updateQlRealtime(${i},'color',this.value)" style="display:none">
@@ -1052,9 +1523,14 @@
             </div>`;
         }).join('');
         document.getElementById('target-mode').value = state.target;
-        document.getElementById('bg-img-url').value = p.bgImg.startsWith('data:') ? "Local Image Active" : p.bgImg;
-        document.getElementById('mesh-check').checked = p.mesh;
+        document.getElementById('search-enable').checked = (p.showSearch !== false);
+        document.getElementById('search-engine').value = p.searchEngine || 'startpage';
+        document.getElementById('bg-img-url').value = p.bgImg && p.bgImg.startsWith('data:') ? "Local Image Active" : (p.bgImg || '');
         document.getElementById('bg-color').value = p.bgColor;
+        ['gradient','mesh','particles','time'].forEach(m => {
+            const btn = document.getElementById('bgmode-' + m);
+            if (btn) btn.classList.toggle('active', !p.bgImg && (p.bgMode || 'gradient') === m);
+        });
         document.getElementById('weather-color-picker').value = p.weatherColor;
         document.getElementById('weather-font').value = p.weatherFont || 'Inter';
         document.getElementById('w-enable-check').checked = p.showWeather;
@@ -1083,9 +1559,10 @@
     }
 
     function updateVisRealtime() { 
-        const p = state[state.profile];
+        const p = curProfile();
         state.target = document.getElementById('target-mode').value;
-        p.mesh = document.getElementById('mesh-check').checked; 
+        p.showSearch = document.getElementById('search-enable').checked;
+        p.searchEngine = document.getElementById('search-engine').value;
         p.bgColor = document.getElementById('bg-color').value;
         p.weatherColor = document.getElementById('weather-color-picker').value;
         p.weatherFont = document.getElementById('weather-font').value;
@@ -1112,10 +1589,32 @@
         updateSectionStates();
     }
 
-    function renderCityManager() { document.getElementById('city-list-manager').innerHTML = state.cities.map((c, i) => `<div class="city-item"><span>${c.name}</span><i class="fa-solid fa-trash-can" onclick="removeCity(${i})"></i></div>`).join(''); }
+    function renderCityManager() {
+        document.getElementById('city-list-manager').innerHTML = state.cities.map((c, i) =>
+            `<div class="city-item" draggable="true" data-ci="${i}" ondragstart="cityDragStart(event,${i})" ondragover="cityDragOver(event,${i})" ondrop="cityDrop(event,${i})" ondragleave="cityDragLeave(event)">
+                <i class="fa-solid fa-grip-vertical drag-handle" style="color:#555;"></i>
+                <span>${c.name}</span>
+                <i class="fa-solid fa-trash-can" onclick="removeCity(${i})"></i>
+            </div>`
+        ).join('');
+    }
+    let _cityDragIdx = null;
+    function cityDragStart(e, i) { _cityDragIdx = i; e.dataTransfer.effectAllowed = 'move'; }
+    function cityDragOver(e, i) { e.preventDefault(); if (i !== _cityDragIdx) document.querySelectorAll('.city-item')[i].classList.add('drag-over'); }
+    function cityDragLeave(e) { e.target.closest('.city-item')?.classList.remove('drag-over'); }
+    function cityDrop(e, i) {
+        e.preventDefault();
+        document.querySelectorAll('.city-item').forEach(el => el.classList.remove('drag-over'));
+        if (_cityDragIdx === null || _cityDragIdx === i) return;
+        const cities = state.cities;
+        const moved = cities.splice(_cityDragIdx, 1)[0];
+        cities.splice(i, 0, moved);
+        _cityDragIdx = null;
+        renderCityManager(); saveAndRender(); updateWeather();
+    }
     async function searchCity(q) { if(q.length < 3) { document.getElementById('search-results').innerHTML = ''; return; } const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${q}&count=5&language=en&format=json`); const d = await r.json(); document.getElementById('search-results').innerHTML = (d.results || []).map(c => `<div class="search-result-item" onclick="addCity('${c.name}', ${c.latitude}, ${c.longitude})">${c.name}, ${c.admin1 || ''} (${c.country_code})</div>`).join(''); }
     async function updateWeather() {
-        const p = state[state.profile], city = state.cities[cityIdx];
+        const p = curProfile(), city = state.cities[cityIdx];
         if (!city || !p.showWeather) return;
         document.getElementById('city-name').textContent = city.name;
         document.getElementById('city-name').style.color = p.weatherColor;
@@ -1168,11 +1667,11 @@
         } catch(e) {}
     }
 
-    function toggleWeatherStyle(type) { const p = state[state.profile]; if(type === 'colored') { p.wColored = true; document.getElementById('w-solid-check').checked = false; } else { p.wColored = false; document.getElementById('w-colored-check').checked = false; } updateVisRealtime(); }
+    function toggleWeatherStyle(type) { const p = curProfile(); if(type === 'colored') { p.wColored = true; document.getElementById('w-solid-check').checked = false; } else { p.wColored = false; document.getElementById('w-colored-check').checked = false; } updateVisRealtime(); }
     function openModal(id) { document.getElementById(id).style.display = 'block'; document.getElementById('overlay').style.display = 'block'; if(id === 'settings-modal') renderSettings(); }
     function closeModals() { document.querySelectorAll('.modal').forEach(m => m.style.display='none'); document.getElementById('overlay').style.display='none'; }
     function syncCategoryEditor() { 
-        const p = state[state.profile], idx = document.getElementById('cat-sel').value; 
+        const p = curProfile(), idx = document.getElementById('cat-sel').value; 
         if(idx !== "" && p.categories[idx]) { 
             const c = p.categories[idx]; 
             document.getElementById('cat-title').value = c.title;
@@ -1180,7 +1679,12 @@
             document.getElementById('cat-url').value = c.url || ""; 
             document.getElementById('link-list-editor').innerHTML = c.links.map((l, li) => {
                 const lc = l.color || state.linkColor || '#cccccc';
-                return `<div class="editor-link-row">
+                return `<div class="editor-link-row" draggable="true"
+                    ondragstart="linkDragStart(event,${idx},${li})"
+                    ondragover="linkDragOver(event,${idx},${li})"
+                    ondrop="linkDrop(event,${idx},${li})"
+                    ondragleave="linkDragLeave(event)">
+                    <i class="fa-solid fa-grip-vertical drag-handle"></i>
                     <input type="text" value="${l.name}" oninput="updateLinkRealtime(${idx},${li},'name',this.value)">
                     <input type="text" value="${l.url}" placeholder="URL" oninput="updateLinkRealtime(${idx},${li},'url',this.value)">
                     <div class="color-field">
@@ -1193,13 +1697,176 @@
             }).join(''); 
         } 
     }
-    function updateCatRealtime() { const idx = document.getElementById('cat-sel').value, c = state[state.profile].categories[idx]; c.title = document.getElementById('cat-title').value; c.color = document.getElementById('cat-color').value; c.url = document.getElementById('cat-url').value; saveAndRender(); }
-    function updateLinkRealtime(ci, li, k, v) { state[state.profile].categories[ci].links[li][k] = v; saveAndRender(); }
-    function updateQlRealtime(i, k, v) { state[state.profile].ql[i][k] = v; saveAndRender(); }
-    function addCat() { state[state.profile].categories.push({title:"New Category", color:"#00d4ff", url: "", links:[]}); saveAndRender(true); renderSettings(); }
-    function addLinkInline() { const idx = document.getElementById('cat-sel').value; state[state.profile].categories[idx].links.push({name: "New Link", url: "", color: state.linkColor}); saveAndRender(true); }
-    function delCat(i) { state[state.profile].categories.splice(i,1); saveAndRender(); renderSettings(); }
-    function delLink(ci, li) { state[state.profile].categories[ci].links.splice(li,1); saveAndRender(); }
+    function updateCatRealtime() { const idx = document.getElementById('cat-sel').value, c = curProfile().categories[idx]; c.title = document.getElementById('cat-title').value; c.color = document.getElementById('cat-color').value; c.url = document.getElementById('cat-url').value; saveAndRender(); }
+    function updateLinkRealtime(ci, li, k, v) { curProfile().categories[ci].links[li][k] = v; saveAndRender(); }
+    function updateQlRealtime(i, k, v) { curProfile().ql[i][k] = v; saveAndRender(); }
+    // ── Column drag reorder ──
+    let _colDragIdx = null;
+    function colDragStart(e, i) { _colDragIdx = i; e.dataTransfer.effectAllowed = 'move'; e.currentTarget.classList.add('dragging'); }
+    function colDragOver(e, i) { e.preventDefault(); if (i !== _colDragIdx) e.currentTarget.classList.add('drag-over'); }
+    function colDragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+    function colDrop(e, i) {
+        e.preventDefault();
+        document.querySelectorAll('.column').forEach(el => el.classList.remove('drag-over','dragging'));
+        if (_colDragIdx === null || _colDragIdx === i) return;
+        const cats = curProfile().categories;
+        const moved = cats.splice(_colDragIdx, 1)[0];
+        cats.splice(i, 0, moved);
+        _colDragIdx = null;
+        saveAndRender(); renderSettings();
+    }
+
+    // ── Link drag reorder in editor ──
+    let _linkDragIdx = null, _linkDragCatIdx = null;
+    function linkDragStart(e, ci, li) { _linkDragIdx = li; _linkDragCatIdx = ci; e.dataTransfer.effectAllowed = 'move'; e.currentTarget.classList.add('dragging'); }
+    function linkDragOver(e, ci, li) { e.preventDefault(); if (li !== _linkDragIdx) e.currentTarget.classList.add('drag-over'); }
+    function linkDragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+    function linkDrop(e, ci, li) {
+        e.preventDefault();
+        document.querySelectorAll('.editor-link-row').forEach(el => el.classList.remove('drag-over','dragging'));
+        if (_linkDragIdx === null || _linkDragIdx === li || ci !== _linkDragCatIdx) return;
+        const links = curProfile().categories[ci].links;
+        const moved = links.splice(_linkDragIdx, 1)[0];
+        links.splice(li, 0, moved);
+        _linkDragIdx = null;
+        saveAndRender(); syncCategoryEditor();
+    }
+
+    // ── Profile management ──
+    function renderProfileTabs() {
+        const sel = document.getElementById('profile-select');
+        if (!sel) return;
+        sel.innerHTML = state.profiles.map((_, i) =>
+            `<option value="${i}" ${state.profile === 'p'+i ? 'selected' : ''}>${state.profileNames[i] || 'Profile '+(i+1)}</option>`
+        ).join('');
+        const nameInput = document.getElementById('profile-name-input');
+        if (nameInput) nameInput.value = state.profileNames[curProfileIdx()] || '';
+        // Sync icon preview, color, photo
+        const p = curProfile();
+        const iconPreview = document.getElementById('profile-icon-preview');
+        if (iconPreview) iconPreview.className = p.profileIcon || 'fa-solid fa-user';
+        const colorInp = document.getElementById('profile-icon-color');
+        if (colorInp) { colorInp.value = p.profileIconColor || '#ffffff'; cpSyncSwatch('profile-icon-color'); }
+        const photoUrl = document.getElementById('profile-photo-url');
+        if (photoUrl) photoUrl.value = (p.profilePhoto && !p.profilePhoto.startsWith('data:')) ? p.profilePhoto : (p.profilePhoto ? 'Local Photo Active' : '');
+    }
+    function renameProfile() {
+        const val = document.getElementById('profile-name-input').value;
+        state.profileNames[curProfileIdx()] = val;
+        // Update dropdown option text immediately
+        const sel = document.getElementById('profile-select');
+        if (sel && sel.options[curProfileIdx()]) sel.options[curProfileIdx()].text = val || 'Profile '+(curProfileIdx()+1);
+        localStorage.setItem(KEY, JSON.stringify(state));
+    }
+    function addProfile() {
+        const d = getDefaults();
+        state.profiles.push(d.profiles[0]);
+        state.profileNames.push('Profile ' + state.profiles.length);
+        state.profile = 'p' + (state.profiles.length - 1);
+        saveAndRender(); renderSettings();
+    }
+    function deleteProfile() {
+        if (state.profiles.length <= 1) return;
+        state.profiles.splice(curProfileIdx(), 1);
+        state.profileNames.splice(curProfileIdx(), 1);
+        state.profile = 'p0';
+        saveAndRender(); renderSettings();
+    }
+
+    function updateProfileIconColor(val) {
+        curProfile().profileIconColor = val;
+        cpSyncSwatch('profile-icon-color');
+        saveAndRender();
+    }
+    let _pipOpen = false;
+    function pipOpen(anchorEl) {
+        const grid = document.getElementById('icon-picker-grid');
+        if (_pipOpen && grid.classList.contains('open')) { ipClose(); _pipOpen = false; return; }
+        _pipOpen = true;
+        _ipTargetIdx = null; // not a ql picker
+        grid.innerHTML = PROFILE_ICON_LIST.map(ic =>
+            `<div class="ip-cell" title="${ic.split(' fa-').pop()}" onclick="pipPick('${ic}')"><i class="${ic}"></i></div>`
+        ).join('');
+        grid.classList.add('open');
+        const rect = anchorEl.getBoundingClientRect();
+        const gw = 192, gh = 260;
+        let left = rect.left;
+        if (left + gw > window.innerWidth - 8) left = window.innerWidth - gw - 8;
+        let top = rect.bottom + 4;
+        if (top + gh > window.innerHeight - 8) top = rect.top - gh - 4;
+        grid.style.left = left + 'px'; grid.style.top = top + 'px';
+    }
+    function pipPick(icon) {
+        const p = curProfile();
+        p.profileIcon = icon;
+        p.profilePhoto = '';
+        ipClose(); _pipOpen = false;
+        saveAndRender();
+        if (document.getElementById('settings-modal').style.display === 'block') renderSettings();
+    }
+
+    // ── Profile photo ──
+    function updateProfilePhoto(val) {
+        curProfile().profilePhoto = val;
+        saveAndRender();
+        if (document.getElementById('settings-modal').style.display === 'block') renderSettings();
+    }
+    function handleProfilePhotoFile(input) {
+        const file = input.files[0]; if (!file) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const SIZE = 256;
+                canvas.width = SIZE; canvas.height = SIZE;
+                // Crop to square from center
+                const s = Math.min(img.width, img.height);
+                const sx = (img.width - s) / 2, sy = (img.height - s) / 2;
+                canvas.getContext('2d').drawImage(img, sx, sy, s, s, 0, 0, SIZE, SIZE);
+                updateProfilePhoto(canvas.toDataURL('image/jpeg', 0.85));
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // ── Icon picker ──
+    let _ipTargetIdx = null;
+    function ipOpen(qlIdx, anchorEl) {
+        const grid = document.getElementById('icon-picker-grid');
+        if (_ipTargetIdx === qlIdx && grid.classList.contains('open')) { ipClose(); return; }
+        _ipTargetIdx = qlIdx;
+        grid.innerHTML = ICON_LIST.map(ic =>
+            `<div class="ip-cell" title="${ic.split(' fa-').pop()}" onclick="ipPick('${ic}')"><i class="${ic}"></i></div>`
+        ).join('');
+        grid.classList.add('open');
+        const rect = anchorEl.getBoundingClientRect();
+        const gw = 192, gh = 260;
+        let left = rect.left;
+        // Keep within viewport horizontally
+        if (left + gw > window.innerWidth - 8) left = window.innerWidth - gw - 8;
+        if (left < 8) left = 8;
+        // Open below by default, above if not enough space
+        let top = rect.bottom + 4;
+        if (top + gh > window.innerHeight - 8) top = rect.top - gh - 4;
+        grid.style.left = left + 'px'; grid.style.top = top + 'px';
+    }
+    function ipPick(icon) {
+        if (_ipTargetIdx === null) return;
+        updateQlRealtime(_ipTargetIdx, 'name', icon);
+        ipClose();
+    }
+    function ipClose() { document.getElementById('icon-picker-grid').classList.remove('open'); _ipTargetIdx = null; }
+    document.addEventListener('click', e => {
+        if (!document.getElementById('icon-picker-grid').classList.contains('open')) return;
+        if (!e.target.closest('#icon-picker-grid') && !e.target.closest('.icon-picker-btn')) ipClose();
+    });
+
+    function addCat() { curProfile().categories.push({title:"New Category", color:"#00d4ff", url: "", links:[]}); saveAndRender(true); renderSettings(); }
+    function addLinkInline() { const idx = document.getElementById('cat-sel').value; curProfile().categories[idx].links.push({name: "New Link", url: "", color: state.linkColor}); saveAndRender(true); }
+    function delCat(i) { curProfile().categories.splice(i,1); saveAndRender(); renderSettings(); }
+    function delLink(ci, li) { curProfile().categories[ci].links.splice(li,1); saveAndRender(); }
     function exportData() {
         const now = new Date();
         const pad = n => String(n).padStart(2,'0');
@@ -1237,14 +1904,34 @@
     }
     function resetToDefaults() { if(confirm("Factory reset? This will erase everything.")) { state = getDefaults(); saveAndRender(); renderSettings(); updateWeather(); } }
     function handleBgFile(input) { const file = input.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (e) => { const img = new Image(); img.onload = () => { const canvas = document.createElement('canvas'); const MAX_WIDTH = 1920; let width = img.width, height = img.height; if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } canvas.width = width; canvas.height = height; canvas.getContext('2d').drawImage(img, 0, 0, width, height); updateBgImg(canvas.toDataURL('image/jpeg', 0.7)); }; img.src = e.target.result; }; reader.readAsDataURL(file); }
-    function updateBgImg(val) { const p = state[state.profile]; p.bgImg = val; if(val) p.mesh = false; saveAndRender(); renderSettings(); }
-    function toggleGradientMode(checked) { const p = state[state.profile]; p.mesh = checked; if(checked) p.bgImg = ""; saveAndRender(); renderSettings(); }
+    function setBgMode(mode) {
+        const p = curProfile();
+        p.bgMode = mode;
+        p.bgImg = '';           // remove photo when a mode is chosen
+        ['gradient','mesh','particles','time'].forEach(m => {
+            const btn = document.getElementById('bgmode-' + m);
+            if (btn) btn.classList.toggle('active', m === mode);
+        });
+        saveAndRender(); renderSettings();
+    }
+    function updateBgImg(val) {
+        const p = curProfile();
+        p.bgImg = val;
+        if (val) {
+            // Deactivate all mode buttons — photo overrides everything
+            ['gradient','mesh','particles','time'].forEach(m => {
+                const btn = document.getElementById('bgmode-' + m);
+                if (btn) btn.classList.remove('active');
+            });
+        }
+        saveAndRender(); renderSettings();
+    }
     function addCity(name, lat, lon) { state.cities.push({name, lat, lon}); document.getElementById('search-results').innerHTML = ''; document.getElementById('city-search-input').value = ''; renderCityManager(); saveAndRender(); updateWeather(); }
     function removeCity(i) { if(state.cities.length > 1) { state.cities.splice(i, 1); cityIdx = 0; renderCityManager(); saveAndRender(); updateWeather(); } }
     function cycleCity() { cityIdx = (cityIdx + 1) % state.cities.length; updateWeather(); }
 
     function tickClock() {
-        const p = state[state.profile];
+        const p = curProfile();
         const el = document.getElementById('clock-display');
         if (!el) return;
         const show = p.showClock !== false;
@@ -1294,9 +1981,142 @@
         }
     }
 
+    // ── Canvas Background Engines ──
+    let _bgRaf = null;
+    function stopBgCanvas() {
+        if (_bgRaf) { cancelAnimationFrame(_bgRaf); _bgRaf = null; }
+        const c = document.getElementById('bg-canvas');
+        if (c) { const ctx = c.getContext('2d'); ctx.clearRect(0, 0, c.width, c.height); }
+    }
+
+    function startMeshBg(colors, intensity) {
+        stopBgCanvas();
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let t = 0;
+        // Parse hex colors to rgb
+        const rgbs = colors.map(hex => {
+            const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+            return [r,g,b];
+        });
+        if (!rgbs.length) return;
+        function draw() {
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            // Draw blobs for each color
+            rgbs.forEach(([r,g,b], i) => {
+                const angle = (t * 0.0003) + (i / rgbs.length) * Math.PI * 2;
+                const bx = w * (0.3 + 0.4 * Math.sin(angle));
+                const by = h * (0.3 + 0.4 * Math.cos(angle * 0.7 + i));
+                const radius = Math.min(w, h) * (0.4 + 0.15 * Math.sin(t * 0.0002 + i));
+                const grad = ctx.createRadialGradient(bx, by, 0, bx, by, radius);
+                grad.addColorStop(0, `rgba(${r},${g},${b},${intensity * 0.9})`);
+                grad.addColorStop(1, `rgba(${r},${g},${b},0)`);
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, w, h);
+            });
+            t++;
+            _bgRaf = requestAnimationFrame(draw);
+        }
+        draw();
+    }
+
+    function startParticlesBg(colors, intensity) {
+        stopBgCanvas();
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        const count = Math.floor(60 + intensity * 80);
+        const rgbs = colors.length ? colors.map(hex => {
+            const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+            return [r,g,b];
+        }) : [[0,212,255]];
+        const particles = Array.from({length: count}, () => ({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            r: 1 + Math.random() * 2.5,
+            vx: (Math.random() - 0.5) * 0.4,
+            vy: (Math.random() - 0.5) * 0.4,
+            col: rgbs[Math.floor(Math.random() * rgbs.length)]
+        }));
+        function draw() {
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.x += p.vx; p.y += p.vy;
+                if (p.x < 0) p.x = canvas.width;
+                if (p.x > canvas.width) p.x = 0;
+                if (p.y < 0) p.y = canvas.height;
+                if (p.y > canvas.height) p.y = 0;
+                const [r,g,b] = p.col;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(${r},${g},${b},${intensity * 0.85})`;
+                ctx.fill();
+            });
+            // Draw connecting lines between nearby particles
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i+1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    if (dist < 100) {
+                        const [r,g,b] = particles[i].col;
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.strokeStyle = `rgba(${r},${g},${b},${intensity * 0.15 * (1 - dist/100)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                    }
+                }
+            }
+            _bgRaf = requestAnimationFrame(draw);
+        }
+        draw();
+    }
+
+    function startTimeBg(intensity) {
+        stopBgCanvas();
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        // Hour-based color stops: [hour, r, g, b]
+        const timeColors = [
+            [0,  10, 10, 30],  [4,  10, 10, 30],  [5,  60, 40, 80],
+            [7,  210, 120, 60],[9,  100, 160, 220],[12, 80, 140, 210],
+            [15, 70, 130, 200],[17, 220, 130, 60], [19, 180, 80, 40],
+            [21, 60, 30, 70],  [23, 10, 10, 30],   [24, 10, 10, 30]
+        ];
+        function getTimeColor() {
+            const now = new Date();
+            const h = now.getHours() + now.getMinutes() / 60;
+            let a = timeColors[0], b2 = timeColors[timeColors.length - 1];
+            for (let i = 0; i < timeColors.length - 1; i++) {
+                if (h >= timeColors[i][0] && h < timeColors[i+1][0]) { a = timeColors[i]; b2 = timeColors[i+1]; break; }
+            }
+            const t2 = (h - a[0]) / (b2[0] - a[0] || 1);
+            return [
+                Math.round(a[1] + (b2[1]-a[1]) * t2),
+                Math.round(a[2] + (b2[2]-a[2]) * t2),
+                Math.round(a[3] + (b2[3]-a[3]) * t2)
+            ];
+        }
+        function draw() {
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            const [r,g,b] = getTimeColor();
+            const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            grad.addColorStop(0, `rgba(${r},${g},${b},${intensity})`);
+            grad.addColorStop(1, `rgba(${Math.round(r*0.5)},${Math.round(g*0.5)},${Math.round(b*0.7)},${intensity})`);
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            _bgRaf = requestAnimationFrame(draw);
+        }
+        draw();
+    }
+
     window.onload = () => { 
         saveAndRender(); 
-        updateWeather();
+        updateWeather().then(() => applyDynamicScaling(true)).catch(() => {});
         tickClock();
         setInterval(tickClock, 1000);
         setTimeout(() => {
