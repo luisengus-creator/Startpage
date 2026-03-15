@@ -594,17 +594,18 @@
                 <span>Open Links On</span>
                 <select id="target-mode" onchange="updateVisRealtime()" class="select-inline"><option value="_self">Current Tab</option><option value="_blank">New Tab</option></select>
             </div>
-            <label class="label-inline"><input type="checkbox" id="search-enable" onchange="updateVisRealtime()"> Show Search Bar</label>
-            <div class="color-row">
-                <span>Search Engine</span>
-                <select id="search-engine" onchange="updateVisRealtime()" class="select-inline">
-                    <option value="google">Google</option>
-                    <option value="ddg">DuckDuckGo</option>
-                    <option value="startpage">Startpage</option>
-                    <option value="brave">Brave</option>
-                    <option value="qwant">Qwant</option>
-                    <option value="yandex">Yandex</option>
-                </select>
+            <div class="color-row" style="margin-bottom:4px;">
+                <label class="label-inline" style="margin:0;"><input type="checkbox" id="search-enable" onchange="updateVisRealtime()"> Show Search Bar</label>
+                <div id="search-engine-wrap" class="color-field" style="margin:0;">
+                    <select id="search-engine" onchange="updateVisRealtime()" class="select-inline" style="margin:0;">
+                        <option value="google">Google</option>
+                        <option value="ddg">DuckDuckGo</option>
+                        <option value="startpage">Startpage</option>
+                        <option value="brave">Brave</option>
+                        <option value="qwant">Qwant</option>
+                        <option value="yandex">Yandex</option>
+                    </select>
+                </div>
             </div>
             <div class="color-row">
                 <span>Categories &amp; Links Font</span>
@@ -1217,8 +1218,10 @@
         const p = curProfile();
         const clockSub = document.getElementById('clock-sub');
         const weatherSub = document.getElementById('weather-sub');
+        const searchEngineWrap = document.getElementById('search-engine-wrap');
         if (clockSub) clockSub.className = p.showClock ? 'sub-enabled' : 'sub-disabled';
         if (weatherSub) weatherSub.className = p.showWeather ? 'sub-enabled' : 'sub-disabled';
+        if (searchEngineWrap) searchEngineWrap.className = (p.showSearch !== false) ? 'sub-enabled' : 'sub-disabled';
     }
 
     // Generic reset: set picker value, update state key, re-render, sync swatch
