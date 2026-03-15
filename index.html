@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Startpage</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link id="gfont-link" rel="stylesheet" href="">
+    <link id="gfont-link2" rel="stylesheet" href="">
     <style>
         :root { 
             --bg: #1C1B22; 
@@ -12,6 +16,7 @@
             --density-mod: 1;
             --fs-unit: calc(1rem * var(--scale) * var(--density-mod));
             --fade-speed: 0.5s;
+            --grid-font: 'Inter', system-ui, sans-serif;
         }
         * { box-sizing: border-box; }
         body { 
@@ -33,10 +38,10 @@
         .zoom-effect { transform: scale(1.05); }
 
         .container { width: 100%; height: 100%; margin: 0 auto; padding: 2vh 2vw; display: flex; flex-direction: column; }
-        .top-bar { display: flex; justify-content: space-between; align-items: center; z-index: 10; flex-shrink: 0; margin-bottom: 2vh; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; z-index: 10; flex-shrink: 0; margin-bottom: 2vh; position: relative; }
         .nav-group { display: flex; gap: 1.2rem; align-items: center; }
         .nav-link { cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; width: 2.2rem; height: 2.2rem; }
-        .nav-link i { font-size: 1.2rem; color: var(--icon-color, #ffffff); transition: 0.3s; }
+        .nav-link i { font-size: 1.2rem; color: #ffffff; transition: 0.3s; }
         .nav-link:hover i { opacity: 0.6; }
         
         #main-content { 
@@ -48,8 +53,6 @@
             overflow: hidden; 
             padding: 1vh; 
         }
-        .ready #main-content { transition: opacity var(--fade-speed) ease, transform var(--fade-speed) ease; }
-        .fade-out { opacity: 0; transform: translateY(10px); }
         
         #grid { 
             display: flex;
@@ -59,6 +62,14 @@
             align-items: center;
             width: fit-content;
             max-width: 100%;
+            /* Fix: Grid is invisible by default */
+            opacity: 0;
+            transition: none;
+        }
+
+        /* Fix: Reveal only when the scaling math is confirmed finished */
+        .scaling-finished #grid {
+            opacity: 1;
         }
 
         .column { 
@@ -72,18 +83,28 @@
             flex: 0 0 auto;
             width: fit-content;
             min-width: calc(160px * var(--scale) * var(--density-mod));
-            transition: all 0.3s ease;
             overflow: hidden;
         }
 
         .cat-controls {
             display: none;
-            justify-content: flex-end;
-            margin-bottom: 5px;
-            padding-bottom: 5px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
-        .edit-mode .cat-controls { display: flex; }
+
+        /* Category delete — absolute top-right corner of the column */
+        .cat-del-btn {
+            display: none;
+            position: absolute;
+            top: calc(0.5rem * var(--scale) * var(--density-mod));
+            right: calc(0.5rem * var(--scale) * var(--density-mod));
+            color: #ff4444;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.7rem;
+            opacity: 0.5;
+            z-index: 2;
+        }
+        .edit-mode .cat-del-btn { display: block; }
+        .cat-del-btn:hover { color: #ff0000; opacity: 1; transform: scale(1.15); }
 
         .cat-title { 
             margin: 0 0 calc(1rem * var(--scale) * var(--density-mod)) 0; 
@@ -94,7 +115,8 @@
             white-space: nowrap; 
             cursor: pointer; 
             text-decoration: none; 
-            display: block; 
+            display: block;
+            font-family: var(--grid-font);
         }
         .cat-title.hidden-header { display: none; }
         
@@ -102,29 +124,33 @@
             display: flex; 
             justify-content: center; 
             align-items: center; 
-            padding: calc(0.5rem * var(--scale) * var(--density-mod)) calc(0.8rem * var(--scale) * var(--density-mod)); 
             border-bottom: 1px solid rgba(255,255,255,0.03); 
             position: relative; 
-            gap: 15px;
             white-space: nowrap;
         }
         .link-row a { 
             text-decoration: none; 
             transition: 0.2s; 
             font-size: calc(1rem * var(--scale) * var(--density-mod));
+            font-family: var(--grid-font);
+            display: block;
+            width: 100%;
+            padding: calc(0.5rem * var(--scale) * var(--density-mod)) calc(0.8rem * var(--scale) * var(--density-mod));
+            text-align: center;
         }
         
         .del-btn { 
             display: none; 
+            position: absolute;
+            right: calc(0.5rem * var(--scale) * var(--density-mod));
             color: #ff4444; 
             cursor: pointer; 
             transition: 0.2s; 
-            font-size: 0.75rem;
-            padding: 2px; 
+            font-size: 0.7rem;
             opacity: 0.5;
         }
-        .del-btn:hover { color: #ff0000; opacity: 1; transform: scale(1.1); }
-        .edit-mode .del-btn { display: inline-block; }
+        .del-btn:hover { color: #ff0000; opacity: 1; transform: scale(1.15); }
+        .edit-mode .del-btn { display: block; }
 
         #weather-area { padding: 1.5vh 0; display: none; flex-direction: column; align-items: center; gap: 0.6rem; z-index: 10; flex-shrink: 0; min-height: 120px; }
         .ready #weather-area { transition: opacity var(--fade-speed) ease; }
@@ -135,77 +161,219 @@
         .weather-day-label { font-size: 0.6rem; opacity: 0.5; text-transform: uppercase; }
         .weather-temp { font-weight: bold; font-size: 0.9rem; }
         
-        /* Modal Base */
         .modal { 
             display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
             background: #0a0a0a; padding: 1.5rem; border-radius: 16px; z-index: 2000; 
-            width: min(500px, 95vw); max-height: 85vh; overflow-y: auto; border: 1px solid #222; 
+            width: min(500px, 95vw); max-height: 85vh; overflow-y: auto;
+            border: 1px solid var(--modal-accent-border, #00d4ff33);
         }
         #overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; backdrop-filter: blur(5px); }
-        .section-h { font-size:0.65rem; color:#00d4ff; font-weight:900; margin: 0 0 0.8rem 0; text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.8; }
-        .setting-block { margin-bottom: 1.8rem; }
-        
+
+        /* Section header */
+        .section-h { 
+            font-size: 0.6rem; color: var(--modal-accent, #00d4ff); font-weight: 900; 
+            margin: 0 0 1.2rem 0; text-transform: uppercase; letter-spacing: 2px; 
+        }
+        /* Section block with accent-colored divider */
+        .setting-block { 
+            margin-bottom: 0; padding: 1.6rem 0;
+            border-bottom: 1px solid var(--modal-accent-border, rgba(0,212,255,0.15));
+        }
+        .setting-block:last-of-type { border-bottom: none; }
+
+        /* Base inputs and selects */
         input, select { 
             background: #111; border: 1px solid #222; color: white; padding: 0 10px; 
-            border-radius: 6px; width: 100%; font-size: 0.85rem; height: 36px; 
+            border-radius: 6px; width: 100%; font-size: 0.82rem; height: 34px; 
         }
-        
-        .size-group { display: flex; gap: 4px; background: #111; padding: 4px; border-radius: 8px; border: 1px solid #222; }
-        .size-btn { flex: 1; height: 32px; border-radius: 5px; border: none; background: transparent; color: #666; cursor: pointer; transition: 0.2s; font-weight: bold; font-size: 0.8rem;}
-        .size-btn.active { background: #00d4ff; color: #000; }
+        input:focus, select:focus { outline: none; border-color: var(--modal-accent, #00d4ff); }
 
+        /* Density buttons */
+        .size-group { display: flex; gap: 4px; background: #111; padding: 4px; border-radius: 8px; border: 1px solid #222; margin-bottom: 14px; }
+        .size-btn { flex: 1; height: 30px; border-radius: 5px; border: none; background: transparent; color: #555; cursor: pointer; transition: 0.2s; font-weight: 700; font-size: 0.78rem; }
+        .size-btn.active { background: var(--modal-accent, #00d4ff); color: #000; }
+
+        /* Generic buttons */
         button { 
-            cursor: pointer; background: #222; border: none; padding: 10px; border-radius: 6px; 
-            width: 100%; font-weight: bold; font-size: 0.85rem; color: white; transition: 0.2s; 
+            cursor: pointer; background: #1a1a1a; border: 1px solid #2a2a2a; padding: 9px 12px; 
+            border-radius: 6px; width: 100%; font-weight: 600; font-size: 0.82rem; 
+            color: #ccc; transition: 0.15s; 
         }
-        button:hover { background: #333; }
-        
-        /* Standardized Checkboxes */
+        button:hover { background: #242424; border-color: #333; color: white; }
+
         input[type="checkbox"] { 
-            width: 16px !important; 
-            height: 16px !important; 
-            margin: 0; 
-            cursor: pointer; 
-            flex-shrink: 0;
-            accent-color: #00d4ff;
+            width: 14px !important; height: 14px !important; 
+            margin: 0; cursor: pointer; flex-shrink: 0;
+            accent-color: var(--modal-accent, #00d4ff);
         }
 
-        .label-inline { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; cursor: pointer; color: #ccc; }
+        /* Row with label + checkbox */
+        .label-inline { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; cursor: pointer; color: #bbb; margin-bottom: 10px; }
 
-        .btn-backup { background: #1a4fb4 !important; }
-        .btn-import { background: #188d50 !important; }
-        .btn-reset { background: #4b0000 !important; color: #ffcccc !important; margin-top: 10px !important; }
-        
+        .btn-backup { background: #0f2d6b !important; border-color: #1a4fb4 !important; color: #7eb3ff !important; }
+        .btn-import { background: #0a3320 !important; border-color: #188d50 !important; color: #6ddfaa !important; }
+        .btn-reset  { background: #2a0000 !important; border-color: #4b0000 !important; color: #ffaaaa !important; margin-top: 8px !important; }
+
         .flex-row { display: flex; gap: 8px; }
         .flex-row button { flex: 1; margin: 0; }
-        
-        .editor-link-row { display: flex; gap: 6px; margin-bottom: 6px; align-items: center; width: 100%; }
-        .editor-link-row input[type="text"] { flex: 1; height: 32px; font-size: 0.75rem; }
-        .editor-link-row input[type="color"] { width: 32px; height: 32px; padding: 2px; border: 1px solid #333; }
-        .editor-link-row .tiny-del { width: 32px; height: 32px; background: #1a0a0a; color: #ff4444; border: 1px solid #322; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
-        .ql-row { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; }
-        .ql-row select, .ql-row input[type="text"] { height: 32px; font-size: 0.75rem; }
+        /* ── Color field: label on left, [swatch][reset] on right ── */
+        .color-row {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 12px; font-size: 0.8rem; color: #bbb;
+        }
+        .color-field {
+            display: flex; align-items: center; gap: 4px; flex-shrink: 0;
+        }
+        input[type="color"] {
+            width: 34px !important; height: 26px !important;
+            padding: 2px 3px !important; border: 1px solid #333 !important;
+            border-radius: 5px !important; background: #111 !important;
+            cursor: pointer; flex-shrink: 0;
+        }
+        /* Small reset / icon button used in color fields and rows */
+        .btn-icon {
+            width: 24px; height: 24px; flex-shrink: 0;
+            background: transparent; border: 1px solid #2a2a2a;
+            border-radius: 4px; color: #555; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.6rem; transition: 0.15s; padding: 0; width: auto; 
+            padding: 0 6px;
+        }
+        .btn-icon:hover { border-color: #444; color: #ccc; background: #1a1a1a; }
 
-        .color-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 0.8rem; color: #ccc; }
-        .color-row input[type="color"] { width: 40px; height: 24px; padding: 0; border: none; background: none; }
-        
-        /* Compact Weather Modal Styling */
+        /* Inline select (used in color-row right side) — all same width */
+        .select-inline {
+            width: 148px !important; height: 28px !important;
+            font-size: 0.78rem !important; padding: 0 6px !important;
+            flex-shrink: 0;
+        }
+
+        /* Quick link rows */
+        .ql-row { display: flex; gap: 5px; align-items: center; margin-bottom: 7px; }
+        .ql-row select { height: 28px; font-size: 0.75rem; }
+        .ql-row input[type="text"] { flex: 1; height: 28px; font-size: 0.75rem; }
+
+        /* Link editor rows */
+        .editor-link-row { display: flex; gap: 5px; margin-bottom: 6px; align-items: center; width: 100%; }
+        .editor-link-row input[type="text"] { flex: 1; height: 28px; font-size: 0.75rem; }
+        .editor-link-row input[type="color"] { width: 34px !important; height: 26px !important; }
+
+        /* Slider */
+        input[type="range"] { height: 5px; background: #222; border-radius: 5px; appearance: none; cursor: pointer; width: 100%; margin-top: 6px; }
+        input[type="range"]::-webkit-slider-thumb { appearance: none; width: 13px; height: 13px; background: var(--modal-accent, #00d4ff); border-radius: 50%; }
+        .slider-label { font-size: 0.72rem; opacity: 0.5; margin-bottom: 4px; display: block; }
+
+        /* City list */
         .city-item { 
             display: flex; justify-content: space-between; align-items: center; 
-            margin-bottom: 4px; background: rgba(255,255,255,0.03); 
-            padding: 6px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);
+            margin-bottom: 4px; background: rgba(255,255,255,0.02); 
+            padding: 6px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.04);
         }
-        .city-item span { font-size: 0.75rem; color: #eee; font-weight: 500; }
-        .city-item i { color: #f44; cursor: pointer; font-size: 0.7rem; opacity: 0.6; transition: 0.2s; }
+        .city-item span { font-size: 0.75rem; color: #ddd; font-weight: 500; }
+        .city-item i { color: #f44; cursor: pointer; font-size: 0.7rem; opacity: 0.5; transition: 0.2s; }
+        .city-item i:hover { opacity: 1; }
 
+        /* Search results */
         .search-result-item { 
-            padding: 6px 10px; border-bottom: 1px solid #1a1a1a; 
-            cursor: pointer; font-size: 0.7rem; color: #aaa; transition: 0.2s;
+            padding: 6px 10px; border-bottom: 1px solid #161616; 
+            cursor: pointer; font-size: 0.72rem; color: #999; transition: background 0.12s, color 0.12s;
         }
-        
-        input[type="range"] { height: 6px; background: #222; border-radius: 5px; appearance: none; cursor: pointer; }
-        input[type="range"]::-webkit-slider-thumb { appearance: none; width: 14px; height: 14px; background: #00d4ff; border-radius: 50%; }
+        .search-result-item:hover { background: rgba(255,255,255,0.04); color: var(--modal-accent, #00d4ff); }
+
+        /* Clock */
+        #clock-display { 
+            position: absolute; left: 50%; transform: translateX(-50%);
+            display: flex; flex-direction: column; align-items: center; line-height: 1.2;
+            pointer-events: auto; cursor: pointer;
+        }
+        #clock-display:hover #clock-time { opacity: 1; }
+        #clock-display:hover #clock-date { opacity: 0.6; }
+        #clock-time { font-size: 1.05rem; font-weight: 600; letter-spacing: 2px; opacity: 0.9; }
+        #clock-date { font-size: 0.6rem; opacity: 0.4; letter-spacing: 1.5px; text-transform: uppercase; }
+
+        /* Link hover */
+        .link-row a:hover { opacity: 0.65; }
+
+        /* Column hover */
+        .column { transition: border-color 0.2s, background 0.2s; }
+        .column:hover { background: rgba(255,255,255,0.045); border-color: rgba(255,255,255,0.13); }
+
+
+
+        /* Weather min/max range */
+        .weather-temp { font-weight: bold; font-size: 0.82rem; }
+        .weather-temp-min { font-size: 0.68rem; opacity: 0.45; margin-top: 1px; }
+
+        .sub-disabled { opacity: 0.3; pointer-events: none; transition: opacity 0.2s; }
+        .sub-enabled  { opacity: 1;   pointer-events: auto; transition: opacity 0.2s; }
+        #weather-stats { display: flex; gap: 1.2rem; align-items: center; justify-content: center; flex-wrap: wrap; position: relative; }
+        .wstat { display: flex; align-items: center; gap: 0.3rem; font-size: 0.65rem; opacity: 0.6; white-space: nowrap; cursor: pointer; transition: opacity 0.15s; }
+        .wstat:hover { opacity: 1; }
+        .wstat i { font-size: 0.65rem; }
+
+        /* Extra info popover */
+        /* Custom color picker */
+        .cp-wrap { position: relative; display: inline-flex; align-items: center; }
+        .cp-swatch {
+            width: 34px; height: 26px; border-radius: 5px; border: 1px solid #333;
+            cursor: pointer; flex-shrink: 0; transition: border-color 0.15s;
+        }
+        .cp-swatch:hover { border-color: #555; }
+        .cp-palette {
+            display: none; position: fixed; z-index: 4000;
+            background: #0e0e0e; border: 1px solid var(--modal-accent-border, #00d4ff33);
+            border-radius: 10px; padding: 10px; box-shadow: 0 8px 28px rgba(0,0,0,0.7);
+            width: 178px;
+        }
+        .cp-palette.open { display: block; }
+        .cp-presets { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; margin-bottom: 8px; }
+        .cp-preset {
+            width: 18px; height: 18px; border-radius: 3px; cursor: pointer;
+            border: 1px solid transparent; transition: transform 0.1s, border-color 0.1s;
+        }
+        .cp-preset:hover { transform: scale(1.2); border-color: rgba(255,255,255,0.4); }
+        .cp-custom-row { display: flex; align-items: center; gap: 6px; padding-top: 6px; border-top: 1px solid #1e1e1e; }
+        .cp-custom-row span { font-size: 0.68rem; color: #666; white-space: nowrap; }
+        .cp-custom-row input[type="color"] { width: 28px !important; height: 22px !important; flex-shrink: 0; }
+
+        #weather-modal {
+            display: none; position: fixed; z-index: 3000;
+            background: #0e0e0e; border: 1px solid var(--modal-accent-border, #00d4ff33);
+            border-radius: 12px; padding: 1rem 1.1rem; min-width: 240px; width: 280px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+        }
+        #weather-modal .pop-title {
+            font-size: 0.58rem; font-weight: 900; color: var(--modal-accent, #00d4ff);
+            text-transform: uppercase; letter-spacing: 2px; margin-bottom: 0.8rem;
+        }
+
+        #clock-popover {
+            display: none; position: fixed; z-index: 3000;
+            background: #0e0e0e; border: 1px solid var(--modal-accent-border, #00d4ff33);
+            border-radius: 12px; padding: 1rem 1.1rem; min-width: 210px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+        }
+        #clock-popover .pop-title {
+            font-size: 0.58rem; font-weight: 900; color: var(--modal-accent, #00d4ff);
+            text-transform: uppercase; letter-spacing: 2px; margin-bottom: 0.8rem;
+        }
+        #clock-popover .label-inline { margin-bottom: 8px; }
+
+        /* Weather stats popover */
+        #wstat-popover {
+            display: none; position: fixed; z-index: 3000;
+            background: #0e0e0e; border: 1px solid var(--modal-accent-border, #00d4ff33);
+            border-radius: 12px; padding: 1rem 1.1rem; min-width: 200px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+        }
+        #wstat-popover .pop-title {
+            font-size: 0.58rem; font-weight: 900; color: var(--modal-accent, #00d4ff);
+            text-transform: uppercase; letter-spacing: 2px; margin-bottom: 0.8rem;
+        }
+        #wstat-popover .label-inline { margin-bottom: 8px; }
+        #wstat-popover .label-inline:last-child { margin-bottom: 0; }
+
     </style>
 </head>
 <body>
@@ -214,6 +382,10 @@
     <div class="container">
         <header class="top-bar">
             <div id="ql-nav" class="nav-group"></div>
+            <div id="clock-display" onclick="openClockPopover(this)">
+                <span id="clock-time"></span>
+                <span id="clock-date"></span>
+            </div>
             <div class="nav-group">
                 <span class="nav-link" onclick="document.body.classList.toggle('edit-mode')"><i class="fa-solid fa-pen"></i></span>
                 <span class="nav-link" onclick="openModal('settings-modal')"><i class="fa-solid fa-gear"></i></span>
@@ -222,19 +394,38 @@
         <main id="main-content"><div id="grid"></div></main>
         <section id="weather-area">
             <span id="city-name" onclick="cycleCity()">---</span>
-            <div id="weather-grid" onclick="openModal('weather-modal')"></div>
+            <div id="weather-grid" onclick="openWeatherPopover(this)"></div>
+            <div id="weather-stats"></div>
         </section>
     </div>
 
     <div id="settings-modal" class="modal">
         <div class="setting-block">
-            <div class="section-h">Density & Navigation</div>
-            <div class="size-group" style="margin-bottom: 10px;">
+            <div class="section-h">Display & Navigation</div>
+            <div class="size-group">
                 <button class="size-btn" id="size-s" onclick="updateDensity('s')">Small</button>
                 <button class="size-btn" id="size-m" onclick="updateDensity('m')">Medium</button>
                 <button class="size-btn" id="size-l" onclick="updateDensity('l')">Large</button>
             </div>
-            <select id="target-mode" onchange="updateVisRealtime()"><option value="_self">Current Tab</option><option value="_blank">New Tab</option></select>
+            <div class="color-row" style="margin-bottom:12px;">
+                <span>Open Links On</span>
+                <select id="target-mode" onchange="updateVisRealtime()" class="select-inline"><option value="_self">Current Tab</option><option value="_blank">New Tab</option></select>
+            </div>
+            <div class="color-row">
+                <span>Categories &amp; Links Font</span>
+                <select id="font-picker" onchange="updateVisRealtime()" class="select-inline">
+                    <option value="Inter">Inter</option>
+                    <option value="Roboto">Roboto</option>
+                    <option value="DM Sans">DM Sans</option>
+                    <option value="Nunito">Nunito</option>
+                    <option value="Raleway">Raleway</option>
+                    <option value="Sora">Sora</option>
+                    <option value="Space Grotesk">Space Grotesk</option>
+                    <option value="Fira Code">Fira Code</option>
+                    <option value="JetBrains Mono">JetBrains Mono</option>
+                    <option value="Playfair Display">Playfair Display</option>
+                </select>
+            </div>
         </div>
 
         <div class="setting-block">
@@ -244,50 +435,202 @@
 
         <div class="setting-block">
             <div class="section-h">Categories & Content</div>
-            <label class="label-inline" style="margin-bottom: 10px;"><input type="checkbox" id="header-vis-check" onchange="updateVisRealtime()"> Show Category Headers</label>
+            <label class="label-inline"><input type="checkbox" id="header-vis-check" onchange="updateVisRealtime()"> Show Category Headers</label>
             <select id="cat-sel" onchange="syncCategoryEditor()" style="margin-bottom:8px;"></select>
-            <div class="flex-row" style="margin-bottom:8px;">
+            <div class="flex-row" style="margin-bottom:8px; align-items:center;">
                 <input type="text" id="cat-title" oninput="updateCatRealtime()" placeholder="Title">
-                <input type="color" id="cat-color" oninput="updateCatRealtime()" style="width: 50px;">
+                <div class="color-field">
+                    <input type="color" id="cat-color" oninput="updateCatRealtime()" style="display:none">
+                    <div class="cp-swatch" onclick="cpOpen('cat-color')"></div>
+                    <button class="btn-icon" onclick="resetCatColor()" title="Reset color"><i class="fa-solid fa-rotate-left"></i></button>
+                </div>
             </div>
             <input type="text" id="cat-url" oninput="updateCatRealtime()" placeholder="Header Link URL (optional)" style="margin-bottom:10px;">
-            <div id="link-list-editor" style="border: 1px solid #1a1a1a; padding: 8px; border-radius: 8px; max-height: 200px; overflow-y: auto; background: #050505; margin-bottom: 8px;"></div>
+            <div id="link-list-editor" style="border:1px solid #1a1a1a; padding:8px; border-radius:8px; max-height:200px; overflow-y:auto; background:#050505; margin-bottom:8px;"></div>
             <div class="flex-row"><button onclick="addCat()">+ Category</button><button onclick="addLinkInline()">+ Link</button></div>
-        </div>
-
-        <div class="setting-block">
-            <div class="section-h">Appearance</div>
-            <div class="color-row"><span>Main Icon Color</span> <input type="color" id="icon-color-picker" oninput="updateIconColor(this.value)"></div>
-            <div class="color-row"><span>Global Links Color</span> <input type="color" id="link-color-picker" oninput="handleGlobalLinkColor(this.value)"></div>
-            <div class="color-row"><span>Weather Text Color</span> <input type="color" id="weather-color-picker" oninput="updateVisRealtime()"></div>
-            <label class="label-inline" style="margin: 10px 0;"><input type="checkbox" id="w-enable-check" onchange="updateVisRealtime()"> Enable Weather</label>
-            <div class="flex-row">
-                <label class="label-inline"><input type="checkbox" id="w-colored-check" onchange="toggleWeatherStyle('colored')"> Colored Icons</label>
-                <label class="label-inline"><input type="checkbox" id="w-solid-check" onchange="toggleWeatherStyle('solid')"> Solid Icons</label>
-            </div>
         </div>
 
         <div class="setting-block">
             <div class="section-h">Background</div>
             <input type="text" id="bg-img-url" placeholder="Paste Image URL..." oninput="updateBgImg(this.value)" style="margin-bottom:8px;">
-            <div class="flex-row"><button onclick="document.getElementById('bg-file').click()">Upload</button><button style="color:#f88;" onclick="updateBgImg('')">Remove</button></div>
+            <div class="flex-row" style="margin-bottom:12px;">
+                <button onclick="document.getElementById('bg-file').click()">Upload</button>
+                <button style="color:#f88;" onclick="updateBgImg('')">Remove</button>
+            </div>
             <input type="file" id="bg-file" style="display:none" accept="image/*" onchange="handleBgFile(this)">
-            <div class="color-row" style="margin-top:12px;"><span>Background Color</span> <input type="color" id="bg-color" oninput="updateVisRealtime()"></div>
-            <label class="label-inline" style="margin-bottom: 10px;"><input type="checkbox" id="mesh-check" onchange="toggleGradientMode(this.checked)"> Use Category Gradient</label>
-            <div><span id="slider-label" style="font-size: 0.75rem; opacity: 0.6;">Intensity / Opacity</span><input type="range" id="unified-slider" min="0" max="1" step="0.05" oninput="updateVisRealtime()"></div>
+            <div class="color-row">
+                <span>Background Color</span>
+                <div class="color-field">
+                    <input type="color" id="bg-color" oninput="updateVisRealtime()" style="display:none">
+                    <div class="cp-swatch" onclick="cpOpen('bg-color')"></div>
+                    <button class="btn-icon" onclick="resetField('bg-color','#1C1B22','bgColor')" title="Reset"><i class="fa-solid fa-rotate-left"></i></button>
+                </div>
+            </div>
+            <label class="label-inline"><input type="checkbox" id="mesh-check" onchange="toggleGradientMode(this.checked)"> Use Category Gradient</label>
+            <span class="slider-label" id="slider-label">Intensity / Opacity</span>
+            <input type="range" id="unified-slider" min="0" max="1" step="0.05" oninput="updateVisRealtime()">
         </div>
 
-        <div class="flex-row" style="margin-top: 2rem;"><button class="btn-backup" onclick="exportData()">Backup</button><button class="btn-import" onclick="document.getElementById('file-input').click()">Import</button></div>
-        <button class="btn-reset" onclick="resetToDefaults()">Factory Reset</button>
-        <input type="file" id="file-input" style="display:none" onchange="importData(this)">
+        <div class="setting-block">
+            <div class="section-h">Clock</div>
+            <label class="label-inline"><input type="checkbox" id="clock-check" onchange="updateVisRealtime()"> Show Clock</label>
+            <div id="clock-sub">
+            <div class="flex-row" style="margin-bottom:12px;">
+                <label class="label-inline"><input type="checkbox" id="clock-seconds" onchange="updateVisRealtime()"> Show Seconds</label>
+                <label class="label-inline"><input type="checkbox" id="clock-date-check" onchange="updateVisRealtime()"> Show Date</label>
+            </div>
+            <div class="color-row">
+                <span>Time Format</span>
+                <select id="clock-format" onchange="updateVisRealtime()" class="select-inline">
+                    <option value="24">24h</option>
+                    <option value="12">12h (AM/PM)</option>
+                </select>
+            </div>
+            <div class="color-row">
+                <span>Date Format</span>
+                <select id="clock-date-fmt" onchange="updateVisRealtime()" class="select-inline">
+                    <option value="long">Monday, January 1</option>
+                    <option value="short">Mon, Jan 1</option>
+                    <option value="numeric">01/01/2025</option>
+                    <option value="iso">2025-01-01</option>
+                </select>
+            </div>
+            <div class="color-row">
+                <span>Clock Size</span>
+                <select id="clock-size" onchange="updateVisRealtime()" class="select-inline">
+                    <option value="s">Small</option>
+                    <option value="m">Medium</option>
+                    <option value="l">Large</option>
+                </select>
+            </div>
+            <div class="color-row">
+                <span>Clock Font</span>
+                <select id="clock-font" onchange="updateVisRealtime()" class="select-inline">
+                    <option value="Inter">Inter</option>
+                    <option value="Roboto">Roboto</option>
+                    <option value="DM Sans">DM Sans</option>
+                    <option value="Nunito">Nunito</option>
+                    <option value="Raleway">Raleway</option>
+                    <option value="Sora">Sora</option>
+                    <option value="Space Grotesk">Space Grotesk</option>
+                    <option value="Fira Code">Fira Code</option>
+                    <option value="JetBrains Mono">JetBrains Mono</option>
+                    <option value="Playfair Display">Playfair Display</option>
+                </select>
+            </div>
+            <div class="color-row">
+                <span>Clock Color</span>
+                <div class="color-field">
+                    <input type="color" id="clock-color" oninput="updateVisRealtime()" style="display:none">
+                    <div class="cp-swatch" onclick="cpOpen('clock-color')"></div>
+                    <button class="btn-icon" onclick="resetField('clock-color','#ffffff','clockColor')" title="Reset"><i class="fa-solid fa-rotate-left"></i></button>
+                </div>
+            </div>
+            </div>
+        </div>
+
+        <div class="setting-block">
+            <div class="section-h">Weather</div>
+            <label class="label-inline"><input type="checkbox" id="w-enable-check" onchange="updateVisRealtime()"> Enable Weather</label>
+            <div id="weather-sub">
+            <div class="color-row">
+                <span>Weather Font</span>
+                <select id="weather-font" onchange="updateVisRealtime()" class="select-inline">
+                    <option value="Inter">Inter</option>
+                    <option value="Roboto">Roboto</option>
+                    <option value="DM Sans">DM Sans</option>
+                    <option value="Nunito">Nunito</option>
+                    <option value="Raleway">Raleway</option>
+                    <option value="Sora">Sora</option>
+                    <option value="Space Grotesk">Space Grotesk</option>
+                    <option value="Fira Code">Fira Code</option>
+                    <option value="JetBrains Mono">JetBrains Mono</option>
+                    <option value="Playfair Display">Playfair Display</option>
+                </select>
+            </div>
+            <div class="color-row">
+                <span>Weather Text Color</span>
+                <div class="color-field">
+                    <input type="color" id="weather-color-picker" oninput="updateVisRealtime()" style="display:none">
+                    <div class="cp-swatch" onclick="cpOpen('weather-color-picker')"></div>
+                    <button class="btn-icon" onclick="resetField('weather-color-picker','#ffffff','weatherColor')" title="Reset"><i class="fa-solid fa-rotate-left"></i></button>
+                </div>
+            </div>
+            <div class="flex-row" style="margin-bottom:12px;">
+                <label class="label-inline"><input type="checkbox" id="w-colored-check" onchange="toggleWeatherStyle('colored')"> Colored Icons</label>
+                <label class="label-inline"><input type="checkbox" id="w-solid-check" onchange="toggleWeatherStyle('solid')"> Solid Icons</label>
+            </div>
+            <div class="section-h" style="margin-bottom:10px; opacity:0.5;">Extra Info</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:2px 8px;">
+                <label class="label-inline" style="margin-bottom:8px;"><input type="checkbox" id="w-humidity" onchange="updateVisRealtime()"> Humidity</label>
+                <label class="label-inline" style="margin-bottom:8px;"><input type="checkbox" id="w-uv" onchange="updateVisRealtime()"> UV Index</label>
+                <label class="label-inline" style="margin-bottom:8px;"><input type="checkbox" id="w-pressure" onchange="updateVisRealtime()"> Pressure</label>
+                <label class="label-inline" style="margin-bottom:8px;"><input type="checkbox" id="w-visibility" onchange="updateVisRealtime()"> Visibility</label>
+                <label class="label-inline" style="margin-bottom:8px;"><input type="checkbox" id="w-aqi" onchange="updateVisRealtime()"> Air Quality</label>
+                <label class="label-inline" style="margin-bottom:8px;"><input type="checkbox" id="w-sunrise" onchange="updateVisRealtime()"> Sunrise / Sunset</label>
+            </div>
+            </div>
+        </div>
+
+        <div class="setting-block">
+            <div class="flex-row"><button class="btn-backup" onclick="exportData()">Backup</button><button class="btn-import" onclick="document.getElementById('file-input').click()">Import</button></div>
+            <button class="btn-reset" onclick="resetToDefaults()">Factory Reset</button>
+            <input type="file" id="file-input" style="display:none" onchange="importData(this)">
+        </div>
     </div>
 
-    <div id="weather-modal" class="modal">
-        <h3 style="margin:0 0 0.8rem 0; font-size: 0.85rem; letter-spacing: 0.5px;">Locations</h3>
-        <div id="city-list-manager" style="margin-bottom: 0.8rem; max-height: 120px; overflow-y: auto; padding-right: 4px;"></div>
-        <input type="text" placeholder="Search for a city..." oninput="searchCity(this.value)" style="height: 32px; font-size: 0.75rem;">
-        <div id="search-results" style="max-height: 140px; overflow-y: auto; background: #050505; border-radius: 6px; margin-top: 5px;"></div>
-        <button onclick="closeModals()" style="margin-top: 15px; height: 36px; font-size: 0.8rem;">Done</button>
+    <div id="cp-palette" class="cp-palette">
+        <div class="cp-presets" id="cp-presets"></div>
+        <div class="cp-custom-row">
+            <span>Custom</span>
+            <input type="color" id="cp-native" oninput="cpNativePick(this.value)">
+        </div>
+    </div>
+
+    <div id="clock-popover">
+        <div class="pop-title">Clock</div>
+        <label class="label-inline"><input type="checkbox" id="cpop-show" onchange="clockPopChange()"> Show Clock</label>
+        <label class="label-inline"><input type="checkbox" id="cpop-seconds" onchange="clockPopChange()"> Show Seconds</label>
+        <label class="label-inline"><input type="checkbox" id="cpop-date" onchange="clockPopChange()"> Show Date</label>
+        <div style="display:grid; grid-template-columns:auto 1fr; gap:6px 10px; align-items:center; margin-top:4px;">
+            <span style="font-size:0.75rem; color:#888;">Format</span>
+            <select id="cpop-format" onchange="clockPopChange()" style="height:26px; font-size:0.75rem; padding:0 6px;">
+                <option value="24">24h</option>
+                <option value="12">12h (AM/PM)</option>
+            </select>
+            <span style="font-size:0.75rem; color:#888;">Date</span>
+            <select id="cpop-datefmt" onchange="clockPopChange()" style="height:26px; font-size:0.75rem; padding:0 6px;">
+                <option value="long">Monday, January 1</option>
+                <option value="short">Mon, Jan 1</option>
+                <option value="numeric">01/01/2025</option>
+                <option value="iso">2025-01-01</option>
+            </select>
+            <span style="font-size:0.75rem; color:#888;">Size</span>
+            <select id="cpop-size" onchange="clockPopChange()" style="height:26px; font-size:0.75rem; padding:0 6px;">
+                <option value="s">Small</option>
+                <option value="m">Medium</option>
+                <option value="l">Large</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="wstat-popover">
+        <div class="pop-title">Extra Info</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0 12px;">
+            <label class="label-inline"><input type="checkbox" id="pop-humidity" onchange="wstatPopChange()"> Humidity</label>
+            <label class="label-inline"><input type="checkbox" id="pop-uv" onchange="wstatPopChange()"> UV Index</label>
+            <label class="label-inline"><input type="checkbox" id="pop-pressure" onchange="wstatPopChange()"> Pressure</label>
+            <label class="label-inline"><input type="checkbox" id="pop-visibility" onchange="wstatPopChange()"> Visibility</label>
+            <label class="label-inline"><input type="checkbox" id="pop-aqi" onchange="wstatPopChange()"> Air Quality</label>
+            <label class="label-inline"><input type="checkbox" id="pop-sunrise" onchange="wstatPopChange()"> Sunrise/Sunset</label>
+        </div>
+    </div>
+
+    <div id="weather-modal">
+        <div class="pop-title">Locations</div>
+        <div id="city-list-manager" style="margin-bottom:0.8rem; max-height:140px; overflow-y:auto; padding-right:4px;"></div>
+        <input type="text" id="city-search-input" placeholder="Search for a city..." oninput="searchCity(this.value)">
+        <div id="search-results" style="max-height:140px; overflow-y:auto; background:#050505; border-radius:6px; margin-top:5px;"></div>
     </div>
 
 <script>
@@ -306,17 +649,236 @@
     }
 
     function getDefaults() {
-        const baseQl = [{name:"fa-solid fa-server", url:"", vis:false}, {name:"fa-solid fa-sliders", url:"", vis:false}, {name:"fa-brands fa-spotify", url:"", vis:false}, {name:"fa-solid fa-star", url:"", vis:false}];
+        const baseQl = [{name:"fa-solid fa-server", url:"", vis:false, color:""}, {name:"fa-solid fa-sliders", url:"", vis:false, color:""}, {name:"fa-brands fa-spotify", url:"", vis:false, color:""}, {name:"fa-solid fa-star", url:"", vis:false, color:""}];
         return {
             profile: 'home', target: '_self', linkColor: "#cccccc",
             cities: [{name: "Lisboa", lat: 38.71, lon: -9.13}],
-            home: { ql: JSON.parse(JSON.stringify(baseQl)), categories: generateDefaultCats(5, "Category"), showWeather: true, showHeaders: true, iconColor: "#ffffff", bgColor: "#1C1B22", bgImg: "", mesh: true, opacity: 0.3, fuzzy: 0, weatherColor: "#ffffff", wColored: true, density: 'l' },
-            work: { ql: JSON.parse(JSON.stringify(baseQl)), categories: generateDefaultCats(3, "Work"), showWeather: true, showHeaders: true, iconColor: "#ffffff", bgColor: "#1C1B22", bgImg: "", mesh: true, opacity: 0.3, fuzzy: 0, weatherColor: "#ffffff", wColored: true, density: 'm' }
+            home: { ql: JSON.parse(JSON.stringify(baseQl)), categories: generateDefaultCats(5, "Category"), showWeather: true, showHeaders: true, showClock: true, clockFormat: '24', clockSeconds: true, clockShowDate: true, clockDateFmt: 'long', clockSize: 'm', clockColor: '#ffffff', clockFont: 'Inter', iconColor: "#ffffff", bgColor: "#1C1B22", bgImg: "", mesh: true, opacity: 0.3, fuzzy: 0, weatherColor: "#ffffff", weatherFont: 'Inter', wColored: true, wAqi: true, wUv: true, wPressure: true, wHumidity: true, wVisibility: true, wSunrise: true, density: 'l', gridFont: 'Inter' },
+            work: { ql: JSON.parse(JSON.stringify(baseQl)), categories: generateDefaultCats(3, "Work"), showWeather: true, showHeaders: true, showClock: true, clockFormat: '24', clockSeconds: true, clockShowDate: true, clockDateFmt: 'long', clockSize: 'm', clockColor: '#ffffff', clockFont: 'Inter', iconColor: "#ffffff", bgColor: "#1C1B22", bgImg: "", mesh: true, opacity: 0.3, fuzzy: 0, weatherColor: "#ffffff", weatherFont: 'Inter', wColored: true, wAqi: true, wUv: true, wPressure: true, wHumidity: true, wVisibility: true, wSunrise: true, density: 'm', gridFont: 'Inter' }
         };
     }
 
     let state = JSON.parse(localStorage.getItem(KEY)) || getDefaults();
     let cityIdx = 0;
+
+    // ── Weather extra info popover ──
+    let _wstatPopOpen = false;
+    function syncWstatPopover() {
+        const p = state[state.profile];
+        ['humidity','uv','pressure','visibility','aqi','sunrise'].forEach(k => {
+            const val = p['w' + k.charAt(0).toUpperCase() + k.slice(1)];
+            document.getElementById('pop-' + k).checked = (val !== false);
+            const hidden = document.getElementById('w-' + k);
+            if (hidden) hidden.checked = (val !== false);
+        });
+    }
+    function wstatPopChange() {
+        const p = state[state.profile];
+        p.wHumidity    = document.getElementById('pop-humidity').checked;
+        p.wUv          = document.getElementById('pop-uv').checked;
+        p.wPressure    = document.getElementById('pop-pressure').checked;
+        p.wVisibility  = document.getElementById('pop-visibility').checked;
+        p.wAqi         = document.getElementById('pop-aqi').checked;
+        p.wSunrise     = document.getElementById('pop-sunrise').checked;
+        saveAndRender(); updateWeather();
+    }
+    function openWstatPopover(anchor) {
+        const pop = document.getElementById('wstat-popover');
+        if (_wstatPopOpen) { pop.style.display = 'none'; _wstatPopOpen = false; return; }
+        syncWstatPopover();
+        pop.style.display = 'block';
+        _wstatPopOpen = true;
+        const rect = anchor.getBoundingClientRect();
+        const pw = 220, ph = pop.offsetHeight || 160;
+        let left = rect.left + rect.width / 2 - pw / 2;
+        if (left + pw > window.innerWidth - 10) left = window.innerWidth - pw - 10;
+        if (left < 10) left = 10;
+        // Position above the anchor
+        pop.style.left = left + 'px';
+        pop.style.top  = (rect.top - ph - 10) + 'px';
+    }
+    function closeWstatPopover() {
+        document.getElementById('wstat-popover').style.display = 'none';
+        _wstatPopOpen = false;
+    }
+    document.addEventListener('click', e => {
+        if (!_wstatPopOpen) return;
+        const pop = document.getElementById('wstat-popover');
+        if (!pop.contains(e.target) && !e.target.closest('[onclick*="openWstatPopover"]')) closeWstatPopover();
+    });
+
+    // ── Weather locations popover ──
+    let _weatherPopOpen = false;
+    function openWeatherPopover(anchor) {
+        const pop = document.getElementById('weather-modal');
+        if (_weatherPopOpen) { pop.style.display = 'none'; _weatherPopOpen = false; return; }
+        closeClockPopover(); closeWstatPopover();
+        renderCityManager();
+        pop.style.display = 'block';
+        _weatherPopOpen = true;
+        const rect = anchor.getBoundingClientRect();
+        const pw = 280, ph = pop.offsetHeight || 260;
+        let left = rect.left + rect.width / 2 - pw / 2;
+        if (left + pw > window.innerWidth - 10) left = window.innerWidth - pw - 10;
+        if (left < 10) left = 10;
+        // Position above the weather area
+        pop.style.left = left + 'px';
+        pop.style.top  = (rect.top - ph - 10) + 'px';
+    }
+    function closeWeatherPopover() {
+        document.getElementById('weather-modal').style.display = 'none';
+        document.getElementById('city-search-input').value = '';
+        document.getElementById('search-results').innerHTML = '';
+        _weatherPopOpen = false;
+    }
+    document.addEventListener('click', e => {
+        if (!_weatherPopOpen) return;
+        const pop = document.getElementById('weather-modal');
+        if (!pop.contains(e.target) && !e.target.closest('#weather-grid')) closeWeatherPopover();
+    });
+    let _clockPopOpen = false;
+    function syncClockPopover() {
+        const p = state[state.profile];
+        document.getElementById('cpop-show').checked    = (p.showClock !== false);
+        document.getElementById('cpop-seconds').checked = (p.clockSeconds !== false);
+        document.getElementById('cpop-date').checked    = (p.clockShowDate !== false);
+        document.getElementById('cpop-format').value    = p.clockFormat || '24';
+        document.getElementById('cpop-datefmt').value   = p.clockDateFmt || 'long';
+        document.getElementById('cpop-size').value      = p.clockSize || 'm';
+    }
+    function clockPopChange() {
+        const p = state[state.profile];
+        p.showClock    = document.getElementById('cpop-show').checked;
+        p.clockSeconds = document.getElementById('cpop-seconds').checked;
+        p.clockShowDate= document.getElementById('cpop-date').checked;
+        p.clockFormat  = document.getElementById('cpop-format').value;
+        p.clockDateFmt = document.getElementById('cpop-datefmt').value;
+        p.clockSize    = document.getElementById('cpop-size').value;
+        saveAndRender(); tickClock();
+        updateSectionStates();
+        if (document.getElementById('settings-modal').style.display === 'block') renderSettings();
+    }
+    function openClockPopover(anchor) {
+        const pop = document.getElementById('clock-popover');
+        if (_clockPopOpen) { pop.style.display = 'none'; _clockPopOpen = false; return; }
+        // Close other popovers
+        closeWstatPopover();
+        syncClockPopover();
+        pop.style.display = 'block';
+        _clockPopOpen = true;
+        // Position below the clock (clock is in the top bar)
+        const rect = anchor.getBoundingClientRect();
+        const pw = 220, ph = pop.offsetHeight || 200;
+        let left = rect.left + rect.width / 2 - pw / 2;
+        if (left + pw > window.innerWidth - 10) left = window.innerWidth - pw - 10;
+        if (left < 10) left = 10;
+        pop.style.left = left + 'px';
+        pop.style.top  = (rect.bottom + 8) + 'px';
+    }
+    function closeClockPopover() {
+        document.getElementById('clock-popover').style.display = 'none';
+        _clockPopOpen = false;
+    }
+    document.addEventListener('click', e => {
+        if (!_clockPopOpen) return;
+        const pop = document.getElementById('clock-popover');
+        if (!pop.contains(e.target) && !e.target.closest('#clock-display')) closeClockPopover();
+    });
+
+    // ── Custom color picker ──
+    const CP_PRESETS = [
+        '#ffffff','#cccccc','#999999','#555555','#222222','#000000','#ff4444','#ff8800',
+        '#ffcc00','#aadd00','#00cc66','#00d4ff','#0088ff','#6644ff','#cc44ff','#ff44aa',
+        '#1C1B22','#0a0a0a','#1a1a2e','#16213e','#0f3460','#533483','#2b2d42','#8d99ae'
+    ];
+    let _cpTargetId = null;
+    function cpOpen(inputId) {
+        const pal = document.getElementById('cp-palette');
+        if (_cpTargetId === inputId && pal.classList.contains('open')) { cpClose(); return; }
+        _cpTargetId = inputId;
+        // Populate presets
+        document.getElementById('cp-presets').innerHTML = CP_PRESETS.map(c =>
+            `<div class="cp-preset" style="background:${c}" onclick="cpPick('${c}')"></div>`
+        ).join('');
+        // Sync native input to current value
+        const inp = document.getElementById(inputId);
+        if (inp) document.getElementById('cp-native').value = inp.value;
+        pal.classList.add('open');
+        // Position below the swatch that was clicked
+        const swatch = inp ? inp.nextElementSibling : null;
+        if (swatch) {
+            const rect = swatch.getBoundingClientRect();
+            let left = rect.left, top = rect.bottom + 4;
+            if (left + 178 > window.innerWidth - 8) left = window.innerWidth - 186;
+            if (top + 160 > window.innerHeight - 8) top = rect.top - 160 - 4;
+            pal.style.left = left + 'px';
+            pal.style.top  = top + 'px';
+        }
+    }
+    function cpPick(color) {
+        if (!_cpTargetId) return;
+        const inp = document.getElementById(_cpTargetId);
+        if (!inp) return;
+        inp.value = color;
+        inp.dispatchEvent(new Event('input', {bubbles:true}));
+        // Update adjacent swatch background
+        const sw = inp.nextElementSibling;
+        if (sw && sw.classList.contains('cp-swatch')) sw.style.background = color;
+        cpClose();
+    }
+    function cpNativePick(color) {
+        if (!_cpTargetId) return;
+        const inp = document.getElementById(_cpTargetId);
+        if (!inp) return;
+        inp.value = color;
+        inp.dispatchEvent(new Event('input', {bubbles:true}));
+        const sw = inp.nextElementSibling;
+        if (sw && sw.classList.contains('cp-swatch')) sw.style.background = color;
+    }
+    function cpClose() {
+        document.getElementById('cp-palette').classList.remove('open');
+        _cpTargetId = null;
+    }
+    function cpSyncSwatch(inputId) {
+        const inp = document.getElementById(inputId);
+        if (!inp) return;
+        const sw = inp.nextElementSibling;
+        if (sw && sw.classList.contains('cp-swatch')) sw.style.background = inp.value;
+    }
+    document.addEventListener('click', e => {
+        const pal = document.getElementById('cp-palette');
+        if (!pal || !pal.classList.contains('open')) return;
+        if (pal.contains(e.target)) return;
+        if (e.target.classList.contains('cp-swatch')) return;
+        cpClose();
+    });
+
+    // ── Section enable/disable graying ──
+    function updateSectionStates() {
+        const p = state[state.profile];
+        const clockSub = document.getElementById('clock-sub');
+        const weatherSub = document.getElementById('weather-sub');
+        if (clockSub) clockSub.className = p.showClock ? 'sub-enabled' : 'sub-disabled';
+        if (weatherSub) weatherSub.className = p.showWeather ? 'sub-enabled' : 'sub-disabled';
+    }
+
+    // Generic reset: set picker value, update state key, re-render, sync swatch
+    function resetField(pickerId, defaultVal, stateKey) {
+        const inp = document.getElementById(pickerId);
+        if (inp) { inp.value = defaultVal; cpSyncSwatch(pickerId); }
+        state[state.profile][stateKey] = defaultVal;
+        saveAndRender(); updateWeather(); tickClock();
+        if (document.getElementById('settings-modal').style.display === 'block') renderSettings();
+    }
+    function resetCatColor() {
+        const idx = document.getElementById('cat-sel').value;
+        const defaultColor = '#00d4ff';
+        const inp = document.getElementById('cat-color');
+        if (inp) { inp.value = defaultColor; cpSyncSwatch('cat-color'); }
+        state[state.profile].categories[idx].color = defaultColor;
+        saveAndRender();
+        if (document.getElementById('settings-modal').style.display === 'block') renderSettings();
+    }
 
     function updateDensity(size) {
         state[state.profile].density = size;
@@ -324,38 +886,106 @@
         renderSettings();
     }
 
-    function applyDynamicScaling() {
+    // Returns a string key of everything that actually affects grid layout dimensions.
+    // Scaling only re-runs when this key changes or on window resize.
+    function getLayoutKey(p) {
+        const linkCounts = p.categories.map(c => c.links.length).join(',');
+        const catTitles  = p.categories.map(c => c.title).join('|');
+        const linkNames  = p.categories.map(c => c.links.map(l => l.name).join('~')).join('|');
+        return [p.density, p.showHeaders, p.showWeather, p.categories.length, linkCounts, catTitles, linkNames, p.gridFont || 'Inter'].join(':');
+    }
+
+    let _lastLayoutKey = null;
+
+    function applyDynamicScaling(force) {
         const p = state[state.profile];
         const grid = document.getElementById('grid');
         if (!grid || !p.categories.length) return;
+
+        const key = getLayoutKey(p);
+        if (!force && key === _lastLayoutKey) return;  // nothing layout-relevant changed
+        _lastLayoutKey = key;
+
         const mod = p.density === 's' ? 0.6 : p.density === 'm' ? 0.8 : 1.0;
-        document.documentElement.style.setProperty('--density-mod', mod);
-        document.documentElement.style.setProperty('--scale', 1);
+
         const topBarHeight = 80, weatherHeight = p.showWeather ? 140 : 0;
         const availableHeight = window.innerHeight - topBarHeight - weatherHeight - 60;
-        const availableWidth = window.innerWidth * 0.94;
-        const maxLinks = Math.max(...p.categories.map(c => c.links.length), 1);
-        const rowHeight = 45 * mod, headerHeight = (p.showHeaders ? 60 : 10) * mod;
+        const availableWidth  = window.innerWidth * 0.94;
+        const maxLinks      = Math.max(...p.categories.map(c => c.links.length), 1);
+        const rowHeight     = 45 * mod, headerHeight = (p.showHeaders ? 60 : 10) * mod;
         const naturalHeight = (maxLinks * rowHeight) + headerHeight;
-        const naturalWidth = grid.scrollWidth;
-        let vScale = availableHeight / naturalHeight;
-        let hScale = availableWidth / naturalWidth;
-        let scale = Math.min(vScale, hScale);
+
+        // Measure each column's natural width at scale=1 using a hidden off-screen clone,
+        // so we never visually reset --scale on the live grid.
+        const colPad = 1.2 * 16 * mod * 2;
+        const colGap = 1.2 * 16 * mod;
+        const tmpCanvas = document.createElement('canvas');
+        const ctx = tmpCanvas.getContext('2d');
+        const gFont = p.gridFont || 'Inter';
+        ctx.font = `700 ${1.3 * 16 * mod}px ${gFont}, system-ui, sans-serif`;
+        const minColW = 160 * mod;
+        let naturalWidth = 0;
+        p.categories.forEach((c, ci) => {
+            let maxTextW = ctx.measureText(c.title).width;
+            ctx.font = `400 ${1.0 * 16 * mod}px ${gFont}, system-ui, sans-serif`;
+            c.links.forEach(l => { maxTextW = Math.max(maxTextW, ctx.measureText(l.name).width); });
+            ctx.font = `700 ${1.3 * 16 * mod}px ${gFont}, system-ui, sans-serif`;
+            naturalWidth += Math.max(maxTextW + colPad, minColW);
+        });
+        naturalWidth += colGap * (p.categories.length - 1);
+
+        let scale = Math.min(availableHeight / naturalHeight, availableWidth / naturalWidth);
         scale = Math.max(Math.min(scale, 1.6), 0.5);
+
+        // Apply both vars in one frame — no intermediate state is ever painted
+        document.documentElement.style.setProperty('--density-mod', mod);
         document.documentElement.style.setProperty('--scale', scale);
+        document.documentElement.classList.add('scaling-finished');
     }
 
-    window.addEventListener('resize', applyDynamicScaling);
+    window.addEventListener('resize', () => applyDynamicScaling(true));
 
     function toggleProfile() {
         const main = document.getElementById('main-content'), weather = document.getElementById('weather-area'), bg = document.getElementById('full-bg');
         main.classList.add('fade-out'); weather.classList.add('fade-out'); bg.classList.add('zoom-effect');
         setTimeout(() => {
             state.profile = (state.profile === 'home' ? 'work' : 'home');
-            saveAndRender(); updateWeather();
+            _lastLayoutKey = null;
+            saveAndRender(); updateWeather(); tickClock();
             main.classList.remove('fade-out'); weather.classList.remove('fade-out'); bg.classList.remove('zoom-effect');
             if(document.getElementById('settings-modal').style.display === 'block') renderSettings();
         }, 350);
+    }
+
+    const SYSTEM_FONTS = ['Inter'];
+    function applyGridFont(font) {
+        font = font || 'Inter';
+        if (!SYSTEM_FONTS.includes(font)) {
+            const slug = font.replace(/ /g, '+');
+            document.getElementById('gfont-link').href = `https://fonts.googleapis.com/css2?family=${slug}:wght@400;700&display=swap`;
+        } else {
+            document.getElementById('gfont-link').href = '';
+        }
+        document.documentElement.style.setProperty('--grid-font', `'${font}', system-ui, sans-serif`);
+    }
+
+    function applyUiFonts(clockFont, weatherFont) {
+        const needed = [...new Set([clockFont, weatherFont].filter(f => f && !SYSTEM_FONTS.includes(f)))];
+        if (needed.length) {
+            const slug = needed.map(f => f.replace(/ /g, '+')).join('&family=');
+            document.getElementById('gfont-link2').href = `https://fonts.googleapis.com/css2?family=${slug}:wght@400;600;700&display=swap`;
+        } else {
+            document.getElementById('gfont-link2').href = '';
+        }
+    }
+
+    function updateModalAccent() {
+        const p = state[state.profile];
+        // Use the first category color as accent; fall back to cyan
+        const accent = (p.categories && p.categories[0] && p.categories[0].color) ? p.categories[0].color : '#00d4ff';
+        document.documentElement.style.setProperty('--modal-accent', accent);
+        // Subtle transparent version for the border
+        document.documentElement.style.setProperty('--modal-accent-border', accent + '44');
     }
 
     function saveAndRender(refreshModal = false) {
@@ -363,7 +993,9 @@
         const p = state[state.profile];
         if (!p) return; 
         document.body.style.backgroundColor = p.bgColor;
-        document.documentElement.style.setProperty('--icon-color', p.iconColor);
+        applyGridFont(p.gridFont);
+        applyUiFonts(p.clockFont, p.weatherFont);
+        updateModalAccent();
         const bg = document.getElementById('full-bg');
         if(!bg) return;
         bg.style.backgroundImage = "none"; bg.style.background = "none";
@@ -374,19 +1006,26 @@
             bg.style.opacity = p.opacity; bg.style.filter = "none";
         } else { bg.style.opacity = 0; }
         const profileIcon = state.profile === 'home' ? 'fa-house' : 'fa-user-tie';
-        const qlHtml = p.ql.filter(l => l.vis).map(l => `<a href="${l.url}" class="nav-link active" target="${state.target}"><i class="${l.name}"></i></a>`).join('');
-        document.getElementById('ql-nav').innerHTML = `<span class="nav-link active" onclick="toggleProfile()"><i class="fa-solid ${profileIcon}"></i></span>` + qlHtml;
+        const qlHtml = p.ql.filter(l => l.vis).map(l => {
+            const ic = l.color || p.iconColor || '#ffffff';
+            return `<a href="${l.url}" class="nav-link active" target="${state.target}"><i class="${l.name}" style="color:${ic}"></i></a>`;
+        }).join('');
+        const profileColor = p.iconColor || '#ffffff';
+        document.getElementById('ql-nav').innerHTML = `<span class="nav-link active" onclick="toggleProfile()"><i class="fa-solid ${profileIcon}" style="color:${profileColor}"></i></span>` + qlHtml;
         document.getElementById('grid').innerHTML = p.categories.map((c, ci) => `
             <div class="column">
                 <div style="position:absolute; inset:0; background:linear-gradient(${c.color}22, transparent); opacity:0.3; z-index:-1;"></div>
-                <div class="cat-controls"><i class="fa-solid fa-trash-can del-btn" onclick="delCat(${ci})"></i></div>
+                <i class="fa-solid fa-trash-can cat-del-btn" onclick="delCat(${ci})"></i>
                 <div class="cat-title ${p.showHeaders ? '' : 'hidden-header'}" style="color:${c.color};">
                     <a href="${c.url || '#'}" target="${state.target}" style="color:inherit; text-decoration:none;">${c.title}</a>
                 </div>
-                ${c.links.map((l, li) => `<div class="link-row"><a href="${l.url}" target="${state.target}" style="color:${l.color || state.linkColor}">${l.name}</a><i class="fa-solid fa-trash-can del-btn" onclick="delLink(${ci},${li})"></i></div>`).join('')}
+                ${c.links.map((l, li) => `<div class="link-row"><a href="${l.url || '#'}" target="${state.target}" style="color:${l.color || state.linkColor}">${l.name}</a><i class="fa-solid fa-trash-can del-btn" onclick="delLink(${ci},${li})"></i></div>`).join('')}
             </div>`).join('');
         document.getElementById('weather-area').style.display = p.showWeather ? 'flex' : 'none';
+        
+        // Trigger scaling which now handles the visibility logic
         applyDynamicScaling();
+        
         if(refreshModal) syncCategoryEditor();
     }
 
@@ -396,58 +1035,162 @@
         document.getElementById(`size-${p.density || 'l'}`).classList.add('active');
         document.getElementById('cat-sel').innerHTML = p.categories.map((c, i) => `<option value="${i}">${c.title}</option>`).join('');
         if(!p.categories[document.getElementById('cat-sel').value]) document.getElementById('cat-sel').value = 0;
-        const slider = document.getElementById('unified-slider'), label = document.getElementById('slider-label');
+        const slider = document.getElementById('unified-slider'), label = document.querySelector('.slider-label');
         if (p.bgImg) { label.textContent = "Photo Blur Intensity"; slider.min = 0; slider.max = 30; slider.step = 1; slider.value = p.fuzzy || 0; } 
         else { label.textContent = "Gradient Opacity"; slider.min = 0; slider.max = 1; slider.step = 0.05; slider.value = p.opacity; }
-        document.getElementById('ql-list-editor').innerHTML = p.ql.map((l, i) => `<div class="ql-row"><input type="checkbox" ${l.vis ? 'checked' : ''} onchange="updateQlRealtime(${i},'vis',this.checked)"><select onchange="updateQlRealtime(${i},'name',this.value)" style="margin:0;">${ICON_LIST.map(ic => `<option value="${ic}" ${l.name === ic ? 'selected' : ''}>${ic.split('-').pop()}</option>`).join('')}</select><input type="text" value="${l.url}" placeholder="URL" oninput="updateQlRealtime(${i},'url',this.value)" style="margin:0;"></div>`).join('');
+        document.getElementById('ql-list-editor').innerHTML = p.ql.map((l, i) => {
+            const ic = l.color || p.iconColor || '#ffffff';
+            return `<div class="ql-row">
+                <input type="checkbox" ${l.vis ? 'checked' : ''} onchange="updateQlRealtime(${i},'vis',this.checked)">
+                <select onchange="updateQlRealtime(${i},'name',this.value)" style="margin:0;">${ICON_LIST.map(ic2 => `<option value="${ic2}" ${l.name === ic2 ? 'selected' : ''}>${ic2.split('-').pop()}</option>`).join('')}</select>
+                <input type="text" value="${l.url}" placeholder="URL" oninput="updateQlRealtime(${i},'url',this.value)" style="margin:0;">
+                <div class="color-field">
+                    <input type="color" id="ql-color-${i}" value="${ic}" oninput="updateQlRealtime(${i},'color',this.value)" style="display:none">
+                    <div class="cp-swatch" onclick="cpOpen('ql-color-${i}')" style="background:${ic}"></div>
+                    <button class="btn-icon" onclick="updateQlRealtime(${i},'color','')" title="Reset color"><i class="fa-solid fa-rotate-left"></i></button>
+                </div>
+            </div>`;
+        }).join('');
         document.getElementById('target-mode').value = state.target;
         document.getElementById('bg-img-url').value = p.bgImg.startsWith('data:') ? "Local Image Active" : p.bgImg;
         document.getElementById('mesh-check').checked = p.mesh;
         document.getElementById('bg-color').value = p.bgColor;
-        document.getElementById('icon-color-picker').value = p.iconColor;
-        document.getElementById('link-color-picker').value = state.linkColor;
         document.getElementById('weather-color-picker').value = p.weatherColor;
+        document.getElementById('weather-font').value = p.weatherFont || 'Inter';
         document.getElementById('w-enable-check').checked = p.showWeather;
         document.getElementById('w-colored-check').checked = p.wColored;
         document.getElementById('w-solid-check').checked = !p.wColored;
+        document.getElementById('w-aqi').checked = !!p.wAqi;
+        document.getElementById('w-uv').checked = (p.wUv !== false);
+        document.getElementById('w-pressure').checked = (p.wPressure !== false);
+        document.getElementById('w-humidity').checked = (p.wHumidity !== false);
+        document.getElementById('w-visibility').checked = (p.wVisibility !== false);
+        document.getElementById('w-sunrise').checked = (p.wSunrise !== false);
         document.getElementById('header-vis-check').checked = (p.showHeaders !== false);
+        document.getElementById('clock-check').checked = (p.showClock !== false);
+        document.getElementById('clock-seconds').checked = (p.clockSeconds !== false);
+        document.getElementById('clock-date-check').checked = (p.clockShowDate !== false);
+        document.getElementById('clock-format').value = p.clockFormat || '24';
+        document.getElementById('clock-date-fmt').value = p.clockDateFmt || 'long';
+        document.getElementById('clock-size').value = p.clockSize || 'm';
+        document.getElementById('clock-color').value = p.clockColor || '#ffffff';
+        document.getElementById('clock-font').value = p.clockFont || 'Inter';
+        document.getElementById('font-picker').value = p.gridFont || 'Inter';
         syncCategoryEditor();
+        updateSectionStates();
+        // Sync all static swatches to their current values
+        ['bg-color','clock-color','weather-color-picker','cat-color'].forEach(id => cpSyncSwatch(id));
     }
 
     function updateVisRealtime() { 
         const p = state[state.profile];
-        state.target = document.getElementById('target-mode').value; p.mesh = document.getElementById('mesh-check').checked; 
-        p.bgColor = document.getElementById('bg-color').value; p.weatherColor = document.getElementById('weather-color-picker').value;
+        state.target = document.getElementById('target-mode').value;
+        p.mesh = document.getElementById('mesh-check').checked; 
+        p.bgColor = document.getElementById('bg-color').value;
+        p.weatherColor = document.getElementById('weather-color-picker').value;
+        p.weatherFont = document.getElementById('weather-font').value;
         p.showWeather = document.getElementById('w-enable-check').checked;
+        p.wAqi = document.getElementById('w-aqi').checked;
+        p.wUv = document.getElementById('w-uv').checked;
+        p.wPressure = document.getElementById('w-pressure').checked;
+        p.wHumidity = document.getElementById('w-humidity').checked;
+        p.wVisibility = document.getElementById('w-visibility').checked;
+        p.wSunrise = document.getElementById('w-sunrise').checked;
         p.showHeaders = document.getElementById('header-vis-check').checked;
+        p.showClock = document.getElementById('clock-check').checked;
+        p.clockSeconds = document.getElementById('clock-seconds').checked;
+        p.clockShowDate = document.getElementById('clock-date-check').checked;
+        p.clockFormat = document.getElementById('clock-format').value;
+        p.clockDateFmt = document.getElementById('clock-date-fmt').value;
+        p.clockSize = document.getElementById('clock-size').value;
+        p.clockColor = document.getElementById('clock-color').value;
+        p.clockFont = document.getElementById('clock-font').value;
+        p.gridFont = document.getElementById('font-picker').value;
         const sliderVal = document.getElementById('unified-slider').value;
         if (p.bgImg) { p.fuzzy = sliderVal; } else { p.opacity = sliderVal; }
-        saveAndRender(); updateWeather();
+        saveAndRender(); updateWeather(); tickClock();
+        updateSectionStates();
     }
 
     function renderCityManager() { document.getElementById('city-list-manager').innerHTML = state.cities.map((c, i) => `<div class="city-item"><span>${c.name}</span><i class="fa-solid fa-trash-can" onclick="removeCity(${i})"></i></div>`).join(''); }
     async function searchCity(q) { if(q.length < 3) { document.getElementById('search-results').innerHTML = ''; return; } const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${q}&count=5&language=en&format=json`); const d = await r.json(); document.getElementById('search-results').innerHTML = (d.results || []).map(c => `<div class="search-result-item" onclick="addCity('${c.name}', ${c.latitude}, ${c.longitude})">${c.name}, ${c.admin1 || ''} (${c.country_code})</div>`).join(''); }
     async function updateWeather() {
-        const p = state[state.profile], city = state.cities[cityIdx]; if(!city || !p.showWeather) return;
-        document.getElementById('city-name').textContent = city.name; document.getElementById('city-name').style.color = p.weatherColor;
+        const p = state[state.profile], city = state.cities[cityIdx];
+        if (!city || !p.showWeather) return;
+        document.getElementById('city-name').textContent = city.name;
+        document.getElementById('city-name').style.color = p.weatherColor;
+        const wFont = `'${p.weatherFont || 'Inter'}', system-ui, sans-serif`;
+        document.getElementById('weather-area').style.fontFamily = wFont;
         try {
-            const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&daily=weathercode,temperature_2m_max&timezone=auto`), d = await r.json();
+            const currentParams = 'current=temperature_2m,relative_humidity_2m,surface_pressure,visibility,uv_index';
+            const dailyParams = 'daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset';
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&${dailyParams}&${currentParams}&timezone=auto`;
+            const r = await fetch(url), d = await r.json();
+
             document.getElementById('weather-grid').innerHTML = d.daily.time.slice(0,7).map((t, i) => {
-                const weather = W_DATA[d.daily.weathercode[i]] || { icon: "fa-sun", color: "#FFD700" }, iconColor = p.wColored ? weather.color : p.weatherColor;
-                return `<div class="weather-card"><div class="weather-day-label">${new Date(t).toLocaleDateString('en',{weekday:'short'})}</div><i class="fa-solid ${weather.icon}" style="color:${iconColor}"></i><div class="weather-temp" style="color:${p.weatherColor}">${Math.round(d.daily.temperature_2m_max[i])}°</div></div>`;
+                const weather = W_DATA[d.daily.weathercode[i]] || { icon: "fa-sun", color: "#FFD700" };
+                const iconColor = p.wColored ? weather.color : p.weatherColor;
+                return `<div class="weather-card"><div class="weather-day-label">${new Date(t).toLocaleDateString('en',{weekday:'short'})}</div><i class="fa-solid ${weather.icon}" style="color:${iconColor}"></i><div class="weather-temp" style="color:${p.weatherColor}">${Math.round(d.daily.temperature_2m_max[i])}°</div><div class="weather-temp-min" style="color:${p.weatherColor}">${Math.round(d.daily.temperature_2m_min[i])}°</div></div>`;
             }).join('');
+
+            const c = d.current || {};
+            const stats = [];
+            if (p.wHumidity && c.relative_humidity_2m != null)
+                stats.push(`<div class="wstat" onclick="openWstatPopover(this)" style="color:${p.weatherColor}"><i class="fa-solid fa-droplet"></i> ${c.relative_humidity_2m}%</div>`);
+            if (p.wUv && c.uv_index != null)
+                stats.push(`<div class="wstat" onclick="openWstatPopover(this)" style="color:${p.weatherColor}"><i class="fa-solid fa-sun"></i> UV ${c.uv_index.toFixed(1)}</div>`);
+            if (p.wPressure && c.surface_pressure != null)
+                stats.push(`<div class="wstat" onclick="openWstatPopover(this)" style="color:${p.weatherColor}"><i class="fa-solid fa-gauge"></i> ${Math.round(c.surface_pressure)} hPa</div>`);
+            if (p.wVisibility && c.visibility != null)
+                stats.push(`<div class="wstat" onclick="openWstatPopover(this)" style="color:${p.weatherColor}"><i class="fa-solid fa-eye"></i> ${(c.visibility/1000).toFixed(1)} km</div>`);
+            if (p.wSunrise && d.daily && d.daily.sunrise && d.daily.sunset) {
+                const use12 = (p.clockFormat || '24') === '12';
+                const fmt = t => new Date(t).toLocaleTimeString('en', {hour:'2-digit', minute:'2-digit', hour12: use12});
+                stats.push(`<div class="wstat" onclick="openWstatPopover(this)" style="color:${p.weatherColor}"><i class="fa-solid fa-sun"></i> ${fmt(d.daily.sunrise[0])} <i class="fa-solid fa-moon" style="margin-left:6px;"></i> ${fmt(d.daily.sunset[0])}</div>`);
+            }
+
+            const statsEl = document.getElementById('weather-stats');
+
+            if (p.wAqi) {
+                try {
+                    const aqiR = await fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${city.lat}&longitude=${city.lon}&current=european_aqi`);
+                    const aqiD = await aqiR.json();
+                    const aqi = aqiD.current && aqiD.current.european_aqi != null ? Math.round(aqiD.current.european_aqi) : null;
+                    if (aqi != null) {
+                        const aqiLabel = aqi <= 20 ? 'Good' : aqi <= 40 ? 'Fair' : aqi <= 60 ? 'Moderate' : aqi <= 80 ? 'Poor' : 'Very Poor';
+                        stats.push(`<div class="wstat" onclick="openWstatPopover(this)" style="color:${p.weatherColor}"><i class="fa-solid fa-wind"></i> AQI ${aqi} — ${aqiLabel}</div>`);
+                    }
+                } catch(e) {}
+            }
+
+            statsEl.innerHTML = stats.join('');
+            statsEl.style.display = stats.length ? 'flex' : 'none';
         } catch(e) {}
     }
 
     function toggleWeatherStyle(type) { const p = state[state.profile]; if(type === 'colored') { p.wColored = true; document.getElementById('w-solid-check').checked = false; } else { p.wColored = false; document.getElementById('w-colored-check').checked = false; } updateVisRealtime(); }
-    function openModal(id) { document.getElementById(id).style.display = 'block'; document.getElementById('overlay').style.display = 'block'; if(id === 'settings-modal') renderSettings(); if(id === 'weather-modal') renderCityManager(); }
+    function openModal(id) { document.getElementById(id).style.display = 'block'; document.getElementById('overlay').style.display = 'block'; if(id === 'settings-modal') renderSettings(); }
     function closeModals() { document.querySelectorAll('.modal').forEach(m => m.style.display='none'); document.getElementById('overlay').style.display='none'; }
     function syncCategoryEditor() { 
         const p = state[state.profile], idx = document.getElementById('cat-sel').value; 
         if(idx !== "" && p.categories[idx]) { 
             const c = p.categories[idx]; 
-            document.getElementById('cat-title').value = c.title; document.getElementById('cat-color').value = c.color; document.getElementById('cat-url').value = c.url || ""; 
-            document.getElementById('link-list-editor').innerHTML = c.links.map((l, li) => `<div class="editor-link-row"><input type="text" value="${l.name}" oninput="updateLinkRealtime(${idx}, ${li}, 'name', this.value)"><input type="text" value="${l.url}" placeholder="URL" oninput="updateLinkRealtime(${idx}, ${li}, 'url', this.value)"><input type="color" value="${l.color || state.linkColor}" oninput="updateLinkRealtime(${idx}, ${li}, 'color', this.value)"><div class="tiny-del" onclick="delLink(${idx}, ${li}); syncCategoryEditor();"><i class="fa-solid fa-trash-can"></i></div></div>`).join(''); 
+            document.getElementById('cat-title').value = c.title;
+            document.getElementById('cat-color').value = c.color;
+            document.getElementById('cat-url').value = c.url || ""; 
+            document.getElementById('link-list-editor').innerHTML = c.links.map((l, li) => {
+                const lc = l.color || state.linkColor || '#cccccc';
+                return `<div class="editor-link-row">
+                    <input type="text" value="${l.name}" oninput="updateLinkRealtime(${idx},${li},'name',this.value)">
+                    <input type="text" value="${l.url}" placeholder="URL" oninput="updateLinkRealtime(${idx},${li},'url',this.value)">
+                    <div class="color-field">
+                        <input type="color" id="lc-${idx}-${li}" value="${lc}" oninput="updateLinkRealtime(${idx},${li},'color',this.value)" style="display:none">
+                        <div class="cp-swatch" onclick="cpOpen('lc-${idx}-${li}')" style="background:${lc}"></div>
+                        <button class="btn-icon" onclick="updateLinkRealtime(${idx},${li},'color',''); syncCategoryEditor();" title="Reset color"><i class="fa-solid fa-rotate-left"></i></button>
+                    </div>
+                    <button class="btn-icon" style="color:#f44;" onclick="delLink(${idx},${li}); syncCategoryEditor();"><i class="fa-solid fa-trash-can"></i></button>
+                </div>`;
+            }).join(''); 
         } 
     }
     function updateCatRealtime() { const idx = document.getElementById('cat-sel').value, c = state[state.profile].categories[idx]; c.title = document.getElementById('cat-title').value; c.color = document.getElementById('cat-color').value; c.url = document.getElementById('cat-url').value; saveAndRender(); }
@@ -455,15 +1198,37 @@
     function updateQlRealtime(i, k, v) { state[state.profile].ql[i][k] = v; saveAndRender(); }
     function addCat() { state[state.profile].categories.push({title:"New Category", color:"#00d4ff", url: "", links:[]}); saveAndRender(true); renderSettings(); }
     function addLinkInline() { const idx = document.getElementById('cat-sel').value; state[state.profile].categories[idx].links.push({name: "New Link", url: "", color: state.linkColor}); saveAndRender(true); }
-    function delCat(i) { if(confirm("Delete category?")) { state[state.profile].categories.splice(i,1); saveAndRender(); renderSettings(); } }
+    function delCat(i) { state[state.profile].categories.splice(i,1); saveAndRender(); renderSettings(); }
     function delLink(ci, li) { state[state.profile].categories[ci].links.splice(li,1); saveAndRender(); }
-    function exportData() { const b = new Blob([JSON.stringify(state)], {type:'application/json'}), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download='startpage_backup.json'; a.click(); }
+    function exportData() {
+        const now = new Date();
+        const pad = n => String(n).padStart(2,'0');
+        const stamp = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}`;
+        const b = new Blob([JSON.stringify(state)], {type:'application/json'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(b);
+        a.download = `startpage_backup_${stamp}.json`;
+        a.click();
+    }
     function importData(input) {
         const file = input.files[0]; if(!file) return;
         const reader = new FileReader();
         reader.onload = (e) => {
             try {
-                state = JSON.parse(e.target.result);
+                const imported = JSON.parse(e.target.result);
+                // Deep-merge: start from fresh defaults so new keys always exist,
+                // then overlay imported data so user content is fully preserved.
+                const base = getDefaults();
+                // Top-level scalars
+                ['profile','target','linkColor'].forEach(k => { if(imported[k] !== undefined) base[k] = imported[k]; });
+                // Cities array
+                if(Array.isArray(imported.cities) && imported.cities.length) base.cities = imported.cities;
+                // Per-profile merge: preserve all user keys, fill missing ones from defaults
+                ['home','work'].forEach(prof => {
+                    if(!imported[prof]) return;
+                    Object.keys(imported[prof]).forEach(k => { base[prof][k] = imported[prof][k]; });
+                });
+                state = base;
                 saveAndRender(); renderSettings(); updateWeather();
                 alert("Import successful!"); closeModals();
             } catch(err) { alert("Invalid backup file."); }
@@ -472,18 +1237,71 @@
     }
     function resetToDefaults() { if(confirm("Factory reset? This will erase everything.")) { state = getDefaults(); saveAndRender(); renderSettings(); updateWeather(); } }
     function handleBgFile(input) { const file = input.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (e) => { const img = new Image(); img.onload = () => { const canvas = document.createElement('canvas'); const MAX_WIDTH = 1920; let width = img.width, height = img.height; if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } canvas.width = width; canvas.height = height; canvas.getContext('2d').drawImage(img, 0, 0, width, height); updateBgImg(canvas.toDataURL('image/jpeg', 0.7)); }; img.src = e.target.result; }; reader.readAsDataURL(file); }
-    function updateIconColor(val) { state[state.profile].iconColor = val; saveAndRender(); }
-    function handleGlobalLinkColor(val) { state.linkColor = val; state[state.profile].categories.forEach(cat => { cat.links.forEach(link => { link.color = val; }); }); saveAndRender(); syncCategoryEditor(); }
     function updateBgImg(val) { const p = state[state.profile]; p.bgImg = val; if(val) p.mesh = false; saveAndRender(); renderSettings(); }
     function toggleGradientMode(checked) { const p = state[state.profile]; p.mesh = checked; if(checked) p.bgImg = ""; saveAndRender(); renderSettings(); }
-    function addCity(name, lat, lon) { state.cities.push({name, lat, lon}); document.getElementById('search-results').innerHTML = ''; renderCityManager(); saveAndRender(); updateWeather(); }
+    function addCity(name, lat, lon) { state.cities.push({name, lat, lon}); document.getElementById('search-results').innerHTML = ''; document.getElementById('city-search-input').value = ''; renderCityManager(); saveAndRender(); updateWeather(); }
     function removeCity(i) { if(state.cities.length > 1) { state.cities.splice(i, 1); cityIdx = 0; renderCityManager(); saveAndRender(); updateWeather(); } }
     function cycleCity() { cityIdx = (cityIdx + 1) % state.cities.length; updateWeather(); }
 
+    function tickClock() {
+        const p = state[state.profile];
+        const el = document.getElementById('clock-display');
+        if (!el) return;
+        const show = p.showClock !== false;
+        el.style.display = show ? 'flex' : 'none';
+        if (!show) return;
+
+        const now = new Date();
+        const use12 = (p.clockFormat || '24') === '12';
+        const showSec = p.clockSeconds !== false;
+        const color = p.clockColor || '#ffffff';
+        const size = p.clockSize || 'm';
+        const sizePx = size === 's' ? '0.75rem' : size === 'l' ? '1.4rem' : '1.05rem';
+        const dateSizePx = size === 's' ? '0.5rem' : size === 'l' ? '0.75rem' : '0.6rem';
+
+        let hh = now.getHours();
+        let ampm = '';
+        if (use12) { ampm = hh >= 12 ? ' PM' : ' AM'; hh = hh % 12 || 12; }
+        const hStr = String(hh).padStart(2, '0');
+        const mStr = String(now.getMinutes()).padStart(2, '0');
+        const sStr = String(now.getSeconds()).padStart(2, '0');
+        const timeStr = showSec ? `${hStr}:${mStr}:${sStr}${ampm}` : `${hStr}:${mStr}${ampm}`;
+
+        const timeEl = document.getElementById('clock-time');
+        const dateEl = document.getElementById('clock-date');
+        const font = `'${p.clockFont || 'Inter'}', system-ui, sans-serif`;
+        timeEl.textContent = timeStr;
+        timeEl.style.color = color;
+        timeEl.style.fontSize = sizePx;
+        timeEl.style.fontFamily = font;
+        dateEl.style.fontFamily = font;
+
+        const showDate = p.clockShowDate !== false;
+        dateEl.style.display = showDate ? 'block' : 'none';
+        dateEl.style.color = color;
+        dateEl.style.fontSize = dateSizePx;
+        if (showDate) {
+            const fmt = p.clockDateFmt || 'long';
+            if (fmt === 'numeric') {
+                dateEl.textContent = now.toLocaleDateString('en', {day:'2-digit', month:'2-digit', year:'numeric'});
+            } else if (fmt === 'iso') {
+                dateEl.textContent = now.toISOString().slice(0, 10);
+            } else if (fmt === 'short') {
+                dateEl.textContent = now.toLocaleDateString('en', {weekday:'short', month:'short', day:'numeric'});
+            } else {
+                dateEl.textContent = now.toLocaleDateString('en', {weekday:'long', month:'long', day:'numeric'});
+            }
+        }
+    }
+
     window.onload = () => { 
         saveAndRender(); 
-        updateWeather(); 
-        setTimeout(() => document.documentElement.classList.add('ready'), 100);
+        updateWeather();
+        tickClock();
+        setInterval(tickClock, 1000);
+        setTimeout(() => {
+            document.documentElement.classList.add('ready');
+        }, 150);
     };
 </script>
 </body>
