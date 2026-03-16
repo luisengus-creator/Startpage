@@ -733,9 +733,10 @@
                     <option value="short">Mon, Jan 1</option>
                     <option value="short-year">Mon, Jan 1, 2026</option>
                     <option value="medium">January 1, 2026</option>
-                    <option value="numeric">01/01/2026</option>
-                    <option value="numeric-dmy">DD/MM/YYYY</option>
-                    <option value="iso">2026-01-01</option>
+                    <option value="dmy">DD-MM-YYYY</option>
+                    <option value="mdy">MM-DD-YYYY</option>
+                    <option value="iso">YYYY-MM-DD</option>
+                    <option value="ymd-mid">YYYY-DD-MM</option>
                 </select>
             </div>
             <div class="color-row">
@@ -814,14 +815,13 @@
                     <option value="l">Large</option>
                 </select>
             </div>
-            <label class="label-inline"><input type="checkbox" id="w-date-check" onchange="updateVisRealtime()"> Show Date on Cards</label>
-            <div class="color-row">
+            <label class="label-inline"><input type="checkbox" id="w-day-check" onchange="updateVisRealtime()"> Show Day</label>
+            <label class="label-inline"><input type="checkbox" id="w-date-check" onchange="updateVisRealtime()"> Show Date</label>
+            <div id="w-date-fmt-row" class="color-row">
                 <span>Date Format</span>
                 <select id="w-date-fmt" onchange="updateVisRealtime()" class="select-inline">
                     <option value="dmy">DD/MM</option>
                     <option value="mdy">MM/DD</option>
-                    <option value="short">16 Mar</option>
-                    <option value="long">16 March</option>
                 </select>
             </div>
             <div class="color-row">
@@ -913,31 +913,34 @@
     <div id="clock-popover">
         <div class="pop-title">Clock</div>
         <label class="label-inline"><input type="checkbox" id="cpop-show" onchange="clockPopChange()"> Show Clock</label>
+        <div id="cpop-sub">
         <label class="label-inline"><input type="checkbox" id="cpop-seconds" onchange="clockPopChange()"> Show Seconds</label>
         <label class="label-inline"><input type="checkbox" id="cpop-date" onchange="clockPopChange()"> Show Date</label>
         <div style="display:grid; grid-template-columns:auto 1fr; gap:6px 10px; align-items:center; margin-top:4px;">
-            <span style="font-size:0.75rem; color:#888;">Format</span>
-            <select id="cpop-format" onchange="clockPopChange()" style="height:26px; font-size:0.75rem; padding:0 6px;">
-                <option value="24">24h</option>
-                <option value="12">12h (AM/PM)</option>
-            </select>
-            <span style="font-size:0.75rem; color:#888;">Date</span>
-            <select id="cpop-datefmt" onchange="clockPopChange()" style="height:26px; font-size:0.75rem; padding:0 6px;">
-                <option value="long">Monday, January 1</option>
-                <option value="long-year">Monday, January 1, 2026</option>
-                <option value="short">Mon, Jan 1</option>
-                <option value="short-year">Mon, Jan 1, 2026</option>
-                <option value="medium">January 1, 2026</option>
-                <option value="numeric">01/01/2026</option>
-                <option value="numeric-dmy">DD/MM/YYYY</option>
-                <option value="iso">2026-01-01</option>
-            </select>
             <span style="font-size:0.75rem; color:#888;">Size</span>
             <select id="cpop-size" onchange="clockPopChange()" style="height:26px; font-size:0.75rem; padding:0 6px;">
                 <option value="s">Small</option>
                 <option value="m">Medium</option>
                 <option value="l">Large</option>
             </select>
+            <span style="font-size:0.75rem; color:#888;">Format</span>
+            <select id="cpop-format" onchange="clockPopChange()" style="height:26px; font-size:0.75rem; padding:0 6px;">
+                <option value="24">24h</option>
+                <option value="12">12h (AM/PM)</option>
+            </select>
+            <span id="cpop-datefmt-label" style="font-size:0.75rem; color:#888;">Date Fmt</span>
+            <select id="cpop-datefmt" onchange="clockPopChange()" style="height:26px; font-size:0.75rem; padding:0 6px;">
+                <option value="long">Monday, January 1</option>
+                <option value="long-year">Monday, January 1, 2026</option>
+                <option value="short">Mon, Jan 1</option>
+                <option value="short-year">Mon, Jan 1, 2026</option>
+                <option value="medium">January 1, 2026</option>
+                <option value="dmy">DD-MM-YYYY</option>
+                <option value="mdy">MM-DD-YYYY</option>
+                <option value="iso">YYYY-MM-DD</option>
+                <option value="ymd-mid">YYYY-DD-MM</option>
+            </select>
+        </div>
         </div>
     </div>
 
@@ -955,25 +958,24 @@
 
     <div id="weather-modal">
         <div class="pop-title">Weather</div>
-        <div style="display:grid; grid-template-columns:auto 1fr; gap:6px 10px; align-items:center; margin-bottom:10px;">
+        <label class="label-inline"><input type="checkbox" id="wpop-show-day" onchange="weatherPopChange()"> Show Day</label>
+        <label class="label-inline"><input type="checkbox" id="wpop-show-date" onchange="weatherPopChange()"> Show Date</label>
+        <div style="display:grid; grid-template-columns:auto 1fr; gap:6px 10px; align-items:center; margin-top:4px; margin-bottom:10px;">
             <span style="font-size:0.75rem;color:#888;">Size</span>
             <select id="wpop-size" onchange="weatherPopChange()" style="height:26px;font-size:0.75rem;padding:0 6px;">
                 <option value="s">Small</option>
                 <option value="m">Medium</option>
                 <option value="l">Large</option>
             </select>
+            <span id="wpop-datefmt-label" style="font-size:0.75rem;color:#888;">Date Fmt</span>
+            <select id="wpop-datefmt" onchange="weatherPopChange()" style="height:26px;font-size:0.75rem;padding:0 6px;">
+                <option value="dmy">DD/MM</option>
+                <option value="mdy">MM/DD</option>
+            </select>
             <span style="font-size:0.75rem;color:#888;">Icons</span>
             <select id="wpop-icons" onchange="weatherPopChange()" style="height:26px;font-size:0.75rem;padding:0 6px;">
                 <option value="colored">Colored</option>
                 <option value="solid">Solid</option>
-            </select>
-            <span style="font-size:0.75rem;color:#888;">Date</span>
-            <select id="wpop-datefmt" onchange="weatherPopChange()" style="height:26px;font-size:0.75rem;padding:0 6px;">
-                <option value="none">Hidden</option>
-                <option value="dmy">DD/MM</option>
-                <option value="mdy">MM/DD</option>
-                <option value="short">16 Mar</option>
-                <option value="long">16 March</option>
             </select>
         </div>
         <div class="pop-title" style="margin-bottom:6px;">Locations</div>
@@ -1041,7 +1043,7 @@
 
     function getDefaults() {
         const baseQl = [{name:"fa-solid fa-server", url:"", vis:false, color:""}, {name:"fa-solid fa-sliders", url:"", vis:false, color:""}, {name:"fa-brands fa-spotify", url:"", vis:false, color:""}, {name:"fa-solid fa-star", url:"", vis:false, color:""}];
-        const makeProfile = (cats, density) => ({ ql: JSON.parse(JSON.stringify(baseQl)), categories: cats, showWeather: true, showHeaders: true, showClock: true, clockFormat: '24', clockSeconds: true, clockShowDate: true, clockDateFmt: 'long', clockSize: 'm', clockColor: '#ffffff', clockFont: 'Inter', iconColor: "#ffffff", bgColor: "#1C1B22", bgImg: "", bgMode: 'gradient', opacity: 0.3, fuzzy: 0, weatherColor: "#ffffff", weatherFont: 'Inter', weatherSize: 'm', wShowDate: true, wDateFmt: 'dmy', wColored: true, wAqi: true, wUv: true, wPressure: true, wHumidity: true, wVisibility: true, wSunrise: true, density, gridFont: 'Inter', showSearch: true, searchEngine: 'startpage', profileIcon: 'fa-solid fa-user', profilePhoto: '', profileIconColor: '#ffffff' });
+        const makeProfile = (cats, density) => ({ ql: JSON.parse(JSON.stringify(baseQl)), categories: cats, showWeather: true, showHeaders: true, showClock: true, clockFormat: '24', clockSeconds: true, clockShowDate: true, clockDateFmt: 'long', clockSize: 'm', clockColor: '#ffffff', clockFont: 'Inter', iconColor: "#ffffff", bgColor: "#1C1B22", bgImg: "", bgMode: 'gradient', opacity: 0.3, fuzzy: 0, weatherColor: "#ffffff", weatherFont: 'Inter', weatherSize: 'm', wShowDay: true, wShowDate: true, wDateFmt: 'dmy', wColored: true, wAqi: true, wUv: true, wPressure: true, wHumidity: true, wVisibility: true, wSunrise: true, density, gridFont: 'Inter', showSearch: true, searchEngine: 'startpage', profileIcon: 'fa-solid fa-user', profilePhoto: '', profileIconColor: '#ffffff' });
         return {
             profile: 'p0', target: '_self', linkColor: "#cccccc",
             cities: [{name: "Lisboa", lat: 38.71, lon: -9.13}],
@@ -1072,8 +1074,9 @@
     // Migrate old mesh boolean to bgMode in all profiles
     state.profiles.forEach(p => { if (p && !p.bgMode) p.bgMode = 'gradient'; });
     // Migrate missing profileIcon/profilePhoto
-    state.profiles.forEach(p => { if (p && !p.profileIcon) p.profileIcon = 'fa-solid fa-user'; if (p && p.profilePhoto === undefined) p.profilePhoto = ''; if (p && !p.profileIconColor) p.profileIconColor = '#ffffff'; if (p && !p.weatherSize) p.weatherSize = 'm'; if (p && p.wShowDate === undefined) p.wShowDate = true; if (p && !p.wDateFmt) p.wDateFmt = 'dmy'; });
+    state.profiles.forEach(p => { if (p && !p.profileIcon) p.profileIcon = 'fa-solid fa-user'; if (p && p.profilePhoto === undefined) p.profilePhoto = ''; if (p && !p.profileIconColor) p.profileIconColor = '#ffffff'; if (p && !p.weatherSize) p.weatherSize = 'm'; if (p && p.wShowDay === undefined) p.wShowDay = true; if (p && p.wShowDate === undefined) p.wShowDate = true; if (p && !p.wDateFmt) p.wDateFmt = 'dmy'; });
     let cityIdx = 0;
+    let _liveSkyCode = 0; // current WMO weathercode for live sky background
     function curProfile() { return state.profiles[parseInt(state.profile.replace('p',''))] || state.profiles[0]; }
     function curProfileIdx() { return parseInt(state.profile.replace('p','')); }
 
@@ -1127,20 +1130,30 @@
     let _weatherPopOpen = false;
     function syncWeatherPopover() {
         const p = curProfile();
+        document.getElementById('wpop-show-day').checked = (p.wShowDay !== false);
+        document.getElementById('wpop-show-date').checked = (p.wShowDate !== false);
         document.getElementById('wpop-size').value = p.weatherSize || 'm';
+        document.getElementById('wpop-datefmt').value = p.wDateFmt || 'dmy';
         document.getElementById('wpop-icons').value = p.wColored ? 'colored' : 'solid';
-        // date fmt: use 'none' if wShowDate is false
-        document.getElementById('wpop-datefmt').value = (p.wShowDate === false) ? 'none' : (p.wDateFmt || 'dmy');
+        // Gray out date format when date is hidden
+        const dateFmtLabel = document.getElementById('wpop-datefmt-label');
+        const dateFmtSel = document.getElementById('wpop-datefmt');
+        const showDate = p.wShowDate !== false;
+        [dateFmtLabel, dateFmtSel].forEach(el => { if(el) el.className = showDate ? 'sub-enabled' : 'sub-disabled'; });
     }
     function weatherPopChange() {
         const p = curProfile();
+        p.wShowDay  = document.getElementById('wpop-show-day').checked;
+        p.wShowDate = document.getElementById('wpop-show-date').checked;
         p.weatherSize = document.getElementById('wpop-size').value;
+        p.wDateFmt = document.getElementById('wpop-datefmt').value;
         const iconVal = document.getElementById('wpop-icons').value;
         p.wColored = (iconVal === 'colored');
-        const dateFmt = document.getElementById('wpop-datefmt').value;
-        if (dateFmt === 'none') { p.wShowDate = false; }
-        else { p.wShowDate = true; p.wDateFmt = dateFmt; }
-        // Also sync settings modal if open
+        // Gray out date format
+        const showDate = p.wShowDate;
+        const dateFmtLabel = document.getElementById('wpop-datefmt-label');
+        const dateFmtSel = document.getElementById('wpop-datefmt');
+        [dateFmtLabel, dateFmtSel].forEach(el => { if(el) el.className = showDate ? 'sub-enabled' : 'sub-disabled'; });
         if (document.getElementById('settings-modal').style.display === 'block') renderSettings();
         saveAndRender(); updateWeather();
     }
@@ -1174,21 +1187,39 @@
     let _clockPopOpen = false;
     function syncClockPopover() {
         const p = curProfile();
-        document.getElementById('cpop-show').checked    = (p.showClock !== false);
+        const showClock = p.showClock !== false;
+        const showDate  = p.clockShowDate !== false;
+        document.getElementById('cpop-show').checked    = showClock;
         document.getElementById('cpop-seconds').checked = (p.clockSeconds !== false);
-        document.getElementById('cpop-date').checked    = (p.clockShowDate !== false);
+        document.getElementById('cpop-date').checked    = showDate;
         document.getElementById('cpop-format').value    = p.clockFormat || '24';
         document.getElementById('cpop-datefmt').value   = p.clockDateFmt || 'long';
         document.getElementById('cpop-size').value      = p.clockSize || 'm';
+        // Gray out all sub-settings when clock is off
+        const sub = document.getElementById('cpop-sub');
+        if (sub) sub.className = showClock ? 'sub-enabled' : 'sub-disabled';
+        // Gray out date format when date is off
+        const lbl = document.getElementById('cpop-datefmt-label');
+        const sel = document.getElementById('cpop-datefmt');
+        [lbl, sel].forEach(el => { if(el) el.className = (showClock && showDate) ? 'sub-enabled' : 'sub-disabled'; });
     }
     function clockPopChange() {
         const p = curProfile();
-        p.showClock    = document.getElementById('cpop-show').checked;
+        const showClock = document.getElementById('cpop-show').checked;
+        const showDate  = document.getElementById('cpop-date').checked;
+        p.showClock    = showClock;
         p.clockSeconds = document.getElementById('cpop-seconds').checked;
-        p.clockShowDate= document.getElementById('cpop-date').checked;
+        p.clockShowDate= showDate;
         p.clockFormat  = document.getElementById('cpop-format').value;
         p.clockDateFmt = document.getElementById('cpop-datefmt').value;
         p.clockSize    = document.getElementById('cpop-size').value;
+        // Gray out sub-settings
+        const sub = document.getElementById('cpop-sub');
+        if (sub) sub.className = showClock ? 'sub-enabled' : 'sub-disabled';
+        // Gray out date format
+        const lbl = document.getElementById('cpop-datefmt-label');
+        const sel = document.getElementById('cpop-datefmt');
+        [lbl, sel].forEach(el => { if(el) el.className = (showClock && showDate) ? 'sub-enabled' : 'sub-disabled'; });
         saveAndRender(); tickClock();
         updateSectionStates();
         if (document.getElementById('settings-modal').style.display === 'block') renderSettings();
@@ -1526,7 +1557,7 @@
                 startParticlesBg(p.categories.map(x => x.color), intensity);
                 bg.style.opacity = 0;
             } else if (mode === 'time') {
-                startTimeBg(intensity);
+                startLiveSkyBg(intensity);
                 bg.style.opacity = 0;
             } else {
                 bg.style.opacity = 0;
@@ -1605,8 +1636,11 @@
         document.getElementById('weather-color-picker').value = p.weatherColor;
         document.getElementById('weather-font').value = p.weatherFont || 'Inter';
         document.getElementById('weather-size').value = p.weatherSize || 'm';
+        document.getElementById('w-day-check').checked = (p.wShowDay !== false);
         document.getElementById('w-date-check').checked = (p.wShowDate !== false);
         document.getElementById('w-date-fmt').value = p.wDateFmt || 'dmy';
+        const wDateRow = document.getElementById('w-date-fmt-row');
+        if (wDateRow) wDateRow.className = (p.wShowDate !== false) ? 'color-row sub-enabled' : 'color-row sub-disabled';
         document.getElementById('w-enable-check').checked = p.showWeather;
         document.getElementById('w-colored-check').checked = p.wColored;
         document.getElementById('w-solid-check').checked = !p.wColored;
@@ -1641,8 +1675,9 @@
         p.weatherColor = document.getElementById('weather-color-picker').value;
         p.weatherFont = document.getElementById('weather-font').value;
         p.weatherSize = document.getElementById('weather-size').value;
+        p.wShowDay  = document.getElementById('w-day-check').checked;
         p.wShowDate = document.getElementById('w-date-check').checked;
-        p.wDateFmt = document.getElementById('w-date-fmt').value;
+        p.wDateFmt  = document.getElementById('w-date-fmt').value;
         p.showWeather = document.getElementById('w-enable-check').checked;
         p.wAqi = document.getElementById('w-aqi').checked;
         p.wUv = document.getElementById('w-uv').checked;
@@ -1702,6 +1737,13 @@
             const dailyParams = 'daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset';
             const url = `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&${dailyParams}&${currentParams}&timezone=auto`;
             const r = await fetch(url), d = await r.json();
+            // Store today's weathercode for live sky background
+            _liveSkyCode = d.daily && d.daily.weathercode ? d.daily.weathercode[0] : 0;
+            // Restart live sky if it's the active background mode
+            if ((curProfile().bgMode || 'gradient') === 'time') {
+                const intensity = parseFloat(curProfile().opacity) || 0.3;
+                startLiveSkyBg(intensity);
+            }
 
             const sz = p.weatherSize || 'm';
             const cardScale = sz === 's' ? 0.78 : sz === 'l' ? 1.22 : 1.0;
@@ -1726,12 +1768,12 @@
             document.getElementById('weather-grid').innerHTML = d.daily.time.slice(0,7).map((t, i) => {
                 const weather = W_DATA[d.daily.weathercode[i]] || { icon: "fa-sun", color: "#FFD700" };
                 const iconColor = p.wColored ? weather.color : p.weatherColor;
-                const dayName = new Date(t+'T12:00:00').toLocaleDateString('en',{weekday:'short'});
+                const dayName = (p.wShowDay !== false) ? new Date(t+'T12:00:00').toLocaleDateString('en',{weekday:'short'}) : '';
                 const dateStr = (p.wShowDate !== false) ? fmtCardDate(t) : '';
                 return `<div class="weather-card" style="padding:${cardPad};min-width:${minW};">
                     <div style="display:flex;align-items:baseline;justify-content:center;gap:4px;margin-bottom:0.2rem;">
                         <span style="font-size:${dayFs};opacity:0.6;text-transform:uppercase;font-weight:700;">${dayName}</span>
-                        ${dateStr ? `<span style="font-size:${dateFs};opacity:0.35;">${dateStr}</span>` : ''}
+                        ${dateStr ? `<span style="font-size:${dayFs};opacity:0.6;text-transform:uppercase;font-weight:700;">${dateStr}</span>` : ''}
                     </div>
                     <i class="fa-solid ${weather.icon}" style="color:${iconColor};font-size:${iconFs};margin:0.25rem 0;display:block;"></i>
                     <div style="display:flex;align-items:baseline;justify-content:center;gap:5px;">
@@ -2084,9 +2126,19 @@
             else if (fmt === 'short')   dateEl.textContent = now.toLocaleDateString('en', {weekday:'short', month:'short', day:'numeric'});
             else if (fmt === 'short-year') dateEl.textContent = now.toLocaleDateString('en', {weekday:'short', month:'short', day:'numeric', year:'numeric'});
             else if (fmt === 'medium')  dateEl.textContent = now.toLocaleDateString('en', {month:'long', day:'numeric', year:'numeric'});
-            else if (fmt === 'numeric') dateEl.textContent = now.toLocaleDateString('en-US', {month:'2-digit', day:'2-digit', year:'numeric'});
-            else if (fmt === 'numeric-dmy') dateEl.textContent = now.toLocaleDateString('en-GB', {day:'2-digit', month:'2-digit', year:'numeric'});
+            else if (fmt === 'dmy' || fmt === 'numeric' || fmt === 'numeric-dmy') {
+                const d2 = String(now.getDate()).padStart(2,'0'), m2 = String(now.getMonth()+1).padStart(2,'0'), y = now.getFullYear();
+                dateEl.textContent = `${d2}-${m2}-${y}`;
+            }
+            else if (fmt === 'mdy') {
+                const d2 = String(now.getDate()).padStart(2,'0'), m2 = String(now.getMonth()+1).padStart(2,'0'), y = now.getFullYear();
+                dateEl.textContent = `${m2}-${d2}-${y}`;
+            }
             else if (fmt === 'iso')     dateEl.textContent = now.toISOString().slice(0, 10);
+            else if (fmt === 'ymd-mid') {
+                const d2 = String(now.getDate()).padStart(2,'0'), m2 = String(now.getMonth()+1).padStart(2,'0'), y = now.getFullYear();
+                dateEl.textContent = `${y}-${d2}-${m2}`;
+            }
             else                        dateEl.textContent = now.toLocaleDateString('en', {weekday:'long', month:'long', day:'numeric'});
         }
     }
@@ -2186,39 +2238,262 @@
         draw();
     }
 
-    function startTimeBg(intensity) {
+    function startLiveSkyBg(intensity) {
         stopBgCanvas();
         const canvas = document.getElementById('bg-canvas');
         const ctx = canvas.getContext('2d');
-        // Hour-based color stops: [hour, r, g, b]
-        const timeColors = [
-            [0,  10, 10, 30],  [4,  10, 10, 30],  [5,  60, 40, 80],
-            [7,  210, 120, 60],[9,  100, 160, 220],[12, 80, 140, 210],
-            [15, 70, 130, 200],[17, 220, 130, 60], [19, 180, 80, 40],
-            [21, 60, 30, 70],  [23, 10, 10, 30],   [24, 10, 10, 30]
+        let frame = 0;
+
+        // ── Sky gradient by time of day ──
+        const SKY = [
+            [0,   [8,8,25],    [15,10,40]],
+            [4,   [8,8,25],    [15,10,40]],
+            [5,   [80,45,90],  [30,15,50]],
+            [6,   [220,110,50],[130,60,80]],
+            [7,   [255,160,60],[100,140,200]],
+            [8,   [120,180,230],[60,100,180]],
+            [10,  [80,150,220],[40,80,170]],
+            [13,  [70,140,210],[35,75,165]],
+            [16,  [100,160,220],[50,90,180]],
+            [17,  [240,140,60],[170,80,100]],
+            [18,  [200,90,40], [120,50,80]],
+            [19,  [130,50,60], [60,20,50]],
+            [20,  [30,15,45],  [10,8,28]],
+            [22,  [10,8,25],   [8,6,22]],
+            [24,  [8,8,25],    [15,10,40]]
         ];
-        function getTimeColor() {
-            const now = new Date();
-            const h = now.getHours() + now.getMinutes() / 60;
-            let a = timeColors[0], b2 = timeColors[timeColors.length - 1];
-            for (let i = 0; i < timeColors.length - 1; i++) {
-                if (h >= timeColors[i][0] && h < timeColors[i+1][0]) { a = timeColors[i]; b2 = timeColors[i+1]; break; }
-            }
-            const t2 = (h - a[0]) / (b2[0] - a[0] || 1);
-            return [
-                Math.round(a[1] + (b2[1]-a[1]) * t2),
-                Math.round(a[2] + (b2[2]-a[2]) * t2),
-                Math.round(a[3] + (b2[3]-a[3]) * t2)
-            ];
+
+        function lerpRgb(a, b, t) {
+            return a.map((v,i) => Math.round(v + (b[i]-v)*t));
         }
+        function getSkyColors() {
+            const now = new Date();
+            const h = now.getHours() + now.getMinutes()/60;
+            let a = SKY[0], b = SKY[SKY.length-1];
+            for (let i = 0; i < SKY.length-1; i++) {
+                if (h >= SKY[i][0] && h < SKY[i+1][0]) { a = SKY[i]; b = SKY[i+1]; break; }
+            }
+            const t = (h - a[0]) / (b[0] - a[0] || 1);
+            return [lerpRgb(a[1], b[1], t), lerpRgb(a[2], b[2], t)];
+        }
+        function isNight() {
+            const h = new Date().getHours();
+            return h < 6 || h >= 20;
+        }
+        function isDusk() {
+            const h = new Date().getHours();
+            return (h >= 5 && h < 8) || (h >= 17 && h < 20);
+        }
+
+        // ── Weather type from WMO code ──
+        function getWeatherType() {
+            const c = _liveSkyCode;
+            if (c === 0)                      return 'clear';
+            if (c === 1 || c === 2)           return 'partly';
+            if (c === 3)                      return 'cloudy';
+            if (c === 45 || c === 48)         return 'fog';
+            if (c >= 51 && c <= 67)           return 'rain';
+            if (c >= 71 && c <= 77)           return 'snow';
+            if (c >= 80 && c <= 82)           return 'rain';
+            if (c >= 85 && c <= 86)           return 'snow';
+            if (c >= 95)                      return 'storm';
+            return 'clear';
+        }
+
+        // ── Stars ──
+        const stars = Array.from({length: 120}, () => ({
+            x: Math.random(), y: Math.random() * 0.7,
+            r: 0.5 + Math.random() * 1.2,
+            twinkle: Math.random() * Math.PI * 2,
+            speed: 0.02 + Math.random() * 0.03
+        }));
+
+        // ── Clouds ──
+        const clouds = Array.from({length: 7}, (_, i) => ({
+            x: Math.random(),
+            y: 0.05 + Math.random() * 0.35,
+            w: 0.15 + Math.random() * 0.25,
+            h: 0.04 + Math.random() * 0.06,
+            speed: 0.00003 + Math.random() * 0.00005,
+            opacity: 0.3 + Math.random() * 0.4,
+            layer: i < 3 ? 0 : 1
+        }));
+
+        // ── Rain drops ──
+        const drops = Array.from({length: 120}, () => ({
+            x: Math.random(),
+            y: Math.random(),
+            len: 0.04 + Math.random() * 0.06,
+            speed: 0.008 + Math.random() * 0.006,
+            opacity: 0.3 + Math.random() * 0.4
+        }));
+
+        // ── Snow flakes ──
+        const flakes = Array.from({length: 80}, () => ({
+            x: Math.random(),
+            y: Math.random(),
+            r: 1 + Math.random() * 2.5,
+            speed: 0.001 + Math.random() * 0.002,
+            drift: (Math.random() - 0.5) * 0.001,
+            opacity: 0.4 + Math.random() * 0.5
+        }));
+
+        // ── Lightning state ──
+        let _lightningAlpha = 0, _lightningTimer = 0;
+
         function draw() {
-            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            const [r,g,b] = getTimeColor();
-            const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-            grad.addColorStop(0, `rgba(${r},${g},${b},${intensity})`);
-            grad.addColorStop(1, `rgba(${Math.round(r*0.5)},${Math.round(g*0.5)},${Math.round(b*0.7)},${intensity})`);
+            const w = canvas.width = window.innerWidth;
+            const h = canvas.height = window.innerHeight;
+            frame++;
+
+            const [top, bot] = getSkyColors();
+            const night = isNight(), dusk = isDusk();
+            const wt = getWeatherType();
+            const alpha = intensity;
+
+            // Sky gradient
+            const grad = ctx.createLinearGradient(0, 0, 0, h);
+            grad.addColorStop(0, `rgba(${top[0]},${top[1]},${top[2]},${alpha})`);
+            grad.addColorStop(1, `rgba(${bot[0]},${bot[1]},${bot[2]},${alpha})`);
             ctx.fillStyle = grad;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillRect(0, 0, w, h);
+
+            // ── Stars (clear/partly at night/dusk) ──
+            if ((night || dusk) && (wt === 'clear' || wt === 'partly')) {
+                const starAlpha = night ? alpha * 0.9 : alpha * 0.4;
+                stars.forEach(s => {
+                    s.twinkle += s.speed;
+                    const a = starAlpha * (0.5 + 0.5 * Math.sin(s.twinkle));
+                    ctx.beginPath();
+                    ctx.arc(s.x * w, s.y * h, s.r, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255,255,255,${a})`;
+                    ctx.fill();
+                });
+            }
+
+            // ── Sun or Moon orb ──
+            const hh = new Date().getHours() + new Date().getMinutes()/60;
+            if (!night && wt !== 'cloudy' && wt !== 'storm' && wt !== 'fog') {
+                // Sun arc: rises at left at 6, peaks center at 12, sets right at 18
+                const sunT = Math.max(0, Math.min(1, (hh - 6) / 12));
+                const sunX = sunT * w;
+                const sunY = h * (0.55 - 0.40 * Math.sin(sunT * Math.PI));
+                const sunSize = 28 + 12 * Math.sin(sunT * Math.PI);
+                const isDawn = hh < 8 || hh > 16;
+                const sunR = isDawn ? 255 : 255, sunG = isDawn ? 140 : 220, sunB = isDawn ? 30 : 80;
+                const glowGrad = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, sunSize * 3);
+                glowGrad.addColorStop(0, `rgba(${sunR},${sunG},${sunB},${alpha * 0.5})`);
+                glowGrad.addColorStop(0.3, `rgba(${sunR},${sunG},${sunB},${alpha * 0.2})`);
+                glowGrad.addColorStop(1, `rgba(${sunR},${sunG},${sunB},0)`);
+                ctx.fillStyle = glowGrad;
+                ctx.fillRect(sunX - sunSize*3, sunY - sunSize*3, sunSize*6, sunSize*6);
+                ctx.beginPath();
+                ctx.arc(sunX, sunY, sunSize, 0, Math.PI*2);
+                ctx.fillStyle = `rgba(${sunR},${sunG},${sunB},${alpha * 0.9})`;
+                ctx.fill();
+            } else if (night && (wt === 'clear' || wt === 'partly')) {
+                // Moon arc: rises at 20, peaks at 2, sets at 8
+                const moonH = hh >= 20 ? hh - 20 : hh + 4;
+                const moonT = Math.max(0, Math.min(1, moonH / 12));
+                const moonX = moonT * w;
+                const moonY = h * (0.5 - 0.35 * Math.sin(moonT * Math.PI));
+                const moonSize = 18;
+                const mGlow = ctx.createRadialGradient(moonX, moonY, 0, moonX, moonY, moonSize * 3);
+                mGlow.addColorStop(0, `rgba(200,210,240,${alpha * 0.3})`);
+                mGlow.addColorStop(1, `rgba(200,210,240,0)`);
+                ctx.fillStyle = mGlow;
+                ctx.fillRect(moonX - moonSize*3, moonY - moonSize*3, moonSize*6, moonSize*6);
+                ctx.beginPath();
+                ctx.arc(moonX, moonY, moonSize, 0, Math.PI*2);
+                ctx.fillStyle = `rgba(230,235,255,${alpha * 0.85})`;
+                ctx.fill();
+            }
+
+            // ── Clouds ──
+            if (wt === 'partly' || wt === 'cloudy' || wt === 'rain' || wt === 'storm' || wt === 'snow') {
+                const cloudDensity = wt === 'cloudy' || wt === 'rain' || wt === 'storm' ? 1.0 : 0.5;
+                const cloudTone = (wt === 'storm' || wt === 'rain') ? [60,60,70] : night ? [40,40,60] : [220,225,235];
+                clouds.forEach(cl => {
+                    cl.x = (cl.x + cl.speed) % 1.1;
+                    const cx = cl.x * w, cy = cl.y * h;
+                    const cw = cl.w * w, ch = cl.h * h;
+                    const ca = cl.opacity * cloudDensity * alpha;
+                    const cg = ctx.createRadialGradient(cx, cy, 0, cx, cy, cw * 0.6);
+                    cg.addColorStop(0, `rgba(${cloudTone.join(',')},${ca})`);
+                    cg.addColorStop(1, `rgba(${cloudTone.join(',')},0)`);
+                    ctx.fillStyle = cg;
+                    ctx.beginPath();
+                    ctx.ellipse(cx, cy, cw * 0.6, ch * 0.6, 0, 0, Math.PI*2);
+                    ctx.fill();
+                    // Extra puffs
+                    [-0.3, 0.3].forEach(offset => {
+                        const pg = ctx.createRadialGradient(cx + cw*offset, cy - ch*0.15, 0, cx + cw*offset, cy - ch*0.15, cw*0.4);
+                        pg.addColorStop(0, `rgba(${cloudTone.join(',')},${ca * 0.8})`);
+                        pg.addColorStop(1, `rgba(${cloudTone.join(',')},0)`);
+                        ctx.fillStyle = pg;
+                        ctx.beginPath();
+                        ctx.ellipse(cx + cw*offset, cy - ch*0.15, cw*0.4, ch*0.55, 0, 0, Math.PI*2);
+                        ctx.fill();
+                    });
+                });
+            }
+
+            // ── Rain ──
+            if (wt === 'rain' || wt === 'storm') {
+                drops.forEach(dr => {
+                    dr.y += dr.speed;
+                    dr.x += 0.0003;
+                    if (dr.y > 1) { dr.y = -0.05; dr.x = Math.random(); }
+                    ctx.beginPath();
+                    ctx.moveTo(dr.x * w, dr.y * h);
+                    ctx.lineTo((dr.x + 0.005) * w, (dr.y + dr.len) * h);
+                    ctx.strokeStyle = `rgba(160,190,220,${dr.opacity * alpha})`;
+                    ctx.lineWidth = 0.8;
+                    ctx.stroke();
+                });
+            }
+
+            // ── Snow ──
+            if (wt === 'snow') {
+                flakes.forEach(fl => {
+                    fl.y += fl.speed;
+                    fl.x += fl.drift;
+                    if (fl.y > 1) { fl.y = -0.02; fl.x = Math.random(); }
+                    ctx.beginPath();
+                    ctx.arc(fl.x * w, fl.y * h, fl.r, 0, Math.PI*2);
+                    ctx.fillStyle = `rgba(220,230,255,${fl.opacity * alpha})`;
+                    ctx.fill();
+                });
+            }
+
+            // ── Fog ──
+            if (wt === 'fog') {
+                for (let layer = 0; layer < 3; layer++) {
+                    const fy = h * (0.3 + layer * 0.2);
+                    const fOff = Math.sin(frame * 0.003 + layer) * 60;
+                    const fg = ctx.createLinearGradient(0, fy - 60, 0, fy + 60);
+                    fg.addColorStop(0, `rgba(180,185,190,0)`);
+                    fg.addColorStop(0.5, `rgba(180,185,190,${alpha * 0.25})`);
+                    fg.addColorStop(1, `rgba(180,185,190,0)`);
+                    ctx.fillStyle = fg;
+                    ctx.fillRect(fOff, fy - 60, w + 120, 120);
+                }
+            }
+
+            // ── Lightning (storm only) ──
+            if (wt === 'storm') {
+                _lightningTimer--;
+                if (_lightningTimer <= 0) {
+                    _lightningTimer = 60 + Math.random() * 200;
+                    _lightningAlpha = 0.6 + Math.random() * 0.4;
+                }
+                if (_lightningAlpha > 0) {
+                    ctx.fillStyle = `rgba(220,230,255,${_lightningAlpha * alpha})`;
+                    ctx.fillRect(0, 0, w, h);
+                    _lightningAlpha = Math.max(0, _lightningAlpha - 0.08);
+                }
+            }
+
             _bgRaf = requestAnimationFrame(draw);
         }
         draw();
