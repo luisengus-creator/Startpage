@@ -85,26 +85,57 @@
             min-width: calc(160px * var(--scale) * var(--density-mod));
             overflow: hidden;
         }
-
-        .cat-controls {
+        /* Edit mode overlays — shared style */
+        .edit-mode .column { overflow: visible; }
+        .edit-overlay {
             display: none;
+            position: absolute; inset: 0;
+            background: rgba(0,0,0,0.55);
+            backdrop-filter: blur(2px);
+            z-index: 10;
+            align-items: center; justify-content: center;
+            border-radius: 4px;
         }
-
-        /* Category delete — absolute top-right corner of the column */
-        .cat-del-btn {
-            display: none;
-            position: absolute;
-            top: calc(0.5rem * var(--scale) * var(--density-mod));
-            right: calc(0.5rem * var(--scale) * var(--density-mod));
-            color: #ff4444;
+        .edit-mode .edit-overlay { display: flex; }
+        .edit-del-btn {
+            background: rgba(255,50,50,0.15);
+            border: 1px solid rgba(255,80,80,0.5);
+            color: #ff7070;
+            border-radius: 6px;
+            padding: 0.25rem 0.9rem;
+            font-size: 0.72rem;
+            font-weight: 700;
             cursor: pointer;
-            transition: 0.2s;
-            font-size: 0.7rem;
-            opacity: 0.5;
-            z-index: 2;
+            letter-spacing: 0.3px;
+            transition: background 0.15s, color 0.15s;
+            white-space: nowrap;
+            width: auto;
+            flex-shrink: 0;
+            align-self: center;
         }
-        .edit-mode .cat-del-btn { display: block; }
-        .cat-del-btn:hover { color: #ff0000; opacity: 1; transform: scale(1.15); }
+        .edit-del-btn:hover { background: rgba(255,50,50,0.35); color: #fff; }
+
+        /* Chromebar overlays (clock, search, weather) */
+        .chrome-edit-wrap { position: relative; display: contents; }
+        .chrome-overlay {
+            display: none;
+            position: absolute; inset: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(2px);
+            z-index: 20;
+            align-items: center; justify-content: center;
+            border-radius: 6px;
+        }
+        .edit-mode .chrome-overlay { display: flex; }
+        /* Cat-del and del-btn kept hidden (replaced by overlays) */
+        .cat-del-btn, .col-edit-overlay, .link-edit-overlay, .col-del-btn, .link-del-btn { display: none !important; }
+        .del-btn { display: none !important; }
+
+        /* Category title row — grid so bin sits at far right edge */
+        .cat-title-row {
+            margin: 0 0 calc(1rem * var(--scale) * var(--density-mod)) 0;
+        }
+        .cat-del-btn { display: none; }
 
         /* Animated category accent line */
         @keyframes accent-shimmer {
@@ -124,7 +155,7 @@
         }
 
         .cat-title { 
-            margin: 0 0 calc(1rem * var(--scale) * var(--density-mod)) 0; 
+            margin: 0;
             font-size: calc(1.3rem * var(--scale) * var(--density-mod)); 
             font-weight: 700; 
             padding-bottom: calc(10px * var(--scale) * var(--density-mod)); 
@@ -192,11 +223,10 @@
         .ip-cell:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); color: white; }
         
         .link-row { 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
             border-bottom: 1px solid rgba(255,255,255,0.03); 
-            position: relative; 
             white-space: nowrap;
         }
         .link-row a { 
@@ -204,24 +234,11 @@
             transition: 0.2s; 
             font-size: calc(1rem * var(--scale) * var(--density-mod));
             font-family: var(--grid-font);
-            display: block;
-            width: 100%;
             padding: calc(0.5rem * var(--scale) * var(--density-mod)) calc(0.8rem * var(--scale) * var(--density-mod));
             text-align: center;
         }
         
-        .del-btn { 
-            display: none; 
-            position: absolute;
-            right: calc(0.5rem * var(--scale) * var(--density-mod));
-            color: #ff4444; 
-            cursor: pointer; 
-            transition: 0.2s; 
-            font-size: 0.7rem;
-            opacity: 0.5;
-        }
-        .del-btn:hover { color: #ff0000; opacity: 1; transform: scale(1.15); }
-        .edit-mode .del-btn { display: block; }
+        .del-btn { display: none; }
 
         #weather-area { 
             padding: 0 0 1.8vh 0; display: flex; flex-direction: column; align-items: center; 
@@ -429,6 +446,7 @@
             position: absolute; left: 50%; transform: translateX(-50%);
             display: flex; flex-direction: column; align-items: center; line-height: 1.2;
             pointer-events: auto; cursor: pointer;
+            isolation: isolate;
         }
         #clock-display:hover #clock-time { opacity: 1; }
         #clock-display:hover #clock-date { opacity: 0.6; }
@@ -537,13 +555,14 @@
             <div id="clock-display" onclick="openClockPopover(this)">
                 <span id="clock-time"></span>
                 <span id="clock-date"></span>
+                <div class="chrome-overlay" style="border-radius:8px; transform:none;"><button class="edit-del-btn" onclick="event.stopPropagation(); editDisable('showClock')">Delete</button></div>
             </div>
             <div class="nav-group">
                 <span class="nav-link" onclick="document.body.classList.toggle('edit-mode')"><i class="fa-solid fa-pen"></i></span>
                 <span class="nav-link" onclick="openModal('settings-modal')"><i class="fa-solid fa-gear"></i></span>
             </div>
         </header>
-        <div id="search-bar-wrap">
+        <div id="search-bar-wrap" style="position:relative;">
             <form id="search-form" onsubmit="doSearch(event)">
                 <div class="se-dropdown">
                     <button type="button" class="se-current" id="se-current-btn" onclick="toggleSeMenu(event)">
@@ -554,12 +573,14 @@
                 <input id="search-input" type="text" placeholder="Search..." autocomplete="off" autocorrect="off" spellcheck="false">
                 <button id="search-submit" type="submit"><i class="fa-solid fa-arrow-right"></i></button>
             </form>
+            <div class="chrome-overlay"><button class="edit-del-btn" onclick="event.stopPropagation(); editDisable('showSearch')">Delete</button></div>
         </div>
         <main id="main-content"><div id="grid"></div></main>
-        <section id="weather-area">
+        <section id="weather-area" style="position:relative;">
             <span id="city-name" onclick="cycleCity()">---</span>
             <div id="weather-grid" onclick="openWeatherPopover(this)"></div>
             <div id="weather-stats"></div>
+            <div class="chrome-overlay"><button class="edit-del-btn" onclick="event.stopPropagation(); editDisable('showWeather')">Delete</button></div>
         </section>
     </div>
 
@@ -1225,6 +1246,7 @@
         if (document.getElementById('settings-modal').style.display === 'block') renderSettings();
     }
     function openClockPopover(anchor) {
+        if (document.body.classList.contains('edit-mode')) return;
         const pop = document.getElementById('clock-popover');
         if (_clockPopOpen) { pop.style.display = 'none'; _clockPopOpen = false; return; }
         // Close other popovers
@@ -1587,11 +1609,17 @@
                 ondragleave="colDragLeave(event)"
                 style="--cat-accent:${c.color}">
                 <div style="position:absolute; inset:0; background:linear-gradient(${c.color}22, transparent); opacity:0.3; z-index:-1;"></div>
-                <i class="fa-solid fa-trash-can cat-del-btn" onclick="delCat(${ci})"></i>
-                <div class="cat-title ${p.showHeaders ? '' : 'hidden-header'}" style="color:${c.color};">
-                    <a href="${c.url || '#'}" target="${state.target}" style="color:inherit; text-decoration:none;">${c.title}</a>
+                <div class="cat-title-row" style="position:relative;">
+                    <div class="cat-title ${p.showHeaders ? '' : 'hidden-header'}" style="color:${c.color};">
+                        <a href="${c.url || '#'}" target="${state.target}" style="color:inherit; text-decoration:none;">${c.title}</a>
+                    </div>
+                    <div class="edit-overlay"><button class="edit-del-btn" onclick="delCat(${ci})">Delete</button></div>
                 </div>
-                ${c.links.map((l, li) => `<div class="link-row"><a href="${l.url || '#'}" target="${state.target}" style="color:${l.color || state.linkColor}">${l.name}</a><i class="fa-solid fa-trash-can del-btn" onclick="delLink(${ci},${li})"></i></div>`).join('')}
+                ${c.links.map((l, li) => `
+                <div class="link-row" style="position:relative;">
+                    <a href="${l.url || '#'}" target="${state.target}" style="color:${l.color || state.linkColor}">${l.name}</a>
+                    <div class="edit-overlay"><button class="edit-del-btn" onclick="delLink(${ci},${li})">Delete</button></div>
+                </div>`).join('')}
             </div>`).join('');
         document.getElementById('weather-area').classList.toggle('weather-hidden', !p.showWeather);
         
@@ -2498,6 +2526,18 @@
         }
         draw();
     }
+
+    // Edit mode — disable a chrome element and exit edit mode
+    function editDisable(key) {
+        curProfile()[key] = false;
+        saveAndRender(); updateWeather(); tickClock();
+        if (document.getElementById('settings-modal').style.display === 'block') renderSettings();
+    }
+    document.addEventListener('click', e => {
+        if (!document.body.classList.contains('edit-mode')) return;
+        if (e.target.closest('.column') || e.target.closest('[onclick*="edit-mode"]') || e.target.closest('.modal') || e.target.closest('#overlay') || e.target.closest('.col-del-btn') || e.target.closest('.link-del-btn')) return;
+        document.body.classList.remove('edit-mode');
+    });
 
     window.onload = () => {
         saveAndRender();
