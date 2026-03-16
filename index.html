@@ -1081,7 +1081,7 @@
         const baseQl = [{name:"fa-solid fa-server", url:"", vis:false, color:""}, {name:"fa-solid fa-sliders", url:"", vis:false, color:""}, {name:"fa-brands fa-spotify", url:"", vis:false, color:""}, {name:"fa-solid fa-star", url:"", vis:false, color:""}];
         const makeProfile = (cats, density) => ({ ql: JSON.parse(JSON.stringify(baseQl)), categories: cats, showWeather: true, showHeaders: true, showClock: true, clockFormat: '24', clockSeconds: true, clockShowDate: true, clockDateFmt: 'long', clockSize: 'm', clockColor: '#ffffff', clockFont: 'Inter', iconColor: "#ffffff", bgColor: "#1C1B22", bgImg: "", bgMode: 'gradient', opacity: 0.3, fuzzy: 0, weatherColor: "#ffffff", weatherFont: 'Inter', weatherSize: 'm', wShowDay: true, wShowDate: true, wDateFmt: 'dmy', wColored: true, wAqi: true, wUv: true, wPressure: true, wHumidity: true, wVisibility: true, wSunrise: true, density, gridFont: 'Inter', showSearch: true, searchEngine: 'startpage', profileIcon: 'fa-solid fa-user', profilePhoto: '', profileIconColor: '#ffffff' });
         return {
-            profile: 'p0', target: '_self', linkColor: "#cccccc", tabTitle: 'Startpage', tabFavicon: '', tabFaviconEmoji: '',
+            profile: 'p0', target: '_self', linkColor: "#cccccc", tabTitle: 'Startpage', tabFavicon: '', tabFaviconEmoji: '⭐',
             cities: [{name: "Lisboa", lat: 38.71, lon: -9.13}],
             profileNames: ['Profile 1', 'Profile 2'],
             profiles: [
@@ -1109,6 +1109,8 @@
     state.profiles.forEach(p => { if (p && p.density === 'l') p.density = 'xl'; });
     // Migrate old mesh boolean to bgMode in all profiles
     state.profiles.forEach(p => { if (p && !p.bgMode) p.bgMode = 'gradient'; });
+    // Set default favicon emoji if none set
+    if (!state.tabFaviconEmoji && !state.tabFavicon) state.tabFaviconEmoji = '⭐';
     // Migrate missing profileIcon/profilePhoto
     state.profiles.forEach(p => { if (p && !p.profileIcon) p.profileIcon = 'fa-solid fa-user'; if (p && p.profilePhoto === undefined) p.profilePhoto = ''; if (p && !p.profileIconColor) p.profileIconColor = '#ffffff'; if (p && !p.weatherSize) p.weatherSize = 'm'; if (p && p.wShowDay === undefined) p.wShowDay = true; if (p && p.wShowDate === undefined) p.wShowDate = true; if (p && !p.wDateFmt) p.wDateFmt = 'dmy'; });
     let cityIdx = 0;
