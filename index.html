@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Startpage</title>
+    <link id="favicon-link" rel="icon" type="image/x-icon" href="">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -586,6 +587,20 @@
 
     <div id="settings-modal" class="modal">
         <div class="setting-block">
+            <div class="section-h">Browser Tab</div>
+            <div class="color-row" style="margin-bottom:8px;">
+                <span>Tab Title</span>
+                <input type="text" id="tab-title" placeholder="Startpage" oninput="updateTabMeta()" style="width:148px; height:28px; font-size:0.78rem;">
+            </div>
+            <div class="color-row">
+                <span>Favicon</span>
+                <div style="display:flex; gap:6px; align-items:center;">
+                    <button class="icon-picker-btn" id="favicon-picker-btn" onclick="faviconPickerOpen(this)" title="Choose favicon" style="width:34px; height:26px; font-size:1rem; padding:0;">🏠</button>
+                    <input type="text" id="tab-favicon" placeholder="or paste URL..." oninput="updateTabMeta()" style="height:26px; font-size:0.75rem; flex:1;">
+                </div>
+            </div>
+        </div>
+        <div class="setting-block">
             <div class="section-h">Profiles</div>
             <div class="profile-select-row">
                 <select id="profile-select" onchange="switchProfile(parseInt(this.value))"></select>
@@ -1066,7 +1081,7 @@
         const baseQl = [{name:"fa-solid fa-server", url:"", vis:false, color:""}, {name:"fa-solid fa-sliders", url:"", vis:false, color:""}, {name:"fa-brands fa-spotify", url:"", vis:false, color:""}, {name:"fa-solid fa-star", url:"", vis:false, color:""}];
         const makeProfile = (cats, density) => ({ ql: JSON.parse(JSON.stringify(baseQl)), categories: cats, showWeather: true, showHeaders: true, showClock: true, clockFormat: '24', clockSeconds: true, clockShowDate: true, clockDateFmt: 'long', clockSize: 'm', clockColor: '#ffffff', clockFont: 'Inter', iconColor: "#ffffff", bgColor: "#1C1B22", bgImg: "", bgMode: 'gradient', opacity: 0.3, fuzzy: 0, weatherColor: "#ffffff", weatherFont: 'Inter', weatherSize: 'm', wShowDay: true, wShowDate: true, wDateFmt: 'dmy', wColored: true, wAqi: true, wUv: true, wPressure: true, wHumidity: true, wVisibility: true, wSunrise: true, density, gridFont: 'Inter', showSearch: true, searchEngine: 'startpage', profileIcon: 'fa-solid fa-user', profilePhoto: '', profileIconColor: '#ffffff' });
         return {
-            profile: 'p0', target: '_self', linkColor: "#cccccc",
+            profile: 'p0', target: '_self', linkColor: "#cccccc", tabTitle: 'Startpage', tabFavicon: '', tabFaviconEmoji: '',
             cities: [{name: "Lisboa", lat: 38.71, lon: -9.13}],
             profileNames: ['Profile 1', 'Profile 2'],
             profiles: [
@@ -1692,6 +1707,15 @@
         updateSectionStates();
         // Sync all static swatches to their current values
         ['bg-color','clock-color','weather-color-picker','cat-color'].forEach(id => cpSyncSwatch(id));
+        // Sync tab meta
+        const tabTitleEl = document.getElementById('tab-title');
+        const tabFavEl = document.getElementById('tab-favicon');
+        if (tabTitleEl) tabTitleEl.value = state.tabTitle || '';
+        if (tabFavEl) tabFavEl.value = state.tabFavicon || '';
+        const faviconBtn = document.getElementById('favicon-picker-btn');
+        if (faviconBtn) faviconBtn.textContent = state.tabFaviconEmoji || '🏠';
+        renderFaviconGrid();
+        renderFaviconGrid();
     }
 
     function updateVisRealtime() { 
@@ -2528,6 +2552,97 @@
     }
 
     // Edit mode — disable a chrome element and exit edit mode
+    const FAVICON_EMOJIS = [
+        '🏠','⚡','🔥','⭐','💎','🚀','🌙','☀️',
+        '🌊','🌿','🦋','🐉','👾','🤖','🎮','🎵',
+        '📚','✏️','🔮','🧠','💡','🔑','🛡️','⚔️',
+        '🌸','🍀','🦊','🐺','🐧','🦁','🐙','🦄',
+        '🍕','☕','🎯','🏆','💻','📡','🔭','🧬',
+        '🌍','🗺️','🧭','⚓','🏔️','🌋','🎪','🎭'
+    ];
+
+    let _faviconPickerOpen = false;
+    function emojiToFavicon(emoji) {
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><text y="26" font-size="28">${emoji}</text></svg>`;
+        return 'data:image/svg+xml,' + encodeURIComponent(svg);
+    }
+    function faviconPickerOpen(anchorEl) {
+        const grid = document.getElementById('icon-picker-grid');
+        if (_faviconPickerOpen && grid.classList.contains('open')) { ipClose(); _faviconPickerOpen = false; return; }
+        _faviconPickerOpen = true;
+        _ipTargetIdx = null;
+        grid.innerHTML = FAVICON_EMOJIS.map(e =>
+            `<div class="ip-cell" style="font-size:1rem;" title="${e}" onclick="faviconPickEmoji('${e}')">${e}</div>`
+        ).join('');
+        grid.classList.add('open');
+        const rect = anchorEl.getBoundingClientRect();
+        const gw = 192, gh = 260;
+        let left = rect.left;
+        if (left + gw > window.innerWidth - 8) left = window.innerWidth - gw - 8;
+        if (left < 8) left = 8;
+        let top = rect.bottom + 4;
+        if (top + gh > window.innerHeight - 8) top = rect.top - gh - 4;
+        grid.style.left = left + 'px'; grid.style.top = top + 'px';
+    }
+    function faviconPickEmoji(emoji) {
+        setFaviconEmoji(emoji);
+        // Update the button preview
+        const btn = document.getElementById('favicon-picker-btn');
+        if (btn) btn.textContent = emoji;
+        ipClose(); _faviconPickerOpen = false;
+    }
+
+    function renderFaviconGrid() {
+        const grid = document.getElementById('favicon-icon-grid');
+        if (!grid) return;
+        const current = state.tabFaviconEmoji || '';
+        grid.innerHTML = FAVICON_EMOJIS.map(e =>
+            `<div onclick="setFaviconEmoji('${e}')" title="${e}" style="
+                width:28px; height:28px; border-radius:5px; display:flex; align-items:center; justify-content:center;
+                font-size:16px; cursor:pointer; border:1px solid ${current === e ? 'var(--modal-accent,#00d4ff)' : 'transparent'};
+                background:${current === e ? 'rgba(0,212,255,0.1)' : 'rgba(255,255,255,0.03)'};
+                transition:0.15s;">${e}</div>`
+        ).join('');
+    }
+
+    function setFaviconEmoji(emoji) {
+        state.tabFaviconEmoji = emoji;
+        state.tabFavicon = ''; // clear custom URL
+        const urlInput = document.getElementById('tab-favicon');
+        if (urlInput) urlInput.value = '';
+        const fav = document.getElementById('favicon-link');
+        if (fav) { fav.href = emojiToFavicon(emoji); fav.type = 'image/svg+xml'; }
+        localStorage.setItem(KEY, JSON.stringify(state));
+        renderFaviconGrid();
+    }
+
+    function updateTabMeta() {
+        const titleEl = document.getElementById('tab-title');
+        const faviconEl = document.getElementById('tab-favicon');
+        if (titleEl) state.tabTitle = titleEl.value;
+        if (faviconEl && faviconEl.value) {
+            state.tabFavicon = faviconEl.value;
+            state.tabFaviconEmoji = ''; // clear emoji selection
+            renderFaviconGrid();
+        }
+        document.title = state.tabTitle || 'Startpage';
+        const fav = document.getElementById('favicon-link');
+        if (fav) {
+            if (state.tabFaviconEmoji) { fav.href = emojiToFavicon(state.tabFaviconEmoji); fav.type = 'image/svg+xml'; }
+            else { fav.href = state.tabFavicon || ''; fav.type = 'image/x-icon'; }
+        }
+        localStorage.setItem(KEY, JSON.stringify(state));
+    }
+
+    function applyTabMeta() {
+        document.title = state.tabTitle || 'Startpage';
+        const fav = document.getElementById('favicon-link');
+        if (fav) {
+            if (state.tabFaviconEmoji) { fav.href = emojiToFavicon(state.tabFaviconEmoji); fav.type = 'image/svg+xml'; }
+            else if (state.tabFavicon) { fav.href = state.tabFavicon; fav.type = 'image/x-icon'; }
+        }
+    }
+
     function editDisable(key) {
         curProfile()[key] = false;
         saveAndRender(); updateWeather(); tickClock();
@@ -2541,6 +2656,7 @@
 
     window.onload = () => {
         saveAndRender();
+        applyTabMeta();
         tickClock();
         setInterval(tickClock, 1000);
         updateWeather();
