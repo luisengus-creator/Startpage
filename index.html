@@ -62,14 +62,14 @@
             align-items: center;
             width: fit-content;
             max-width: 100%;
-            /* Fix: Grid is invisible by default */
             opacity: 0;
             transition: none;
         }
 
-        /* Fix: Reveal only when the scaling math is confirmed finished */
+        /* Reveal with a quick fade once scaling is confirmed */
         .scaling-finished #grid {
             opacity: 1;
+            transition: opacity 0.15s ease;
         }
 
         .column { 
@@ -223,8 +223,13 @@
         .del-btn:hover { color: #ff0000; opacity: 1; transform: scale(1.15); }
         .edit-mode .del-btn { display: block; }
 
-        #weather-area { padding: 1.5vh 0; display: none; flex-direction: column; align-items: center; gap: 0.6rem; z-index: 10; flex-shrink: 0; min-height: 120px; }
-        .ready #weather-area { transition: opacity var(--fade-speed) ease; }
+        #weather-area { 
+            padding: 0 0 1.8vh 0; display: flex; flex-direction: column; align-items: center; 
+            gap: 0.5rem; z-index: 10; flex-shrink: 0; height: 148px;
+            justify-content: flex-end;
+            opacity: 1; visibility: visible; transition: opacity 0.3s ease;
+        }
+        #weather-area.weather-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
         #city-name { font-size: 0.75rem; opacity: 0.5; letter-spacing: 3px; cursor: pointer; text-transform: uppercase; }
         #weather-grid { display: flex; gap: 0.6rem; align-items: center; cursor: pointer; }
         .weather-card { background: rgba(255,255,255,0.03); padding: 0.5rem 0.7rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); text-align: center; min-width: 5.5rem; }
@@ -352,7 +357,9 @@
             justify-content: center;
             align-items: center;
             padding: 0 2vw 1.4vh;
+            height: 52px;
         }
+        #search-bar-wrap.search-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
         #search-form {
             display: flex;
             align-items: center;
@@ -380,13 +387,13 @@
             position: relative; flex-shrink: 0;
         }
         .se-current {
-            display: flex; align-items: center; gap: 5px;
-            height: 28px; padding: 0 8px; border-radius: 16px;
+            display: flex; align-items: center; gap: 4px;
+            height: 28px; padding: 0 6px; border-radius: 16px;
             border: 1px solid rgba(255,255,255,0.1); background: transparent;
             color: rgba(255,255,255,0.6); cursor: pointer; font-size: 0.72rem;
             white-space: nowrap; transition: border-color 0.15s, color 0.15s;
         }
-        .se-current:hover { border-color: rgba(255,255,255,0.25); color: white; }
+        .se-current #se-current-name { display: none; }
         .se-current img { width: 14px; height: 14px; border-radius: 2px; flex-shrink: 0; }
         .se-current i { font-size: 0.65rem; opacity: 0.5; }
         .se-menu {
@@ -410,11 +417,12 @@
             display: flex; align-items: center; justify-content: center; font-size: 0.8rem;
             transition: color 0.15s; flex-shrink: 0; padding: 0;
         }
-        #search-submit:hover { color: white; } 
+        #search-submit:hover { color: white; }
+        .search-result-item { 
             padding: 6px 10px; border-bottom: 1px solid #161616; 
-            cursor: pointer; font-size: 0.72rem; color: #999; transition: background 0.12s, color 0.12s;
+            cursor: pointer; font-size: 0.75rem; color: #999; transition: background 0.12s, color 0.12s;
         }
-        .search-result-item:hover { background: rgba(255,255,255,0.04); color: var(--modal-accent, #00d4ff); }
+        .search-result-item:hover { background: rgba(255,255,255,0.06); color: var(--modal-accent, #00d4ff); }
 
         /* Clock */
         #clock-display { 
@@ -721,9 +729,13 @@
                 <span>Date Format</span>
                 <select id="clock-date-fmt" onchange="updateVisRealtime()" class="select-inline">
                     <option value="long">Monday, January 1</option>
+                    <option value="long-year">Monday, January 1, 2026</option>
                     <option value="short">Mon, Jan 1</option>
-                    <option value="numeric">01/01/2025</option>
-                    <option value="iso">2025-01-01</option>
+                    <option value="short-year">Mon, Jan 1, 2026</option>
+                    <option value="medium">January 1, 2026</option>
+                    <option value="numeric">01/01/2026</option>
+                    <option value="numeric-dmy">DD/MM/YYYY</option>
+                    <option value="iso">2026-01-01</option>
                 </select>
             </div>
             <div class="color-row">
@@ -794,6 +806,24 @@
             <div class="section-h">Weather</div>
             <label class="label-inline"><input type="checkbox" id="w-enable-check" onchange="updateVisRealtime()"> Enable Weather</label>
             <div id="weather-sub">
+            <div class="color-row">
+                <span>Weather Size</span>
+                <select id="weather-size" onchange="updateVisRealtime()" class="select-inline">
+                    <option value="s">Small</option>
+                    <option value="m">Medium</option>
+                    <option value="l">Large</option>
+                </select>
+            </div>
+            <label class="label-inline"><input type="checkbox" id="w-date-check" onchange="updateVisRealtime()"> Show Date on Cards</label>
+            <div class="color-row">
+                <span>Date Format</span>
+                <select id="w-date-fmt" onchange="updateVisRealtime()" class="select-inline">
+                    <option value="dmy">DD/MM</option>
+                    <option value="mdy">MM/DD</option>
+                    <option value="short">16 Mar</option>
+                    <option value="long">16 March</option>
+                </select>
+            </div>
             <div class="color-row">
                 <span>Weather Font</span>
                 <select id="weather-font" onchange="updateVisRealtime()" class="select-inline">
@@ -894,9 +924,13 @@
             <span style="font-size:0.75rem; color:#888;">Date</span>
             <select id="cpop-datefmt" onchange="clockPopChange()" style="height:26px; font-size:0.75rem; padding:0 6px;">
                 <option value="long">Monday, January 1</option>
+                <option value="long-year">Monday, January 1, 2026</option>
                 <option value="short">Mon, Jan 1</option>
-                <option value="numeric">01/01/2025</option>
-                <option value="iso">2025-01-01</option>
+                <option value="short-year">Mon, Jan 1, 2026</option>
+                <option value="medium">January 1, 2026</option>
+                <option value="numeric">01/01/2026</option>
+                <option value="numeric-dmy">DD/MM/YYYY</option>
+                <option value="iso">2026-01-01</option>
             </select>
             <span style="font-size:0.75rem; color:#888;">Size</span>
             <select id="cpop-size" onchange="clockPopChange()" style="height:26px; font-size:0.75rem; padding:0 6px;">
@@ -920,10 +954,32 @@
     </div>
 
     <div id="weather-modal">
-        <div class="pop-title">Locations</div>
-        <div id="city-list-manager" style="margin-bottom:0.8rem; max-height:140px; overflow-y:auto; padding-right:4px;"></div>
+        <div class="pop-title">Weather</div>
+        <div style="display:grid; grid-template-columns:auto 1fr; gap:6px 10px; align-items:center; margin-bottom:10px;">
+            <span style="font-size:0.75rem;color:#888;">Size</span>
+            <select id="wpop-size" onchange="weatherPopChange()" style="height:26px;font-size:0.75rem;padding:0 6px;">
+                <option value="s">Small</option>
+                <option value="m">Medium</option>
+                <option value="l">Large</option>
+            </select>
+            <span style="font-size:0.75rem;color:#888;">Icons</span>
+            <select id="wpop-icons" onchange="weatherPopChange()" style="height:26px;font-size:0.75rem;padding:0 6px;">
+                <option value="colored">Colored</option>
+                <option value="solid">Solid</option>
+            </select>
+            <span style="font-size:0.75rem;color:#888;">Date</span>
+            <select id="wpop-datefmt" onchange="weatherPopChange()" style="height:26px;font-size:0.75rem;padding:0 6px;">
+                <option value="none">Hidden</option>
+                <option value="dmy">DD/MM</option>
+                <option value="mdy">MM/DD</option>
+                <option value="short">16 Mar</option>
+                <option value="long">16 March</option>
+            </select>
+        </div>
+        <div class="pop-title" style="margin-bottom:6px;">Locations</div>
+        <div id="city-list-manager" style="margin-bottom:0.8rem; max-height:120px; overflow-y:auto; padding-right:4px;"></div>
         <input type="text" id="city-search-input" placeholder="Search for a city..." oninput="searchCity(this.value)">
-        <div id="search-results" style="max-height:140px; overflow-y:auto; background:#050505; border-radius:6px; margin-top:5px;"></div>
+        <div id="search-results" style="max-height:120px; overflow-y:auto; background:#050505; border-radius:6px; margin-top:5px;"></div>
     </div>
 
 <script>
@@ -985,7 +1041,7 @@
 
     function getDefaults() {
         const baseQl = [{name:"fa-solid fa-server", url:"", vis:false, color:""}, {name:"fa-solid fa-sliders", url:"", vis:false, color:""}, {name:"fa-brands fa-spotify", url:"", vis:false, color:""}, {name:"fa-solid fa-star", url:"", vis:false, color:""}];
-        const makeProfile = (cats, density) => ({ ql: JSON.parse(JSON.stringify(baseQl)), categories: cats, showWeather: true, showHeaders: true, showClock: true, clockFormat: '24', clockSeconds: true, clockShowDate: true, clockDateFmt: 'long', clockSize: 'm', clockColor: '#ffffff', clockFont: 'Inter', iconColor: "#ffffff", bgColor: "#1C1B22", bgImg: "", bgMode: 'gradient', opacity: 0.3, fuzzy: 0, weatherColor: "#ffffff", weatherFont: 'Inter', wColored: true, wAqi: true, wUv: true, wPressure: true, wHumidity: true, wVisibility: true, wSunrise: true, density, gridFont: 'Inter', showSearch: true, searchEngine: 'startpage', profileIcon: 'fa-solid fa-user', profilePhoto: '', profileIconColor: '#ffffff' });
+        const makeProfile = (cats, density) => ({ ql: JSON.parse(JSON.stringify(baseQl)), categories: cats, showWeather: true, showHeaders: true, showClock: true, clockFormat: '24', clockSeconds: true, clockShowDate: true, clockDateFmt: 'long', clockSize: 'm', clockColor: '#ffffff', clockFont: 'Inter', iconColor: "#ffffff", bgColor: "#1C1B22", bgImg: "", bgMode: 'gradient', opacity: 0.3, fuzzy: 0, weatherColor: "#ffffff", weatherFont: 'Inter', weatherSize: 'm', wShowDate: true, wDateFmt: 'dmy', wColored: true, wAqi: true, wUv: true, wPressure: true, wHumidity: true, wVisibility: true, wSunrise: true, density, gridFont: 'Inter', showSearch: true, searchEngine: 'startpage', profileIcon: 'fa-solid fa-user', profilePhoto: '', profileIconColor: '#ffffff' });
         return {
             profile: 'p0', target: '_self', linkColor: "#cccccc",
             cities: [{name: "Lisboa", lat: 38.71, lon: -9.13}],
@@ -1016,7 +1072,7 @@
     // Migrate old mesh boolean to bgMode in all profiles
     state.profiles.forEach(p => { if (p && !p.bgMode) p.bgMode = 'gradient'; });
     // Migrate missing profileIcon/profilePhoto
-    state.profiles.forEach(p => { if (p && !p.profileIcon) p.profileIcon = 'fa-solid fa-user'; if (p && p.profilePhoto === undefined) p.profilePhoto = ''; if (p && !p.profileIconColor) p.profileIconColor = '#ffffff'; });
+    state.profiles.forEach(p => { if (p && !p.profileIcon) p.profileIcon = 'fa-solid fa-user'; if (p && p.profilePhoto === undefined) p.profilePhoto = ''; if (p && !p.profileIconColor) p.profileIconColor = '#ffffff'; if (p && !p.weatherSize) p.weatherSize = 'm'; if (p && p.wShowDate === undefined) p.wShowDate = true; if (p && !p.wDateFmt) p.wDateFmt = 'dmy'; });
     let cityIdx = 0;
     function curProfile() { return state.profiles[parseInt(state.profile.replace('p',''))] || state.profiles[0]; }
     function curProfileIdx() { return parseInt(state.profile.replace('p','')); }
@@ -1069,19 +1125,38 @@
 
     // ── Weather locations popover ──
     let _weatherPopOpen = false;
+    function syncWeatherPopover() {
+        const p = curProfile();
+        document.getElementById('wpop-size').value = p.weatherSize || 'm';
+        document.getElementById('wpop-icons').value = p.wColored ? 'colored' : 'solid';
+        // date fmt: use 'none' if wShowDate is false
+        document.getElementById('wpop-datefmt').value = (p.wShowDate === false) ? 'none' : (p.wDateFmt || 'dmy');
+    }
+    function weatherPopChange() {
+        const p = curProfile();
+        p.weatherSize = document.getElementById('wpop-size').value;
+        const iconVal = document.getElementById('wpop-icons').value;
+        p.wColored = (iconVal === 'colored');
+        const dateFmt = document.getElementById('wpop-datefmt').value;
+        if (dateFmt === 'none') { p.wShowDate = false; }
+        else { p.wShowDate = true; p.wDateFmt = dateFmt; }
+        // Also sync settings modal if open
+        if (document.getElementById('settings-modal').style.display === 'block') renderSettings();
+        saveAndRender(); updateWeather();
+    }
     function openWeatherPopover(anchor) {
         const pop = document.getElementById('weather-modal');
         if (_weatherPopOpen) { pop.style.display = 'none'; _weatherPopOpen = false; return; }
         closeClockPopover(); closeWstatPopover();
+        syncWeatherPopover();
         renderCityManager();
         pop.style.display = 'block';
         _weatherPopOpen = true;
         const rect = anchor.getBoundingClientRect();
-        const pw = 280, ph = pop.offsetHeight || 260;
+        const pw = 280, ph = pop.offsetHeight || 320;
         let left = rect.left + rect.width / 2 - pw / 2;
         if (left + pw > window.innerWidth - 10) left = window.innerWidth - pw - 10;
         if (left < 10) left = 10;
-        // Position above the weather area
         pop.style.left = left + 'px';
         pop.style.top  = (rect.top - ph - 10) + 'px';
     }
@@ -1265,26 +1340,23 @@
         if (!grid || !p.categories.length) return;
 
         const key = getLayoutKey(p);
-        if (!force && key === _lastLayoutKey) return;  // nothing layout-relevant changed
+        if (!force && key === _lastLayoutKey) return;
         _lastLayoutKey = key;
 
         const mod = p.density === 's' ? 0.6 : p.density === 'm' ? 0.73 : p.density === 'l' ? 0.86 : 1.0;
 
-        const topBarEl = document.querySelector('.top-bar');
-        const weatherEl = document.getElementById('weather-area');
-        const searchEl = document.getElementById('search-bar-wrap');
-        const topBarHeight = topBarEl ? topBarEl.getBoundingClientRect().height : 80;
-        const weatherHeight = (weatherEl && p.showWeather) ? weatherEl.getBoundingClientRect().height : 0;
-        const searchHeight = (searchEl && p.showSearch !== false) ? searchEl.getBoundingClientRect().height : 0;
-        const containerPad = 40;
-        const availableHeight = window.innerHeight - topBarHeight - weatherHeight - searchHeight - containerPad;
+        // Fixed heights matching CSS exactly — these never change so scaling is always correct on first frame
+        const topBarHeight  = 56;          // .top-bar: nav icons ~2.2rem + 2vh margin
+        const searchHeight  = 52;          // #search-bar-wrap: always 52px (hidden via opacity, not display)
+        const weatherHeight = 148;         // #weather-area: always 148px (hidden via opacity, not display)
+        const containerPad  = Math.round(window.innerHeight * 0.04) + 16;
+        const availableHeight = window.innerHeight - topBarHeight - searchHeight - weatherHeight - containerPad;
         const availableWidth  = window.innerWidth * 0.94;
-        const maxLinks      = Math.max(...p.categories.map(c => c.links.length), 1);
-        const rowHeight     = 45 * mod, headerHeight = (p.showHeaders ? 60 : 10) * mod;
+
+        const maxLinks     = Math.max(...p.categories.map(c => c.links.length), 1);
+        const rowHeight    = 45 * mod, headerHeight = (p.showHeaders ? 60 : 10) * mod;
         const naturalHeight = (maxLinks * rowHeight) + headerHeight;
 
-        // Measure each column's natural width at scale=1 using a hidden off-screen clone,
-        // so we never visually reset --scale on the live grid.
         const colPad = 1.2 * 16 * mod * 2;
         const colGap = 1.2 * 16 * mod;
         const tmpCanvas = document.createElement('canvas');
@@ -1293,7 +1365,7 @@
         ctx.font = `700 ${1.3 * 16 * mod}px ${gFont}, system-ui, sans-serif`;
         const minColW = 160 * mod;
         let naturalWidth = 0;
-        p.categories.forEach((c, ci) => {
+        p.categories.forEach(c => {
             let maxTextW = ctx.measureText(c.title).width;
             ctx.font = `400 ${1.0 * 16 * mod}px ${gFont}, system-ui, sans-serif`;
             c.links.forEach(l => { maxTextW = Math.max(maxTextW, ctx.measureText(l.name).width); });
@@ -1305,7 +1377,6 @@
         let scale = Math.min(availableHeight / naturalHeight, availableWidth / naturalWidth);
         scale = Math.max(Math.min(scale, 1.6), 0.5);
 
-        // Apply both vars in one frame — no intermediate state is ever painted
         document.documentElement.style.setProperty('--density-mod', mod);
         document.documentElement.style.setProperty('--scale', scale);
         document.documentElement.classList.add('scaling-finished');
@@ -1392,14 +1463,11 @@
         const wrap = document.getElementById('search-bar-wrap');
         if (!wrap) return;
         const show = p.showSearch !== false;
-        wrap.style.display = show ? 'flex' : 'none';
-        if (!show) return;
+        wrap.classList.toggle('search-hidden', !show);
         const engine = p.searchEngine || 'startpage';
-        const se = SEARCH_ENGINES[engine] || SEARCH_ENGINES.google;
-        // Update current button
+        const se = SEARCH_ENGINES[engine] || SEARCH_ENGINES.startpage;
         document.getElementById('se-current-img').src = se.favicon;
         document.getElementById('se-current-name').textContent = se.name;
-        // Build menu
         document.getElementById('se-menu').innerHTML = Object.entries(SEARCH_ENGINES).map(([key, s]) =>
             `<div class="se-option ${key === engine ? 'active' : ''}" onclick="setSearchEngine('${key}')">
                 <img src="${s.favicon}" alt="${s.name}" onerror="this.style.display='none'">
@@ -1494,7 +1562,7 @@
                 </div>
                 ${c.links.map((l, li) => `<div class="link-row"><a href="${l.url || '#'}" target="${state.target}" style="color:${l.color || state.linkColor}">${l.name}</a><i class="fa-solid fa-trash-can del-btn" onclick="delLink(${ci},${li})"></i></div>`).join('')}
             </div>`).join('');
-        document.getElementById('weather-area').style.display = p.showWeather ? 'flex' : 'none';
+        document.getElementById('weather-area').classList.toggle('weather-hidden', !p.showWeather);
         
         // Trigger scaling which now handles the visibility logic
         applyDynamicScaling();
@@ -1536,6 +1604,9 @@
         });
         document.getElementById('weather-color-picker').value = p.weatherColor;
         document.getElementById('weather-font').value = p.weatherFont || 'Inter';
+        document.getElementById('weather-size').value = p.weatherSize || 'm';
+        document.getElementById('w-date-check').checked = (p.wShowDate !== false);
+        document.getElementById('w-date-fmt').value = p.wDateFmt || 'dmy';
         document.getElementById('w-enable-check').checked = p.showWeather;
         document.getElementById('w-colored-check').checked = p.wColored;
         document.getElementById('w-solid-check').checked = !p.wColored;
@@ -1569,6 +1640,9 @@
         p.bgColor = document.getElementById('bg-color').value;
         p.weatherColor = document.getElementById('weather-color-picker').value;
         p.weatherFont = document.getElementById('weather-font').value;
+        p.weatherSize = document.getElementById('weather-size').value;
+        p.wShowDate = document.getElementById('w-date-check').checked;
+        p.wDateFmt = document.getElementById('w-date-fmt').value;
         p.showWeather = document.getElementById('w-enable-check').checked;
         p.wAqi = document.getElementById('w-aqi').checked;
         p.wUv = document.getElementById('w-uv').checked;
@@ -1629,10 +1703,42 @@
             const url = `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&${dailyParams}&${currentParams}&timezone=auto`;
             const r = await fetch(url), d = await r.json();
 
+            const sz = p.weatherSize || 'm';
+            const cardScale = sz === 's' ? 0.78 : sz === 'l' ? 1.22 : 1.0;
+            const dayFs    = (0.62 * cardScale).toFixed(2) + 'rem';
+            const dateFs   = (0.55 * cardScale).toFixed(2) + 'rem';
+            const iconFs   = (1.10 * cardScale).toFixed(2) + 'rem';
+            const tempFs   = (0.88 * cardScale).toFixed(2) + 'rem';
+            const tempMinFs= (0.72 * cardScale).toFixed(2) + 'rem';
+            const cardPad  = sz === 's' ? '0.35rem 0.5rem' : sz === 'l' ? '0.65rem 0.9rem' : '0.5rem 0.7rem';
+            const minW     = sz === 's' ? '4.2rem' : sz === 'l' ? '7.2rem' : '6.0rem';
+
+            function fmtCardDate(dateStr) {
+                const d = new Date(dateStr + 'T12:00:00');
+                const fmt = p.wDateFmt || 'dmy';
+                if (fmt === 'dmy' || fmt === 'numeric') return d.toLocaleDateString('en-GB', {day:'2-digit', month:'2-digit'});
+                if (fmt === 'mdy')   return d.toLocaleDateString('en-US', {month:'2-digit', day:'2-digit'});
+                if (fmt === 'short') return d.toLocaleDateString('en', {day:'numeric', month:'short'});
+                if (fmt === 'long')  return d.toLocaleDateString('en', {day:'numeric', month:'long'});
+                return d.toLocaleDateString('en-GB', {day:'2-digit', month:'2-digit'});
+            }
+
             document.getElementById('weather-grid').innerHTML = d.daily.time.slice(0,7).map((t, i) => {
                 const weather = W_DATA[d.daily.weathercode[i]] || { icon: "fa-sun", color: "#FFD700" };
                 const iconColor = p.wColored ? weather.color : p.weatherColor;
-                return `<div class="weather-card"><div class="weather-day-label">${new Date(t).toLocaleDateString('en',{weekday:'short'})}</div><i class="fa-solid ${weather.icon}" style="color:${iconColor}"></i><div class="weather-temp" style="color:${p.weatherColor}">${Math.round(d.daily.temperature_2m_max[i])}°</div><div class="weather-temp-min" style="color:${p.weatherColor}">${Math.round(d.daily.temperature_2m_min[i])}°</div></div>`;
+                const dayName = new Date(t+'T12:00:00').toLocaleDateString('en',{weekday:'short'});
+                const dateStr = (p.wShowDate !== false) ? fmtCardDate(t) : '';
+                return `<div class="weather-card" style="padding:${cardPad};min-width:${minW};">
+                    <div style="display:flex;align-items:baseline;justify-content:center;gap:4px;margin-bottom:0.2rem;">
+                        <span style="font-size:${dayFs};opacity:0.6;text-transform:uppercase;font-weight:700;">${dayName}</span>
+                        ${dateStr ? `<span style="font-size:${dateFs};opacity:0.35;">${dateStr}</span>` : ''}
+                    </div>
+                    <i class="fa-solid ${weather.icon}" style="color:${iconColor};font-size:${iconFs};margin:0.25rem 0;display:block;"></i>
+                    <div style="display:flex;align-items:baseline;justify-content:center;gap:5px;">
+                        <span style="color:${p.weatherColor};font-size:${tempFs};font-weight:700;">${Math.round(d.daily.temperature_2m_max[i])}°</span>
+                        <span style="color:${p.weatherColor};font-size:${tempMinFs};opacity:0.45;">${Math.round(d.daily.temperature_2m_min[i])}°</span>
+                    </div>
+                </div>`;
             }).join('');
 
             const c = d.current || {};
@@ -1972,15 +2078,16 @@
         dateEl.style.fontSize = dateSizePx;
         if (showDate) {
             const fmt = p.clockDateFmt || 'long';
-            if (fmt === 'numeric') {
-                dateEl.textContent = now.toLocaleDateString('en', {day:'2-digit', month:'2-digit', year:'numeric'});
-            } else if (fmt === 'iso') {
-                dateEl.textContent = now.toISOString().slice(0, 10);
-            } else if (fmt === 'short') {
-                dateEl.textContent = now.toLocaleDateString('en', {weekday:'short', month:'short', day:'numeric'});
-            } else {
-                dateEl.textContent = now.toLocaleDateString('en', {weekday:'long', month:'long', day:'numeric'});
-            }
+            const opts = {en: 'en'};
+            if (fmt === 'long')         dateEl.textContent = now.toLocaleDateString('en', {weekday:'long', month:'long', day:'numeric'});
+            else if (fmt === 'long-year') dateEl.textContent = now.toLocaleDateString('en', {weekday:'long', month:'long', day:'numeric', year:'numeric'});
+            else if (fmt === 'short')   dateEl.textContent = now.toLocaleDateString('en', {weekday:'short', month:'short', day:'numeric'});
+            else if (fmt === 'short-year') dateEl.textContent = now.toLocaleDateString('en', {weekday:'short', month:'short', day:'numeric', year:'numeric'});
+            else if (fmt === 'medium')  dateEl.textContent = now.toLocaleDateString('en', {month:'long', day:'numeric', year:'numeric'});
+            else if (fmt === 'numeric') dateEl.textContent = now.toLocaleDateString('en-US', {month:'2-digit', day:'2-digit', year:'numeric'});
+            else if (fmt === 'numeric-dmy') dateEl.textContent = now.toLocaleDateString('en-GB', {day:'2-digit', month:'2-digit', year:'numeric'});
+            else if (fmt === 'iso')     dateEl.textContent = now.toISOString().slice(0, 10);
+            else                        dateEl.textContent = now.toLocaleDateString('en', {weekday:'long', month:'long', day:'numeric'});
         }
     }
 
@@ -2117,14 +2224,12 @@
         draw();
     }
 
-    window.onload = () => { 
-        saveAndRender(); 
-        updateWeather().then(() => applyDynamicScaling(true)).catch(() => {});
+    window.onload = () => {
+        saveAndRender();
         tickClock();
         setInterval(tickClock, 1000);
-        setTimeout(() => {
-            document.documentElement.classList.add('ready');
-        }, 150);
+        updateWeather();
+        requestAnimationFrame(() => document.documentElement.classList.add('ready'));
     };
 </script>
 </body>
