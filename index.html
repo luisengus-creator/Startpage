@@ -2088,24 +2088,47 @@
         reader.onload = (e) => {
             try {
                 const imported = JSON.parse(e.target.result);
-                // Deep-merge: start from fresh defaults so new keys always exist,
-                // then overlay imported data so user content is fully preserved.
+                // Validate it looks like a startpage backup
+                if (!imported.profiles && !imported.home && !imported.work) {
+                    alert("Invalid backup file."); return;
+                }
                 const base = getDefaults();
-                // Top-level scalars
-                ['profile','target','linkColor'].forEach(k => { if(imported[k] !== undefined) base[k] = imported[k]; });
-                // Cities array
-                if(Array.isArray(imported.cities) && imported.cities.length) base.cities = imported.cities;
-                // Per-profile merge: preserve all user keys, fill missing ones from defaults
-                ['home','work'].forEach(prof => {
-                    if(!imported[prof]) return;
-                    Object.keys(imported[prof]).forEach(k => { base[prof][k] = imported[prof][k]; });
+                // Restore top-level scalars
+                ['profile','target','linkColor','tabTitle','tabFavicon','tabFaviconEmoji'].forEach(k => {
+                    if (imported[k] !== undefined) base[k] = imported[k];
                 });
+                // Cities
+                if (Array.isArray(imported.cities) && imported.cities.length) base.cities = imported.cities;
+                // New format: profiles array — restore fully
+                if (Array.isArray(imported.profiles) && imported.profiles.length) {
+                    base.profiles = imported.profiles;
+                    base.profileNames = imported.profileNames || imported.profiles.map((_,i) => 'Profile '+(i+1));
+                }
+                // Old format: home/work keys
+                else if (imported.home || imported.work) {
+                    base.profiles = [imported.home || base.profiles[0], imported.work || base.profiles[1]];
+                    base.profileNames = ['Profile 1','Profile 2'];
+                    base.profile = 'p0';
+                }
+                // Ensure profile index is valid
+                const pi = parseInt((base.profile || 'p0').replace('p',''));
+                if (isNaN(pi) || pi >= base.profiles.length) base.profile = 'p0';
+                // Run migrations
+                base.profiles.forEach(p => { if(p && p.density==='l') p.density='xl'; });
+                base.profiles.forEach(p => { if(p && !p.bgMode) p.bgMode='gradient'; });
+                base.profiles.forEach(p => { if(p && !p.profileIcon) p.profileIcon='fa-solid fa-user'; });
+                base.profiles.forEach(p => { if(p && p.profilePhoto===undefined) p.profilePhoto=''; });
+                base.profiles.forEach(p => { if(p && !p.profileIconColor) p.profileIconColor='#ffffff'; });
+                if (!base.tabFaviconEmoji && !base.tabFavicon) base.tabFaviconEmoji='⭐';
                 state = base;
+                localStorage.setItem(KEY, JSON.stringify(state));
                 saveAndRender(); renderSettings(); updateWeather();
                 alert("Import successful!"); closeModals();
-            } catch(err) { alert("Invalid backup file."); }
+            } catch(err) { alert("Invalid backup file: " + err.message); }
         };
         reader.readAsText(file);
+        // Reset input so same file can be re-imported
+        input.value = '';
     }
     function resetToDefaults() { if(confirm("Factory reset? This will erase everything.")) { state = getDefaults(); saveAndRender(); renderSettings(); updateWeather(); } }
     function handleBgFile(input) { const file = input.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (e) => { const img = new Image(); img.onload = () => { const canvas = document.createElement('canvas'); const MAX_WIDTH = 1920; let width = img.width, height = img.height; if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } canvas.width = width; canvas.height = height; canvas.getContext('2d').drawImage(img, 0, 0, width, height); updateBgImg(canvas.toDataURL('image/jpeg', 0.7)); }; img.src = e.target.result; }; reader.readAsDataURL(file); }
