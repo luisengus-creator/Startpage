@@ -44,12 +44,7 @@
         .nav-link { cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; width: 2.2rem; height: 2.2rem; }
         .nav-link i { font-size: 1.2rem; color: #ffffff; transition: 0.3s; }
         .nav-link:hover i { opacity: 0.6; }
-        /* Separator between profile and quick links */
-        #ql-nav:not(:empty) {
-            border-left: 1px dashed rgba(255,255,255,0.18);
-            padding-left: 1.2rem;
-            margin-left: -0.1rem;
-        }
+        /* Separator between profile and quick links removed */
         
         #main-content { 
             flex-grow: 1; 
@@ -233,7 +228,6 @@
             display: grid;
             grid-template-columns: 1fr auto;
             align-items: center;
-            border-bottom: 1px solid rgba(255,255,255,0.03); 
             white-space: nowrap;
         }
         .link-row a { 
