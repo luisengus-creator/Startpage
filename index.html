@@ -44,6 +44,12 @@
         .nav-link { cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; width: 2.2rem; height: 2.2rem; }
         .nav-link i { font-size: 1.2rem; color: #ffffff; transition: 0.3s; }
         .nav-link:hover i { opacity: 0.6; }
+        /* Separator between profile and quick links */
+        #ql-nav:not(:empty) {
+            border-left: 1px dashed rgba(255,255,255,0.18);
+            padding-left: 1.2rem;
+            margin-left: -0.1rem;
+        }
         
         #main-content { 
             flex-grow: 1; 
@@ -239,7 +245,48 @@
             text-align: center;
         }
         
-        .del-btn { display: none; }
+        .link-icon {
+            object-fit: contain; border-radius: 3px;
+            flex-shrink: 0; margin-right: 0.35rem;
+            vertical-align: middle; display: inline-block;
+        }
+        .link-row a.icon-only .link-icon { margin-right: 0; }
+        .link-row a.icon-only .link-label { display: none; }
+        /* Fallback letter circle */
+        .link-icon-fallback {
+            border-radius: 5px; display: none; align-items: center;
+            justify-content: center; font-weight: 700;
+            flex-shrink: 0; margin-right: 0.35rem; vertical-align: middle;
+            opacity: 0.8; font-size: 0.65em;
+        }
+        .link-row a.icon-only .link-icon-fallback { margin-right: 0; }
+        /* Tooltip on icon-only links */
+        .link-row a.icon-only { position: relative; }
+        .link-row a.icon-only::after {
+            content: attr(data-label);
+            position: absolute; bottom: calc(100% + 5px); left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.85); color: #fff;
+            font-size: 0.7rem; padding: 3px 8px; border-radius: 5px;
+            white-space: nowrap; pointer-events: none;
+            opacity: 0; transition: opacity 0.15s; z-index: 100;
+        }
+        .link-row a.icon-only:hover::after { opacity: 1; }
+        /* Quick link favicon */
+        .ql-img-icon { object-fit: contain; border-radius: 3px; width:1.1rem; height:1.1rem; }
+        /* Icon size buttons in editor */
+        .icon-size-group { display:flex; gap:3px; }
+        .icon-size-btn {
+            padding: 1px 7px; font-size: 0.68rem; border-radius: 4px;
+            border: 1px solid #333; background: #111; color: #888; cursor: pointer;
+        }
+        .icon-size-btn.active { border-color: var(--modal-accent,#00d4ff); color: var(--modal-accent,#00d4ff); background: rgba(0,212,255,0.08); }
+        /* Link icon editor row */
+        .link-icon-row { display: flex; align-items: center; gap: 8px; margin-top: 4px; flex-wrap: wrap; }
+        .link-icon-row label { font-size: 0.72rem; color: #888; display: flex; align-items: center; gap: 4px; cursor: pointer; }
+        .link-icon-row label:hover { color: #bbb; }
+        .link-icon-row input[type="radio"] { accent-color: var(--modal-accent,#00d4ff); cursor: pointer; }
+        .link-icon-url-input { flex: 1; min-width: 80px; height: 24px !important; font-size: 0.72rem !important; }
 
         #weather-area { 
             padding: 0 0 1.8vh 0; display: flex; flex-direction: column; align-items: center; 
@@ -344,12 +391,14 @@
         }
 
         /* Quick link rows */
-        .ql-row { display: flex; gap: 5px; align-items: center; margin-bottom: 7px; }
+        .ql-row { display: flex; gap: 5px; align-items: center; margin-bottom: 0; padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,0.25); }
+        .ql-row:last-child { border-bottom: none; }
         .ql-row select { height: 28px; font-size: 0.75rem; }
         .ql-row input[type="text"] { flex: 1; height: 28px; font-size: 0.75rem; }
 
         /* Link editor rows */
-        .editor-link-row { display: flex; gap: 5px; margin-bottom: 6px; align-items: center; width: 100%; }
+        .editor-link-row { display: flex; gap: 5px; margin-bottom: 0; padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,0.25); align-items: center; width: 100%; }
+        .editor-link-row:last-child { border-bottom: none; }
         .editor-link-row input[type="text"] { flex: 1; height: 28px; font-size: 0.75rem; }
         .editor-link-row input[type="color"] { width: 34px !important; height: 26px !important; }
 
@@ -1071,14 +1120,14 @@
         const cats = [];
         for(let i=1; i<=count; i++) {
             let links = [];
-            for(let j=1; j<=5; j++) links.push({name:`Link ${j}`, url:"", color: ""});
+            for(let j=1; j<=5; j++) links.push({name:`Link ${j}`, url:"", color: "", linkIcon: {type:'none', src:''}});
             cats.push({title:`${prefix} ${i}`, color: prefix === "Work" ? "#ff8800" : "#00d4ff", url: "", links: links});
         }
         return cats;
     }
 
     function getDefaults() {
-        const baseQl = [{name:"fa-solid fa-server", url:"", vis:false, color:""}, {name:"fa-solid fa-sliders", url:"", vis:false, color:""}, {name:"fa-brands fa-spotify", url:"", vis:false, color:""}, {name:"fa-solid fa-star", url:"", vis:false, color:""}];
+        const baseQl = [{name:"fa-solid fa-server", url:"", vis:false, color:"", linkIcon:{type:'none',src:''}}, {name:"fa-solid fa-sliders", url:"", vis:false, color:"", linkIcon:{type:'none',src:''}}, {name:"fa-brands fa-spotify", url:"", vis:false, color:"", linkIcon:{type:'none',src:''}}, {name:"fa-solid fa-star", url:"", vis:false, color:"", linkIcon:{type:'none',src:''}}];
         const makeProfile = (cats, density) => ({ ql: JSON.parse(JSON.stringify(baseQl)), categories: cats, showWeather: true, showHeaders: true, showClock: true, clockFormat: '24', clockSeconds: true, clockShowDate: true, clockDateFmt: 'long', clockSize: 'm', clockColor: '#ffffff', clockFont: 'Inter', iconColor: "#ffffff", bgColor: "#1C1B22", bgImg: "", bgMode: 'gradient', opacity: 0.3, fuzzy: 0, weatherColor: "#ffffff", weatherFont: 'Inter', weatherSize: 'm', wShowDay: true, wShowDate: true, wDateFmt: 'dmy', wColored: true, wAqi: true, wUv: true, wPressure: true, wHumidity: true, wVisibility: true, wSunrise: true, density, gridFont: 'Inter', showSearch: true, searchEngine: 'startpage', profileIcon: 'fa-solid fa-user', profilePhoto: '', profileIconColor: '#ffffff' });
         return {
             profile: 'p0', target: '_self', linkColor: "#cccccc", tabTitle: 'Startpage', tabFavicon: '', tabFaviconEmoji: '⭐',
@@ -1109,6 +1158,10 @@
     state.profiles.forEach(p => { if (p && p.density === 'l') p.density = 'xl'; });
     // Migrate old mesh boolean to bgMode in all profiles
     state.profiles.forEach(p => { if (p && !p.bgMode) p.bgMode = 'gradient'; });
+    // Migrate links missing linkIcon
+    state.profiles.forEach(p => { if (p && p.categories) p.categories.forEach(c => { if (c.links) c.links.forEach(l => { if (!l.linkIcon) l.linkIcon = {type:'none', src:''}; }); }); });
+    // Migrate ql missing linkIcon
+    state.profiles.forEach(p => { if (p && p.ql) p.ql.forEach(l => { if (!l.linkIcon) l.linkIcon = {type:'none', src:''}; }); });
     // Set default favicon emoji if none set
     if (!state.tabFaviconEmoji && !state.tabFavicon) state.tabFaviconEmoji = '⭐';
     // Migrate missing profileIcon/profilePhoto
@@ -1582,7 +1635,7 @@
             stopBgCanvas();
         } else {
             const mode = p.bgMode || 'gradient';
-            const intensity = parseFloat(p.opacity) || 0.3;
+            const intensity = p.opacity !== undefined && p.opacity !== "" ? parseFloat(p.opacity) : 0.3;
             document.body.style.backgroundColor = p.bgColor;
             if (mode === 'gradient') {
                 const cols = p.categories.map(x => x.color);
@@ -1615,7 +1668,20 @@
         }
         const qlHtml = p.ql.filter(l => l.vis).map(l => {
             const ic = l.color || p.iconColor || '#ffffff';
-            return `<a href="${l.url}" class="nav-link active" target="${state.target}"><i class="${l.name}" style="color:${ic}"></i></a>`;
+            const lic = l.linkIcon || {type:'none', src:''};
+            let iconContent = '';
+            if (lic.type === 'favicon' && l.url) {
+                try {
+                    const domain = new URL(l.url).hostname;
+                    iconContent = `<img class="ql-img-icon" src="https://www.google.com/s2/favicons?domain=${domain}&sz=32" alt="" onerror="this.style.display='none';this.nextSibling.style.display='inline-block'"><i class="${l.name}" style="color:${ic};display:none;"></i>`;
+                } catch(e) { iconContent = `<i class="${l.name}" style="color:${ic}"></i>`; }
+            } else if (lic.type === 'url' && lic.src) {
+                iconContent = `<img class="ql-img-icon" src="${lic.src}" alt="" onerror="this.style.display='none';this.nextSibling.style.display='inline-block'"><i class="${l.name}" style="color:${ic};display:none;"></i>`;
+            } else {
+                iconContent = `<i class="${l.name}" style="color:${ic}"></i>`;
+            }
+            const title = l.url ? new URL(l.url.startsWith('http') ? l.url : 'https://'+l.url).hostname : '';
+            return `<a href="${l.url}" class="nav-link active" target="${state.target}" title="${title}">${iconContent}</a>`;
         }).join('');
         document.getElementById('ql-nav').innerHTML = qlHtml;
         document.getElementById('grid').innerHTML = p.categories.map((c, ci) => `
@@ -1632,11 +1698,35 @@
                     </div>
                     <div class="edit-overlay"><button class="edit-del-btn" onclick="delCat(${ci})">Delete</button></div>
                 </div>
-                ${c.links.map((l, li) => `
-                <div class="link-row" style="position:relative;">
-                    <a href="${l.url || '#'}" target="${state.target}" style="color:${l.color || state.linkColor}">${l.name}</a>
-                    <div class="edit-overlay"><button class="edit-del-btn" onclick="delLink(${ci},${li})">Delete</button></div>
-                </div>`).join('')}
+                ${c.links.map((l, li) => {
+                    const lic = l.linkIcon || {type:'none', src:'', size:'m'};
+                    const iconOnly = lic.type !== 'none' && lic.iconOnly;
+                    const sz = lic.size === 's' ? 'calc(0.75rem * var(--scale) * var(--density-mod))'
+                             : lic.size === 'l' ? 'calc(1.5rem * var(--scale) * var(--density-mod))'
+                             : 'calc(1rem * var(--scale) * var(--density-mod))';
+                    const fid = 'fb-'+ci+'-'+li;
+                    let iconHtml = '';
+                    if (lic.type === 'favicon' && l.url) {
+                        try {
+                            const domain = new URL(l.url).hostname;
+                            const fb = l.name ? l.name.charAt(0).toUpperCase() : '?';
+                            const fbBg = l.color || state.linkColor || '#888';
+                            iconHtml = '<img class="link-icon" style="width:'+sz+';height:'+sz+'" src="https://www.google.com/s2/favicons?domain='+domain+'&sz=32" alt="" onerror="this.style.display=\'none\';document.getElementById(\''+fid+'\').style.display=\'inline-flex\'">'
+                                +'<span id="'+fid+'" class="link-icon-fallback" style="width:'+sz+';height:'+sz+';background:'+fbBg+'22;color:'+fbBg+'">'+fb+'</span>';
+                        } catch(e) {}
+                    } else if (lic.type === 'url' && lic.src) {
+                        const fb = l.name ? l.name.charAt(0).toUpperCase() : '?';
+                        const fbBg = l.color || state.linkColor || '#888';
+                        iconHtml = '<img class="link-icon" style="width:'+sz+';height:'+sz+'" src="'+lic.src+'" alt="" onerror="this.style.display=\'none\';document.getElementById(\''+fid+'\').style.display=\'inline-flex\'">'
+                            +'<span id="'+fid+'" class="link-icon-fallback" style="width:'+sz+';height:'+sz+';background:'+fbBg+'22;color:'+fbBg+'">'+fb+'</span>';
+                    }
+                    const aClass = iconOnly ? 'icon-only' : '';
+                    const aLabel = iconOnly ? 'data-label="'+l.name+'"' : '';
+                    return '<div class="link-row" style="position:relative;">'
+                        +'<a href="'+(l.url||'#')+'" target="'+state.target+'" style="color:'+(l.color||state.linkColor)+'" class="'+aClass+'" '+aLabel+'>'+iconHtml+'<span class="link-label">'+l.name+'</span></a>'
+                        +'<div class="edit-overlay"><button class="edit-del-btn" onclick="delLink('+ci+','+li+')">Delete</button></div>'
+                        +'</div>';
+                }).join('')}
             </div>`).join('');
         document.getElementById('weather-area').classList.toggle('weather-hidden', !p.showWeather);
         
@@ -1654,20 +1744,33 @@
         if(!p.categories[document.getElementById('cat-sel').value]) document.getElementById('cat-sel').value = 0;
         const slider = document.getElementById('unified-slider'), label = document.querySelector('.slider-label');
         if (p.bgImg) { label.textContent = "Photo Blur"; slider.min = 0; slider.max = 30; slider.step = 1; slider.value = p.fuzzy || 0; }
-        else { label.textContent = "Intensity"; slider.min = 0; slider.max = 1; slider.step = 0.05; slider.value = p.opacity || 0.3; }
+        else { label.textContent = "Intensity"; slider.min = 0; slider.max = 1; slider.step = 0.05; slider.value = (p.opacity !== undefined && p.opacity !== '') ? p.opacity : 0.3; }
         renderProfileTabs();
         document.getElementById('ql-list-editor').innerHTML = p.ql.map((l, i) => {
             const ic = l.color || p.iconColor || '#ffffff';
-            return `<div class="ql-row">
-                <input type="checkbox" ${l.vis ? 'checked' : ''} onchange="updateQlRealtime(${i},'vis',this.checked)">
-                <button class="icon-picker-btn" onclick="ipOpen(${i},this)" title="Choose icon"><i class="${l.name}"></i> <span style="font-size:0.65rem;opacity:0.5;">▾</span></button>
-                <input type="text" value="${l.url}" placeholder="URL" oninput="updateQlRealtime(${i},'url',this.value)" style="margin:0;">
-                <div class="color-field">
-                    <input type="color" id="ql-color-${i}" value="${ic}" oninput="updateQlRealtime(${i},'color',this.value)" style="display:none">
-                    <div class="cp-swatch" onclick="cpOpen('ql-color-${i}')" style="background:${ic}"></div>
-                    <button class="btn-icon" onclick="updateQlRealtime(${i},'color','')" title="Reset color"><i class="fa-solid fa-rotate-left"></i></button>
-                </div>
-            </div>`;
+            const lic = l.linkIcon || {type:'none', src:''};
+            const noneChk = lic.type==='none'   ? 'checked' : '';
+            const favChk  = lic.type==='favicon' ? 'checked' : '';
+            const urlChk  = lic.type==='url'     ? 'checked' : '';
+            const qlUrlInput = lic.type==='url'
+                ? '<input type="text" class="link-icon-url-input" placeholder="Image URL..." value="'+(lic.src||'')+'" oninput="updateQlIcon('+i+',\'url\',this.value)">'
+                : '';
+            return '<div class="ql-row" style="flex-wrap:wrap;gap:4px;">'
+                +'<div style="display:flex;gap:4px;align-items:center;width:100%;">'
+                +'<input type="checkbox" '+(l.vis?'checked':'')+' onchange="updateQlRealtime('+i+',\'vis\',this.checked)">'
+                +'<button class="icon-picker-btn" onclick="ipOpen('+i+',this)" title="Choose icon"><i class="'+l.name+'"></i> <span style="font-size:0.65rem;opacity:0.5;">▾</span></button>'
+                +'<input type="text" value="'+l.url+'" placeholder="URL" oninput="updateQlRealtime('+i+',\'url\',this.value)" style="margin:0;flex:1;">'
+                +'<div class="color-field">'
+                +'<input type="color" id="ql-color-'+i+'" value="'+ic+'" oninput="updateQlRealtime('+i+',\'color\',this.value)" style="display:none">'
+                +'<div class="cp-swatch" onclick="cpOpen(\'ql-color-'+i+'\')" style="background:'+ic+'"></div>'
+                +'<button class="btn-icon" onclick="updateQlRealtime('+i+',\'color\',\'\')" title="Reset color"><i class="fa-solid fa-rotate-left"></i></button>'
+                +'</div></div>'
+                +'<div class="link-icon-row" style="padding-left:20px;">'
+                +'<label><input type="radio" name="ql-icon-'+i+'" value="none" '+noneChk+' onchange="updateQlIcon('+i+',\'none\',\'\')"> None</label>'
+                +'<label><input type="radio" name="ql-icon-'+i+'" value="favicon" '+favChk+' onchange="updateQlIcon('+i+',\'favicon\',\'\')"> Favicon</label>'
+                +'<label><input type="radio" name="ql-icon-'+i+'" value="url" '+urlChk+' onchange="updateQlIcon('+i+',\'url\',\'\')"> URL</label>'
+                + qlUrlInput
+                +'</div></div>';
         }).join('');
         document.getElementById('target-mode').value = state.target;
         document.getElementById('search-enable').checked = (p.showSearch !== false);
@@ -1786,6 +1889,22 @@
         document.getElementById('city-name').style.color = p.weatherColor;
         const wFont = `'${p.weatherFont || 'Inter'}', system-ui, sans-serif`;
         document.getElementById('weather-area').style.fontFamily = wFont;
+
+        // Pre-populate placeholder cards so layout doesn't shift when data arrives
+        const wg = document.getElementById('weather-grid');
+        if (!wg.hasChildNodes()) {
+            const sz = p.weatherSize || 'm';
+            const cardScale = sz === 's' ? 0.78 : sz === 'l' ? 1.22 : 1.0;
+            const minW = sz === 's' ? '4.2rem' : sz === 'l' ? '7.2rem' : '6.0rem';
+            const cardPad = sz === 's' ? '0.35rem 0.5rem' : sz === 'l' ? '0.65rem 0.9rem' : '0.5rem 0.7rem';
+            wg.innerHTML = Array.from({length:7}).map(() =>
+                `<div class="wcard" style="min-width:${minW};padding:${cardPad};opacity:0.25;">
+                    <div style="font-size:0.6rem;">—</div>
+                    <div style="font-size:1rem;margin:2px 0;">—</div>
+                    <div style="font-size:0.8rem;">—</div>
+                </div>`
+            ).join('');
+        }
         try {
             const currentParams = 'current=temperature_2m,relative_humidity_2m,surface_pressure,visibility,uv_index';
             const dailyParams = 'daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset';
@@ -1795,7 +1914,7 @@
             _liveSkyCode = d.daily && d.daily.weathercode ? d.daily.weathercode[0] : 0;
             // Restart live sky if it's the active background mode
             if ((curProfile().bgMode || 'gradient') === 'time') {
-                const intensity = parseFloat(curProfile().opacity) || 0.3;
+                const op = curProfile().opacity; const intensity = (op !== undefined && op !== '') ? parseFloat(op) : 0.3;
                 startLiveSkyBg(intensity);
             }
 
@@ -1884,25 +2003,64 @@
             document.getElementById('cat-url').value = c.url || ""; 
             document.getElementById('link-list-editor').innerHTML = c.links.map((l, li) => {
                 const lc = l.color || state.linkColor || '#cccccc';
-                return `<div class="editor-link-row" draggable="true"
-                    ondragstart="linkDragStart(event,${idx},${li})"
-                    ondragover="linkDragOver(event,${idx},${li})"
-                    ondrop="linkDrop(event,${idx},${li})"
-                    ondragleave="linkDragLeave(event)">
-                    <i class="fa-solid fa-grip-vertical drag-handle"></i>
-                    <input type="text" value="${l.name}" oninput="updateLinkRealtime(${idx},${li},'name',this.value)">
-                    <input type="text" value="${l.url}" placeholder="URL" oninput="updateLinkRealtime(${idx},${li},'url',this.value)">
-                    <div class="color-field">
-                        <input type="color" id="lc-${idx}-${li}" value="${lc}" oninput="updateLinkRealtime(${idx},${li},'color',this.value)" style="display:none">
-                        <div class="cp-swatch" onclick="cpOpen('lc-${idx}-${li}')" style="background:${lc}"></div>
-                        <button class="btn-icon" onclick="updateLinkRealtime(${idx},${li},'color',''); syncCategoryEditor();" title="Reset color"><i class="fa-solid fa-rotate-left"></i></button>
-                    </div>
-                    <button class="btn-icon" style="color:#f44;" onclick="delLink(${idx},${li}); syncCategoryEditor();"><i class="fa-solid fa-trash-can"></i></button>
-                </div>`;
+                const lic = l.linkIcon || {type:'none', src:''};
+                const noneChk   = lic.type==='none'    ? 'checked' : '';
+                const favChk    = lic.type==='favicon'  ? 'checked' : '';
+                const urlChk    = lic.type==='url'      ? 'checked' : '';
+                const iconOnlyChk = lic.iconOnly ? 'checked' : '';
+                const iconOnlyVal = lic.iconOnly ? 'true' : 'false';
+                const sz = lic.size || 'm';
+                const urlInput  = lic.type==='url'
+                    ? '<input type="text" class="link-icon-url-input" placeholder="Image URL..." value="'+( lic.src||'')+'" oninput="updateLinkIcon('+idx+','+li+',\'url\',this.value,'+iconOnlyVal+',\''+sz+'\')">'
+                    : '';
+                const iconOnlyBox = lic.type!=='none'
+                    ? '<label style="margin-left:4px;"><input type="checkbox" '+iconOnlyChk+' onchange="updateLinkIcon('+idx+','+li+',\''+lic.type+'\',\''+( lic.src||'')+'\',this.checked,\''+sz+'\')"> Icon only</label>'
+                    : '';
+                const sizeButtons = lic.type!=='none'
+                    ? '<div class="icon-size-group">'
+                      +'<button class="icon-size-btn'+(sz==='s'?' active':'')+'" onclick="updateLinkIcon('+idx+','+li+',\''+lic.type+'\',\''+( lic.src||'')+'\','+iconOnlyVal+',\'s\')">S</button>'
+                      +'<button class="icon-size-btn'+(sz==='m'?' active':'')+'" onclick="updateLinkIcon('+idx+','+li+',\''+lic.type+'\',\''+( lic.src||'')+'\','+iconOnlyVal+',\'m\')">M</button>'
+                      +'<button class="icon-size-btn'+(sz==='l'?' active':'')+'" onclick="updateLinkIcon('+idx+','+li+',\''+lic.type+'\',\''+( lic.src||'')+'\','+iconOnlyVal+',\'l\')">L</button>'
+                      +'</div>'
+                    : '';
+                return '<div class="editor-link-row" draggable="true"'
+                    +' ondragstart="linkDragStart(event,'+idx+','+li+')"'
+                    +' ondragover="linkDragOver(event,'+idx+','+li+')"'
+                    +' ondrop="linkDrop(event,'+idx+','+li+')"'
+                    +' ondragleave="linkDragLeave(event)">'
+                    +'<i class="fa-solid fa-grip-vertical drag-handle"></i>'
+                    +'<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;">'
+                    +'<div style="display:flex;gap:4px;align-items:center;">'
+                    +'<input type="text" value="'+l.name+'" oninput="updateLinkRealtime('+idx+','+li+',\'name\',this.value)" style="flex:1;">'
+                    +'<input type="text" value="'+l.url+'" placeholder="URL" oninput="updateLinkRealtime('+idx+','+li+',\'url\',this.value)" style="flex:1;">'
+                    +'</div>'
+                    +'<div class="link-icon-row">'
+                    +'<label><input type="radio" name="li-icon-'+idx+'-'+li+'" value="none" '+noneChk+' onchange="updateLinkIcon('+idx+','+li+',\'none\',\'\',false,\'m\')"> None</label>'
+                    +'<label><input type="radio" name="li-icon-'+idx+'-'+li+'" value="favicon" '+favChk+' onchange="updateLinkIcon('+idx+','+li+',\'favicon\',\'\','+iconOnlyVal+',\''+sz+'\')"> Favicon</label>'
+                    +'<label><input type="radio" name="li-icon-'+idx+'-'+li+'" value="url" '+urlChk+' onchange="updateLinkIcon('+idx+','+li+',\'url\',\'\','+iconOnlyVal+',\''+sz+'\')"> URL</label>'
+                    + urlInput + iconOnlyBox + sizeButtons
+                    +'</div></div>'
+                    +'<div class="color-field" style="flex-shrink:0;">'
+                    +'<input type="color" id="lc-'+idx+'-'+li+'" value="'+lc+'" oninput="updateLinkRealtime('+idx+','+li+',\'color\',this.value)" style="display:none">'
+                    +'<div class="cp-swatch" onclick="cpOpen(\'lc-'+idx+'-'+li+'\')" style="background:'+lc+'"></div>'
+                    +'<button class="btn-icon" onclick="updateLinkRealtime('+idx+','+li+',\'color\',\'\'); syncCategoryEditor();" title="Reset color"><i class="fa-solid fa-rotate-left"></i></button>'
+                    +'</div>'
+                    +'<button class="btn-icon" style="color:#f44;" onclick="delLink('+idx+','+li+'); syncCategoryEditor();"><i class="fa-solid fa-trash-can"></i></button>'
+                    +'</div>';
             }).join(''); 
         } 
     }
     function updateCatRealtime() { const idx = document.getElementById('cat-sel').value, c = curProfile().categories[idx]; c.title = document.getElementById('cat-title').value; c.color = document.getElementById('cat-color').value; c.url = document.getElementById('cat-url').value; saveAndRender(); }
+    function updateQlIcon(i, type, src) {
+        curProfile().ql[i].linkIcon = {type, src: src||''};
+        saveAndRender();
+        renderSettings();
+    }
+    function updateLinkIcon(ci, li, type, src, iconOnly, size) {
+        curProfile().categories[ci].links[li].linkIcon = {type, src: src||'', iconOnly: !!iconOnly, size: size||'m'};
+        saveAndRender();
+        syncCategoryEditor();
+    }
     function updateLinkRealtime(ci, li, k, v) { curProfile().categories[ci].links[li][k] = v; saveAndRender(); }
     function updateQlRealtime(i, k, v) { curProfile().ql[i][k] = v; saveAndRender(); }
     // ── Column drag reorder ──
