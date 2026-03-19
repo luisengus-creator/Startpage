@@ -75,11 +75,11 @@
         }
 
         .column { 
-            background: rgba(255,255,255,0.02); 
+            background: rgba(255,255,255,var(--card-opacity, 0.02)); 
             border-radius: 4px; 
             padding: calc(1.2rem * var(--scale) * var(--density-mod)); 
             position: relative; 
-            border: 1px solid rgba(255,255,255,0.06); 
+            border: 1px solid rgba(255,255,255,0.06);
             backdrop-filter: blur(12px); 
             text-align: center; 
             flex: 0 0 auto;
@@ -243,6 +243,7 @@
             object-fit: contain; border-radius: 3px;
             flex-shrink: 0; margin-right: 0.35rem;
             vertical-align: middle; display: inline-block;
+            position: relative; top: -0.05em;
         }
         .link-row a.icon-only .link-icon { margin-right: 0; }
         .link-row a.icon-only .link-label { display: none; }
@@ -252,6 +253,7 @@
             justify-content: center; font-weight: 700;
             flex-shrink: 0; margin-right: 0.35rem; vertical-align: middle;
             opacity: 0.8; font-size: 0.65em;
+            position: relative; top: -0.05em;
         }
         .link-row a.icon-only .link-icon-fallback { margin-right: 0; }
         /* Tooltip on icon-only links */
@@ -286,9 +288,10 @@
             padding: 0 0 1.8vh 0; display: flex; flex-direction: column; align-items: center; 
             gap: 0.5rem; z-index: 10; flex-shrink: 0; height: 148px;
             justify-content: flex-end;
-            opacity: 1; visibility: visible; transition: opacity 0.3s ease;
+            opacity: 0; visibility: hidden; transition: opacity 0.8s ease, visibility 0.8s ease;
         }
-        #weather-area.weather-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        #weather-area.weather-loaded { opacity: 1; visibility: visible; }
+        #weather-area.weather-hidden { opacity: 0 !important; visibility: hidden !important; pointer-events: none; }
         #city-name { font-size: 0.75rem; opacity: 0.5; letter-spacing: 3px; cursor: pointer; text-transform: uppercase; }
         #weather-grid { display: flex; gap: 0.6rem; align-items: center; cursor: pointer; }
         .weather-card { background: rgba(255,255,255,0.03); padding: 0.5rem 0.7rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); text-align: center; min-width: 5.5rem; }
@@ -383,6 +386,8 @@
             font-size: 0.78rem !important; padding: 0 6px !important;
             flex-shrink: 0;
         }
+        /* Inputs inside flex rows should not force 100% width */
+        .flex-row input, div[style*="display:flex"] > input { width: auto !important; }
 
         /* Quick link rows */
         .ql-row { display: flex; gap: 5px; align-items: center; margin-bottom: 0; padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,0.25); }
@@ -397,8 +402,13 @@
         .editor-link-row input[type="color"] { width: 34px !important; height: 26px !important; }
 
         /* Slider */
-        input[type="range"] { height: 5px; background: #222; border-radius: 5px; appearance: none; cursor: pointer; width: 100%; margin-top: 6px; }
+        input[type="range"] { 
+            height: 5px; background: #222; border-radius: 5px; appearance: none; 
+            cursor: pointer; width: 100%; margin-top: 6px; 
+            padding: 0 !important; border: none !important;
+        }
         input[type="range"]::-webkit-slider-thumb { appearance: none; width: 13px; height: 13px; background: var(--modal-accent, #00d4ff); border-radius: 50%; }
+        input[type="range"]::-moz-range-thumb { width: 13px; height: 13px; background: var(--modal-accent, #00d4ff); border-radius: 50%; border: none; }
         .slider-label { font-size: 0.72rem; opacity: 0.5; margin-bottom: 4px; display: block; }
 
         /* City list */
@@ -749,7 +759,12 @@
         <div class="setting-block">
             <div class="section-h">Categories & Content</div>
             <label class="label-inline"><input type="checkbox" id="header-vis-check" onchange="updateVisRealtime()"> Show Category Headers</label>
-            <select id="cat-sel" onchange="syncCategoryEditor()" style="margin-bottom:8px;"></select>
+            <div class="color-row" style="margin-top:10px; margin-bottom:4px;">
+                <span>Card Opacity</span>
+                <span id="card-opacity-val" style="font-size:0.72rem; color:#888;">0%</span>
+            </div>
+            <input type="range" id="card-opacity-slider" min="0" max="0.5" step="0.01" oninput="updateVisRealtime()">
+            <select id="cat-sel" onchange="syncCategoryEditor()" style="margin-bottom:8px; margin-top:12px;"></select>
             <div class="flex-row" style="margin-bottom:8px; align-items:center;">
                 <input type="text" id="cat-title" oninput="updateCatRealtime()" placeholder="Title">
                 <div class="color-field">
@@ -1122,7 +1137,7 @@
 
     function getDefaults() {
         const baseQl = [{name:"fa-solid fa-server", url:"", vis:false, color:"", linkIcon:{type:'none',src:''}}, {name:"fa-solid fa-sliders", url:"", vis:false, color:"", linkIcon:{type:'none',src:''}}, {name:"fa-brands fa-spotify", url:"", vis:false, color:"", linkIcon:{type:'none',src:''}}, {name:"fa-solid fa-star", url:"", vis:false, color:"", linkIcon:{type:'none',src:''}}];
-        const makeProfile = (cats, density) => ({ ql: JSON.parse(JSON.stringify(baseQl)), categories: cats, showWeather: true, showHeaders: true, showClock: true, clockFormat: '24', clockSeconds: true, clockShowDate: true, clockDateFmt: 'long', clockSize: 'm', clockColor: '#ffffff', clockFont: 'Inter', iconColor: "#ffffff", bgColor: "#1C1B22", bgImg: "", bgMode: 'gradient', opacity: 0.3, fuzzy: 0, weatherColor: "#ffffff", weatherFont: 'Inter', weatherSize: 'm', wShowDay: true, wShowDate: true, wDateFmt: 'dmy', wColored: true, wAqi: true, wUv: true, wPressure: true, wHumidity: true, wVisibility: true, wSunrise: true, density, gridFont: 'Inter', showSearch: true, searchEngine: 'startpage', profileIcon: 'fa-solid fa-user', profilePhoto: '', profileIconColor: '#ffffff' });
+        const makeProfile = (cats, density) => ({ ql: JSON.parse(JSON.stringify(baseQl)), categories: cats, showWeather: true, showHeaders: true, showClock: true, clockFormat: '24', clockSeconds: true, clockShowDate: true, clockDateFmt: 'long', clockSize: 'm', clockColor: '#ffffff', clockFont: 'Inter', iconColor: "#ffffff", bgColor: "#1C1B22", bgImg: "", bgMode: 'gradient', opacity: 0.3, fuzzy: 0, weatherColor: "#ffffff", weatherFont: 'Inter', weatherSize: 'm', wShowDay: true, wShowDate: true, wDateFmt: 'dmy', wColored: true, wAqi: true, wUv: true, wPressure: true, wHumidity: true, wVisibility: true, wSunrise: true, density, gridFont: 'Inter', showSearch: true, searchEngine: 'startpage', profileIcon: 'fa-solid fa-user', profilePhoto: '', profileIconColor: '#ffffff', cardOpacity: 0.02 });
         return {
             profile: 'p0', target: '_self', linkColor: "#cccccc", tabTitle: 'Startpage', tabFavicon: '', tabFaviconEmoji: '⭐',
             cities: [{name: "Lisboa", lat: 38.71, lon: -9.13}],
@@ -1160,6 +1175,8 @@
     if (!state.tabFaviconEmoji && !state.tabFavicon) state.tabFaviconEmoji = '⭐';
     // Migrate missing profileIcon/profilePhoto
     state.profiles.forEach(p => { if (p && !p.profileIcon) p.profileIcon = 'fa-solid fa-user'; if (p && p.profilePhoto === undefined) p.profilePhoto = ''; if (p && !p.profileIconColor) p.profileIconColor = '#ffffff'; if (p && !p.weatherSize) p.weatherSize = 'm'; if (p && p.wShowDay === undefined) p.wShowDay = true; if (p && p.wShowDate === undefined) p.wShowDate = true; if (p && !p.wDateFmt) p.wDateFmt = 'dmy'; });
+    // Migrate cardOpacity
+    state.profiles.forEach(p => { if (p && p.cardOpacity === undefined) p.cardOpacity = 0.02; });
     let cityIdx = 0;
     let _liveSkyCode = 0; // current WMO weathercode for live sky background
     function curProfile() { return state.profiles[parseInt(state.profile.replace('p',''))] || state.profiles[0]; }
@@ -1620,6 +1637,9 @@
         applyUiFonts(p.clockFont, p.weatherFont);
         updateModalAccent();
         renderSearchBar();
+        // Apply card opacity
+        const cardOp = (p.cardOpacity !== undefined && p.cardOpacity !== '') ? parseFloat(p.cardOpacity) : 0.02;
+        document.documentElement.style.setProperty('--card-opacity', cardOp);
         const bg = document.getElementById('full-bg');
         if(!bg) return;
         bg.style.backgroundImage = "none"; bg.style.background = "none"; bg.style.filter = "none"; bg.style.opacity = 1;
@@ -1697,6 +1717,7 @@
                     const iconOnly = lic.type !== 'none' && lic.iconOnly;
                     const sz = lic.size === 's' ? 'calc(0.75rem * var(--scale) * var(--density-mod))'
                              : lic.size === 'l' ? 'calc(1.5rem * var(--scale) * var(--density-mod))'
+                             : lic.size === 'xl' ? 'calc(2rem * var(--scale) * var(--density-mod))'
                              : 'calc(1rem * var(--scale) * var(--density-mod))';
                     const fid = 'fb-'+ci+'-'+li;
                     let iconHtml = '';
@@ -1723,6 +1744,7 @@
                 }).join('')}
             </div>`).join('');
         document.getElementById('weather-area').classList.toggle('weather-hidden', !p.showWeather);
+        if (!p.showWeather) document.getElementById('weather-area').classList.remove('weather-loaded');
         
         // Trigger scaling which now handles the visibility logic
         applyDynamicScaling();
@@ -1736,9 +1758,12 @@
         document.getElementById(`size-${p.density || 'xl'}`).classList.add('active');
         document.getElementById('cat-sel').innerHTML = p.categories.map((c, i) => `<option value="${i}">${c.title}</option>`).join('');
         if(!p.categories[document.getElementById('cat-sel').value]) document.getElementById('cat-sel').value = 0;
-        const slider = document.getElementById('unified-slider'), label = document.querySelector('.slider-label');
-        if (p.bgImg) { label.textContent = "Photo Blur"; slider.min = 0; slider.max = 30; slider.step = 1; slider.value = p.fuzzy || 0; }
-        else { label.textContent = "Intensity"; slider.min = 0; slider.max = 1; slider.step = 0.05; slider.value = (p.opacity !== undefined && p.opacity !== '') ? p.opacity : 0.3; }
+        const slider = document.getElementById('unified-slider'), label = document.querySelector('#slider-label');
+        if (p.bgImg) { 
+            label.textContent = "Photo Blur"; slider.min = 0; slider.max = 30; slider.step = 1; slider.value = p.fuzzy || 0; 
+        } else { 
+            label.textContent = "Intensity"; slider.min = 0; slider.max = 1; slider.step = 0.05; slider.value = (p.opacity !== undefined && p.opacity !== '') ? p.opacity : 0.3; 
+        }
         renderProfileTabs();
         document.getElementById('ql-list-editor').innerHTML = p.ql.map((l, i) => {
             const ic = l.color || p.iconColor || '#ffffff';
@@ -1775,6 +1800,11 @@
             const btn = document.getElementById('bgmode-' + m);
             if (btn) btn.classList.toggle('active', !p.bgImg && (p.bgMode || 'gradient') === m);
         });
+        const cardSlider = document.getElementById('card-opacity-slider');
+        const cardVal = (p.cardOpacity !== undefined && p.cardOpacity !== '') ? parseFloat(p.cardOpacity) : 0.02;
+        if (cardSlider) cardSlider.value = cardVal;
+        const cardValEl = document.getElementById('card-opacity-val');
+        if (cardValEl) cardValEl.textContent = Math.round(cardVal / 0.5 * 100) + '%';
         document.getElementById('weather-color-picker').value = p.weatherColor;
         document.getElementById('weather-font').value = p.weatherFont || 'Inter';
         document.getElementById('weather-size').value = p.weatherSize || 'm';
@@ -1848,6 +1878,12 @@
         p.gridFont = document.getElementById('font-picker').value;
         const sliderVal = document.getElementById('unified-slider').value;
         if (p.bgImg) { p.fuzzy = sliderVal; } else { p.opacity = sliderVal; }
+        const cardSlider = document.getElementById('card-opacity-slider');
+        if (cardSlider) {
+            p.cardOpacity = parseFloat(cardSlider.value);
+            const cardValEl = document.getElementById('card-opacity-val');
+            if (cardValEl) cardValEl.textContent = Math.round(p.cardOpacity / 0.5 * 100) + '%';
+        }
         saveAndRender(); updateWeather(); tickClock();
         updateSectionStates();
     }
@@ -1982,6 +2018,12 @@
 
             statsEl.innerHTML = stats.join('');
             statsEl.style.display = stats.length ? 'flex' : 'none';
+
+            // Fade in weather area after data is ready
+            const wa = document.getElementById('weather-area');
+            if (wa && !wa.classList.contains('weather-hidden')) {
+                setTimeout(() => wa.classList.add('weather-loaded'), 80);
+            }
         } catch(e) {}
     }
 
@@ -2015,6 +2057,7 @@
                       +'<button class="icon-size-btn'+(sz==='s'?' active':'')+'" onclick="updateLinkIcon('+idx+','+li+',\''+lic.type+'\',\''+( lic.src||'')+'\','+iconOnlyVal+',\'s\')">S</button>'
                       +'<button class="icon-size-btn'+(sz==='m'?' active':'')+'" onclick="updateLinkIcon('+idx+','+li+',\''+lic.type+'\',\''+( lic.src||'')+'\','+iconOnlyVal+',\'m\')">M</button>'
                       +'<button class="icon-size-btn'+(sz==='l'?' active':'')+'" onclick="updateLinkIcon('+idx+','+li+',\''+lic.type+'\',\''+( lic.src||'')+'\','+iconOnlyVal+',\'l\')">L</button>'
+                      +'<button class="icon-size-btn'+(sz==='xl'?' active':'')+'" onclick="updateLinkIcon('+idx+','+li+',\''+lic.type+'\',\''+( lic.src||'')+'\','+iconOnlyVal+',\'xl\')">XL</button>'
                       +'</div>'
                     : '';
                 return '<div class="editor-link-row" draggable="true"'
@@ -2287,7 +2330,7 @@
     function setBgMode(mode) {
         const p = curProfile();
         p.bgMode = mode;
-        p.bgImg = '';           // remove photo when a mode is chosen
+        p.bgImg = '';
         ['gradient','mesh','particles','time'].forEach(m => {
             const btn = document.getElementById('bgmode-' + m);
             if (btn) btn.classList.toggle('active', m === mode);
@@ -2298,7 +2341,6 @@
         const p = curProfile();
         p.bgImg = val;
         if (val) {
-            // Deactivate all mode buttons — photo overrides everything
             ['gradient','mesh','particles','time'].forEach(m => {
                 const btn = document.getElementById('bgmode-' + m);
                 if (btn) btn.classList.remove('active');
@@ -2306,6 +2348,7 @@
         }
         saveAndRender(); renderSettings();
     }
+
     function addCity(name, lat, lon) { state.cities.push({name, lat, lon}); document.getElementById('search-results').innerHTML = ''; document.getElementById('city-search-input').value = ''; renderCityManager(); saveAndRender(); updateWeather(); }
     function removeCity(i) { if(state.cities.length > 1) { state.cities.splice(i, 1); cityIdx = 0; renderCityManager(); saveAndRender(); updateWeather(); } }
     function cycleCity() { cityIdx = (cityIdx + 1) % state.cities.length; updateWeather(); }
@@ -2538,13 +2581,13 @@
         }));
 
         // ── Clouds ──
-        const clouds = Array.from({length: 7}, (_, i) => ({
+        const clouds = Array.from({length: 8}, (_, i) => ({
             x: Math.random(),
-            y: 0.05 + Math.random() * 0.35,
-            w: 0.15 + Math.random() * 0.25,
-            h: 0.04 + Math.random() * 0.06,
-            speed: 0.00003 + Math.random() * 0.00005,
-            opacity: 0.3 + Math.random() * 0.4,
+            y: 0.04 + Math.random() * 0.32,
+            w: 0.22 + Math.random() * 0.30,
+            h: 0.08 + Math.random() * 0.10,
+            speed: 0.000025 + Math.random() * 0.000045,
+            opacity: 0.55 + Math.random() * 0.35,
             layer: i < 3 ? 0 : 1
         }));
 
@@ -2638,32 +2681,72 @@
                 ctx.fill();
             }
 
-            // ── Clouds ──
+            // ── Clouds ── (multi-puff realistic rendering)
             if (wt === 'partly' || wt === 'cloudy' || wt === 'rain' || wt === 'storm' || wt === 'snow') {
                 const cloudDensity = wt === 'cloudy' || wt === 'rain' || wt === 'storm' ? 1.0 : 0.5;
-                const cloudTone = (wt === 'storm' || wt === 'rain') ? [60,60,70] : night ? [40,40,60] : [220,225,235];
-                clouds.forEach(cl => {
-                    cl.x = (cl.x + cl.speed) % 1.1;
-                    const cx = cl.x * w, cy = cl.y * h;
-                    const cw = cl.w * w, ch = cl.h * h;
-                    const ca = cl.opacity * cloudDensity * alpha;
-                    const cg = ctx.createRadialGradient(cx, cy, 0, cx, cy, cw * 0.6);
-                    cg.addColorStop(0, `rgba(${cloudTone.join(',')},${ca})`);
-                    cg.addColorStop(1, `rgba(${cloudTone.join(',')},0)`);
-                    ctx.fillStyle = cg;
+                const isStorm = wt === 'storm' || wt === 'rain';
+                const cloudBase  = isStorm ? [55, 55, 65]  : night ? [35, 38, 58]  : [235, 238, 245];
+                const cloudLight = isStorm ? [75, 75, 88]  : night ? [55, 58, 80]  : [255, 255, 255];
+                const cloudShadow= isStorm ? [30, 30, 40]  : night ? [18, 20, 38]  : [180, 185, 200];
+
+                function drawCloud(cx, cy, cw, ch, opacity) {
+                    const ca = opacity * cloudDensity * alpha;
+                    if (ca < 0.01) return;
+                    ctx.save();
+
+                    // Build a clipping region that roughly shapes the overall cloud
+                    // so inner gradients don't bleed too far
+                    const puffs = [
+                        // [offsetX, offsetY, rx, ry]  (fractions of cw/ch)
+                        [0,     0,      0.52, 0.52],
+                        [-0.30, 0.10,   0.40, 0.40],
+                        [ 0.30, 0.10,   0.40, 0.40],
+                        [-0.18,-0.22,   0.32, 0.32],
+                        [ 0.18,-0.22,   0.32, 0.32],
+                        [ 0.00,-0.28,   0.28, 0.28],
+                        [-0.45, 0.20,   0.28, 0.26],
+                        [ 0.45, 0.20,   0.28, 0.26],
+                    ];
+
+                    // 1. Shadow underneath (flat ellipse below the cloud body)
+                    const shadowGrad = ctx.createRadialGradient(cx, cy + ch * 0.55, 0, cx, cy + ch * 0.55, cw * 0.55);
+                    shadowGrad.addColorStop(0, `rgba(${cloudShadow.join(',')},${ca * 0.55})`);
+                    shadowGrad.addColorStop(1, `rgba(${cloudShadow.join(',')},0)`);
+                    ctx.fillStyle = shadowGrad;
                     ctx.beginPath();
-                    ctx.ellipse(cx, cy, cw * 0.6, ch * 0.6, 0, 0, Math.PI*2);
+                    ctx.ellipse(cx, cy + ch * 0.55, cw * 0.55, ch * 0.22, 0, 0, Math.PI * 2);
                     ctx.fill();
-                    // Extra puffs
-                    [-0.3, 0.3].forEach(offset => {
-                        const pg = ctx.createRadialGradient(cx + cw*offset, cy - ch*0.15, 0, cx + cw*offset, cy - ch*0.15, cw*0.4);
-                        pg.addColorStop(0, `rgba(${cloudTone.join(',')},${ca * 0.8})`);
-                        pg.addColorStop(1, `rgba(${cloudTone.join(',')},0)`);
-                        ctx.fillStyle = pg;
+
+                    // 2. Base soft body
+                    puffs.forEach(([ox, oy, rx, ry]) => {
+                        const px = cx + ox * cw, py = cy + oy * ch;
+                        const prx = rx * cw, pry = ry * ch;
+                        const g = ctx.createRadialGradient(px, py - pry * 0.15, 0, px, py, Math.max(prx, pry));
+                        g.addColorStop(0,   `rgba(${cloudLight.join(',')},${ca * 0.92})`);
+                        g.addColorStop(0.5, `rgba(${cloudBase.join(',')},${ca * 0.80})`);
+                        g.addColorStop(1,   `rgba(${cloudBase.join(',')},0)`);
+                        ctx.fillStyle = g;
                         ctx.beginPath();
-                        ctx.ellipse(cx + cw*offset, cy - ch*0.15, cw*0.4, ch*0.55, 0, 0, Math.PI*2);
+                        ctx.ellipse(px, py, prx, pry, 0, 0, Math.PI * 2);
                         ctx.fill();
                     });
+
+                    // 3. Bright highlight on top-center
+                    const hlx = cx, hly = cy - ch * 0.28;
+                    const hlg = ctx.createRadialGradient(hlx, hly, 0, hlx, hly, cw * 0.30);
+                    hlg.addColorStop(0, `rgba(255,255,255,${ca * 0.65})`);
+                    hlg.addColorStop(1, `rgba(255,255,255,0)`);
+                    ctx.fillStyle = hlg;
+                    ctx.beginPath();
+                    ctx.ellipse(hlx, hly, cw * 0.30, ch * 0.25, 0, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.restore();
+                }
+
+                clouds.forEach(cl => {
+                    cl.x = (cl.x + cl.speed) % 1.15;
+                    drawCloud(cl.x * w, cl.y * h, cl.w * w, cl.h * h, cl.opacity);
                 });
             }
 
