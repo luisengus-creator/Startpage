@@ -558,10 +558,13 @@
         .cp-custom-row input[type="color"] { width: 28px !important; height: 22px !important; flex-shrink: 0; }
 
         #weather-modal {
-            display: none; position: fixed; z-index: 3000;
+            display: none !important; position: fixed; z-index: 3000;
             background: #0e0e0e; border: 1px solid var(--modal-accent-border, #00d4ff33);
             border-radius: 12px; padding: 1rem 1.1rem; min-width: 240px; width: 280px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+        }
+        #weather-modal.open {
+            display: block !important;
         }
         #weather-modal .pop-title {
             font-size: 0.58rem; font-weight: 900; color: var(--modal-accent, #00d4ff);
@@ -569,10 +572,13 @@
         }
 
         #clock-popover {
-            display: none; position: fixed; z-index: 3000;
+            display: none !important; position: fixed; z-index: 3000;
             background: #0e0e0e; border: 1px solid var(--modal-accent-border, #00d4ff33);
             border-radius: 12px; padding: 1rem 1.1rem; min-width: 210px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+        }
+        #clock-popover.open {
+            display: block !important;
         }
         #clock-popover .pop-title {
             font-size: 0.58rem; font-weight: 900; color: var(--modal-accent, #00d4ff);
@@ -582,10 +588,13 @@
 
         /* Weather stats popover */
         #wstat-popover {
-            display: none; position: fixed; z-index: 3000;
+            display: none !important; position: fixed; z-index: 3000;
             background: #0e0e0e; border: 1px solid var(--modal-accent-border, #00d4ff33);
             border-radius: 12px; padding: 1rem 1.1rem; min-width: 200px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+        }
+        #wstat-popover.open {
+            display: block !important;
         }
         #wstat-popover .pop-title {
             font-size: 0.58rem; font-weight: 900; color: var(--modal-accent, #00d4ff);
@@ -599,6 +608,12 @@
 <body>
     <canvas id="bg-canvas" style="position:fixed;inset:0;z-index:-2;pointer-events:none;"></canvas>
     <div id="full-bg"></div>
+    <div id="vid-dim" style="position:fixed;inset:0;z-index:-1;background:rgba(0,0,0,0);pointer-events:none;transition:background 0.4s ease;"></div>
+    <div id="vid-wrap" style="position:fixed;inset:0;z-index:-3;pointer-events:none;display:none;overflow:hidden;">
+        <iframe id="vid-iframe" allowfullscreen allow="autoplay" frameborder="0"
+            style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:177.78vh;height:100vh;min-width:100vw;min-height:56.25vw;pointer-events:none;"
+            src=""></iframe>
+    </div>
     <div id="overlay" onclick="closeModals()"></div>
     <div class="container">
         <header class="top-bar">
@@ -612,6 +627,7 @@
                 <div class="chrome-overlay" style="border-radius:8px; transform:none;"><button class="edit-del-btn" onclick="event.stopPropagation(); editDisable('showClock')">Delete</button></div>
             </div>
             <div class="nav-group">
+                <span id="vid-mute-btn" class="nav-link" onclick="toggleVidMute()" style="display:none;" title="Toggle mute"><i class="fa-solid fa-volume-xmark"></i></span>
                 <span class="nav-link" onclick="document.body.classList.toggle('edit-mode')"><i class="fa-solid fa-pen"></i></span>
                 <span class="nav-link" onclick="openModal('settings-modal')"><i class="fa-solid fa-gear"></i></span>
             </div>
@@ -785,6 +801,17 @@
                 <button class="bg-mode-btn" id="bgmode-mesh" onclick="setBgMode('mesh')">Mesh</button>
                 <button class="bg-mode-btn" id="bgmode-particles" onclick="setBgMode('particles')">Particles</button>
                 <button class="bg-mode-btn" id="bgmode-time" onclick="setBgMode('time')">Time</button>
+                <button class="bg-mode-btn" id="bgmode-video" onclick="setBgMode('video')">Video</button>
+            </div>
+            <div id="vid-settings-row" style="display:none; margin-bottom:10px; margin-top:6px;">
+                <div style="font-size:0.68rem; color:#888; margin-bottom:6px;">
+                    Paste a <a href="https://vimeo.com/watch" target="_blank" style="color:var(--modal-accent,#00d4ff);text-decoration:none;font-weight:700;">Vimeo</a> video URL — works with any embeddable video
+                </div>
+                <input type="text" id="bg-vid-url" placeholder="https://vimeo.com/196024758" oninput="updateVisRealtime()" style="height:28px; font-size:0.78rem; margin-bottom:6px;">
+                <div style="font-size:0.65rem; color:#555; line-height:1.5;">
+                    On Vimeo: find any video → copy the URL from your browser → paste above.<br>
+                    Works with most videos. If one doesn't play, try another.
+                </div>
             </div>
             <div class="color-row">
                 <span>Background Color</span>
@@ -1137,7 +1164,7 @@
 
     function getDefaults() {
         const baseQl = [{name:"fa-solid fa-server", url:"", vis:false, color:"", linkIcon:{type:'none',src:''}}, {name:"fa-solid fa-sliders", url:"", vis:false, color:"", linkIcon:{type:'none',src:''}}, {name:"fa-brands fa-spotify", url:"", vis:false, color:"", linkIcon:{type:'none',src:''}}, {name:"fa-solid fa-star", url:"", vis:false, color:"", linkIcon:{type:'none',src:''}}];
-        const makeProfile = (cats, density) => ({ ql: JSON.parse(JSON.stringify(baseQl)), categories: cats, showWeather: true, showHeaders: true, showClock: true, clockFormat: '24', clockSeconds: true, clockShowDate: true, clockDateFmt: 'long', clockSize: 'm', clockColor: '#ffffff', clockFont: 'Inter', iconColor: "#ffffff", bgColor: "#1C1B22", bgImg: "", bgMode: 'gradient', opacity: 0.3, fuzzy: 0, weatherColor: "#ffffff", weatherFont: 'Inter', weatherSize: 'm', wShowDay: true, wShowDate: true, wDateFmt: 'dmy', wColored: true, wAqi: true, wUv: true, wPressure: true, wHumidity: true, wVisibility: true, wSunrise: true, density, gridFont: 'Inter', showSearch: true, searchEngine: 'startpage', profileIcon: 'fa-solid fa-user', profilePhoto: '', profileIconColor: '#ffffff', cardOpacity: 0.02 });
+        const makeProfile = (cats, density) => ({ ql: JSON.parse(JSON.stringify(baseQl)), categories: cats, showWeather: true, showHeaders: true, showClock: true, clockFormat: '24', clockSeconds: true, clockShowDate: true, clockDateFmt: 'long', clockSize: 'm', clockColor: '#ffffff', clockFont: 'Inter', iconColor: "#ffffff", bgColor: "#1C1B22", bgImg: "", bgMode: 'gradient', opacity: 0.3, fuzzy: 0, weatherColor: "#ffffff", weatherFont: 'Inter', weatherSize: 'm', wShowDay: true, wShowDate: true, wDateFmt: 'dmy', wColored: true, wAqi: true, wUv: true, wPressure: true, wHumidity: true, wVisibility: true, wSunrise: true, density, gridFont: 'Inter', showSearch: true, searchEngine: 'startpage', profileIcon: 'fa-solid fa-user', profilePhoto: '', profileIconColor: '#ffffff', cardOpacity: 0.02, vidUrl: 'https://vimeo.com/196024758', vidMuted: true, vidDim: 0.35 });
         return {
             profile: 'p0', target: '_self', linkColor: "#cccccc", tabTitle: 'Startpage', tabFavicon: '', tabFaviconEmoji: '⭐',
             cities: [{name: "Lisboa", lat: 38.71, lon: -9.13}],
@@ -1175,8 +1202,8 @@
     if (!state.tabFaviconEmoji && !state.tabFavicon) state.tabFaviconEmoji = '⭐';
     // Migrate missing profileIcon/profilePhoto
     state.profiles.forEach(p => { if (p && !p.profileIcon) p.profileIcon = 'fa-solid fa-user'; if (p && p.profilePhoto === undefined) p.profilePhoto = ''; if (p && !p.profileIconColor) p.profileIconColor = '#ffffff'; if (p && !p.weatherSize) p.weatherSize = 'm'; if (p && p.wShowDay === undefined) p.wShowDay = true; if (p && p.wShowDate === undefined) p.wShowDate = true; if (p && !p.wDateFmt) p.wDateFmt = 'dmy'; });
-    // Migrate cardOpacity
-    state.profiles.forEach(p => { if (p && p.cardOpacity === undefined) p.cardOpacity = 0.02; });
+    // Migrate cardOpacity and video fields
+    state.profiles.forEach(p => { if (p && p.cardOpacity === undefined) p.cardOpacity = 0.02; if (p && p.vidUrl === undefined) p.vidUrl = 'https://vimeo.com/196024758'; if (p && p.vidMuted === undefined) p.vidMuted = true; if (p && p.vidDim === undefined) p.vidDim = 0.35; });
     let cityIdx = 0;
     let _liveSkyCode = 0; // current WMO weathercode for live sky background
     function curProfile() { return state.profiles[parseInt(state.profile.replace('p',''))] || state.profiles[0]; }
@@ -1205,9 +1232,9 @@
     }
     function openWstatPopover(anchor) {
         const pop = document.getElementById('wstat-popover');
-        if (_wstatPopOpen) { pop.style.display = 'none'; _wstatPopOpen = false; return; }
+        if (_wstatPopOpen) { pop.classList.remove('open'); _wstatPopOpen = false; return; }
         syncWstatPopover();
-        pop.style.display = 'block';
+        pop.classList.add('open');
         _wstatPopOpen = true;
         const rect = anchor.getBoundingClientRect();
         const pw = 220, ph = pop.offsetHeight || 160;
@@ -1219,7 +1246,7 @@
         pop.style.top  = (rect.top - ph - 10) + 'px';
     }
     function closeWstatPopover() {
-        document.getElementById('wstat-popover').style.display = 'none';
+        document.getElementById('wstat-popover').classList.remove('open');
         _wstatPopOpen = false;
     }
     document.addEventListener('click', e => {
@@ -1261,11 +1288,11 @@
     }
     function openWeatherPopover(anchor) {
         const pop = document.getElementById('weather-modal');
-        if (_weatherPopOpen) { pop.style.display = 'none'; _weatherPopOpen = false; return; }
+        if (_weatherPopOpen) { pop.classList.remove('open'); _weatherPopOpen = false; return; }
         closeClockPopover(); closeWstatPopover();
         syncWeatherPopover();
         renderCityManager();
-        pop.style.display = 'block';
+        pop.classList.add('open');
         _weatherPopOpen = true;
         const rect = anchor.getBoundingClientRect();
         const pw = 280, ph = pop.offsetHeight || 320;
@@ -1276,7 +1303,7 @@
         pop.style.top  = (rect.top - ph - 10) + 'px';
     }
     function closeWeatherPopover() {
-        document.getElementById('weather-modal').style.display = 'none';
+        document.getElementById('weather-modal').classList.remove('open');
         document.getElementById('city-search-input').value = '';
         document.getElementById('search-results').innerHTML = '';
         _weatherPopOpen = false;
@@ -1329,11 +1356,11 @@
     function openClockPopover(anchor) {
         if (document.body.classList.contains('edit-mode')) return;
         const pop = document.getElementById('clock-popover');
-        if (_clockPopOpen) { pop.style.display = 'none'; _clockPopOpen = false; return; }
+        if (_clockPopOpen) { pop.classList.remove('open'); _clockPopOpen = false; return; }
         // Close other popovers
         closeWstatPopover();
         syncClockPopover();
-        pop.style.display = 'block';
+        pop.classList.add('open');
         _clockPopOpen = true;
         // Position below the clock (clock is in the top bar)
         const rect = anchor.getBoundingClientRect();
@@ -1345,7 +1372,7 @@
         pop.style.top  = (rect.bottom + 8) + 'px';
     }
     function closeClockPopover() {
-        document.getElementById('clock-popover').style.display = 'none';
+        document.getElementById('clock-popover').classList.remove('open');
         _clockPopOpen = false;
     }
     document.addEventListener('click', e => {
@@ -1670,6 +1697,7 @@
                 stopBgCanvas();
             }
         }
+        applyVideoBg(p);
         const profileColor = p.profileIconColor || p.iconColor || '#ffffff';
         const profileNavBtn = document.getElementById('profile-nav-btn');
         if (profileNavBtn) {
@@ -1761,6 +1789,8 @@
         const slider = document.getElementById('unified-slider'), label = document.querySelector('#slider-label');
         if (p.bgImg) { 
             label.textContent = "Photo Blur"; slider.min = 0; slider.max = 30; slider.step = 1; slider.value = p.fuzzy || 0; 
+        } else if ((!p.bgImg && (p.bgMode || 'gradient') === 'video')) {
+            label.textContent = "Video Dim"; slider.min = 0; slider.max = 0.95; slider.step = 0.01; slider.value = p.vidDim !== undefined ? p.vidDim : 0.35;
         } else { 
             label.textContent = "Intensity"; slider.min = 0; slider.max = 1; slider.step = 0.05; slider.value = (p.opacity !== undefined && p.opacity !== '') ? p.opacity : 0.3; 
         }
@@ -1796,10 +1826,16 @@
         document.getElementById('search-engine').value = p.searchEngine || 'startpage';
         document.getElementById('bg-img-url').value = p.bgImg && p.bgImg.startsWith('data:') ? "Local Image Active" : (p.bgImg || '');
         document.getElementById('bg-color').value = p.bgColor;
-        ['gradient','mesh','particles','time'].forEach(m => {
+        ['gradient','mesh','particles','time','video'].forEach(m => {
             const btn = document.getElementById('bgmode-' + m);
             if (btn) btn.classList.toggle('active', !p.bgImg && (p.bgMode || 'gradient') === m);
         });
+        const vidSettingsRow = document.getElementById('vid-settings-row');
+        if (vidSettingsRow) vidSettingsRow.style.display = (!p.bgImg && (p.bgMode || 'gradient') === 'video') ? 'block' : 'none';
+        const vidUrlInput = document.getElementById('bg-vid-url');
+        if (vidUrlInput) vidUrlInput.value = p.vidUrl || '';
+        const vidDimSlider = document.getElementById('vid-dim-slider');
+        if (vidDimSlider) vidDimSlider.value = p.vidDim !== undefined ? p.vidDim : 0.35;
         const cardSlider = document.getElementById('card-opacity-slider');
         const cardVal = (p.cardOpacity !== undefined && p.cardOpacity !== '') ? parseFloat(p.cardOpacity) : 0.02;
         if (cardSlider) cardSlider.value = cardVal;
@@ -1877,7 +1913,20 @@
         p.clockFont = document.getElementById('clock-font').value;
         p.gridFont = document.getElementById('font-picker').value;
         const sliderVal = document.getElementById('unified-slider').value;
-        if (p.bgImg) { p.fuzzy = sliderVal; } else { p.opacity = sliderVal; }
+        if (p.bgImg) { p.fuzzy = sliderVal; }
+        else if ((!p.bgImg && (p.bgMode || 'gradient') === 'video')) { p.vidDim = parseFloat(sliderVal); }
+        else { p.opacity = sliderVal; }
+        // Video URL
+        const vidUrlInput = document.getElementById('bg-vid-url');
+        if (vidUrlInput) p.vidUrl = vidUrlInput.value.trim();
+        // Show/hide video settings row live
+        const vidSettingsRow = document.getElementById('vid-settings-row');
+        if (vidSettingsRow) vidSettingsRow.style.display = (!p.bgImg && (p.bgMode || 'gradient') === 'video') ? 'block' : 'none';
+        // Apply dim overlay immediately without waiting for full saveAndRender
+        if (!p.bgImg && (p.bgMode || 'gradient') === 'video') {
+            const dimEl = document.getElementById('vid-dim');
+            if (dimEl) dimEl.style.background = `rgba(0,0,0,${p.vidDim !== undefined ? p.vidDim : 0.35})`;
+        }
         const cardSlider = document.getElementById('card-opacity-slider');
         if (cardSlider) {
             p.cardOpacity = parseFloat(cardSlider.value);
@@ -2331,7 +2380,7 @@
         const p = curProfile();
         p.bgMode = mode;
         p.bgImg = '';
-        ['gradient','mesh','particles','time'].forEach(m => {
+        ['gradient','mesh','particles','time','video'].forEach(m => {
             const btn = document.getElementById('bgmode-' + m);
             if (btn) btn.classList.toggle('active', m === mode);
         });
@@ -2341,7 +2390,7 @@
         const p = curProfile();
         p.bgImg = val;
         if (val) {
-            ['gradient','mesh','particles','time'].forEach(m => {
+            ['gradient','mesh','particles','time','video'].forEach(m => {
                 const btn = document.getElementById('bgmode-' + m);
                 if (btn) btn.classList.remove('active');
             });
@@ -2421,6 +2470,86 @@
         if (_bgRaf) { cancelAnimationFrame(_bgRaf); _bgRaf = null; }
         const c = document.getElementById('bg-canvas');
         if (c) { const ctx = c.getContext('2d'); ctx.clearRect(0, 0, c.width, c.height); }
+    }
+
+    // ── Video Background (Vimeo) ──
+    function extractVimeoId(url) {
+        if (!url) return '';
+        // plain numeric ID
+        if (/^\d+$/.test(url.trim())) return url.trim();
+        const m = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+        return m ? m[1] : '';
+    }
+
+    function buildVimeoSrc(id, muted) {
+        const m = muted ? 1 : 0;
+        // api=1 enables postMessage control so we can mute/unmute without reloading
+        return `https://player.vimeo.com/video/${id}?autoplay=1&muted=${m}&loop=1&background=1&quality=1080p&api=1`;
+    }
+
+    let _lastVidSrc = '';
+
+    function applyVideoBg(p) {
+        const wrap = document.getElementById('vid-wrap');
+        const iframe = document.getElementById('vid-iframe');
+        const muteBtn = document.getElementById('vid-mute-btn');
+        const dimEl = document.getElementById('vid-dim');
+        const isVid = !p.bgImg && (p.bgMode || 'gradient') === 'video';
+
+        if (!isVid) {
+            if (wrap) wrap.style.display = 'none';
+            if (muteBtn) muteBtn.style.display = 'none';
+            if (dimEl) dimEl.style.background = 'rgba(0,0,0,0)';
+            _lastVidSrc = '';
+            return;
+        }
+
+        const id = extractVimeoId(p.vidUrl || '');
+        if (!id) {
+            if (wrap) wrap.style.display = 'none';
+            if (muteBtn) muteBtn.style.display = 'none';
+            return;
+        }
+
+        const src = buildVimeoSrc(id, p.vidMuted !== false);
+        if (iframe && _lastVidSrc !== src) {
+            iframe.src = src;
+            _lastVidSrc = src;
+        }
+        if (wrap) wrap.style.display = 'block';
+
+        const dim = parseFloat(p.vidDim !== undefined ? p.vidDim : 0.35);
+        if (dimEl) dimEl.style.background = `rgba(0,0,0,${dim})`;
+
+        if (muteBtn) {
+            muteBtn.style.display = 'flex';
+            muteBtn.querySelector('i').className = (p.vidMuted !== false)
+                ? 'fa-solid fa-volume-xmark'
+                : 'fa-solid fa-volume-high';
+        }
+    }
+
+    function toggleVidMute() {
+        const p = curProfile();
+        p.vidMuted = !(p.vidMuted !== false);
+
+        // Use postMessage to mute/unmute without reloading the iframe
+        const iframe = document.getElementById('vid-iframe');
+        if (iframe && iframe.contentWindow) {
+            const action = p.vidMuted ? 'setVolume' : 'setVolume';
+            const volume = p.vidMuted ? 0 : 1;
+            // Vimeo player API postMessage format
+            iframe.contentWindow.postMessage(JSON.stringify({
+                method: 'setVolume',
+                value: volume
+            }), '*');
+        }
+
+        const muteBtn = document.getElementById('vid-mute-btn');
+        if (muteBtn) muteBtn.querySelector('i').className = p.vidMuted
+            ? 'fa-solid fa-volume-xmark'
+            : 'fa-solid fa-volume-high';
+        localStorage.setItem(KEY, JSON.stringify(state));
     }
 
     function startMeshBg(colors, intensity) {
