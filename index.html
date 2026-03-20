@@ -42,10 +42,11 @@
         .top-bar { display: flex; justify-content: space-between; align-items: center; z-index: 10; flex-shrink: 0; margin-bottom: 2vh; position: relative; }
         .nav-group { display: flex; gap: 1.2rem; align-items: center; }
         .nav-link { cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; width: 2.2rem; height: 2.2rem; }
-        .nav-link i { font-size: 1.2rem; color: #ffffff; transition: 0.3s; }
+        .nav-link i { font-size: 1.2rem; color: #ffffff; transition: 0.3s; width: 1.2rem; text-align: center; }
+        .nav-link i.fa-brands { font-size: 1.15rem; }
         .nav-link:hover i { opacity: 0.6; }
-        /* Separator between profile and quick links removed */
-        
+        /* Quick link favicon */
+        .ql-img-icon { object-fit: contain; border-radius: 3px; width:1.2rem; height:1.2rem; display:block; }
         #main-content { 
             flex-grow: 1; 
             display: flex; 
@@ -608,9 +609,10 @@
 <body>
     <canvas id="bg-canvas" style="position:fixed;inset:0;z-index:-2;pointer-events:none;"></canvas>
     <div id="full-bg"></div>
-    <div id="vid-dim" style="position:fixed;inset:0;z-index:-1;background:rgba(0,0,0,0);pointer-events:none;transition:background 0.4s ease;"></div>
+    <div id="vid-dim-el" style="position:fixed;inset:0;z-index:-1;background:rgba(0,0,0,0);pointer-events:none;transition:background 0.4s ease;"></div>
     <div id="vid-wrap" style="position:fixed;inset:0;z-index:-3;pointer-events:none;display:none;overflow:hidden;">
-        <iframe id="vid-iframe" allowfullscreen allow="autoplay" frameborder="0"
+        <iframe id="vid-iframe" allowfullscreen allow="autoplay; fullscreen"
+            frameborder="0"
             style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:177.78vh;height:100vh;min-width:100vw;min-height:56.25vw;pointer-events:none;"
             src=""></iframe>
     </div>
@@ -627,6 +629,7 @@
                 <div class="chrome-overlay" style="border-radius:8px; transform:none;"><button class="edit-del-btn" onclick="event.stopPropagation(); editDisable('showClock')">Delete</button></div>
             </div>
             <div class="nav-group">
+                <span id="vid-play-btn" class="nav-link" onclick="toggleVidPlay()" style="display:none;" title="Play/Pause"><i class="fa-solid fa-play"></i></span>
                 <span id="vid-mute-btn" class="nav-link" onclick="toggleVidMute()" style="display:none;" title="Toggle mute"><i class="fa-solid fa-volume-xmark"></i></span>
                 <span class="nav-link" onclick="document.body.classList.toggle('edit-mode')"><i class="fa-solid fa-pen"></i></span>
                 <span class="nav-link" onclick="openModal('settings-modal')"><i class="fa-solid fa-gear"></i></span>
@@ -805,13 +808,16 @@
             </div>
             <div id="vid-settings-row" style="display:none; margin-bottom:10px; margin-top:6px;">
                 <div style="font-size:0.68rem; color:#888; margin-bottom:6px;">
-                    Paste a <a href="https://vimeo.com/watch" target="_blank" style="color:var(--modal-accent,#00d4ff);text-decoration:none;font-weight:700;">Vimeo</a> video URL — works with any embeddable video
+                    Paste any <a href="https://vimeo.com/watch" target="_blank" style="color:var(--modal-accent,#00d4ff);text-decoration:none;font-weight:700;">Vimeo</a> URL — 3 slots to switch between videos
                 </div>
-                <input type="text" id="bg-vid-url" placeholder="https://vimeo.com/196024758" oninput="updateVisRealtime()" style="height:28px; font-size:0.78rem; margin-bottom:6px;">
-                <div style="font-size:0.65rem; color:#555; line-height:1.5;">
-                    On Vimeo: find any video → copy the URL from your browser → paste above.<br>
-                    Works with most videos. If one doesn't play, try another.
+                <div style="font-size:0.65rem; color:#555; margin-bottom:7px;">
+                    <em>city night rain &bull; dark forest &bull; space nebula &bull; tokyo night &bull; ocean waves &bull; fireplace</em>
                 </div>
+                <div id="vid-slots"></div>
+            </div>
+            <div id="vid-dim-row" style="display:none;">
+                <span class="slider-label" style="margin-top:8px;">Video Dim</span>
+                <input type="range" id="vid-dim-slider" min="0" max="0.95" step="0.01" oninput="applyVidDimNow()">
             </div>
             <div class="color-row">
                 <span>Background Color</span>
@@ -1164,7 +1170,7 @@
 
     function getDefaults() {
         const baseQl = [{name:"fa-solid fa-server", url:"", vis:false, color:"", linkIcon:{type:'none',src:''}}, {name:"fa-solid fa-sliders", url:"", vis:false, color:"", linkIcon:{type:'none',src:''}}, {name:"fa-brands fa-spotify", url:"", vis:false, color:"", linkIcon:{type:'none',src:''}}, {name:"fa-solid fa-star", url:"", vis:false, color:"", linkIcon:{type:'none',src:''}}];
-        const makeProfile = (cats, density) => ({ ql: JSON.parse(JSON.stringify(baseQl)), categories: cats, showWeather: true, showHeaders: true, showClock: true, clockFormat: '24', clockSeconds: true, clockShowDate: true, clockDateFmt: 'long', clockSize: 'm', clockColor: '#ffffff', clockFont: 'Inter', iconColor: "#ffffff", bgColor: "#1C1B22", bgImg: "", bgMode: 'gradient', opacity: 0.3, fuzzy: 0, weatherColor: "#ffffff", weatherFont: 'Inter', weatherSize: 'm', wShowDay: true, wShowDate: true, wDateFmt: 'dmy', wColored: true, wAqi: true, wUv: true, wPressure: true, wHumidity: true, wVisibility: true, wSunrise: true, density, gridFont: 'Inter', showSearch: true, searchEngine: 'startpage', profileIcon: 'fa-solid fa-user', profilePhoto: '', profileIconColor: '#ffffff', cardOpacity: 0.02, vidUrl: 'https://vimeo.com/196024758', vidMuted: true, vidDim: 0.35 });
+        const makeProfile = (cats, density) => ({ ql: JSON.parse(JSON.stringify(baseQl)), categories: cats, showWeather: true, showHeaders: true, showClock: true, clockFormat: '24', clockSeconds: true, clockShowDate: true, clockDateFmt: 'long', clockSize: 'm', clockColor: '#ffffff', clockFont: 'Inter', iconColor: "#ffffff", bgColor: "#1C1B22", bgImg: "", bgMode: 'gradient', opacity: 0.3, fuzzy: 0, weatherColor: "#ffffff", weatherFont: 'Inter', weatherSize: 'm', wShowDay: true, wShowDate: true, wDateFmt: 'dmy', wColored: true, wAqi: true, wUv: true, wPressure: true, wHumidity: true, wVisibility: true, wSunrise: true, density, gridFont: 'Inter', showSearch: true, searchEngine: 'startpage', profileIcon: 'fa-solid fa-user', profilePhoto: '', profileIconColor: '#ffffff', cardOpacity: 0.02, vidUrl: 'https://vimeo.com/446479256', vidMuted: true, vidDim: 0.35, vidSlots: ['https://vimeo.com/446479256','',''] });
         return {
             profile: 'p0', target: '_self', linkColor: "#cccccc", tabTitle: 'Startpage', tabFavicon: '', tabFaviconEmoji: '⭐',
             cities: [{name: "Lisboa", lat: 38.71, lon: -9.13}],
@@ -1202,8 +1208,8 @@
     if (!state.tabFaviconEmoji && !state.tabFavicon) state.tabFaviconEmoji = '⭐';
     // Migrate missing profileIcon/profilePhoto
     state.profiles.forEach(p => { if (p && !p.profileIcon) p.profileIcon = 'fa-solid fa-user'; if (p && p.profilePhoto === undefined) p.profilePhoto = ''; if (p && !p.profileIconColor) p.profileIconColor = '#ffffff'; if (p && !p.weatherSize) p.weatherSize = 'm'; if (p && p.wShowDay === undefined) p.wShowDay = true; if (p && p.wShowDate === undefined) p.wShowDate = true; if (p && !p.wDateFmt) p.wDateFmt = 'dmy'; });
-    // Migrate cardOpacity and video fields
-    state.profiles.forEach(p => { if (p && p.cardOpacity === undefined) p.cardOpacity = 0.02; if (p && p.vidUrl === undefined) p.vidUrl = 'https://vimeo.com/196024758'; if (p && p.vidMuted === undefined) p.vidMuted = true; if (p && p.vidDim === undefined) p.vidDim = 0.35; });
+    // Migrate cardOpacity, video and scene fields
+    state.profiles.forEach(p => { if (p && p.cardOpacity === undefined) p.cardOpacity = 0.02; if (p && p.vidUrl === undefined) p.vidUrl = 'https://vimeo.com/446479256'; if (p && p.vidMuted === undefined) p.vidMuted = true; if (p && p.vidDim === undefined) p.vidDim = 0.35; if (p && !p.vidSlots) p.vidSlots = [p.vidUrl || 'https://vimeo.com/446479256','','']; });
     let cityIdx = 0;
     let _liveSkyCode = 0; // current WMO weathercode for live sky background
     function curProfile() { return state.profiles[parseInt(state.profile.replace('p',''))] || state.profiles[0]; }
@@ -1692,6 +1698,9 @@
             } else if (mode === 'time') {
                 startLiveSkyBg(intensity);
                 bg.style.opacity = 0;
+            } else if (mode === 'video') {
+                stopBgCanvas();
+                bg.style.opacity = 0;
             } else {
                 bg.style.opacity = 0;
                 stopBgCanvas();
@@ -1787,13 +1796,9 @@
         document.getElementById('cat-sel').innerHTML = p.categories.map((c, i) => `<option value="${i}">${c.title}</option>`).join('');
         if(!p.categories[document.getElementById('cat-sel').value]) document.getElementById('cat-sel').value = 0;
         const slider = document.getElementById('unified-slider'), label = document.querySelector('#slider-label');
-        if (p.bgImg) { 
-            label.textContent = "Photo Blur"; slider.min = 0; slider.max = 30; slider.step = 1; slider.value = p.fuzzy || 0; 
-        } else if ((!p.bgImg && (p.bgMode || 'gradient') === 'video')) {
-            label.textContent = "Video Dim"; slider.min = 0; slider.max = 0.95; slider.step = 0.01; slider.value = p.vidDim !== undefined ? p.vidDim : 0.35;
-        } else { 
-            label.textContent = "Intensity"; slider.min = 0; slider.max = 1; slider.step = 0.05; slider.value = (p.opacity !== undefined && p.opacity !== '') ? p.opacity : 0.3; 
-        }
+        if (p.bgImg) { label.textContent = "Photo Blur"; slider.min = 0; slider.max = 30; slider.step = 1; slider.value = p.fuzzy || 0; }
+        else if (!p.bgImg && (p.bgMode||'gradient')==='video') { label.textContent = "Video Dim"; slider.min = 0; slider.max = 0.95; slider.step = 0.01; slider.value = p.vidDim !== undefined ? p.vidDim : 0.35; }
+        else { label.textContent = "Intensity"; slider.min = 0; slider.max = 1; slider.step = 0.05; slider.value = (p.opacity !== undefined && p.opacity !== '') ? p.opacity : 0.3; }
         renderProfileTabs();
         document.getElementById('ql-list-editor').innerHTML = p.ql.map((l, i) => {
             const ic = l.color || p.iconColor || '#ffffff';
@@ -1830,12 +1835,12 @@
             const btn = document.getElementById('bgmode-' + m);
             if (btn) btn.classList.toggle('active', !p.bgImg && (p.bgMode || 'gradient') === m);
         });
-        const vidSettingsRow = document.getElementById('vid-settings-row');
-        if (vidSettingsRow) vidSettingsRow.style.display = (!p.bgImg && (p.bgMode || 'gradient') === 'video') ? 'block' : 'none';
-        const vidUrlInput = document.getElementById('bg-vid-url');
-        if (vidUrlInput) vidUrlInput.value = p.vidUrl || '';
-        const vidDimSlider = document.getElementById('vid-dim-slider');
-        if (vidDimSlider) vidDimSlider.value = p.vidDim !== undefined ? p.vidDim : 0.35;
+        const isVidMode2 = !p.bgImg && (p.bgMode || 'gradient') === 'video';
+        const vidSettingsRow2 = document.getElementById('vid-settings-row');
+        if (vidSettingsRow2) vidSettingsRow2.style.display = isVidMode2 ? 'block' : 'none';
+        const vidDimRow2 = document.getElementById('vid-dim-row');
+        if (vidDimRow2) vidDimRow2.style.display = isVidMode2 ? 'block' : 'none';
+        renderVidSlots();
         const cardSlider = document.getElementById('card-opacity-slider');
         const cardVal = (p.cardOpacity !== undefined && p.cardOpacity !== '') ? parseFloat(p.cardOpacity) : 0.02;
         if (cardSlider) cardSlider.value = cardVal;
@@ -1914,19 +1919,14 @@
         p.gridFont = document.getElementById('font-picker').value;
         const sliderVal = document.getElementById('unified-slider').value;
         if (p.bgImg) { p.fuzzy = sliderVal; }
-        else if ((!p.bgImg && (p.bgMode || 'gradient') === 'video')) { p.vidDim = parseFloat(sliderVal); }
+        else if (!p.bgImg && (p.bgMode||'gradient')==='video') { p.vidDim = parseFloat(sliderVal); applyVidDimNow(); }
         else { p.opacity = sliderVal; }
-        // Video URL
-        const vidUrlInput = document.getElementById('bg-vid-url');
-        if (vidUrlInput) p.vidUrl = vidUrlInput.value.trim();
-        // Show/hide video settings row live
-        const vidSettingsRow = document.getElementById('vid-settings-row');
-        if (vidSettingsRow) vidSettingsRow.style.display = (!p.bgImg && (p.bgMode || 'gradient') === 'video') ? 'block' : 'none';
-        // Apply dim overlay immediately without waiting for full saveAndRender
-        if (!p.bgImg && (p.bgMode || 'gradient') === 'video') {
-            const dimEl = document.getElementById('vid-dim');
-            if (dimEl) dimEl.style.background = `rgba(0,0,0,${p.vidDim !== undefined ? p.vidDim : 0.35})`;
-        }
+        // Video URL + show/hide rows
+        const isVidRT = !p.bgImg && (p.bgMode||'gradient')==='video';
+        const vsrRT = document.getElementById('vid-settings-row');
+        if (vsrRT) vsrRT.style.display = isVidRT ? 'block' : 'none';
+        const vdrRT = document.getElementById('vid-dim-row');
+        if (vdrRT) vdrRT.style.display = isVidRT ? 'block' : 'none';
         const cardSlider = document.getElementById('card-opacity-slider');
         if (cardSlider) {
             p.cardOpacity = parseFloat(cardSlider.value);
@@ -2475,47 +2475,50 @@
     // ── Video Background (Vimeo) ──
     function extractVimeoId(url) {
         if (!url) return '';
-        // plain numeric ID
         if (/^\d+$/.test(url.trim())) return url.trim();
         const m = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
         return m ? m[1] : '';
     }
 
     function buildVimeoSrc(id, muted) {
-        const m = muted ? 1 : 0;
-        // api=1 enables postMessage control so we can mute/unmute without reloading
-        return `https://player.vimeo.com/video/${id}?autoplay=1&muted=${m}&loop=1&background=1&quality=1080p&api=1`;
+        return `https://player.vimeo.com/video/${id}?autoplay=1&muted=${muted?1:0}&loop=1&background=1&quality=1080p`;
     }
 
-    let _lastVidSrc = '';
+    let _lastVidId = '';
+    let _vidPaused = false;
 
     function applyVideoBg(p) {
-        const wrap = document.getElementById('vid-wrap');
-        const iframe = document.getElementById('vid-iframe');
-        const muteBtn = document.getElementById('vid-mute-btn');
-        const dimEl = document.getElementById('vid-dim');
-        const isVid = !p.bgImg && (p.bgMode || 'gradient') === 'video';
+        const wrap     = document.getElementById('vid-wrap');
+        const iframe   = document.getElementById('vid-iframe');
+        const muteBtn  = document.getElementById('vid-mute-btn');
+        const playBtn  = document.getElementById('vid-play-btn');
+        const dimEl    = document.getElementById('vid-dim-el');
+        const isVid    = !p.bgImg && (p.bgMode || 'gradient') === 'video';
 
         if (!isVid) {
-            if (wrap) wrap.style.display = 'none';
+            if (wrap)    wrap.style.display = 'none';
             if (muteBtn) muteBtn.style.display = 'none';
-            if (dimEl) dimEl.style.background = 'rgba(0,0,0,0)';
-            _lastVidSrc = '';
+            if (playBtn) playBtn.style.display = 'none';
+            if (dimEl)   dimEl.style.background = 'rgba(0,0,0,0)';
+            if (iframe && _lastVidId) { iframe.src = ''; _lastVidId = ''; }
             return;
         }
 
         const id = extractVimeoId(p.vidUrl || '');
         if (!id) {
-            if (wrap) wrap.style.display = 'none';
+            if (wrap)    wrap.style.display = 'none';
             if (muteBtn) muteBtn.style.display = 'none';
+            if (playBtn) playBtn.style.display = 'none';
             return;
         }
 
         const src = buildVimeoSrc(id, p.vidMuted !== false);
-        if (iframe && _lastVidSrc !== src) {
-            iframe.src = src;
-            _lastVidSrc = src;
+        if (id !== _lastVidId) {
+            _lastVidId = id;
+            _vidPaused = false;
+            if (iframe) iframe.src = src;
         }
+
         if (wrap) wrap.style.display = 'block';
 
         const dim = parseFloat(p.vidDim !== undefined ? p.vidDim : 0.35);
@@ -2527,29 +2530,98 @@
                 ? 'fa-solid fa-volume-xmark'
                 : 'fa-solid fa-volume-high';
         }
+        if (playBtn) {
+            playBtn.style.display = 'flex';
+            playBtn.querySelector('i').className = _vidPaused
+                ? 'fa-solid fa-play'
+                : 'fa-solid fa-pause';
+        }
+    }
+
+    function applyVidDimNow() {
+        const p = curProfile();
+        const val = parseFloat(document.getElementById('vid-dim-slider')?.value ?? 0.35);
+        p.vidDim = val;
+        const dimEl = document.getElementById('vid-dim-el');
+        if (dimEl) dimEl.style.background = `rgba(0,0,0,${val})`;
+        localStorage.setItem(KEY, JSON.stringify(state));
+    }
+
+    function toggleVidPlay() {
+        const iframe = document.getElementById('vid-iframe');
+        if (!iframe || !iframe.contentWindow) return;
+        _vidPaused = !_vidPaused;
+        iframe.contentWindow.postMessage(JSON.stringify({
+            method: _vidPaused ? 'pause' : 'play'
+        }), '*');
+        const playBtn = document.getElementById('vid-play-btn');
+        if (playBtn) playBtn.querySelector('i').className = _vidPaused
+            ? 'fa-solid fa-play'
+            : 'fa-solid fa-pause';
     }
 
     function toggleVidMute() {
         const p = curProfile();
         p.vidMuted = !(p.vidMuted !== false);
-
-        // Use postMessage to mute/unmute without reloading the iframe
+        const id = extractVimeoId(p.vidUrl || '');
         const iframe = document.getElementById('vid-iframe');
-        if (iframe && iframe.contentWindow) {
-            const action = p.vidMuted ? 'setVolume' : 'setVolume';
-            const volume = p.vidMuted ? 0 : 1;
-            // Vimeo player API postMessage format
-            iframe.contentWindow.postMessage(JSON.stringify({
-                method: 'setVolume',
-                value: volume
-            }), '*');
+        if (iframe && id) {
+            iframe.src = buildVimeoSrc(id, p.vidMuted);
+            _lastVidId = id;
+            _vidPaused = false;
         }
-
         const muteBtn = document.getElementById('vid-mute-btn');
         if (muteBtn) muteBtn.querySelector('i').className = p.vidMuted
             ? 'fa-solid fa-volume-xmark'
             : 'fa-solid fa-volume-high';
+        const playBtn = document.getElementById('vid-play-btn');
+        if (playBtn) playBtn.querySelector('i').className = 'fa-solid fa-pause';
         localStorage.setItem(KEY, JSON.stringify(state));
+    }
+
+    function renderVidSlots() {
+        const container = document.getElementById('vid-slots');
+        if (!container) return;
+        const p = curProfile();
+        const slots = p.vidSlots || ['','',''];
+        container.innerHTML = slots.map((url, i) => {
+            const isActive = url && url === p.vidUrl;
+            const accentColor = 'var(--modal-accent,#00d4ff)';
+            return `<div style="display:flex;gap:5px;align-items:center;margin-bottom:5px;">
+                <span style="font-size:0.65rem;color:#666;flex-shrink:0;width:14px;">${i+1}</span>
+                <input type="text" value="${url}" placeholder="https://vimeo.com/..." 
+                    oninput="updateVidSlot(${i},this.value)"
+                    style="flex:1;min-width:0;height:26px;font-size:0.72rem;
+                    border-color:${isActive ? accentColor : '#222'};
+                    background:${isActive ? 'rgba(0,212,255,0.06)' : '#111'};">
+                <button onclick="selectVidSlot(${i})" title="Use this video"
+                    style="flex-shrink:0;width:28px;height:26px;padding:0;font-size:0.7rem;
+                    display:flex;align-items:center;justify-content:center;
+                    border-color:${isActive ? accentColor : '#222'};
+                    color:${isActive ? accentColor : '#555'};">
+                    <i class="fa-solid ${isActive ? 'fa-circle-dot' : 'fa-circle-play'}"></i>
+                </button>
+            </div>`;
+        }).join('');
+    }
+
+    function updateVidSlot(i, val) {
+        const p = curProfile();
+        if (!p.vidSlots) p.vidSlots = ['','',''];
+        p.vidSlots[i] = val.trim();
+        localStorage.setItem(KEY, JSON.stringify(state));
+        renderVidSlots();
+    }
+
+    function selectVidSlot(i) {
+        const p = curProfile();
+        if (!p.vidSlots) p.vidSlots = ['','',''];
+        const url = p.vidSlots[i];
+        if (!url) return;
+        p.vidUrl = url;
+        _lastVidId = ''; // force reload
+        saveAndRender();
+        renderVidSlots();
     }
 
     function startMeshBg(colors, intensity) {
