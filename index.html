@@ -629,7 +629,6 @@
                 <div class="chrome-overlay" style="border-radius:8px; transform:none;"><button class="edit-del-btn" onclick="event.stopPropagation(); editDisable('showClock')">Delete</button></div>
             </div>
             <div class="nav-group">
-                <span id="vid-play-btn" class="nav-link" onclick="toggleVidPlay()" style="display:none;" title="Play/Pause"><i class="fa-solid fa-play"></i></span>
                 <span id="vid-mute-btn" class="nav-link" onclick="toggleVidMute()" style="display:none;" title="Toggle mute"><i class="fa-solid fa-volume-xmark"></i></span>
                 <span class="nav-link" onclick="document.body.classList.toggle('edit-mode')"><i class="fa-solid fa-pen"></i></span>
                 <span class="nav-link" onclick="openModal('settings-modal')"><i class="fa-solid fa-gear"></i></span>
@@ -2480,8 +2479,9 @@
         return m ? m[1] : '';
     }
 
-    function buildVimeoSrc(id, muted) {
-        return `https://player.vimeo.com/video/${id}?autoplay=1&muted=${muted?1:0}&loop=1&background=1&quality=1080p`;
+    function buildVimeoSrc(id) {
+        // Always start muted for autoplay — volume toggled via postMessage API after load
+        return `https://player.vimeo.com/video/${id}?autoplay=1&muted=1&loop=1&background=0&controls=0&autopause=0&quality=1080p&api=1`;
     }
 
     let _lastVidId = '';
@@ -2491,14 +2491,12 @@
         const wrap     = document.getElementById('vid-wrap');
         const iframe   = document.getElementById('vid-iframe');
         const muteBtn  = document.getElementById('vid-mute-btn');
-        const playBtn  = document.getElementById('vid-play-btn');
         const dimEl    = document.getElementById('vid-dim-el');
         const isVid    = !p.bgImg && (p.bgMode || 'gradient') === 'video';
 
         if (!isVid) {
             if (wrap)    wrap.style.display = 'none';
             if (muteBtn) muteBtn.style.display = 'none';
-            if (playBtn) playBtn.style.display = 'none';
             if (dimEl)   dimEl.style.background = 'rgba(0,0,0,0)';
             if (iframe && _lastVidId) { iframe.src = ''; _lastVidId = ''; }
             return;
@@ -2508,15 +2506,23 @@
         if (!id) {
             if (wrap)    wrap.style.display = 'none';
             if (muteBtn) muteBtn.style.display = 'none';
-            if (playBtn) playBtn.style.display = 'none';
             return;
         }
 
-        const src = buildVimeoSrc(id, p.vidMuted !== false);
+        const src = buildVimeoSrc(id);
         if (id !== _lastVidId) {
             _lastVidId = id;
             _vidPaused = false;
-            if (iframe) iframe.src = src;
+            if (iframe) {
+                iframe.src = src;
+                // After load, set correct volume based on mute state
+                iframe.onload = () => {
+                    if (iframe.contentWindow) {
+                        const vol = (p.vidMuted !== false) ? 0 : 1;
+                        iframe.contentWindow.postMessage(JSON.stringify({ method: 'setVolume', value: vol }), '*');
+                    }
+                };
+            }
         }
 
         if (wrap) wrap.style.display = 'block';
@@ -2530,13 +2536,18 @@
                 ? 'fa-solid fa-volume-xmark'
                 : 'fa-solid fa-volume-high';
         }
-        if (playBtn) {
-            playBtn.style.display = 'flex';
-            playBtn.querySelector('i').className = _vidPaused
-                ? 'fa-solid fa-play'
-                : 'fa-solid fa-pause';
-        }
     }
+
+    // Click on empty background area to pause/play video
+    document.addEventListener('click', e => {
+        const p = curProfile();
+        if (!p || p.bgMode !== 'video' || p.bgImg) return;
+        // Only trigger if clicking on truly empty space (not a link, button, input, modal etc.)
+        const tag = e.target.tagName.toLowerCase();
+        const isInteractive = ['a','button','input','select','textarea','label','i'].includes(tag)
+            || e.target.closest('a,button,input,select,.modal,#overlay,.nav-link,.column,.weather-card,.wstat,#clock-display,#search-bar-wrap,#weather-area,.cat-title,#ql-nav,#profile-nav-btn,[onclick]');
+        if (!isInteractive) toggleVidPlay();
+    });
 
     function applyVidDimNow() {
         const p = curProfile();
@@ -2554,28 +2565,32 @@
         iframe.contentWindow.postMessage(JSON.stringify({
             method: _vidPaused ? 'pause' : 'play'
         }), '*');
-        const playBtn = document.getElementById('vid-play-btn');
-        if (playBtn) playBtn.querySelector('i').className = _vidPaused
-            ? 'fa-solid fa-play'
-            : 'fa-solid fa-pause';
+        // Brief on-screen indicator
+        let ind = document.getElementById('vid-play-indicator');
+        if (!ind) {
+            ind = document.createElement('div');
+            ind.id = 'vid-play-indicator';
+            ind.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10;pointer-events:none;font-size:3rem;color:rgba(255,255,255,0.85);text-shadow:0 2px 20px rgba(0,0,0,0.5);opacity:0;transition:opacity 0.15s ease;';
+            document.body.appendChild(ind);
+        }
+        ind.textContent = _vidPaused ? '⏸' : '▶';
+        ind.style.opacity = '1';
+        clearTimeout(ind._t);
+        ind._t = setTimeout(() => { ind.style.opacity = '0'; }, 600);
     }
 
     function toggleVidMute() {
         const p = curProfile();
         p.vidMuted = !(p.vidMuted !== false);
-        const id = extractVimeoId(p.vidUrl || '');
         const iframe = document.getElementById('vid-iframe');
-        if (iframe && id) {
-            iframe.src = buildVimeoSrc(id, p.vidMuted);
-            _lastVidId = id;
-            _vidPaused = false;
+        if (iframe && iframe.contentWindow) {
+            const vol = p.vidMuted ? 0 : 1;
+            iframe.contentWindow.postMessage(JSON.stringify({ method: 'setVolume', value: vol }), '*');
         }
         const muteBtn = document.getElementById('vid-mute-btn');
         if (muteBtn) muteBtn.querySelector('i').className = p.vidMuted
             ? 'fa-solid fa-volume-xmark'
             : 'fa-solid fa-volume-high';
-        const playBtn = document.getElementById('vid-play-btn');
-        if (playBtn) playBtn.querySelector('i').className = 'fa-solid fa-pause';
         localStorage.setItem(KEY, JSON.stringify(state));
     }
 
