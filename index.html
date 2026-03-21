@@ -41,12 +41,13 @@
         .container { width: 100%; height: 100%; margin: 0 auto; padding: 2vh 2vw; display: flex; flex-direction: column; }
         .top-bar { display: flex; justify-content: space-between; align-items: center; z-index: 10; flex-shrink: 0; margin-bottom: 2vh; position: relative; }
         .nav-group { display: flex; gap: 1.2rem; align-items: center; }
-        .nav-link { cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; width: 2.2rem; height: 2.2rem; }
-        .nav-link i { font-size: 1.2rem; color: #ffffff; transition: 0.3s; width: 1.2rem; text-align: center; }
-        .nav-link i.fa-brands { font-size: 1.15rem; }
+        .nav-link { cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; width: 1.9rem; height: 1.9rem; }        .nav-link i { font-size: 1.05rem; color: #ffffff; transition: 0.3s; width: 1.05rem; text-align: center; display: flex; align-items: center; justify-content: center; }
+        .nav-link i.fa-brands { font-size: 1.0rem; }
+        .nav-link { cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; width: 1.9rem; height: 1.9rem; }
         .nav-link:hover i { opacity: 0.6; }
-        /* Quick link favicon */
-        .ql-img-icon { object-fit: contain; border-radius: 3px; width:1.2rem; height:1.2rem; display:block; }
+        /* Quick link favicon — same visual size as FA icons */
+        /* Quick link favicon — exact match to FA icon visual size */
+        .ql-img-icon { object-fit: contain; border-radius: 2px; width:1.05rem; height:1.05rem; display:block; flex-shrink:0; }
         #main-content { 
             flex-grow: 1; 
             display: flex; 
@@ -270,7 +271,7 @@
         }
         .link-row a.icon-only:hover::after { opacity: 1; }
         /* Quick link favicon */
-        .ql-img-icon { object-fit: contain; border-radius: 3px; width:1.1rem; height:1.1rem; }
+        /* ql-img-icon defined in base styles above */
         /* Icon size buttons in editor */
         .icon-size-group { display:flex; gap:3px; }
         .icon-size-btn {
@@ -292,7 +293,7 @@
             opacity: 0; visibility: hidden; transition: opacity 0.8s ease, visibility 0.8s ease;
         }
         #weather-area.weather-loaded { opacity: 1; visibility: visible; }
-        #weather-area.weather-hidden { opacity: 0 !important; visibility: hidden !important; pointer-events: none; }
+        #weather-area.weather-hidden { opacity: 0 !important; visibility: hidden !important; pointer-events: none; height: 0 !important; padding: 0 !important; margin: 0 !important; overflow: hidden; }
         #city-name { font-size: 0.75rem; opacity: 0.5; letter-spacing: 3px; cursor: pointer; text-transform: uppercase; }
         #weather-grid { display: flex; gap: 0.6rem; align-items: center; cursor: pointer; }
         .weather-card { background: rgba(255,255,255,0.03); padding: 0.5rem 0.7rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); text-align: center; min-width: 5.5rem; }
@@ -302,10 +303,59 @@
         
         .modal { 
             display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-            background: #0a0a0a; padding: 1.5rem; border-radius: 16px; z-index: 2000; 
-            width: min(500px, 95vw); max-height: 85vh; overflow-y: auto;
+            background: #0a0a0a; border-radius: 16px; z-index: 2000; 
+            width: min(820px, 96vw); height: min(88vh, 680px);
             border: 1px solid var(--modal-accent-border, #00d4ff33);
+            overflow: hidden; padding: 0;
         }
+        #settings-sidebar {
+            width: 148px; flex-shrink: 0;
+            background: #060606;
+            border-right: 1px solid rgba(255,255,255,0.05);
+            display: flex; flex-direction: column;
+            padding: 1.2rem 0; overflow-y: auto; height: 100%;
+            box-sizing: border-box;
+        }
+        .settings-nav-item {
+            padding: 0.55rem 1.1rem; font-size: 0.72rem; font-weight: 600;
+            color: #555; cursor: pointer; transition: 0.15s;
+            border-left: 2px solid transparent;
+            letter-spacing: 0.3px; white-space: nowrap;
+            text-transform: uppercase; user-select: none;
+        }
+        .settings-nav-item:hover { color: #aaa; background: rgba(255,255,255,0.03); }
+        .settings-nav-item.active { 
+            color: var(--modal-accent, #00d4ff); 
+            border-left-color: var(--modal-accent, #00d4ff);
+            background: rgba(0,212,255,0.06);
+        }
+        #settings-nav-logo {
+            padding: 0.85rem 1.0rem 0.9rem 1.0rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            margin-bottom: 0.6rem; flex-shrink: 0;
+        }
+        #settings-nav-logo input[type="text"] {
+            background: #111; border: 1px solid #222; color: #ccc;
+            border-radius: 5px; padding: 0 6px; font-size: 0.70rem;
+            font-weight: 400; letter-spacing: 0; text-transform: none;
+        }
+        #settings-content {
+            flex: 1; overflow-y: auto; padding: 1.5rem;
+            scrollbar-width: thin; scrollbar-color: #222 transparent;
+            height: 100%; box-sizing: border-box;
+        }
+        #settings-content::-webkit-scrollbar { width: 5px; }
+        #settings-content::-webkit-scrollbar-track { background: transparent; }
+        #settings-content::-webkit-scrollbar-thumb { background: #222; border-radius: 3px; }
+        .settings-panel { display: none; }
+        .settings-panel.active { display: flex; flex-direction: column; justify-content: center; min-height: 100%; }
+        .settings-panel .setting-block { padding-top: 0; border-bottom: none; padding-bottom: 0; width: 100%; }
+        #settings-sidebar-footer {
+            margin-top: auto; padding: 0.7rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            display: flex; flex-direction: column; gap: 5px; flex-shrink: 0;
+        }
+        #settings-sidebar-footer button { width: 100%; font-size: 0.68rem; padding: 5px 8px; margin: 0; }
         #overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; backdrop-filter: blur(5px); }
 
         /* Section header */
@@ -431,7 +481,7 @@
             padding: 0 2vw 1.4vh;
             height: 52px;
         }
-        #search-bar-wrap.search-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        #search-bar-wrap.search-hidden { opacity: 0; visibility: hidden; pointer-events: none; height: 0 !important; overflow: hidden; margin: 0 !important; padding: 0 !important; }
         #search-form {
             display: flex;
             align-items: center;
@@ -656,47 +706,47 @@
         </section>
     </div>
 
-    <div id="settings-modal" class="modal">
-        <div class="setting-block">
-            <div class="section-h">Browser Tab</div>
-            <div class="color-row" style="margin-bottom:8px;">
-                <span>Tab Title</span>
-                <input type="text" id="tab-title" placeholder="Startpage" oninput="updateTabMeta()" style="width:148px; height:28px; font-size:0.78rem;">
-            </div>
-            <div class="color-row">
-                <span>Favicon</span>
-                <div style="display:flex; gap:6px; align-items:center;">
-                    <button class="icon-picker-btn" id="favicon-picker-btn" onclick="faviconPickerOpen(this)" title="Choose favicon" style="width:34px; height:26px; font-size:1rem; padding:0;">🏠</button>
-                    <input type="text" id="tab-favicon" placeholder="or paste URL..." oninput="updateTabMeta()" style="height:26px; font-size:0.75rem; flex:1;">
+    <div id="settings-modal" class="modal" style="display:none; flex-direction:row;">
+        <div id="settings-sidebar">
+            <div id="settings-nav-logo">
+                <div style="display:flex; flex-direction:column; gap:6px;">
+                    <div>
+                        <div style="font-size:0.58rem; color:#555; letter-spacing:1px; text-transform:uppercase; margin-bottom:3px;">Tab Name</div>
+                        <input type="text" id="tab-title" placeholder="My Startpage" oninput="updateTabMeta()" style="height:24px; font-size:0.72rem; padding:0 6px; width:100%; box-sizing:border-box;">
+                    </div>
+                    <div>
+                        <div style="font-size:0.58rem; color:#555; letter-spacing:1px; text-transform:uppercase; margin-bottom:3px;">Tab Icon</div>
+                        <div style="display:flex; gap:4px; align-items:center;">
+                            <button class="icon-picker-btn" id="favicon-picker-btn" onclick="faviconPickerOpen(this)" title="Choose emoji icon" style="width:26px; height:24px; font-size:0.85rem; padding:0; flex-shrink:0;">🏠</button>
+                            <input type="text" id="tab-favicon" placeholder="or paste URL..." oninput="updateTabMeta()" style="height:24px; font-size:0.68rem; min-width:0; flex:1;">
+                        </div>
+                    </div>
                 </div>
+            </div>
+            <div class="settings-nav-item active" onclick="showSettingsPanel('profiles',this)">Profiles</div>
+            <div class="settings-nav-item" onclick="showSettingsPanel('display',this)">Display</div>
+            <div class="settings-nav-item" onclick="showSettingsPanel('quick-links',this)">Quick Links</div>
+            <div class="settings-nav-item" onclick="showSettingsPanel('categories',this)">Categories</div>
+            <div class="settings-nav-item" onclick="showSettingsPanel('background',this)">Background</div>
+            <div class="settings-nav-item" onclick="showSettingsPanel('clock',this)">Clock</div>
+            <div class="settings-nav-item" onclick="showSettingsPanel('weather',this)">Weather</div>
+            <div id="settings-sidebar-footer">
+                <button class="btn-backup" onclick="exportData()">Backup</button>
+                <button class="btn-import" onclick="document.getElementById('file-input').click()">Import</button>
+                <button class="btn-reset" onclick="resetToDefaults()">Reset</button>
             </div>
         </div>
+        <div id="settings-content">
+            <div class="settings-panel active" id="panel-profiles">
         <div class="setting-block">
-            <div class="section-h">Profiles</div>
-            <div class="profile-select-row">
-                <select id="profile-select" onchange="switchProfile(parseInt(this.value))"></select>
-                <button class="btn-icon" onclick="addProfile()" title="Add profile"><i class="fa-solid fa-plus"></i></button>
-                <button class="btn-icon" onclick="deleteProfile()" style="color:#f44;" title="Delete"><i class="fa-solid fa-trash-can"></i></button>
-            </div>
-            <div class="flex-row" style="margin-bottom:10px;">
-                <input type="text" id="profile-name-input" placeholder="Name..." style="height:28px; font-size:0.78rem; min-width:0; flex:1;" oninput="renameProfile()">
-                <button class="icon-picker-btn" id="profile-icon-picker-btn" onclick="pipOpen(this)" title="Choose icon"><i id="profile-icon-preview" class="fa-solid fa-user"></i></button>
-                <div class="color-field" style="flex-shrink:0;">
-                    <input type="color" id="profile-icon-color" oninput="updateProfileIconColor(this.value)" style="display:none">
-                    <div class="cp-swatch" onclick="cpOpen('profile-icon-color')"></div>
-                    <button class="btn-icon" onclick="resetField('profile-icon-color','#ffffff','profileIconColor')" title="Reset"><i class="fa-solid fa-rotate-left"></i></button>
-                </div>
-            </div>
-            <div class="color-row" style="margin-bottom:8px;">
-                <span>Profile Photo URL</span>
-            </div>
-            <input type="text" id="profile-photo-url" placeholder="Paste photo URL..." oninput="updateProfilePhoto(this.value)" style="margin-bottom:8px;">
-            <div class="flex-row">
-                <button onclick="document.getElementById('profile-photo-file').click()">Upload Photo</button>
-                <button style="color:#f88;" onclick="updateProfilePhoto('')">Remove</button>
-            </div>
+            <div class="section-h" style="margin-bottom:10px;">Profiles</div>
+            <div id="profile-cards-list"></div>
+            <button onclick="addProfile()" style="width:100%; margin-top:6px; font-size:0.72rem;">+ Add Profile</button>
             <input type="file" id="profile-photo-file" style="display:none" accept="image/*" onchange="handleProfilePhotoFile(this)">
         </div>
+            </div>
+
+            <div class="settings-panel" id="panel-display">
         <div class="setting-block">
             <div class="section-h">Display & Navigation</div>
             <div class="size-group">
@@ -769,11 +819,17 @@
             </div>
         </div>
 
+            </div>
+
+            <div class="settings-panel" id="panel-quick-links">
         <div class="setting-block">
             <div class="section-h">Quick Links Bar</div>
             <div id="ql-list-editor"></div>
         </div>
 
+            </div>
+
+            <div class="settings-panel" id="panel-categories">
         <div class="setting-block">
             <div class="section-h">Categories & Content</div>
             <label class="label-inline"><input type="checkbox" id="header-vis-check" onchange="updateVisRealtime()"> Show Category Headers</label>
@@ -792,10 +848,13 @@
                 </div>
             </div>
             <input type="text" id="cat-url" oninput="updateCatRealtime()" placeholder="Header Link URL (optional)" style="margin-bottom:10px;">
-            <div id="link-list-editor" style="border:1px solid #1a1a1a; padding:8px; border-radius:8px; max-height:200px; overflow-y:auto; background:#050505; margin-bottom:8px;"></div>
+            <div id="link-list-editor" style="border:1px solid #1a1a1a; padding:8px; border-radius:8px; background:#050505; margin-bottom:8px;"></div>
             <div class="flex-row"><button onclick="addCat()">+ Category</button><button onclick="addLinkInline()">+ Link</button></div>
         </div>
 
+            </div>
+
+            <div class="settings-panel" id="panel-background">
         <div class="setting-block">
             <div class="section-h">Background</div>
             <div class="bg-mode-group">
@@ -804,8 +863,59 @@
                 <button class="bg-mode-btn" id="bgmode-particles" onclick="setBgMode('particles')">Particles</button>
                 <button class="bg-mode-btn" id="bgmode-time" onclick="setBgMode('time')">Time</button>
                 <button class="bg-mode-btn" id="bgmode-video" onclick="setBgMode('video')">Video</button>
+                <button class="bg-mode-btn" id="bgmode-photo" onclick="setBgMode('photo')">Photo</button>
             </div>
-            <div id="vid-settings-row" style="display:none; margin-bottom:10px; margin-top:6px;">
+
+            <!-- Gradient sub-options -->
+            <div id="gradient-options-row" style="display:none; margin-top:8px; margin-bottom:4px;">
+                <div class="size-group" style="margin-bottom:8px;">
+                    <button class="size-btn" id="grad-auto" onclick="setGradientType('auto')">Auto</button>
+                    <button class="size-btn" id="grad-manual" onclick="setGradientType('manual')">Manual</button>
+                </div>
+                <div id="gradient-manual-opts" style="display:none;">
+                    <div class="size-group" style="margin-bottom:8px;">
+                        <button class="size-btn" id="grad-dir-ltr" onclick="setGradientDir('ltr')">L→R</button>
+                        <button class="size-btn" id="grad-dir-rtl" onclick="setGradientDir('rtl')">R→L</button>
+                        <button class="size-btn" id="grad-dir-ttb" onclick="setGradientDir('ttb')">T→B</button>
+                        <button class="size-btn" id="grad-dir-btt" onclick="setGradientDir('btt')">B→T</button>
+                    </div>
+                    <div style="display:flex; gap:8px; align-items:center; margin-bottom:6px;">
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <span style="font-size:0.72rem; color:#888;">From</span>
+                            <input type="color" id="grad-color-a" value="#1C1B22" oninput="updateVisRealtime()" style="display:none">
+                            <div class="cp-swatch" onclick="cpOpen('grad-color-a')" style="margin:0;"></div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <span style="font-size:0.72rem; color:#888;">To</span>
+                            <input type="color" id="grad-color-b" value="#00d4ff" oninput="updateVisRealtime()" style="display:none">
+                            <div class="cp-swatch" onclick="cpOpen('grad-color-b')" style="margin:0;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Particles sub-options -->
+            <div id="particles-options-row" style="display:none; margin-top:8px; margin-bottom:4px;">
+                <div style="display:flex; flex-direction:column; gap:3px;">
+                    <div class="size-group" style="margin-bottom:0;">
+                        <button class="size-btn" id="ptcl-dots" onclick="setParticleStyle('dots')">Dots</button>
+                        <button class="size-btn" id="ptcl-bigdots" onclick="setParticleStyle('bigdots')">Big Dots</button>
+                        <button class="size-btn" id="ptcl-squares" onclick="setParticleStyle('squares')">Squares</button>
+                        <button class="size-btn" id="ptcl-triangles" onclick="setParticleStyle('triangles')">Triangles</button>
+                        <button class="size-btn" id="ptcl-stars" onclick="setParticleStyle('stars')">Stars</button>
+                    </div>
+                    <div class="size-group" style="margin-bottom:0;">
+                        <button class="size-btn" id="ptcl-bubbles" onclick="setParticleStyle('bubbles')">Bubbles</button>
+                        <button class="size-btn" id="ptcl-snow" onclick="setParticleStyle('snow')">Snow</button>
+                        <button class="size-btn" id="ptcl-matrix" onclick="setParticleStyle('matrix')">Matrix</button>
+                        <button class="size-btn" id="ptcl-fireworks" onclick="setParticleStyle('fireworks')">Sparks</button>
+                        <button class="size-btn" id="ptcl-ribbons" onclick="setParticleStyle('ribbons')">Ribbons</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Video sub-options -->
+            <div id="vid-settings-row" style="display:none; margin-top:8px; margin-bottom:4px;">
                 <div style="font-size:0.68rem; color:#888; margin-bottom:6px;">
                     Paste any <a href="https://vimeo.com/watch" target="_blank" style="color:var(--modal-accent,#00d4ff);text-decoration:none;font-weight:700;">Vimeo</a> URL — 3 slots to switch between videos
                 </div>
@@ -818,24 +928,36 @@
                 <span class="slider-label" style="margin-top:8px;">Video Dim</span>
                 <input type="range" id="vid-dim-slider" min="0" max="0.95" step="0.01" oninput="applyVidDimNow()">
             </div>
-            <div class="color-row">
-                <span>Background Color</span>
-                <div class="color-field">
-                    <input type="color" id="bg-color" oninput="updateVisRealtime()" style="display:none">
-                    <div class="cp-swatch" onclick="cpOpen('bg-color')"></div>
-                    <button class="btn-icon" onclick="resetField('bg-color','#1C1B22','bgColor')" title="Reset"><i class="fa-solid fa-rotate-left"></i></button>
+
+            <!-- Photo sub-options -->
+            <div id="photo-options-row" style="display:none; margin-top:8px; margin-bottom:4px;">
+                <input type="text" id="bg-img-url" placeholder="Photo URL..." oninput="updateBgImg(this.value)" style="margin-bottom:6px; height:28px; font-size:0.78rem;">
+                <div class="flex-row" style="margin-bottom:6px;">
+                    <button onclick="document.getElementById('bg-file').click()">Upload Photo</button>
+                    <button style="color:#f88;" onclick="updateBgImg('')">Remove Photo</button>
+                </div>
+                <input type="file" id="bg-file" style="display:none" accept="image/*" onchange="handleBgFile(this)">
+            </div>
+
+            <!-- Bg color — only for gradient/mesh modes -->
+            <div id="bg-color-row" style="display:none;">
+                <div class="color-row" style="margin-top:8px;">
+                    <span>Background Color</span>
+                    <div class="color-field">
+                        <input type="color" id="bg-color" oninput="updateVisRealtime()" style="display:none">
+                        <div class="cp-swatch" onclick="cpOpen('bg-color')"></div>
+                        <button class="btn-icon" onclick="resetField('bg-color','#1C1B22','bgColor')" title="Reset"><i class="fa-solid fa-rotate-left"></i></button>
+                    </div>
                 </div>
             </div>
-            <input type="text" id="bg-img-url" placeholder="Photo URL (overrides mode)..." oninput="updateBgImg(this.value)" style="margin-bottom:8px;">
-            <div class="flex-row" style="margin-bottom:12px;">
-                <button onclick="document.getElementById('bg-file').click()">Upload Photo</button>
-                <button style="color:#f88;" onclick="updateBgImg('')">Remove Photo</button>
-            </div>
-            <input type="file" id="bg-file" style="display:none" accept="image/*" onchange="handleBgFile(this)">
+
             <span class="slider-label" id="slider-label">Intensity</span>
             <input type="range" id="unified-slider" min="0" max="1" step="0.05" oninput="updateVisRealtime()">
         </div>
 
+            </div>
+
+            <div class="settings-panel" id="panel-clock">
         <div class="setting-block">
             <div class="section-h">Clock</div>
             <label class="label-inline"><input type="checkbox" id="clock-check" onchange="updateVisRealtime()"> Show Clock</label>
@@ -929,6 +1051,9 @@
             </div>
         </div>
 
+            </div>
+
+            <div class="settings-panel" id="panel-weather">
         <div class="setting-block">
             <div class="section-h">Weather</div>
             <label class="label-inline"><input type="checkbox" id="w-enable-check" onchange="updateVisRealtime()"> Enable Weather</label>
@@ -1019,11 +1144,12 @@
             </div>
         </div>
 
-        <div class="setting-block">
-            <div class="flex-row"><button class="btn-backup" onclick="exportData()">Backup</button><button class="btn-import" onclick="document.getElementById('file-input').click()">Import</button></div>
-            <button class="btn-reset" onclick="resetToDefaults()">Factory Reset</button>
+            </div>
+
             <input type="file" id="file-input" style="display:none" onchange="importData(this)">
+
         </div>
+    </div>
     </div>
 
     <div id="icon-picker-grid" class="icon-picker-grid"></div>
@@ -1169,7 +1295,7 @@
 
     function getDefaults() {
         const baseQl = [{name:"fa-solid fa-server", url:"", vis:false, color:"", linkIcon:{type:'none',src:''}}, {name:"fa-solid fa-sliders", url:"", vis:false, color:"", linkIcon:{type:'none',src:''}}, {name:"fa-brands fa-spotify", url:"", vis:false, color:"", linkIcon:{type:'none',src:''}}, {name:"fa-solid fa-star", url:"", vis:false, color:"", linkIcon:{type:'none',src:''}}];
-        const makeProfile = (cats, density) => ({ ql: JSON.parse(JSON.stringify(baseQl)), categories: cats, showWeather: true, showHeaders: true, showClock: true, clockFormat: '24', clockSeconds: true, clockShowDate: true, clockDateFmt: 'long', clockSize: 'm', clockColor: '#ffffff', clockFont: 'Inter', iconColor: "#ffffff", bgColor: "#1C1B22", bgImg: "", bgMode: 'gradient', opacity: 0.3, fuzzy: 0, weatherColor: "#ffffff", weatherFont: 'Inter', weatherSize: 'm', wShowDay: true, wShowDate: true, wDateFmt: 'dmy', wColored: true, wAqi: true, wUv: true, wPressure: true, wHumidity: true, wVisibility: true, wSunrise: true, density, gridFont: 'Inter', showSearch: true, searchEngine: 'startpage', profileIcon: 'fa-solid fa-user', profilePhoto: '', profileIconColor: '#ffffff', cardOpacity: 0.02, vidUrl: 'https://vimeo.com/446479256', vidMuted: true, vidDim: 0.35, vidSlots: ['https://vimeo.com/446479256','',''] });
+        const makeProfile = (cats, density) => ({ ql: JSON.parse(JSON.stringify(baseQl)), categories: cats, showWeather: true, showHeaders: true, showClock: true, clockFormat: '24', clockSeconds: true, clockShowDate: true, clockDateFmt: 'long', clockSize: 'm', clockColor: '#ffffff', clockFont: 'Inter', iconColor: "#ffffff", bgColor: "#1C1B22", bgImg: "", bgMode: 'gradient', gradType: 'auto', gradDir: 'ltr', gradColorA: '#1C1B22', gradColorB: '#00d4ff', particleStyle: 'dots', opacity: 0.3, fuzzy: 0, weatherColor: "#ffffff", weatherFont: 'Inter', weatherSize: 'm', wShowDay: true, wShowDate: true, wDateFmt: 'dmy', wColored: true, wAqi: true, wUv: true, wPressure: true, wHumidity: true, wVisibility: true, wSunrise: true, density, gridFont: 'Inter', showSearch: true, searchEngine: 'startpage', profileIcon: 'fa-solid fa-user', profilePhoto: '', profileIconColor: '#ffffff', cardOpacity: 0.02, vidUrl: 'https://vimeo.com/446479256', vidMuted: true, vidDim: 0.35, vidSlots: ['https://vimeo.com/446479256','',''] });
         return {
             profile: 'p0', target: '_self', linkColor: "#cccccc", tabTitle: 'Startpage', tabFavicon: '', tabFaviconEmoji: '⭐',
             cities: [{name: "Lisboa", lat: 38.71, lon: -9.13}],
@@ -1208,7 +1334,7 @@
     // Migrate missing profileIcon/profilePhoto
     state.profiles.forEach(p => { if (p && !p.profileIcon) p.profileIcon = 'fa-solid fa-user'; if (p && p.profilePhoto === undefined) p.profilePhoto = ''; if (p && !p.profileIconColor) p.profileIconColor = '#ffffff'; if (p && !p.weatherSize) p.weatherSize = 'm'; if (p && p.wShowDay === undefined) p.wShowDay = true; if (p && p.wShowDate === undefined) p.wShowDate = true; if (p && !p.wDateFmt) p.wDateFmt = 'dmy'; });
     // Migrate cardOpacity, video and scene fields
-    state.profiles.forEach(p => { if (p && p.cardOpacity === undefined) p.cardOpacity = 0.02; if (p && p.vidUrl === undefined) p.vidUrl = 'https://vimeo.com/446479256'; if (p && p.vidMuted === undefined) p.vidMuted = true; if (p && p.vidDim === undefined) p.vidDim = 0.35; if (p && !p.vidSlots) p.vidSlots = [p.vidUrl || 'https://vimeo.com/446479256','','']; });
+    state.profiles.forEach(p => { if (p && p.cardOpacity === undefined) p.cardOpacity = 0.02; if (p && p.vidUrl === undefined) p.vidUrl = 'https://vimeo.com/446479256'; if (p && p.vidMuted === undefined) p.vidMuted = true; if (p && p.vidDim === undefined) p.vidDim = 0.35; if (p && !p.vidSlots) p.vidSlots = [p.vidUrl || 'https://vimeo.com/446479256','','']; if (p && !p.gradType) p.gradType = 'auto'; if (p && !p.gradDir) p.gradDir = 'ltr'; if (p && !p.gradColorA) p.gradColorA = '#1C1B22'; if (p && !p.gradColorB) p.gradColorB = '#00d4ff'; if (p && !p.particleStyle) p.particleStyle = 'dots'; });
     let cityIdx = 0;
     let _liveSkyCode = 0; // current WMO weathercode for live sky background
     function curProfile() { return state.profiles[parseInt(state.profile.replace('p',''))] || state.profiles[0]; }
@@ -1288,7 +1414,7 @@
         const dateFmtLabel = document.getElementById('wpop-datefmt-label');
         const dateFmtSel = document.getElementById('wpop-datefmt');
         [dateFmtLabel, dateFmtSel].forEach(el => { if(el) el.className = showDate ? 'sub-enabled' : 'sub-disabled'; });
-        if (document.getElementById('settings-modal').style.display === 'block') renderSettings();
+        if (document.getElementById('settings-modal').style.display === 'flex') renderSettings();
         saveAndRender(); updateWeather();
     }
     function openWeatherPopover(anchor) {
@@ -1356,7 +1482,7 @@
         [lbl, sel].forEach(el => { if(el) el.className = (showClock && showDate) ? 'sub-enabled' : 'sub-disabled'; });
         saveAndRender(); tickClock();
         updateSectionStates();
-        if (document.getElementById('settings-modal').style.display === 'block') renderSettings();
+        if (document.getElementById('settings-modal').style.display === 'flex') renderSettings();
     }
     function openClockPopover(anchor) {
         if (document.body.classList.contains('edit-mode')) return;
@@ -1471,7 +1597,7 @@
         if (inp) { inp.value = defaultVal; cpSyncSwatch(pickerId); }
         curProfile()[stateKey] = defaultVal;
         saveAndRender(); updateWeather(); tickClock();
-        if (document.getElementById('settings-modal').style.display === 'block') renderSettings();
+        if (document.getElementById('settings-modal').style.display === 'flex') renderSettings();
     }
     function resetCatColor() {
         const idx = document.getElementById('cat-sel').value;
@@ -1480,7 +1606,7 @@
         if (inp) { inp.value = defaultColor; cpSyncSwatch('cat-color'); }
         curProfile().categories[idx].color = defaultColor;
         saveAndRender();
-        if (document.getElementById('settings-modal').style.display === 'block') renderSettings();
+        if (document.getElementById('settings-modal').style.display === 'flex') renderSettings();
     }
 
     function updateDensity(size) {
@@ -1495,7 +1621,7 @@
         const linkCounts = p.categories.map(c => c.links.length).join(',');
         const catTitles  = p.categories.map(c => c.title).join('|');
         const linkNames  = p.categories.map(c => c.links.map(l => l.name).join('~')).join('|');
-        return [p.density, p.showHeaders, p.showWeather, p.categories.length, linkCounts, catTitles, linkNames, p.gridFont || 'Inter'].join(':');
+        return [p.density, p.showHeaders, p.showWeather, p.showSearch, p.categories.length, linkCounts, catTitles, linkNames, p.gridFont || 'Inter'].join(':');
     }
 
     let _lastLayoutKey = null;
@@ -1511,10 +1637,10 @@
 
         const mod = p.density === 's' ? 0.6 : p.density === 'm' ? 0.73 : p.density === 'l' ? 0.86 : 1.0;
 
-        // Fixed heights matching CSS exactly — these never change so scaling is always correct on first frame
-        const topBarHeight  = 56;          // .top-bar: nav icons ~2.2rem + 2vh margin
-        const searchHeight  = 52;          // #search-bar-wrap: always 52px (hidden via opacity, not display)
-        const weatherHeight = 148;         // #weather-area: always 148px (hidden via opacity, not display)
+        // Only subtract heights of elements that are actually visible
+        const topBarHeight  = 56;
+        const searchHeight  = (p.showSearch !== false) ? 52 : 0;
+        const weatherHeight = p.showWeather ? 148 : 0;
         const containerPad  = Math.round(window.innerHeight * 0.04) + 16;
         const availableHeight = window.innerHeight - topBarHeight - searchHeight - weatherHeight - containerPad;
         const availableWidth  = window.innerWidth * 0.94;
@@ -1558,7 +1684,7 @@
             _lastLayoutKey = null;
             saveAndRender(); updateWeather(); tickClock();
             main.classList.remove('fade-out'); weather.classList.remove('fade-out'); bg.classList.remove('zoom-effect');
-            if(document.getElementById('settings-modal').style.display === 'block') renderSettings();
+            if(document.getElementById('settings-modal').style.display === 'flex') renderSettings();
         }, 350);
     }
     function toggleProfile() {
@@ -1647,7 +1773,7 @@
         _seMenuOpen = false;
         document.getElementById('se-menu').classList.remove('open');
         saveAndRender();
-        if (document.getElementById('settings-modal').style.display === 'block') renderSettings();
+        if (document.getElementById('settings-modal').style.display === 'flex') renderSettings();
     }
 
     function doSearch(e) {
@@ -1684,15 +1810,29 @@
             const intensity = p.opacity !== undefined && p.opacity !== "" ? parseFloat(p.opacity) : 0.3;
             document.body.style.backgroundColor = p.bgColor;
             if (mode === 'gradient') {
-                const cols = p.categories.map(x => x.color);
-                bg.style.background = cols.length > 1 ? `linear-gradient(135deg, ${cols.join(',')})` : (cols[0] || p.bgColor);
+                let gradCss;
+                if (p.gradType === 'manual') {
+                    const a = p.gradColorA || '#1C1B22', b = p.gradColorB || '#00d4ff';
+                    const dirs = { ltr:'90deg', rtl:'270deg', ttb:'180deg', btt:'0deg' };
+                    gradCss = `linear-gradient(${dirs[p.gradDir||'ltr']},${a},${b})`;
+                } else {
+                    const cols = p.categories.map(x => x.color);
+                    gradCss = cols.length > 1 ? `linear-gradient(135deg,${cols.join(',')})` : (cols[0] || p.bgColor);
+                }
+                bg.style.background = gradCss;
                 bg.style.opacity = intensity;
                 stopBgCanvas();
             } else if (mode === 'mesh') {
                 startMeshBg(p.categories.map(x => x.color), intensity);
                 bg.style.opacity = 0;
             } else if (mode === 'particles') {
-                startParticlesBg(p.categories.map(x => x.color), intensity);
+                const pStyle = p.particleStyle || 'dots';
+                if (pStyle === 'bubbles')   { startBubblesBg(p.categories.map(x=>x.color), intensity); }
+                else if (pStyle === 'snow') { startSnowBg(p.categories.map(x=>x.color), intensity); }
+                else if (pStyle === 'matrix') { startMatrixBg(p.categories.map(x=>x.color), intensity); }
+                else if (pStyle === 'fireworks') { startFireworksBg(p.categories.map(x=>x.color), intensity); }
+                else if (pStyle === 'ribbons')   { startRibbonsBg(p.categories.map(x=>x.color), intensity); }
+                else { startParticlesBg(p.categories.map(x=>x.color), intensity, pStyle); }
                 bg.style.opacity = 0;
             } else if (mode === 'time') {
                 startLiveSkyBg(intensity);
@@ -1710,10 +1850,10 @@
         const profileNavBtn = document.getElementById('profile-nav-btn');
         if (profileNavBtn) {
             if (p.profilePhoto) {
-                profileNavBtn.innerHTML = `<img src="${p.profilePhoto}" style="width:2.2rem;height:2.2rem;border-radius:50%;object-fit:cover;border:1.5px solid rgba(255,255,255,0.15);" alt="Profile">`;
+                profileNavBtn.innerHTML = `<img src="${p.profilePhoto}" style="width:1.9rem;height:1.9rem;border-radius:50%;object-fit:cover;border:1.5px solid rgba(255,255,255,0.15);" alt="Profile">`;
             } else {
                 const pIcon = p.profileIcon || 'fa-solid fa-user';
-                profileNavBtn.innerHTML = `<i class="${pIcon}" style="font-size:1.2rem;color:${profileColor};transition:0.3s;"></i>`;
+                profileNavBtn.innerHTML = `<i class="${pIcon}" style="font-size:1.05rem;color:${profileColor};transition:0.3s;"></i>`;
             }
         }
         const qlHtml = p.ql.filter(l => l.vis).map(l => {
@@ -1723,12 +1863,12 @@
             if (lic.type === 'favicon' && l.url) {
                 try {
                     const domain = new URL(l.url).hostname;
-                    iconContent = `<img class="ql-img-icon" src="https://www.google.com/s2/favicons?domain=${domain}&sz=32" alt="" onerror="this.style.display='none';this.nextSibling.style.display='inline-block'"><i class="${l.name}" style="color:${ic};display:none;"></i>`;
-                } catch(e) { iconContent = `<i class="${l.name}" style="color:${ic}"></i>`; }
+                    iconContent = `<img class="ql-img-icon" src="https://www.google.com/s2/favicons?domain=${domain}&sz=64" alt="" onerror="this.style.display='none';this.nextSibling.style.display='inline-flex'"><i class="${l.name}" style="color:${ic};display:none;font-size:1.05rem;"></i>`;
+                } catch(e) { iconContent = `<i class="${l.name}" style="color:${ic};font-size:1.05rem;"></i>`; }
             } else if (lic.type === 'url' && lic.src) {
-                iconContent = `<img class="ql-img-icon" src="${lic.src}" alt="" onerror="this.style.display='none';this.nextSibling.style.display='inline-block'"><i class="${l.name}" style="color:${ic};display:none;"></i>`;
+                iconContent = `<img class="ql-img-icon" src="${lic.src}" alt="" onerror="this.style.display='none';this.nextSibling.style.display='inline-flex'"><i class="${l.name}" style="color:${ic};display:none;font-size:1.05rem;"></i>`;
             } else {
-                iconContent = `<i class="${l.name}" style="color:${ic}"></i>`;
+                iconContent = `<i class="${l.name}" style="color:${ic};font-size:1.05rem;"></i>`;
             }
             const title = l.url ? new URL(l.url.startsWith('http') ? l.url : 'https://'+l.url).hostname : '';
             return `<a href="${l.url}" class="nav-link active" target="${state.target}" title="${title}">${iconContent}</a>`;
@@ -1795,7 +1935,7 @@
         document.getElementById('cat-sel').innerHTML = p.categories.map((c, i) => `<option value="${i}">${c.title}</option>`).join('');
         if(!p.categories[document.getElementById('cat-sel').value]) document.getElementById('cat-sel').value = 0;
         const slider = document.getElementById('unified-slider'), label = document.querySelector('#slider-label');
-        if (p.bgImg) { label.textContent = "Photo Blur"; slider.min = 0; slider.max = 30; slider.step = 1; slider.value = p.fuzzy || 0; }
+        if (p.bgImg || p.bgMode === 'photo') { label.textContent = "Photo Blur"; slider.min = 0; slider.max = 30; slider.step = 1; slider.value = p.fuzzy || 0; }
         else if (!p.bgImg && (p.bgMode||'gradient')==='video') { label.textContent = "Video Dim"; slider.min = 0; slider.max = 0.95; slider.step = 0.01; slider.value = p.vidDim !== undefined ? p.vidDim : 0.35; }
         else { label.textContent = "Intensity"; slider.min = 0; slider.max = 1; slider.step = 0.05; slider.value = (p.opacity !== undefined && p.opacity !== '') ? p.opacity : 0.3; }
         renderProfileTabs();
@@ -1828,17 +1968,8 @@
         document.getElementById('target-mode').value = state.target;
         document.getElementById('search-enable').checked = (p.showSearch !== false);
         document.getElementById('search-engine').value = p.searchEngine || 'startpage';
-        document.getElementById('bg-img-url').value = p.bgImg && p.bgImg.startsWith('data:') ? "Local Image Active" : (p.bgImg || '');
         document.getElementById('bg-color').value = p.bgColor;
-        ['gradient','mesh','particles','time','video'].forEach(m => {
-            const btn = document.getElementById('bgmode-' + m);
-            if (btn) btn.classList.toggle('active', !p.bgImg && (p.bgMode || 'gradient') === m);
-        });
-        const isVidMode2 = !p.bgImg && (p.bgMode || 'gradient') === 'video';
-        const vidSettingsRow2 = document.getElementById('vid-settings-row');
-        if (vidSettingsRow2) vidSettingsRow2.style.display = isVidMode2 ? 'block' : 'none';
-        const vidDimRow2 = document.getElementById('vid-dim-row');
-        if (vidDimRow2) vidDimRow2.style.display = isVidMode2 ? 'block' : 'none';
+        syncBgSubRows(p);
         renderVidSlots();
         const cardSlider = document.getElementById('card-opacity-slider');
         const cardVal = (p.cardOpacity !== undefined && p.cardOpacity !== '') ? parseFloat(p.cardOpacity) : 0.02;
@@ -1920,12 +2051,18 @@
         if (p.bgImg) { p.fuzzy = sliderVal; }
         else if (!p.bgImg && (p.bgMode||'gradient')==='video') { p.vidDim = parseFloat(sliderVal); applyVidDimNow(); }
         else { p.opacity = sliderVal; }
+        // Gradient manual colors
+        const ga = document.getElementById('grad-color-a');
+        const gb = document.getElementById('grad-color-b');
+        if (ga) p.gradColorA = ga.value;
+        if (gb) p.gradColorB = gb.value;
         // Video URL + show/hide rows
         const isVidRT = !p.bgImg && (p.bgMode||'gradient')==='video';
         const vsrRT = document.getElementById('vid-settings-row');
         if (vsrRT) vsrRT.style.display = isVidRT ? 'block' : 'none';
         const vdrRT = document.getElementById('vid-dim-row');
         if (vdrRT) vdrRT.style.display = isVidRT ? 'block' : 'none';
+        syncBgSubRows(p);
         const cardSlider = document.getElementById('card-opacity-slider');
         if (cardSlider) {
             p.cardOpacity = parseFloat(cardSlider.value);
@@ -2076,8 +2213,25 @@
     }
 
     function toggleWeatherStyle(type) { const p = curProfile(); if(type === 'colored') { p.wColored = true; document.getElementById('w-solid-check').checked = false; } else { p.wColored = false; document.getElementById('w-colored-check').checked = false; } updateVisRealtime(); }
-    function openModal(id) { document.getElementById(id).style.display = 'block'; document.getElementById('overlay').style.display = 'block'; if(id === 'settings-modal') renderSettings(); }
-    function closeModals() { document.querySelectorAll('.modal').forEach(m => m.style.display='none'); document.getElementById('overlay').style.display='none'; }
+    function openModal(id) {
+        const el = document.getElementById(id);
+        el.style.display = id === 'settings-modal' ? 'flex' : 'block';
+        document.getElementById('overlay').style.display = 'block';
+        if (id === 'settings-modal') renderSettings();
+    }
+    function closeModals() {
+        document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+        document.getElementById('overlay').style.display = 'none';
+    }
+    function showSettingsPanel(id, navEl) {
+        document.querySelectorAll('.settings-panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.settings-nav-item').forEach(n => n.classList.remove('active'));
+        const panel = document.getElementById('panel-' + id);
+        if (panel) panel.classList.add('active');
+        if (navEl) navEl.classList.add('active');
+        const content = document.getElementById('settings-content');
+        if (content) content.scrollTop = 0;
+    }
     function syncCategoryEditor() { 
         const p = curProfile(), idx = document.getElementById('cat-sel').value; 
         if(idx !== "" && p.categories[idx]) { 
@@ -2181,42 +2335,53 @@
     }
 
     // ── Profile management ──
-    function renderProfileTabs() {
-        const sel = document.getElementById('profile-select');
-        if (!sel) return;
-        sel.innerHTML = state.profiles.map((_, i) =>
-            `<option value="${i}" ${state.profile === 'p'+i ? 'selected' : ''}>${state.profileNames[i] || 'Profile '+(i+1)}</option>`
-        ).join('');
-        const nameInput = document.getElementById('profile-name-input');
-        if (nameInput) nameInput.value = state.profileNames[curProfileIdx()] || '';
-        // Sync icon preview, color, photo
-        const p = curProfile();
-        const iconPreview = document.getElementById('profile-icon-preview');
-        if (iconPreview) iconPreview.className = p.profileIcon || 'fa-solid fa-user';
-        const colorInp = document.getElementById('profile-icon-color');
-        if (colorInp) { colorInp.value = p.profileIconColor || '#ffffff'; cpSyncSwatch('profile-icon-color'); }
-        const photoUrl = document.getElementById('profile-photo-url');
-        if (photoUrl) photoUrl.value = (p.profilePhoto && !p.profilePhoto.startsWith('data:')) ? p.profilePhoto : (p.profilePhoto ? 'Local Photo Active' : '');
+    function renderProfileTabs() { renderProfileCards(); }
+    function renderProfileCards() {
+        const container = document.getElementById('profile-cards-list');
+        if (!container) return;
+        container.innerHTML = state.profiles.map((p, i) => {
+            const isActive = state.profile === 'p' + i;
+            const name = state.profileNames[i] || 'Profile ' + (i+1);
+            const accent = 'var(--modal-accent,#00d4ff)';
+            const iconClass = p.profileIcon || 'fa-solid fa-user';
+            const iconColor = p.profileIconColor || '#ffffff';
+            return `<div style="border:1px solid ${isActive ? accent : '#222'}; border-radius:10px; padding:10px 12px; margin-bottom:8px; background:${isActive ? 'rgba(0,212,255,0.04)' : '#0a0a0a'}; cursor:pointer;" onclick="switchProfileCard(${i})">
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:${isActive?'10':'0'}px;">
+                    <div style="width:28px;height:28px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;background:#111;">
+                        ${p.profilePhoto ? `<img src="${p.profilePhoto}" style="width:28px;height:28px;object-fit:cover;" onerror="this.style.display='none'">` : `<i class="${iconClass}" style="font-size:0.85rem;color:${iconColor};"></i>`}
+                    </div>
+                    <span style="font-size:0.78rem;font-weight:600;color:${isActive?accent:'#aaa'};flex:1;">${name}</span>
+                    ${isActive ? '' : `<button class="btn-icon" onclick="event.stopPropagation();deleteProfileAt(${i})" style="color:#f44;font-size:0.7rem;" title="Delete"><i class="fa-solid fa-trash-can"></i></button>`}
+                </div>
+                ${isActive ? `
+                <div class="flex-row" style="margin-bottom:8px; margin-top:2px;">
+                    <input type="text" value="${name}" placeholder="Name..." style="height:26px;font-size:0.75rem;min-width:0;flex:1;" oninput="renameProfileInCard(this.value,${i})">
+                    <button class="icon-picker-btn" id="profile-icon-picker-btn" onclick="event.stopPropagation();pipOpen(this)" title="Choose icon" style="width:26px;height:26px;"><i id="profile-icon-preview" class="${iconClass}" style="color:${iconColor};font-size:0.82rem;"></i></button>
+                    <div class="color-field" style="flex-shrink:0;">
+                        <input type="color" id="profile-icon-color" value="${iconColor}" oninput="updateProfileIconColor(this.value)" style="display:none">
+                        <div class="cp-swatch" onclick="cpOpen('profile-icon-color')"></div>
+                    </div>
+                </div>
+                <input type="text" value="${p.profilePhoto && !p.profilePhoto.startsWith('data:') ? p.profilePhoto : ''}" placeholder="Photo URL..." oninput="updateProfilePhoto(this.value)" style="height:26px;font-size:0.75rem;margin-bottom:6px;">
+                <div class="flex-row" style="margin-bottom:0;">
+                    <button onclick="document.getElementById('profile-photo-file').click()" style="font-size:0.72rem;padding:4px 8px;">Upload Photo</button>
+                    <button style="color:#f88;font-size:0.72rem;padding:4px 8px;" onclick="updateProfilePhoto('')">Remove</button>
+                </div>` : ''}
+            </div>`;
+        }).join('');
     }
-    function renameProfile() {
-        const val = document.getElementById('profile-name-input').value;
-        state.profileNames[curProfileIdx()] = val;
-        // Update dropdown option text immediately
-        const sel = document.getElementById('profile-select');
-        if (sel && sel.options[curProfileIdx()]) sel.options[curProfileIdx()].text = val || 'Profile '+(curProfileIdx()+1);
-        localStorage.setItem(KEY, JSON.stringify(state));
-    }
-    function addProfile() {
-        const d = getDefaults();
-        state.profiles.push(d.profiles[0]);
-        state.profileNames.push('Profile ' + state.profiles.length);
-        state.profile = 'p' + (state.profiles.length - 1);
+    function switchProfileCard(idx) {
+        state.profile = 'p' + idx;
         saveAndRender(); renderSettings();
     }
-    function deleteProfile() {
+    function renameProfileInCard(val, idx) {
+        state.profileNames[idx] = val;
+        localStorage.setItem(KEY, JSON.stringify(state));
+    }
+    function deleteProfileAt(idx) {
         if (state.profiles.length <= 1) return;
-        state.profiles.splice(curProfileIdx(), 1);
-        state.profileNames.splice(curProfileIdx(), 1);
+        state.profiles.splice(idx, 1);
+        state.profileNames.splice(idx, 1);
         state.profile = 'p0';
         saveAndRender(); renderSettings();
     }
@@ -2250,14 +2415,14 @@
         p.profilePhoto = '';
         ipClose(); _pipOpen = false;
         saveAndRender();
-        if (document.getElementById('settings-modal').style.display === 'block') renderSettings();
+        if (document.getElementById('settings-modal').style.display === 'flex') renderSettings();
     }
 
     // ── Profile photo ──
     function updateProfilePhoto(val) {
         curProfile().profilePhoto = val;
         saveAndRender();
-        if (document.getElementById('settings-modal').style.display === 'block') renderSettings();
+        if (document.getElementById('settings-modal').style.display === 'flex') renderSettings();
     }
     function handleProfilePhotoFile(input) {
         const file = input.files[0]; if (!file) return;
@@ -2377,23 +2542,88 @@
     function handleBgFile(input) { const file = input.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (e) => { const img = new Image(); img.onload = () => { const canvas = document.createElement('canvas'); const MAX_WIDTH = 1920; let width = img.width, height = img.height; if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } canvas.width = width; canvas.height = height; canvas.getContext('2d').drawImage(img, 0, 0, width, height); updateBgImg(canvas.toDataURL('image/jpeg', 0.7)); }; img.src = e.target.result; }; reader.readAsDataURL(file); }
     function setBgMode(mode) {
         const p = curProfile();
-        p.bgMode = mode;
-        p.bgImg = '';
-        ['gradient','mesh','particles','time','video'].forEach(m => {
-            const btn = document.getElementById('bgmode-' + m);
-            if (btn) btn.classList.toggle('active', m === mode);
-        });
+        if (mode === 'photo') {
+            p.bgMode = 'photo';
+            // Don't clear bgImg — user will set it via photo options
+        } else {
+            p.bgMode = mode;
+            p.bgImg = '';
+        }
+        syncBgSubRows(p);
         saveAndRender(); renderSettings();
     }
+
+    function syncBgSubRows(p) {
+        const mode = p ? (p.bgMode || 'gradient') : 'gradient';
+        const isPhoto = mode === 'photo' || !!(p?.bgImg);
+        const isGrad  = !isPhoto && mode === 'gradient';
+        const isPtcl  = !isPhoto && mode === 'particles';
+        const isVid   = !isPhoto && mode === 'video';
+        const showBgColor = isGrad || mode === 'mesh';
+
+        const show = (id, val) => { const el=document.getElementById(id); if(el) el.style.display=val?'block':'none'; };
+        show('gradient-options-row', isGrad);
+        show('particles-options-row', isPtcl);
+        show('vid-settings-row', isVid);
+        show('vid-dim-row', isVid);
+        show('photo-options-row', isPhoto);
+        show('bg-color-row', showBgColor);
+
+        // Sync bgmode buttons — photo button active if bgImg set
+        ['gradient','mesh','particles','time','video','photo'].forEach(m => {
+            const btn = document.getElementById('bgmode-' + m);
+            if (!btn) return;
+            const isActive = isPhoto ? m === 'photo' : m === mode;
+            btn.classList.toggle('active', isActive);
+        });
+
+        if (!p) return;
+        // Gradient
+        ['auto','manual'].forEach(t => {
+            const b = document.getElementById('grad-' + t);
+            if (b) b.classList.toggle('active', (p.gradType||'auto') === t);
+        });
+        const manOpts = document.getElementById('gradient-manual-opts');
+        if (manOpts) manOpts.style.display = (p.gradType === 'manual') ? 'block' : 'none';
+        ['ltr','rtl','ttb','btt'].forEach(d => {
+            const b = document.getElementById('grad-dir-' + d);
+            if (b) b.classList.toggle('active', (p.gradDir||'ltr') === d);
+        });
+        const ga = document.getElementById('grad-color-a'), gb = document.getElementById('grad-color-b');
+        if (ga) { ga.value = p.gradColorA||'#1C1B22'; cpSyncSwatch('grad-color-a'); }
+        if (gb) { gb.value = p.gradColorB||'#00d4ff'; cpSyncSwatch('grad-color-b'); }
+        // Particles
+        ['dots','bigdots','squares','triangles','stars','bubbles','snow','matrix','fireworks','ribbons'].forEach(s => {
+            const b = document.getElementById('ptcl-' + s);
+            if (b) b.classList.toggle('active', (p.particleStyle||'dots') === s);
+        });
+        // Photo url field
+        const bgImgUrl = document.getElementById('bg-img-url');
+        if (bgImgUrl) bgImgUrl.value = p.bgImg && p.bgImg.startsWith('data:') ? 'Local Image Active' : (p.bgImg || '');
+    }
+
+    function setGradientType(type) {
+        const p = curProfile(); p.gradType = type;
+        syncBgSubRows(p); saveAndRender();
+    }
+    function setGradientDir(dir) {
+        const p = curProfile(); p.gradDir = dir;
+        syncBgSubRows(p); saveAndRender();
+    }
+    function setParticleStyle(style) {
+        const p = curProfile(); p.particleStyle = style;
+        syncBgSubRows(p); saveAndRender();
+    }
+
     function updateBgImg(val) {
         const p = curProfile();
         p.bgImg = val;
         if (val) {
-            ['gradient','mesh','particles','time','video'].forEach(m => {
-                const btn = document.getElementById('bgmode-' + m);
-                if (btn) btn.classList.remove('active');
-            });
+            p.bgMode = 'photo';
+        } else {
+            if (p.bgMode === 'photo') p.bgMode = 'gradient';
         }
+        syncBgSubRows(p);
         saveAndRender(); renderSettings();
     }
 
@@ -2672,55 +2902,279 @@
         draw();
     }
 
-    function startParticlesBg(colors, intensity) {
+    function startParticlesBg(colors, intensity, style) {
         stopBgCanvas();
+        style = style || 'dots';
         const canvas = document.getElementById('bg-canvas');
         const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-        const count = Math.floor(60 + intensity * 80);
-        const rgbs = colors.length ? colors.map(hex => {
-            const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
-            return [r,g,b];
-        }) : [[0,212,255]];
-        const particles = Array.from({length: count}, () => ({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            r: 1 + Math.random() * 2.5,
-            vx: (Math.random() - 0.5) * 0.4,
-            vy: (Math.random() - 0.5) * 0.4,
-            col: rgbs[Math.floor(Math.random() * rgbs.length)]
+        const count = style === 'bigdots' ? 40 : style === 'stars' ? 55 : 70;
+        const rgbs = (colors||[]).filter(h=>h&&h.length>4).map(hex => [parseInt(hex.slice(1,3),16),parseInt(hex.slice(3,5),16),parseInt(hex.slice(5,7),16)]);
+        if (!rgbs.length) rgbs.push([0,212,255]);
+        const baseR = style==='bigdots'?6 : style==='squares'?5 : style==='triangles'?7 : style==='stars'?6 : 2;
+        const spd   = style==='bigdots'?0.18 : 0.32;
+        const pts = Array.from({length:count}, () => ({
+            x:Math.random(), y:Math.random(),
+            r:baseR*(0.55+Math.random()*0.9),
+            vx:(Math.random()-0.5)*spd, vy:(Math.random()-0.5)*spd,
+            rot:Math.random()*Math.PI*2, rv:(Math.random()-0.5)*0.018,
+            col:rgbs[Math.floor(Math.random()*rgbs.length)]
         }));
+        function drawStar(r) {
+            ctx.beginPath();
+            for(let i=0;i<5;i++){
+                const a1=i*Math.PI*2/5-Math.PI/2, a2=(i+0.5)*Math.PI*2/5-Math.PI/2;
+                i===0?ctx.moveTo(r*Math.cos(a1),r*Math.sin(a1)):ctx.lineTo(r*Math.cos(a1),r*Math.sin(a1));
+                ctx.lineTo(r*0.42*Math.cos(a2),r*0.42*Math.sin(a2));
+            }
+            ctx.closePath(); ctx.fill();
+        }
         function draw() {
-            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach(p => {
-                p.x += p.vx; p.y += p.vy;
-                if (p.x < 0) p.x = canvas.width;
-                if (p.x > canvas.width) p.x = 0;
-                if (p.y < 0) p.y = canvas.height;
-                if (p.y > canvas.height) p.y = 0;
-                const [r,g,b] = p.col;
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(${r},${g},${b},${intensity * 0.85})`;
-                ctx.fill();
+            const w=canvas.width=window.innerWidth, h=canvas.height=window.innerHeight;
+            ctx.clearRect(0,0,w,h);
+            pts.forEach(p => {
+                p.x+=p.vx/w; p.y+=p.vy/h; p.rot+=p.rv;
+                if(p.x<0)p.x=1; if(p.x>1)p.x=0;
+                if(p.y<0)p.y=1; if(p.y>1)p.y=0;
+                const [r,g,b]=p.col;
+                ctx.fillStyle=`rgba(${r},${g},${b},${intensity*0.88})`;
+                ctx.save(); ctx.translate(p.x*w, p.y*h); ctx.rotate(p.rot);
+                if(style==='squares'){
+                    ctx.fillRect(-p.r,-p.r,p.r*2,p.r*2);
+                } else if(style==='triangles'){
+                    ctx.beginPath(); ctx.moveTo(0,-p.r); ctx.lineTo(p.r*0.87,p.r*0.5); ctx.lineTo(-p.r*0.87,p.r*0.5); ctx.closePath(); ctx.fill();
+                } else if(style==='stars'){
+                    drawStar(p.r);
+                } else {
+                    ctx.beginPath(); ctx.arc(0,0,p.r,0,Math.PI*2); ctx.fill();
+                    if(style==='bigdots'){
+                        const g2=ctx.createRadialGradient(0,0,0,0,0,p.r*2.5);
+                        g2.addColorStop(0,`rgba(${r},${g},${b},${intensity*0.18})`);
+                        g2.addColorStop(1,`rgba(${r},${g},${b},0)`);
+                        ctx.fillStyle=g2; ctx.beginPath(); ctx.arc(0,0,p.r*2.5,0,Math.PI*2); ctx.fill();
+                    }
+                }
+                ctx.restore();
             });
-            // Draw connecting lines between nearby particles
-            for (let i = 0; i < particles.length; i++) {
-                for (let j = i+1; j < particles.length; j++) {
-                    const dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y;
-                    const dist = Math.sqrt(dx*dx + dy*dy);
-                    if (dist < 100) {
-                        const [r,g,b] = particles[i].col;
-                        ctx.beginPath();
-                        ctx.moveTo(particles[i].x, particles[i].y);
-                        ctx.lineTo(particles[j].x, particles[j].y);
-                        ctx.strokeStyle = `rgba(${r},${g},${b},${intensity * 0.15 * (1 - dist/100)})`;
-                        ctx.lineWidth = 0.5;
-                        ctx.stroke();
+            if(style==='dots'||style==='bigdots'){
+                const maxD=style==='bigdots'?160:110;
+                for(let i=0;i<pts.length;i++) for(let j=i+1;j<pts.length;j++){
+                    const dx=(pts[i].x-pts[j].x)*w, dy=(pts[i].y-pts[j].y)*h;
+                    const d=Math.sqrt(dx*dx+dy*dy);
+                    if(d<maxD){
+                        const [r,g,b]=pts[i].col;
+                        ctx.beginPath(); ctx.moveTo(pts[i].x*w,pts[i].y*h); ctx.lineTo(pts[j].x*w,pts[j].y*h);
+                        ctx.strokeStyle=`rgba(${r},${g},${b},${intensity*0.18*(1-d/maxD)})`;
+                        ctx.lineWidth=0.6; ctx.stroke();
                     }
                 }
             }
+            _bgRaf=requestAnimationFrame(draw);
+        }
+        draw();
+    }
+
+    // ── Bubbles ──
+    function startBubblesBg(colors, intensity) {
+        stopBgCanvas();
+        const canvas=document.getElementById('bg-canvas'), ctx=canvas.getContext('2d');
+        const rgbs=(colors||[]).filter(h=>h&&h.length>4).map(hex=>[parseInt(hex.slice(1,3),16),parseInt(hex.slice(3,5),16),parseInt(hex.slice(5,7),16)]);
+        if(!rgbs.length) rgbs.push([0,212,255]);
+        const bubbles=Array.from({length:45},()=>({
+            x:Math.random(), y:1.05+Math.random()*0.5,
+            r:(8+Math.random()*28),
+            spd:0.0008+Math.random()*0.0014,
+            wobble:Math.random()*Math.PI*2, ws:0.012+Math.random()*0.018,
+            col:rgbs[Math.floor(Math.random()*rgbs.length)]
+        }));
+        function draw(){
+            const w=canvas.width=window.innerWidth,h=canvas.height=window.innerHeight;
+            ctx.clearRect(0,0,w,h);
+            bubbles.forEach(b=>{
+                b.y-=b.spd; b.wobble+=b.ws;
+                b.x+=Math.sin(b.wobble)*0.0003;
+                if(b.y<-0.05){b.y=1.05+Math.random()*0.2;b.x=Math.random();}
+                const cx=b.x*w, cy=b.y*h, r=b.r;
+                const [r2,g,bl]=b.col;
+                // Main bubble
+                ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2);
+                ctx.strokeStyle=`rgba(${r2},${g},${bl},${intensity*0.55})`; ctx.lineWidth=1.2; ctx.stroke();
+                // Inner fill
+                const ig=ctx.createRadialGradient(cx-r*0.3,cy-r*0.3,0,cx,cy,r);
+                ig.addColorStop(0,`rgba(255,255,255,${intensity*0.10})`);
+                ig.addColorStop(0.6,`rgba(${r2},${g},${bl},${intensity*0.06})`);
+                ig.addColorStop(1,`rgba(${r2},${g},${bl},${intensity*0.12})`);
+                ctx.fillStyle=ig; ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill();
+                // Highlight
+                ctx.beginPath(); ctx.arc(cx-r*0.3,cy-r*0.32,r*0.22,0,Math.PI*2);
+                ctx.fillStyle=`rgba(255,255,255,${intensity*0.30})`; ctx.fill();
+            });
+            _bgRaf=requestAnimationFrame(draw);
+        }
+        draw();
+    }
+
+    // ── Snow ──
+    function startSnowBg(colors, intensity) {
+        stopBgCanvas();
+        const canvas=document.getElementById('bg-canvas'), ctx=canvas.getContext('2d');
+        const rgbs=(colors||[]).filter(h=>h&&h.length>4).map(hex=>[parseInt(hex.slice(1,3),16),parseInt(hex.slice(3,5),16),parseInt(hex.slice(5,7),16)]);
+        if(!rgbs.length) rgbs.push([200,220,255]);
+        const flakes=Array.from({length:120},()=>({
+            x:Math.random(), y:Math.random(),
+            r:1+Math.random()*3.5,
+            spd:0.0006+Math.random()*0.0012,
+            drift:Math.random()*Math.PI*2, ds:0.006+Math.random()*0.01,
+            col:rgbs[Math.floor(Math.random()*rgbs.length)],
+            opacity:0.4+Math.random()*0.6
+        }));
+        function draw(){
+            const w=canvas.width=window.innerWidth,h=canvas.height=window.innerHeight;
+            ctx.clearRect(0,0,w,h);
+            flakes.forEach(f=>{
+                f.y+=f.spd; f.drift+=f.ds; f.x+=Math.sin(f.drift)*0.0004;
+                if(f.y>1.02){f.y=-0.02;f.x=Math.random();}
+                if(f.x<0)f.x=1; if(f.x>1)f.x=0;
+                const [r,g,b]=f.col;
+                const fg=ctx.createRadialGradient(f.x*w,f.y*h,0,f.x*w,f.y*h,f.r*1.5);
+                fg.addColorStop(0,`rgba(${r},${g},${b},${intensity*f.opacity})`);
+                fg.addColorStop(1,`rgba(${r},${g},${b},0)`);
+                ctx.fillStyle=fg; ctx.beginPath(); ctx.arc(f.x*w,f.y*h,f.r*1.5,0,Math.PI*2); ctx.fill();
+            });
+            _bgRaf=requestAnimationFrame(draw);
+        }
+        draw();
+    }
+
+    // ── Matrix ──
+    function startMatrixBg(colors, intensity) {
+        stopBgCanvas();
+        const canvas=document.getElementById('bg-canvas'), ctx=canvas.getContext('2d');
+        const rgbs=(colors||[]).filter(h=>h&&h.length>4).map(hex=>[parseInt(hex.slice(1,3),16),parseInt(hex.slice(3,5),16),parseInt(hex.slice(5,7),16)]);
+        const [r,g,b]=rgbs.length ? rgbs[0] : [0,255,80];
+        const fontSize=14, chars='アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン01';
+        let cols;
+        const drops=[];
+        function init(){
+            const w=canvas.width=window.innerWidth;
+            cols=Math.floor(w/fontSize);
+            drops.length=0;
+            for(let i=0;i<cols;i++) drops[i]=-Math.floor(Math.random()*80);
+        }
+        init();
+        function draw(){
+            const w=canvas.width=window.innerWidth,h=canvas.height=window.innerHeight;
+            if(drops.length!==Math.floor(w/fontSize)) init();
+            ctx.fillStyle=`rgba(0,0,0,${intensity*0.05})`;
+            ctx.fillRect(0,0,w,h);
+            ctx.font=`${fontSize}px monospace`;
+            for(let i=0;i<drops.length;i++){
+                const ch=chars[Math.floor(Math.random()*chars.length)];
+                const bright=Math.random()>0.95;
+                ctx.fillStyle=bright?`rgba(200,255,200,${intensity*0.9})`:`rgba(${r},${g},${b},${intensity*0.65})`;
+                if(drops[i]>0) ctx.fillText(ch,i*fontSize,drops[i]*fontSize);
+                if(drops[i]*fontSize>h&&Math.random()>0.975) drops[i]=0;
+                drops[i]++;
+            }
+            _bgRaf=requestAnimationFrame(draw);
+        }
+        draw();
+    }
+
+    // ── Sparks / Fireworks ──
+    function startFireworksBg(colors, intensity) {
+        stopBgCanvas();
+        const canvas=document.getElementById('bg-canvas'), ctx=canvas.getContext('2d');
+        const rgbs=(colors||[]).filter(h=>h&&h.length>4).map(hex=>[parseInt(hex.slice(1,3),16),parseInt(hex.slice(3,5),16),parseInt(hex.slice(5,7),16)]);
+        if(!rgbs.length) rgbs.push([0,212,255],[255,80,120],[255,200,0]);
+        const particles=[];
+        function burst(x,y,col){
+            const count=30+Math.floor(Math.random()*25);
+            for(let i=0;i<count;i++){
+                const angle=Math.random()*Math.PI*2, spd=0.5+Math.random()*2.5;
+                particles.push({x,y,vx:Math.cos(angle)*spd,vy:Math.sin(angle)*spd-1,life:1,decay:0.012+Math.random()*0.018,r:1+Math.random()*2,col,trail:[]});
+            }
+        }
+        let nextBurst=60;
+        function draw(){
+            const w=canvas.width=window.innerWidth,h=canvas.height=window.innerHeight;
+            ctx.fillStyle=`rgba(0,0,0,${intensity*0.08})`; ctx.fillRect(0,0,w,h);
+            nextBurst--;
+            if(nextBurst<=0){
+                nextBurst=80+Math.floor(Math.random()*120);
+                burst(0.1*w+Math.random()*0.8*w, 0.1*h+Math.random()*0.5*h, rgbs[Math.floor(Math.random()*rgbs.length)]);
+            }
+            for(let i=particles.length-1;i>=0;i--){
+                const p=particles[i];
+                p.trail.push([p.x,p.y]);
+                if(p.trail.length>6) p.trail.shift();
+                p.x+=p.vx; p.y+=p.vy; p.vy+=0.04; p.life-=p.decay;
+                if(p.life<=0){particles.splice(i,1);continue;}
+                const [r,g,b]=p.col;
+                const a=intensity*p.life;
+                // Trail
+                if(p.trail.length>1){
+                    ctx.beginPath(); ctx.moveTo(p.trail[0][0],p.trail[0][1]);
+                    for(let t=1;t<p.trail.length;t++) ctx.lineTo(p.trail[t][0],p.trail[t][1]);
+                    ctx.strokeStyle=`rgba(${r},${g},${b},${a*0.3})`; ctx.lineWidth=0.8; ctx.stroke();
+                }
+                // Particle
+                ctx.beginPath(); ctx.arc(p.x,p.y,p.r*p.life,0,Math.PI*2);
+                ctx.fillStyle=`rgba(${r},${g},${b},${a})`; ctx.fill();
+            }
+            _bgRaf=requestAnimationFrame(draw);
+        }
+        draw();
+    }
+
+    // ── Ribbons ──
+    function startRibbonsBg(colors, intensity) {
+        stopBgCanvas();
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        const rgbs = (colors||[]).filter(h=>h&&h.length>4).map(hex=>[parseInt(hex.slice(1,3),16),parseInt(hex.slice(3,5),16),parseInt(hex.slice(5,7),16)]);
+        if (!rgbs.length) rgbs.push([0,212,255]);
+        const ribbons = Array.from({length: 8}, (_, i) => ({
+            phase:  Math.random() * Math.PI * 2,
+            speed:  0.004 + Math.random() * 0.006,
+            amp:    0.06 + Math.random() * 0.12,
+            freq:   1.2 + Math.random() * 2.0,
+            yBase:  0.1 + (i / 8) * 0.82,
+            width:  1.5 + Math.random() * 3.5,
+            col:    rgbs[i % rgbs.length],
+            alpha:  0.25 + Math.random() * 0.45,
+            glowW:  8 + Math.random() * 14,
+        }));
+        function draw() {
+            const w = canvas.width = window.innerWidth;
+            const h = canvas.height = window.innerHeight;
+            ctx.clearRect(0, 0, w, h);
+            ribbons.forEach(rb => {
+                rb.phase += rb.speed;
+                const [r, g, b] = rb.col;
+                const steps = Math.ceil(w / 3);
+                // Glow pass
+                ctx.beginPath();
+                for (let xi = 0; xi <= steps; xi++) {
+                    const x = (xi / steps) * w;
+                    const y = (rb.yBase + rb.amp * Math.sin(rb.freq * (xi / steps) * Math.PI * 2 + rb.phase)) * h;
+                    xi === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+                }
+                ctx.strokeStyle = `rgba(${r},${g},${b},${intensity * rb.alpha * 0.3})`;
+                ctx.lineWidth = rb.glowW;
+                ctx.lineJoin = 'round';
+                ctx.lineCap = 'round';
+                ctx.stroke();
+                // Core line
+                ctx.beginPath();
+                for (let xi = 0; xi <= steps; xi++) {
+                    const x = (xi / steps) * w;
+                    const y = (rb.yBase + rb.amp * Math.sin(rb.freq * (xi / steps) * Math.PI * 2 + rb.phase)) * h;
+                    xi === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+                }
+                ctx.strokeStyle = `rgba(${r},${g},${b},${intensity * rb.alpha})`;
+                ctx.lineWidth = rb.width;
+                ctx.stroke();
+            });
             _bgRaf = requestAnimationFrame(draw);
         }
         draw();
@@ -2732,300 +3186,242 @@
         const ctx = canvas.getContext('2d');
         let frame = 0;
 
-        // ── Sky gradient by time of day ──
-        const SKY = [
-            [0,   [8,8,25],    [15,10,40]],
-            [4,   [8,8,25],    [15,10,40]],
-            [5,   [80,45,90],  [30,15,50]],
-            [6,   [220,110,50],[130,60,80]],
-            [7,   [255,160,60],[100,140,200]],
-            [8,   [120,180,230],[60,100,180]],
-            [10,  [80,150,220],[40,80,170]],
-            [13,  [70,140,210],[35,75,165]],
-            [16,  [100,160,220],[50,90,180]],
-            [17,  [240,140,60],[170,80,100]],
-            [18,  [200,90,40], [120,50,80]],
-            [19,  [130,50,60], [60,20,50]],
-            [20,  [30,15,45],  [10,8,28]],
-            [22,  [10,8,25],   [8,6,22]],
-            [24,  [8,8,25],    [15,10,40]]
-        ];
+        // ── Rich time-of-day sky ──
+        const now = new Date();
+        const hour = now.getHours() + now.getMinutes()/60;
 
-        function lerpRgb(a, b, t) {
-            return a.map((v,i) => Math.round(v + (b[i]-v)*t));
+        // Sky palette: [topR,topG,topB, horizR,horizG,horizB, groundR,groundG,groundB]
+        function getSkyColors(h) {
+            if (h < 5)   return [[2,2,18],[8,4,30],[5,3,20]];         // deep night
+            if (h < 6)   return [[15,5,35],[80,25,60],[30,10,40]];    // pre-dawn purple
+            if (h < 7)   return [[35,15,60],[200,80,40],[100,40,20]]; // dawn red-orange
+            if (h < 8)   return [[80,100,180],[255,140,60],[150,80,30]]; // sunrise
+            if (h < 10)  return [[100,150,220],[255,200,120],[180,140,80]]; // morning
+            if (h < 16)  return [[55,120,210],[140,190,255],[100,160,220]]; // day blue
+            if (h < 18)  return [[80,130,200],[255,180,80],[200,130,60]];   // afternoon
+            if (h < 19)  return [[50,80,160],[255,120,40],[180,80,30]];     // golden hour
+            if (h < 20)  return [[30,40,100],[200,80,30],[100,40,20]];      // dusk
+            if (h < 21)  return [[10,15,50],[80,30,60],[20,10,30]];         // twilight
+            return [[2,2,18],[8,4,30],[5,3,20]];                            // night
         }
-        function getSkyColors() {
-            const now = new Date();
-            const h = now.getHours() + now.getMinutes()/60;
-            let a = SKY[0], b = SKY[SKY.length-1];
-            for (let i = 0; i < SKY.length-1; i++) {
-                if (h >= SKY[i][0] && h < SKY[i+1][0]) { a = SKY[i]; b = SKY[i+1]; break; }
-            }
-            const t = (h - a[0]) / (b[0] - a[0] || 1);
-            return [lerpRgb(a[1], b[1], t), lerpRgb(a[2], b[2], t)];
-        }
-        function isNight() {
-            const h = new Date().getHours();
-            return h < 6 || h >= 20;
-        }
-        function isDusk() {
-            const h = new Date().getHours();
-            return (h >= 5 && h < 8) || (h >= 17 && h < 20);
-        }
+        const [topC, horizC, groundC] = getSkyColors(hour);
+        const isNight = hour < 6.5 || hour > 20.5;
+        const isSunrise = hour >= 6 && hour < 8.5;
+        const isSunset = hour >= 17.5 && hour < 20;
+        const isDay = hour >= 8.5 && hour < 17.5;
 
-        // ── Weather type from WMO code ──
-        function getWeatherType() {
-            const c = _liveSkyCode;
-            if (c === 0)                      return 'clear';
-            if (c === 1 || c === 2)           return 'partly';
-            if (c === 3)                      return 'cloudy';
-            if (c === 45 || c === 48)         return 'fog';
-            if (c >= 51 && c <= 67)           return 'rain';
-            if (c >= 71 && c <= 77)           return 'snow';
-            if (c >= 80 && c <= 82)           return 'rain';
-            if (c >= 85 && c <= 86)           return 'snow';
-            if (c >= 95)                      return 'storm';
-            return 'clear';
-        }
-
-        // ── Stars ──
-        const stars = Array.from({length: 120}, () => ({
-            x: Math.random(), y: Math.random() * 0.7,
-            r: 0.5 + Math.random() * 1.2,
-            twinkle: Math.random() * Math.PI * 2,
-            speed: 0.02 + Math.random() * 0.03
+        // Stars
+        const stars = Array.from({length:220}, () => ({
+            x:Math.random(), y:Math.random()*0.75,
+            r:0.3+Math.random()*1.2,
+            twinkle:Math.random()*Math.PI*2,
+            ts:0.006+Math.random()*0.014
         }));
 
-        // ── Clouds ──
-        const clouds = Array.from({length: 8}, (_, i) => ({
-            x: Math.random(),
-            y: 0.04 + Math.random() * 0.32,
-            w: 0.22 + Math.random() * 0.30,
-            h: 0.08 + Math.random() * 0.10,
-            speed: 0.000025 + Math.random() * 0.000045,
-            opacity: 0.55 + Math.random() * 0.35,
-            layer: i < 3 ? 0 : 1
+        // Sun/moon position
+        const sunAngle = ((hour - 6) / 12) * Math.PI; // 0=east 6am, PI=west 6pm
+        const sunX = 0.15 + 0.7 * (hour - 6) / 12;
+        const sunY = 0.62 - Math.abs(Math.sin(sunAngle)) * 0.52;
+        const moonAngle = ((hour < 12 ? hour + 12 : hour - 12) / 12) * Math.PI;
+        const moonX = 0.15 + 0.7 * ((hour < 12 ? hour + 12 : hour - 12) / 12) % 1;
+        const moonY = 0.55 - Math.abs(Math.sin(moonAngle)) * 0.45;
+
+        // Clouds
+        const clouds = Array.from({length:5}, () => ({
+            x:Math.random(), y:0.12+Math.random()*0.32,
+            w:0.12+Math.random()*0.22, h:0.06+Math.random()*0.08,
+            spd:0.00008+Math.random()*0.00012
         }));
 
-        // ── Rain drops ──
-        const drops = Array.from({length: 120}, () => ({
-            x: Math.random(),
-            y: Math.random(),
-            len: 0.04 + Math.random() * 0.06,
-            speed: 0.008 + Math.random() * 0.006,
-            opacity: 0.3 + Math.random() * 0.4
+        // Birds (only daytime)
+        const birds = Array.from({length:8}, () => ({
+            x:Math.random(), y:0.1+Math.random()*0.35,
+            spd:0.0003+Math.random()*0.0005,
+            flapPhase:Math.random()*Math.PI*2,
+            size:1.5+Math.random()*2
         }));
 
-        // ── Snow flakes ──
-        const flakes = Array.from({length: 80}, () => ({
-            x: Math.random(),
-            y: Math.random(),
-            r: 1 + Math.random() * 2.5,
-            speed: 0.001 + Math.random() * 0.002,
-            drift: (Math.random() - 0.5) * 0.001,
-            opacity: 0.4 + Math.random() * 0.5
+        // Fireflies (only at night/dusk)
+        const flies = Array.from({length:30}, () => ({
+            x:Math.random(), y:0.55+Math.random()*0.42,
+            ox:Math.random()*Math.PI*2, oy:Math.random()*Math.PI*2,
+            rx:0.04+Math.random()*0.06, ry:0.02+Math.random()*0.04,
+            spd:0.008+Math.random()*0.012,
+            glow:Math.random()*Math.PI*2, gs:0.04+Math.random()*0.06
         }));
 
-        // ── Lightning state ──
-        let _lightningAlpha = 0, _lightningTimer = 0;
+        // Shooting stars
+        const shooters = Array.from({length:3}, (_,i) => ({x:-1,y:-1,dx:0,dy:0,alpha:0,tlen:20,timer:200+i*250}));
+
+        function lerp(a, b, t) { return a + (b-a)*t; }
 
         function draw() {
-            const w = canvas.width = window.innerWidth;
-            const h = canvas.height = window.innerHeight;
+            const w=canvas.width=window.innerWidth, h=canvas.height=window.innerHeight;
             frame++;
 
-            const [top, bot] = getSkyColors();
-            const night = isNight(), dusk = isDusk();
-            const wt = getWeatherType();
-            const alpha = intensity;
-
             // Sky gradient
-            const grad = ctx.createLinearGradient(0, 0, 0, h);
-            grad.addColorStop(0, `rgba(${top[0]},${top[1]},${top[2]},${alpha})`);
-            grad.addColorStop(1, `rgba(${bot[0]},${bot[1]},${bot[2]},${alpha})`);
-            ctx.fillStyle = grad;
-            ctx.fillRect(0, 0, w, h);
+            const skyGrad = ctx.createLinearGradient(0,0,0,h);
+            skyGrad.addColorStop(0,   `rgba(${topC},${intensity})`);
+            skyGrad.addColorStop(0.55,`rgba(${horizC},${intensity})`);
+            skyGrad.addColorStop(1,   `rgba(${groundC},${intensity})`);
+            ctx.fillStyle=skyGrad; ctx.fillRect(0,0,w,h);
 
-            // ── Stars (clear/partly at night/dusk) ──
-            if ((night || dusk) && (wt === 'clear' || wt === 'partly')) {
-                const starAlpha = night ? alpha * 0.9 : alpha * 0.4;
+            // Stars (night/twilight)
+            if (isNight || hour < 7.5 || hour > 19.5) {
+                const starA = isNight ? 1 : (hour < 7.5 ? (7.5-hour)/1.5 : (hour-19.5)/1.5);
                 stars.forEach(s => {
-                    s.twinkle += s.speed;
-                    const a = starAlpha * (0.5 + 0.5 * Math.sin(s.twinkle));
-                    ctx.beginPath();
-                    ctx.arc(s.x * w, s.y * h, s.r, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(255,255,255,${a})`;
-                    ctx.fill();
+                    s.twinkle += s.ts;
+                    const a = intensity * starA * (0.35+0.65*Math.abs(Math.sin(s.twinkle)));
+                    ctx.beginPath(); ctx.arc(s.x*w, s.y*h, s.r, 0, Math.PI*2);
+                    ctx.fillStyle=`rgba(255,255,255,${a})`; ctx.fill();
                 });
-            }
-
-            // ── Sun or Moon orb ──
-            const hh = new Date().getHours() + new Date().getMinutes()/60;
-            if (!night && wt !== 'cloudy' && wt !== 'storm' && wt !== 'fog') {
-                // Sun arc: rises at left at 6, peaks center at 12, sets right at 18
-                const sunT = Math.max(0, Math.min(1, (hh - 6) / 12));
-                const sunX = sunT * w;
-                const sunY = h * (0.55 - 0.40 * Math.sin(sunT * Math.PI));
-                const sunSize = 28 + 12 * Math.sin(sunT * Math.PI);
-                const isDawn = hh < 8 || hh > 16;
-                const sunR = isDawn ? 255 : 255, sunG = isDawn ? 140 : 220, sunB = isDawn ? 30 : 80;
-                const glowGrad = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, sunSize * 3);
-                glowGrad.addColorStop(0, `rgba(${sunR},${sunG},${sunB},${alpha * 0.5})`);
-                glowGrad.addColorStop(0.3, `rgba(${sunR},${sunG},${sunB},${alpha * 0.2})`);
-                glowGrad.addColorStop(1, `rgba(${sunR},${sunG},${sunB},0)`);
-                ctx.fillStyle = glowGrad;
-                ctx.fillRect(sunX - sunSize*3, sunY - sunSize*3, sunSize*6, sunSize*6);
-                ctx.beginPath();
-                ctx.arc(sunX, sunY, sunSize, 0, Math.PI*2);
-                ctx.fillStyle = `rgba(${sunR},${sunG},${sunB},${alpha * 0.9})`;
-                ctx.fill();
-            } else if (night && (wt === 'clear' || wt === 'partly')) {
-                // Moon arc: rises at 20, peaks at 2, sets at 8
-                const moonH = hh >= 20 ? hh - 20 : hh + 4;
-                const moonT = Math.max(0, Math.min(1, moonH / 12));
-                const moonX = moonT * w;
-                const moonY = h * (0.5 - 0.35 * Math.sin(moonT * Math.PI));
-                const moonSize = 18;
-                const mGlow = ctx.createRadialGradient(moonX, moonY, 0, moonX, moonY, moonSize * 3);
-                mGlow.addColorStop(0, `rgba(200,210,240,${alpha * 0.3})`);
-                mGlow.addColorStop(1, `rgba(200,210,240,0)`);
-                ctx.fillStyle = mGlow;
-                ctx.fillRect(moonX - moonSize*3, moonY - moonSize*3, moonSize*6, moonSize*6);
-                ctx.beginPath();
-                ctx.arc(moonX, moonY, moonSize, 0, Math.PI*2);
-                ctx.fillStyle = `rgba(230,235,255,${alpha * 0.85})`;
-                ctx.fill();
-            }
-
-            // ── Clouds ── (multi-puff realistic rendering)
-            if (wt === 'partly' || wt === 'cloudy' || wt === 'rain' || wt === 'storm' || wt === 'snow') {
-                const cloudDensity = wt === 'cloudy' || wt === 'rain' || wt === 'storm' ? 1.0 : 0.5;
-                const isStorm = wt === 'storm' || wt === 'rain';
-                const cloudBase  = isStorm ? [55, 55, 65]  : night ? [35, 38, 58]  : [235, 238, 245];
-                const cloudLight = isStorm ? [75, 75, 88]  : night ? [55, 58, 80]  : [255, 255, 255];
-                const cloudShadow= isStorm ? [30, 30, 40]  : night ? [18, 20, 38]  : [180, 185, 200];
-
-                function drawCloud(cx, cy, cw, ch, opacity) {
-                    const ca = opacity * cloudDensity * alpha;
-                    if (ca < 0.01) return;
-                    ctx.save();
-
-                    // Build a clipping region that roughly shapes the overall cloud
-                    // so inner gradients don't bleed too far
-                    const puffs = [
-                        // [offsetX, offsetY, rx, ry]  (fractions of cw/ch)
-                        [0,     0,      0.52, 0.52],
-                        [-0.30, 0.10,   0.40, 0.40],
-                        [ 0.30, 0.10,   0.40, 0.40],
-                        [-0.18,-0.22,   0.32, 0.32],
-                        [ 0.18,-0.22,   0.32, 0.32],
-                        [ 0.00,-0.28,   0.28, 0.28],
-                        [-0.45, 0.20,   0.28, 0.26],
-                        [ 0.45, 0.20,   0.28, 0.26],
-                    ];
-
-                    // 1. Shadow underneath (flat ellipse below the cloud body)
-                    const shadowGrad = ctx.createRadialGradient(cx, cy + ch * 0.55, 0, cx, cy + ch * 0.55, cw * 0.55);
-                    shadowGrad.addColorStop(0, `rgba(${cloudShadow.join(',')},${ca * 0.55})`);
-                    shadowGrad.addColorStop(1, `rgba(${cloudShadow.join(',')},0)`);
-                    ctx.fillStyle = shadowGrad;
-                    ctx.beginPath();
-                    ctx.ellipse(cx, cy + ch * 0.55, cw * 0.55, ch * 0.22, 0, 0, Math.PI * 2);
-                    ctx.fill();
-
-                    // 2. Base soft body
-                    puffs.forEach(([ox, oy, rx, ry]) => {
-                        const px = cx + ox * cw, py = cy + oy * ch;
-                        const prx = rx * cw, pry = ry * ch;
-                        const g = ctx.createRadialGradient(px, py - pry * 0.15, 0, px, py, Math.max(prx, pry));
-                        g.addColorStop(0,   `rgba(${cloudLight.join(',')},${ca * 0.92})`);
-                        g.addColorStop(0.5, `rgba(${cloudBase.join(',')},${ca * 0.80})`);
-                        g.addColorStop(1,   `rgba(${cloudBase.join(',')},0)`);
-                        ctx.fillStyle = g;
-                        ctx.beginPath();
-                        ctx.ellipse(px, py, prx, pry, 0, 0, Math.PI * 2);
-                        ctx.fill();
-                    });
-
-                    // 3. Bright highlight on top-center
-                    const hlx = cx, hly = cy - ch * 0.28;
-                    const hlg = ctx.createRadialGradient(hlx, hly, 0, hlx, hly, cw * 0.30);
-                    hlg.addColorStop(0, `rgba(255,255,255,${ca * 0.65})`);
-                    hlg.addColorStop(1, `rgba(255,255,255,0)`);
-                    ctx.fillStyle = hlg;
-                    ctx.beginPath();
-                    ctx.ellipse(hlx, hly, cw * 0.30, ch * 0.25, 0, 0, Math.PI * 2);
-                    ctx.fill();
-
-                    ctx.restore();
-                }
-
-                clouds.forEach(cl => {
-                    cl.x = (cl.x + cl.speed) % 1.15;
-                    drawCloud(cl.x * w, cl.y * h, cl.w * w, cl.h * h, cl.opacity);
+                // Shooting stars
+                shooters.forEach((sh,si) => {
+                    sh.timer--;
+                    if (sh.timer<=0) {
+                        sh.timer=350+Math.random()*600+si*200;
+                        sh.x=Math.random()*0.7; sh.y=Math.random()*0.35;
+                        const ang=Math.PI/5+(Math.random()-0.5)*0.5;
+                        sh.dx=Math.cos(ang)*0.008; sh.dy=Math.sin(ang)*0.008;
+                        sh.alpha=1.0; sh.tlen=16+Math.random()*22;
+                    }
+                    if (sh.alpha>0&&sh.x>=0) {
+                        const tx=(sh.x-sh.dx*sh.tlen)*w, ty=(sh.y-sh.dy*sh.tlen)*h;
+                        const sg=ctx.createLinearGradient(tx,ty,sh.x*w,sh.y*h);
+                        sg.addColorStop(0,'rgba(255,255,255,0)');
+                        sg.addColorStop(1,`rgba(255,255,255,${sh.alpha*intensity*starA})`);
+                        ctx.beginPath(); ctx.moveTo(tx,ty); ctx.lineTo(sh.x*w,sh.y*h);
+                        ctx.strokeStyle=sg; ctx.lineWidth=1.4; ctx.stroke();
+                        sh.x+=sh.dx; sh.y+=sh.dy; sh.alpha-=0.024;
+                    }
                 });
-            }
-
-            // ── Rain ──
-            if (wt === 'rain' || wt === 'storm') {
-                drops.forEach(dr => {
-                    dr.y += dr.speed;
-                    dr.x += 0.0003;
-                    if (dr.y > 1) { dr.y = -0.05; dr.x = Math.random(); }
-                    ctx.beginPath();
-                    ctx.moveTo(dr.x * w, dr.y * h);
-                    ctx.lineTo((dr.x + 0.005) * w, (dr.y + dr.len) * h);
-                    ctx.strokeStyle = `rgba(160,190,220,${dr.opacity * alpha})`;
-                    ctx.lineWidth = 0.8;
-                    ctx.stroke();
-                });
-            }
-
-            // ── Snow ──
-            if (wt === 'snow') {
-                flakes.forEach(fl => {
-                    fl.y += fl.speed;
-                    fl.x += fl.drift;
-                    if (fl.y > 1) { fl.y = -0.02; fl.x = Math.random(); }
-                    ctx.beginPath();
-                    ctx.arc(fl.x * w, fl.y * h, fl.r, 0, Math.PI*2);
-                    ctx.fillStyle = `rgba(220,230,255,${fl.opacity * alpha})`;
-                    ctx.fill();
-                });
-            }
-
-            // ── Fog ──
-            if (wt === 'fog') {
-                for (let layer = 0; layer < 3; layer++) {
-                    const fy = h * (0.3 + layer * 0.2);
-                    const fOff = Math.sin(frame * 0.003 + layer) * 60;
-                    const fg = ctx.createLinearGradient(0, fy - 60, 0, fy + 60);
-                    fg.addColorStop(0, `rgba(180,185,190,0)`);
-                    fg.addColorStop(0.5, `rgba(180,185,190,${alpha * 0.25})`);
-                    fg.addColorStop(1, `rgba(180,185,190,0)`);
-                    ctx.fillStyle = fg;
-                    ctx.fillRect(fOff, fy - 60, w + 120, 120);
+                // Moon
+                const mx=moonX*w, my=moonY*h;
+                if (my>0&&my<h*0.75) {
+                    const moonGlow=ctx.createRadialGradient(mx,my,0,mx,my,55);
+                    moonGlow.addColorStop(0,`rgba(220,230,255,${intensity*0.18})`);
+                    moonGlow.addColorStop(1,'rgba(220,230,255,0)');
+                    ctx.fillStyle=moonGlow; ctx.beginPath(); ctx.arc(mx,my,55,0,Math.PI*2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(mx,my,16,0,Math.PI*2);
+                    ctx.fillStyle=`rgba(240,245,255,${intensity*0.92})`; ctx.fill();
+                    // Crescent shadow
+                    ctx.beginPath(); ctx.arc(mx+6,my-2,14,0,Math.PI*2);
+                    ctx.fillStyle=`rgba(${topC[0]+3},${topC[1]+3},${topC[2]+8},${intensity*0.85})`; ctx.fill();
                 }
             }
 
-            // ── Lightning (storm only) ──
-            if (wt === 'storm') {
-                _lightningTimer--;
-                if (_lightningTimer <= 0) {
-                    _lightningTimer = 60 + Math.random() * 200;
-                    _lightningAlpha = 0.6 + Math.random() * 0.4;
-                }
-                if (_lightningAlpha > 0) {
-                    ctx.fillStyle = `rgba(220,230,255,${_lightningAlpha * alpha})`;
-                    ctx.fillRect(0, 0, w, h);
-                    _lightningAlpha = Math.max(0, _lightningAlpha - 0.08);
+            // Sun
+            if (!isNight) {
+                const sx=sunX*w, sy=sunY*h;
+                if (sy>-30&&sy<h*0.88) {
+                    // Outer halo
+                    const haloR = isSunrise||isSunset ? 130 : 70;
+                    const haloC = isSunrise ? '255,120,40' : isSunset ? '255,90,20' : '255,240,180';
+                    const halo=ctx.createRadialGradient(sx,sy,0,sx,sy,haloR);
+                    halo.addColorStop(0,`rgba(${haloC},${intensity*0.30})`);
+                    halo.addColorStop(0.5,`rgba(${haloC},${intensity*0.10})`);
+                    halo.addColorStop(1,'rgba(0,0,0,0)');
+                    ctx.fillStyle=halo; ctx.fillRect(0,0,w,h);
+                    // Sun disc
+                    const discR = isSunrise||isSunset ? 26 : 22;
+                    const sunColor = isSunrise||isSunset ? `rgba(255,200,80,${intensity})` : `rgba(255,245,200,${intensity})`;
+                    ctx.beginPath(); ctx.arc(sx,sy,discR,0,Math.PI*2);
+                    ctx.fillStyle=sunColor; ctx.fill();
+                    // Rays (only when near horizon)
+                    if (isSunrise||isSunset) {
+                        ctx.strokeStyle=`rgba(255,200,80,${intensity*0.25})`;
+                        for(let i=0;i<8;i++) {
+                            const a=i*Math.PI/4+frame*0.002;
+                            ctx.beginPath(); ctx.moveTo(sx+Math.cos(a)*(discR+4),sy+Math.sin(a)*(discR+4));
+                            ctx.lineTo(sx+Math.cos(a)*(discR+18),sy+Math.sin(a)*(discR+18));
+                            ctx.lineWidth=1.5; ctx.stroke();
+                        }
+                    }
+                    // Atmospheric glow on horizon
+                    if (isSunrise||isSunset) {
+                        const atmH = h*0.35;
+                        const atm=ctx.createRadialGradient(sx,h*0.72,0,sx,h*0.72,atmH);
+                        atm.addColorStop(0,`rgba(255,100,20,${intensity*0.28})`);
+                        atm.addColorStop(0.5,`rgba(255,60,10,${intensity*0.10})`);
+                        atm.addColorStop(1,'rgba(0,0,0,0)');
+                        ctx.fillStyle=atm; ctx.fillRect(0,0,w,h);
+                    }
                 }
             }
 
-            _bgRaf = requestAnimationFrame(draw);
+            // Clouds
+            clouds.forEach(cl => {
+                cl.x=(cl.x+cl.spd)%1.3;
+                if(cl.x>1.25) cl.x=-0.25;
+                const cx=cl.x*w, cy=cl.y*h, cw=cl.w*w, ch=cl.h*h;
+                const isDay2=hour>=7&&hour<=19.5;
+                const cloudR = isNight ? 160 : isDay2 ? 245 : 200;
+                const cloudG = isNight ? 165 : isDay2 ? 245 : 170;
+                const cloudB = isNight ? 190 : isDay2 ? 255 : 140;
+                const cloudA = intensity*(isNight?0.12:0.55);
+                // Shadow
+                const shg=ctx.createRadialGradient(cx,cy+ch*0.5,0,cx,cy+ch*0.5,cw*0.6);
+                shg.addColorStop(0,`rgba(0,0,10,${intensity*0.12})`);
+                shg.addColorStop(1,'rgba(0,0,10,0)');
+                ctx.fillStyle=shg; ctx.beginPath(); ctx.ellipse(cx,cy+ch*0.55,cw*0.55,ch*0.22,0,0,Math.PI*2); ctx.fill();
+                // Puffs
+                [[0,0,1,0.85],[-.28,-.1,.65,.70],[.28,-.08,.65,.70],[-.15,-.22,.5,.65],[.15,-.20,.5,.65],
+                 [-.4,.05,.45,.60],[.4,.04,.45,.60],[0,-.32,.38,.55],[0,.12,.8,.5]].forEach(([ox,oy,rx,ry]) => {
+                    const pg=ctx.createRadialGradient(cx+ox*cw,cy+oy*ch-ch*0.12,0,cx+ox*cw,cy+oy*ch,Math.max(rx*cw,ry*ch));
+                    pg.addColorStop(0,`rgba(${cloudR},${cloudG},${cloudB},${cloudA*1.05})`);
+                    pg.addColorStop(0.6,`rgba(${cloudR-15},${cloudG-15},${cloudB-10},${cloudA*0.7})`);
+                    pg.addColorStop(1,'rgba(0,0,0,0)');
+                    ctx.fillStyle=pg; ctx.beginPath(); ctx.ellipse(cx+ox*cw,cy+oy*ch,rx*cw,ry*ch,0,0,Math.PI*2); ctx.fill();
+                });
+                // Highlight
+                const hlg=ctx.createRadialGradient(cx,cy-ch*0.25,0,cx,cy-ch*0.25,cw*0.28);
+                hlg.addColorStop(0,`rgba(255,255,255,${cloudA*0.65})`);
+                hlg.addColorStop(1,'rgba(255,255,255,0)');
+                ctx.fillStyle=hlg; ctx.beginPath(); ctx.ellipse(cx,cy-ch*0.25,cw*0.28,ch*0.22,0,0,Math.PI*2); ctx.fill();
+            });
+
+            // Birds (daytime)
+            if (isDay || isSunrise || isSunset) {
+                birds.forEach(b => {
+                    b.x=(b.x+b.spd)%1.1; if(b.x>1.05) b.x=-0.05;
+                    b.flapPhase+=0.08;
+                    const bx=b.x*w, by=b.y*h, flap=Math.sin(b.flapPhase)*b.size*1.2;
+                    const a=intensity*(isDay?0.35:0.2);
+                    ctx.strokeStyle=`rgba(20,20,30,${a})`; ctx.lineWidth=1.1;
+                    ctx.beginPath(); ctx.moveTo(bx-b.size*2,by+flap); ctx.quadraticCurveTo(bx,by,bx+b.size*2,by+flap); ctx.stroke();
+                });
+            }
+
+            // Fireflies (night/dusk)
+            if (isNight || hour > 19 || hour < 6.5) {
+                const flyA = isNight ? 0.9 : 0.5;
+                flies.forEach(f => {
+                    f.ox+=f.spd; f.oy+=f.spd*0.7; f.glow+=f.gs;
+                    const fx=(f.x+Math.sin(f.ox)*f.rx)*w;
+                    const fy=(f.y+Math.cos(f.oy)*f.ry)*h;
+                    if(fy<0||fy>h) return;
+                    const glowA=intensity*flyA*(0.4+0.6*Math.abs(Math.sin(f.glow)));
+                    const fg=ctx.createRadialGradient(fx,fy,0,fx,fy,8);
+                    fg.addColorStop(0,`rgba(180,255,120,${glowA})`);
+                    fg.addColorStop(0.4,`rgba(120,255,80,${glowA*0.35})`);
+                    fg.addColorStop(1,'rgba(0,0,0,0)');
+                    ctx.fillStyle=fg; ctx.beginPath(); ctx.arc(fx,fy,8,0,Math.PI*2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(fx,fy,1.5,0,Math.PI*2);
+                    ctx.fillStyle=`rgba(220,255,180,${glowA})`; ctx.fill();
+                });
+            }
+
+            // Vignette
+            const vig=ctx.createRadialGradient(w/2,h/2,h*0.2,w/2,h/2,h*0.9);
+            vig.addColorStop(0,'rgba(0,0,0,0)');
+            vig.addColorStop(1,`rgba(0,0,0,${intensity*0.45})`);
+            ctx.fillStyle=vig; ctx.fillRect(0,0,w,h);
+
+            _bgRaf=requestAnimationFrame(draw);
         }
         draw();
     }
+
 
     // Edit mode — disable a chrome element and exit edit mode
     const FAVICON_EMOJIS = [
@@ -3122,7 +3518,7 @@
     function editDisable(key) {
         curProfile()[key] = false;
         saveAndRender(); updateWeather(); tickClock();
-        if (document.getElementById('settings-modal').style.display === 'block') renderSettings();
+        if (document.getElementById('settings-modal').style.display === 'flex') renderSettings();
     }
     document.addEventListener('click', e => {
         if (!document.body.classList.contains('edit-mode')) return;
