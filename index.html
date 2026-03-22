@@ -875,6 +875,7 @@
                 <button class="bg-mode-btn" id="bgmode-gradient" onclick="setBgMode('gradient')">Gradient</button>
                 <button class="bg-mode-btn" id="bgmode-mesh" onclick="setBgMode('mesh')">Mesh</button>
                 <button class="bg-mode-btn" id="bgmode-particles" onclick="setBgMode('particles')">Particles</button>
+                <button class="bg-mode-btn" id="bgmode-time" onclick="setBgMode('time')" title="Live animated scene driven by current weather &amp; time of day">Time</button>
                 <button class="bg-mode-btn" id="bgmode-photo" onclick="setBgMode('photo')">Photo</button>
                 <button class="bg-mode-btn" id="bgmode-video" onclick="setBgMode('video')">Video</button>
             </div>
@@ -950,6 +951,16 @@
                     <span style="font-size:0.72rem; color:#888; flex-shrink:0; width:52px;">Dim</span>
                     <input type="range" id="vid-dim-slider" min="0" max="0.95" step="0.01" oninput="applyVidDimNow();document.getElementById('vid-dim-val').textContent=Math.round(this.value*100)+'%'" style="flex:1;">
                     <span id="vid-dim-val" style="font-size:0.72rem; color:#888; width:30px; text-align:right;">35%</span>
+                </div>
+            </div>
+
+            <!-- Weather bg sub-options (clouds + scene share this) -->
+            <div id="wx-intensity-row" style="display:none; margin-top:8px; margin-bottom:4px;">
+                <div style="font-size:0.68rem; color:#888; margin-bottom:6px;" id="wx-hint-text">Animated background driven by your current weather data.</div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="font-size:0.72rem; color:#888; flex-shrink:0; width:52px;">Intensity</span>
+                    <input type="range" id="wx-intensity-slider" min="0" max="1" step="0.05" oninput="updateVisRealtime();document.getElementById('wx-intensity-val').textContent=Math.round(this.value*100)+'%'" style="flex:1;">
+                    <span id="wx-intensity-val" style="font-size:0.72rem; color:#888; width:30px; text-align:right;">30%</span>
                 </div>
             </div>
 
@@ -1318,6 +1329,8 @@
         "fa-solid fa-dragon", "fa-solid fa-ghost", "fa-solid fa-skull"
     ];
     const W_DATA = { 0: { icon: "fa-sun", color: "#FFD700" }, 1: { icon: "fa-cloud-sun", color: "#FFB800" }, 2: { icon: "fa-cloud-sun", color: "#FFB800" }, 3: { icon: "fa-cloud", color: "#B0C4DE" }, 45: { icon: "fa-smog", color: "#778899" }, 51: { icon: "fa-cloud-rain", color: "#00BFFF" }, 61: { icon: "fa-cloud-showers-heavy", color: "#1E90FF" }, 95: { icon: "fa-bolt", color: "#BA55D3" } };
+    // Night variants — replaces sun icons with moon equivalents when is_day=0
+    const W_DATA_NIGHT = { 0: { icon: "fa-moon", color: "#C8D8F0" }, 1: { icon: "fa-cloud-moon", color: "#A0B8D8" }, 2: { icon: "fa-cloud-moon", color: "#A0B8D8" } };
 
     function generateDefaultCats(count, prefix) {
         const cats = [];
@@ -1331,7 +1344,7 @@
 
     function getDefaults() {
         const baseQl = [{name:"fa-solid fa-server", url:"", vis:false, color:"", linkIcon:{type:'none',src:''}}, {name:"fa-solid fa-sliders", url:"", vis:false, color:"", linkIcon:{type:'none',src:''}}, {name:"fa-brands fa-spotify", url:"", vis:false, color:"", linkIcon:{type:'none',src:''}}, {name:"fa-solid fa-star", url:"", vis:false, color:"", linkIcon:{type:'none',src:''}}];
-        const makeProfile = (cats, density) => ({ ql: JSON.parse(JSON.stringify(baseQl)), categories: cats, showWeather: true, showHeaders: true, showClock: true, clockFormat: '24', clockSeconds: true, clockShowDate: true, clockDateFmt: 'long', clockSize: 'm', clockColor: '#ffffff', clockFont: 'Inter', iconColor: "#ffffff", bgColor: "#1C1B22", bgImg: "", bgMode: 'gradient', gradType: 'auto', gradDir: 'ltr', gradColorA: '#1C1B22', gradColorB: '#00d4ff', particleStyle: 'dots', opacity: 0.3, fuzzy: 0, weatherColor: "#ffffff", weatherFont: 'Inter', weatherSize: 'm', weatherOpacity: 1, weatherBackdrop: 0, wShowDay: true, wShowDate: true, wDateFmt: 'dmy', wColored: true, wAqi: true, wUv: true, wPressure: true, wHumidity: true, wVisibility: true, wSunrise: true, density, gridFont: 'Inter', showSearch: true, searchEngine: 'startpage', profileIcon: 'fa-solid fa-user', profilePhoto: '', profileIconColor: '#ffffff', cardOpacity: 0.02, vidUrl: 'https://vimeo.com/446479256', vidMuted: true, vidDim: 0.35, vidSlots: ['https://vimeo.com/446479256','',''] });
+        const makeProfile = (cats, density) => ({ ql: JSON.parse(JSON.stringify(baseQl)), categories: cats, showWeather: true, showHeaders: true, showClock: true, clockFormat: '24', clockSeconds: true, clockShowDate: true, clockDateFmt: 'long', clockSize: 'm', clockColor: '#ffffff', clockFont: 'Inter', iconColor: "#ffffff", bgColor: "#1C1B22", bgImg: "", bgMode: 'gradient', gradType: 'auto', gradDir: 'ltr', gradColorA: '#1C1B22', gradColorB: '#00d4ff', particleStyle: 'dots', opacity: 0.1, fuzzy: 0, weatherColor: "#ffffff", weatherFont: 'Inter', weatherSize: 'm', weatherOpacity: 1, weatherBackdrop: 0, wShowDay: true, wShowDate: true, wDateFmt: 'dmy', wColored: true, wAqi: true, wUv: true, wPressure: true, wHumidity: true, wVisibility: true, wSunrise: true, density, gridFont: 'Inter', showSearch: true, searchEngine: 'startpage', profileIcon: 'fa-solid fa-user', profilePhoto: '', profileIconColor: '#ffffff', cardOpacity: 0.02, vidUrl: 'https://vimeo.com/446479256', vidMuted: true, vidDim: 0.35, vidSlots: ['https://vimeo.com/446479256','',''] });
         return {
             profile: 'p0', target: '_self', linkColor: "#cccccc", tabTitle: 'Startpage', tabFavicon: '', tabFaviconEmoji: '⭐',
             cities: [{name: "Lisboa", lat: 38.71, lon: -9.13}],
@@ -1362,7 +1375,7 @@
     // Migrate old mesh boolean to bgMode in all profiles
     state.profiles.forEach(p => { if (p && !p.bgMode) p.bgMode = 'gradient'; });
     // Migrate any removed bgMode values (e.g. 'time') back to gradient
-    const validModes = ['gradient','mesh','particles','photo','video'];
+    const validModes = ['gradient','mesh','particles','photo','video','time'];
     state.profiles.forEach(p => { if (p && !validModes.includes(p.bgMode)) p.bgMode = 'gradient'; });
     // Migrate links missing linkIcon
     state.profiles.forEach(p => { if (p && p.categories) p.categories.forEach(c => { if (c.links) c.links.forEach(l => { if (!l.linkIcon) l.linkIcon = {type:'none', src:''}; }); }); });
@@ -1374,7 +1387,10 @@
     state.profiles.forEach(p => { if (p && !p.profileIcon) p.profileIcon = 'fa-solid fa-user'; if (p && p.profilePhoto === undefined) p.profilePhoto = ''; if (p && !p.profileIconColor) p.profileIconColor = '#ffffff'; if (p && !p.weatherSize) p.weatherSize = 'm'; if (p && p.wShowDay === undefined) p.wShowDay = true; if (p && p.wShowDate === undefined) p.wShowDate = true; if (p && !p.wDateFmt) p.wDateFmt = 'dmy'; });
     // Migrate cardOpacity, video and scene fields
     state.profiles.forEach(p => { if (p && p.cardOpacity === undefined) p.cardOpacity = 0.02; if (p && p.vidUrl === undefined) p.vidUrl = 'https://vimeo.com/446479256'; if (p && p.vidMuted === undefined) p.vidMuted = true; if (p && p.vidDim === undefined) p.vidDim = 0.35; if (p && !p.vidSlots) p.vidSlots = [p.vidUrl || 'https://vimeo.com/446479256','','']; if (p && !p.gradType) p.gradType = 'auto'; if (p && !p.gradDir) p.gradDir = 'ltr'; if (p && !p.gradColorA) p.gradColorA = '#1C1B22'; if (p && !p.gradColorB) p.gradColorB = '#00d4ff'; if (p && !p.particleStyle) p.particleStyle = 'dots'; if (p && p.particleSpeed === undefined) p.particleSpeed = 1; if (p && p.weatherOpacity === undefined) p.weatherOpacity = 1; if (p && p.weatherBackdrop === undefined) p.weatherBackdrop = 0; });
+    // Reset gradient/mesh opacity from old 0.3 default to new 0.1 default
+    state.profiles.forEach(p => { if (p && (p.bgMode === 'gradient' || p.bgMode === 'mesh') && (parseFloat(p.opacity) === 0.3 || parseFloat(p.opacity) === 0.30)) p.opacity = 0.1; });
     let cityIdx = 0;
+    let _wxCache = { code: 0, icon: 'fa-sun', tempC: 15, hour: new Date().getHours(), isDay: (new Date().getHours()>=6 && new Date().getHours()<21) };
     function curProfile() { return state.profiles[parseInt(state.profile.replace('p',''))] || state.profiles[0]; }
     function curProfileIdx() { return parseInt(state.profile.replace('p','')); }
 
@@ -1884,6 +1900,9 @@
             } else if (mode === 'video') {
                 stopBgCanvas();
                 bg.style.opacity = 0;
+            } else if (mode === 'time') {
+                startTimeBg(_wxCache, p.categories.map(x=>x.color), intensity);
+                bg.style.opacity = 0;
             } else {
                 bg.style.opacity = 0;
                 stopBgCanvas();
@@ -2001,6 +2020,12 @@
         const ptclVal = document.getElementById('ptcl-intensity-val');
         if (ptclSlider) ptclSlider.value = opVal;
         if (ptclVal) ptclVal.textContent = opPct;
+        // Weather/Time bg intensity — always reflects actual stored opacity
+        const wxSlider = document.getElementById('wx-intensity-slider');
+        const wxVal = document.getElementById('wx-intensity-val');
+        const wxOpVal = (p.bgMode === 'time') ? (p.opacity !== undefined ? p.opacity : 1) : opVal;
+        if (wxSlider) wxSlider.value = wxOpVal;
+        if (wxVal) wxVal.textContent = Math.round(wxOpVal * 100) + '%';
         // Speed
         const speedSlider = document.getElementById('particle-speed');
         const speedLabel = document.getElementById('particle-speed-val');
@@ -2136,6 +2161,9 @@
         } else if ((p.bgMode||'gradient') === 'particles') {
             const el = document.getElementById('ptcl-intensity-slider');
             if (el) p.opacity = el.value;
+        } else if ((p.bgMode||'gradient') === 'time') {
+            const el = document.getElementById('wx-intensity-slider');
+            if (el) p.opacity = el.value;
         } else {
             // gradient / mesh
             const el = document.getElementById('grad-intensity-slider');
@@ -2210,11 +2238,28 @@
             ).join('');
         }
         try {
-            const currentParams = 'current=temperature_2m,relative_humidity_2m,surface_pressure,visibility,uv_index';
+            const currentParams = 'current=temperature_2m,relative_humidity_2m,surface_pressure,visibility,uv_index,weathercode,is_day';
             const dailyParams = 'daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset';
             const url = `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&${dailyParams}&${currentParams}&timezone=auto`;
             const r = await fetch(url), d = await r.json();
-            // Store today's weathercode for live sky background
+            const _now = new Date();
+            const _currentCode = (d.current && d.current.weathercode != null) ? d.current.weathercode : 0;
+            const _dailyCode   = d.daily.weathercode[0] || 0;
+            const _wxCode = _currentCode > _dailyCode ? _currentCode : _dailyCode;
+            const _isNight = !(d.current ? (d.current.is_day === 1) : (_now.getHours() >= 6 && _now.getHours() < 21));
+            // Use night icon variant if available and it's night
+            const _wxIcon = _isNight && W_DATA_NIGHT[_wxCode]
+                ? W_DATA_NIGHT[_wxCode].icon
+                : (W_DATA[_wxCode] || W_DATA[_dailyCode] || { icon: 'fa-sun' }).icon;
+            _wxCache = {
+                code:  _wxCode,
+                icon:  _wxIcon,
+                tempC: d.current ? d.current.temperature_2m : 15,
+                hour:  _now.getHours(),
+                isDay: d.current ? (d.current.is_day === 1) : (_now.getHours() >= 6 && _now.getHours() < 21)
+            };
+            const _p = curProfile();
+            if (_p.bgMode === 'time') saveAndRender();
 
             const sz = p.weatherSize || 'm';
             const cardScale = sz === 's' ? 0.78 : sz === 'l' ? 1.22 : 1.0;
@@ -2236,8 +2281,12 @@
                 return d.toLocaleDateString('en-GB', {day:'2-digit', month:'2-digit'});
             }
 
+            const todayIsNight = d.current && d.current.is_day === 0;
             document.getElementById('weather-grid').innerHTML = d.daily.time.slice(0,7).map((t, i) => {
-                const weather = W_DATA[d.daily.weathercode[i]] || { icon: "fa-sun", color: "#FFD700" };
+                const rawCode = d.daily.weathercode[i];
+                // For today's card use night variant if currently night; future cards always day icons
+                const useNight = (i === 0) && todayIsNight;
+                const weather = (useNight && W_DATA_NIGHT[rawCode]) ? W_DATA_NIGHT[rawCode] : (W_DATA[rawCode] || { icon: "fa-sun", color: "#FFD700" });
                 const iconColor = p.wColored ? weather.color : p.weatherColor;
                 const dayName = (p.wShowDay !== false) ? new Date(t+'T12:00:00').toLocaleDateString('en',{weekday:'short'}) : '';
                 const dateStr = (p.wShowDate !== false) ? fmtCardDate(t) : '';
@@ -2691,11 +2740,12 @@
         const p = curProfile();
         if (mode === 'photo') {
             p.bgMode = 'photo';
-            // Don't clear bgImg — user will set it via photo options
         } else {
             p.bgMode = mode;
             p.bgImg = '';
         }
+        // Time mode defaults to full intensity so scenes are clearly visible
+        if (mode === 'time' && (p.opacity === undefined || p.opacity < 0.5)) p.opacity = 1;
         syncBgSubRows(p);
         saveAndRender(); renderSettings();
     }
@@ -2706,6 +2756,8 @@
         const isGrad  = !isPhoto && mode === 'gradient';
         const isPtcl  = !isPhoto && mode === 'particles';
         const isVid   = !isPhoto && mode === 'video';
+        const isWxClouds = false;
+        const isWxScene  = !isPhoto && mode === 'time';
         const showBgColor = isGrad || mode === 'mesh';
 
         const show = (id, val) => { const el=document.getElementById(id); if(el) el.style.display=val?'block':'none'; };
@@ -2714,9 +2766,12 @@
         show('vid-settings-row', isVid);
         show('photo-options-row', isPhoto);
         show('bg-color-row', showBgColor);
+        // Show the weather-scene intensity row (re-use gradient intensity UI)
+        const wxIntRow = document.getElementById('wx-intensity-row');
+        if (wxIntRow) wxIntRow.style.display = (isWxClouds || isWxScene) ? 'block' : 'none';
 
         // Sync bgmode buttons — photo button active if bgImg set
-        ['gradient','mesh','particles','video','photo'].forEach(m => {
+        ['gradient','mesh','particles','video','photo','time'].forEach(m => {
             const btn = document.getElementById('bgmode-' + m);
             if (!btn) return;
             const isActive = isPhoto ? m === 'photo' : m === mode;
@@ -3359,6 +3414,407 @@
     }
 
 
+    // ── Time: Live weather scene ──
+    // One function that picks the right animated canvas scene from the current WMO code + time of day.
+    // Scenes: clear day (sun rays), clear night (stars + shooting star), rain, heavy rain,
+    //         thunderstorm, snow, fog, overcast (drifting clouds).
+    function startTimeBg(wx, colors, intensity) {
+        stopBgCanvas();
+        const canvas = document.getElementById('bg-canvas');
+        const ctx    = canvas.getContext('2d');
+        const ity    = (intensity != null && intensity !== '') ? parseFloat(intensity) : 1.0;
+
+        // Route by the same icon the weather widget shows — single source of truth
+        const icon  = (wx && wx.icon)  || 'fa-sun';
+        const hour  = (wx && wx.hour  != null) ? wx.hour  : new Date().getHours();
+        const isDay = (wx && wx.isDay != null) ? !!wx.isDay : (hour >= 6 && hour < 21);
+
+        // Accent tint from first category colour (very subtle, 12%)
+        let acR=20, acG=26, acB=45;
+        if (colors && colors.length) {
+            const h0=(colors[0]||'#141a2d').replace('#','');
+            acR=parseInt(h0.slice(0,2),16); acG=parseInt(h0.slice(2,4),16); acB=parseInt(h0.slice(4,6),16);
+        }
+        function tint(r,g,b,t=0.12){ return [Math.round(r*(1-t)+acR*t),Math.round(g*(1-t)+acG*t),Math.round(b*(1-t)+acB*t)]; }
+
+        // Sky fill: flat colour + subtle bottom darkening
+        function fillSky([r,g,b], dk=0.3) {
+            const W=canvas.width,H=canvas.height;
+            ctx.fillStyle=`rgba(${r},${g},${b},${ity})`; ctx.fillRect(0,0,W,H);
+            const gd=ctx.createLinearGradient(0,0,0,H);
+            gd.addColorStop(0,`rgba(0,0,0,0)`); gd.addColorStop(1,`rgba(0,0,0,${ity*dk})`);
+            ctx.fillStyle=gd; ctx.fillRect(0,0,W,H);
+        }
+
+        // Crescent moon — built once into an offscreen canvas, drawn each frame
+        const _moonMr = 22;
+        const _moonPad = _moonMr + 8;
+        const _moonOC = document.createElement('canvas');
+        _moonOC.width = _moonPad*2; _moonOC.height = _moonPad*2;
+        (()=>{
+            const ox = _moonOC.getContext('2d');
+            ox.fillStyle = 'rgba(228,240,255,1)';
+            ox.beginPath(); ox.arc(_moonPad,_moonPad,_moonMr,0,Math.PI*2); ox.fill();
+            ox.globalCompositeOperation = 'destination-out';
+            ox.fillStyle = 'rgba(0,0,0,1)';
+            ox.beginPath(); ox.arc(_moonPad - _moonMr*0.45, _moonPad, _moonMr*0.88, 0, Math.PI*2); ox.fill();
+        })();
+        function drawMoon(W,H) {
+            const mx = W*0.88, my = H*0.18;
+            ctx.save();
+            // Glow
+            ctx.globalAlpha = ity * 0.65;
+            const mg = ctx.createRadialGradient(mx,my,0,mx,my,_moonMr*3);
+            mg.addColorStop(0,'rgba(200,220,255,0.2)');
+            mg.addColorStop(1,'rgba(200,220,255,0)');
+            ctx.fillStyle = mg;
+            ctx.beginPath(); ctx.arc(mx,my,_moonMr*3,0,Math.PI*2); ctx.fill();
+            // Crescent disc
+            ctx.globalAlpha = ity;
+            ctx.drawImage(_moonOC, mx-_moonPad, my-_moonPad);
+            ctx.restore();
+        }
+
+        // Halton low-discrepancy sequence for uniform star spread
+        function makeStars(n) {
+            const s=[];
+            for(let i=0;i<n;i++){
+                let x=0,f=0.5,ii=i+1; while(ii>0){x+=f*(ii&1);ii>>=1;f*=0.5;}
+                let y=0,f3=1/3,jj=i+1; while(jj>0){y+=f3*(jj%3);jj=Math.floor(jj/3);f3/=3;}
+                s.push({x,y:y*0.88+0.01,r:0.5+Math.random()*1.5,ph:Math.random()*Math.PI*2,spd:0.015+Math.random()*0.03});
+            }
+            return s;
+        }
+
+        // Draw stars (twinkle)
+        function drawStars(stars,W,H,maxOp=1.0) {
+            stars.forEach(s=>{
+                s.ph+=s.spd;
+                const op=(0.25+0.75*Math.abs(Math.sin(s.ph)))*ity*maxOp;
+                ctx.fillStyle=`rgba(255,255,255,${op})`;
+                ctx.beginPath(); ctx.arc(s.x*W,s.y*H,s.r,0,Math.PI*2); ctx.fill();
+            });
+        }
+
+        // ── Cloud rendering ──
+        // Top edge: overlapping arc bumps (bumpy top)
+        // Bottom edge: nearly flat with very subtle wave (smooth bottom)
+        // Ends: naturally rounded by leftmost/rightmost bump circle
+        function drawCloud(cx, cy, bumps, alpha, lum, lum2) {
+            const W=canvas.width, H=canvas.height;
+            const x=cx*W, y=cy*H;
+            const a=ity*alpha;
+            if(a<0.01) return;
+
+            if(bumps.length===0) return;
+            const leftmost  = bumps[0].bx  - bumps[0].br;
+            const rightmost = bumps[bumps.length-1].bx + bumps[bumps.length-1].br;
+            const bottomY   = Math.max(...bumps.map(b=>b.by + b.br*0.55)); // flat-ish bottom
+
+            ctx.save();
+            ctx.beginPath();
+            // Move to start of first bump's top-left
+            ctx.moveTo(x + leftmost, y + bumps[0].by);
+            // Draw top bumps left→right: each arc is the top semicircle
+            bumps.forEach(b => {
+                ctx.arc(x + b.bx, y + b.by, b.br, Math.PI, 0, false);
+            });
+            // Right side down to bottom
+            ctx.lineTo(x + rightmost, y + bottomY);
+            // Bottom edge: single gentle quadratic curve back left
+            ctx.quadraticCurveTo(x, y + bottomY + Math.max(...bumps.map(b=>b.br))*0.08, x + leftmost, y + bottomY);
+            ctx.closePath();
+
+            const yTop = y + Math.min(...bumps.map(b=>b.by - b.br));
+            const yBot = y + bottomY;
+            const grad = ctx.createLinearGradient(x, yTop, x, yBot);
+            grad.addColorStop(0,    `rgba(${Math.min(255,lum+24)},${Math.min(255,lum+24)},${Math.min(255,lum+32)},${a})`);
+            grad.addColorStop(0.4,  `rgba(${Math.min(255,lum+8)}, ${Math.min(255,lum+8)}, ${Math.min(255,lum+16)},${a})`);
+            grad.addColorStop(1,    `rgba(${lum2},${lum2},${Math.min(255,lum2+10)},${a*0.9})`);
+            ctx.fillStyle=grad;
+            ctx.fill();
+            ctx.restore();
+        }
+
+        // Build bump array for a cloud shape variant
+        // All variants produce only TOP bumps — bottom is handled by drawCloud
+        function makeCloudShape(variant, scale) {
+            const s = scale||1;
+            let bumps = [];
+
+            if(variant===0) {
+                // Classic puffy: 4–7 bumps, arch profile tallest in centre
+                const n=4+Math.floor(Math.random()*4);
+                const r0=(20+Math.random()*14)*s;
+                const span=(n-1)*r0*0.82;
+                for(let i=0;i<n;i++){
+                    const t=i/(n-1);
+                    const hf=1-Math.pow((t-0.5)*1.8,2)*0.48;
+                    bumps.push({bx:-span/2+t*span, by:0, br:r0*(0.6+Math.random()*0.5)*hf+r0*0.1});
+                }
+            } else if(variant===1) {
+                // Wide low: many small bumps spread wide
+                const n=5+Math.floor(Math.random()*5);
+                const r0=(10+Math.random()*8)*s;
+                const span=(n-1)*r0*1.05;
+                for(let i=0;i<n;i++){
+                    const t=i/(n-1);
+                    const hf=1-Math.pow((t-0.5)*1.6,2)*0.4;
+                    bumps.push({bx:-span/2+t*span, by:0, br:r0*(0.65+Math.random()*0.45)*hf+r0*0.08});
+                }
+            } else if(variant===2) {
+                // Tall: 3–4 bumps, bigger radii, more height
+                const n=3+Math.floor(Math.random()*2);
+                const r0=(26+Math.random()*16)*s;
+                const span=(n-1)*r0*0.75;
+                for(let i=0;i<n;i++){
+                    const t=i/(Math.max(n-1,1));
+                    const hf=1-Math.pow((t-0.5)*1.5,2)*0.35;
+                    bumps.push({bx:-span/2+t*span, by:-r0*0.1*hf, br:r0*(0.75+Math.random()*0.45)*hf+r0*0.1});
+                }
+            } else if(variant===3) {
+                // Compact round: 3 bumps, nearly circular
+                const r0=(18+Math.random()*14)*s;
+                bumps=[
+                    {bx:-r0*0.72, by: r0*0.05, br:r0*(0.68+Math.random()*0.2)},
+                    {bx: 0,        by:-r0*0.18, br:r0*(0.92+Math.random()*0.2)},
+                    {bx: r0*0.72,  by: r0*0.05, br:r0*(0.68+Math.random()*0.2)},
+                ];
+            } else if(variant===4) {
+                // Asymmetric: peak shifted, trailing tail
+                const n=4+Math.floor(Math.random()*3);
+                const r0=(18+Math.random()*14)*s;
+                const span=(n-1)*r0*0.85;
+                const peak=0.15+Math.random()*0.45;
+                for(let i=0;i<n;i++){
+                    const t=i/(n-1);
+                    const hf=Math.max(0.28, 1-Math.pow((t-peak)*2.0,2)*0.55);
+                    bumps.push({bx:-span/2+t*span, by:0, br:r0*(0.52+Math.random()*0.5)*hf});
+                }
+            } else {
+                // Layered: wide base + taller central cluster
+                const r0=(16+Math.random()*12)*s;
+                bumps=[
+                    {bx:-r0*1.8, by: r0*0.15, br:r0*(0.52+Math.random()*0.2)},
+                    {bx:-r0*0.9, by:-r0*0.05, br:r0*(0.72+Math.random()*0.2)},
+                    {bx: 0,       by:-r0*0.38, br:r0*(0.95+Math.random()*0.2)},
+                    {bx: r0*0.9,  by:-r0*0.05, br:r0*(0.72+Math.random()*0.2)},
+                    {bx: r0*1.8,  by: r0*0.15, br:r0*(0.52+Math.random()*0.2)},
+                ];
+            }
+
+            // Sort bumps left to right (required for correct path winding)
+            bumps.sort((a,b)=>a.bx-b.bx);
+            const pw = Math.max(...bumps.map(b=>b.bx+b.br)) - Math.min(...bumps.map(b=>b.bx-b.br));
+            return {bumps, pw};
+        }
+
+        function makeCloud(layer) {
+            const scale=[0.38,0.62,1.0,1.65][layer];
+            const variantPool=[0,0,1,2,3,4,5,0,3,0];
+            const variant=variantPool[Math.floor(Math.random()*variantPool.length)];
+            const shape=makeCloudShape(variant,scale);
+            const cyBase =[0.01,0.20,0.42,0.64][layer];
+            const cyRange=[0.18,0.20,0.20,0.24][layer];
+            return {
+                cx:Math.random(),
+                cy:cyBase+Math.random()*cyRange,
+                pw:shape.pw,
+                bumps:shape.bumps,
+                spd:([0.025,0.055,0.10,0.19][layer])*(0.55+Math.random()*0.95),
+                alpha:0, layer
+            };
+        }
+        function makeClouds(n, alphaBase) {
+            const c=Array.from({length:n},(_,i)=>makeCloud(i%4));
+            c.forEach(cl=>{cl.alpha=Math.min(0.96,alphaBase+Math.random()*0.25);});
+            return c;
+        }
+        function tickClouds(clouds, lum, lum2) {
+            lum2=lum2!==undefined?lum2:Math.max(0,lum-30);
+            const W=canvas.width;
+            [0,1,2,3].forEach(l=>clouds.filter(c=>c.layer===l).forEach(c=>{
+                c.cx+=c.spd/W;
+                if(c.cx>1+c.pw/W) c.cx=-c.pw/W;
+                drawCloud(c.cx,c.cy,c.bumps,c.alpha,lum,lum2);
+            }));
+        }
+        // ── NIGHT SCENES ──
+        if (!isDay) {
+
+            // fa-bolt night = thunderstorm
+            if (icon==='fa-bolt') {
+                const sky=tint(8,9,18);
+                const drops=Array.from({length:260},()=>({x:Math.random(),y:Math.random(),len:(12+Math.random()*20)/1000,spd:0.009+Math.random()*0.01,op:0.22+Math.random()*0.28}));
+                let lTimer=0,lFlash=0,lX=0.5,lPts=[];
+                function mkBolt(x){const p=[{x,y:0}];let cy=0;while(cy<0.72){cy+=0.04+Math.random()*0.05;p.push({x:p[p.length-1].x+(Math.random()-0.5)*0.055,y:cy});}return p;}
+                function draw(){const W=canvas.width=window.innerWidth,H=canvas.height=window.innerHeight;ctx.clearRect(0,0,W,H);fillSky(sky,0.45);drops.forEach(d=>{d.y+=d.spd;if(d.y>1.02){d.y=-0.02;d.x=Math.random();}ctx.beginPath();ctx.moveTo(d.x*W,d.y*H);ctx.lineTo(d.x*W+d.len*H*0.25,(d.y+d.len)*H);ctx.strokeStyle=`rgba(140,175,220,${ity*d.op})`;ctx.lineWidth=0.8;ctx.stroke();});lTimer++;if(lTimer>100&&lFlash===0){lTimer=0;lFlash=12;lX=0.1+Math.random()*0.8;lPts=mkBolt(lX);}if(lFlash>0){const a=ity*(lFlash/12);const lg=ctx.createRadialGradient(lX*W,H*0.2,0,lX*W,H*0.2,W*0.45);lg.addColorStop(0,`rgba(200,215,255,${a*0.3})`);lg.addColorStop(1,`rgba(200,215,255,0)`);ctx.fillStyle=lg;ctx.fillRect(0,0,W,H);ctx.beginPath();ctx.moveTo(lPts[0].x*W,0);lPts.forEach(p=>ctx.lineTo(p.x*W,p.y*H));ctx.strokeStyle=`rgba(220,235,255,${a*0.9})`;ctx.lineWidth=lFlash>7?2.5:1.2;ctx.stroke();lFlash--;}_bgRaf=requestAnimationFrame(draw);}
+                draw(); return;
+            }
+
+            // fa-cloud-showers-heavy or fa-cloud-rain = rain at night
+            if (icon==='fa-cloud-showers-heavy'||icon==='fa-cloud-rain') {
+                const heavy=icon==='fa-cloud-showers-heavy';
+                const sky=tint(10,13,24);
+                const drops=Array.from({length:heavy?220:140},()=>({x:Math.random(),y:Math.random(),len:(10+Math.random()*18)/1000,spd:(0.007+Math.random()*0.007)*(heavy?1.5:1),op:0.28+Math.random()*0.35}));
+                const splashes=[];let sTimer=0;
+                function draw(){const W=canvas.width=window.innerWidth,H=canvas.height=window.innerHeight;ctx.clearRect(0,0,W,H);fillSky(sky,0.48);drops.forEach(d=>{d.y+=d.spd;if(d.y>1.02){d.y=-0.02;d.x=Math.random();}ctx.beginPath();ctx.moveTo(d.x*W,d.y*H);ctx.lineTo(d.x*W+d.len*H*0.22,(d.y+d.len)*H);ctx.strokeStyle=`rgba(155,190,230,${ity*d.op})`;ctx.lineWidth=heavy?1.1:0.7;ctx.stroke();});sTimer++;if(sTimer>3){sTimer=0;splashes.push({x:Math.random()*W,life:1,r:0});}for(let i=splashes.length-1;i>=0;i--){const s=splashes[i];s.r+=1.8;s.life-=0.07;if(s.life<=0){splashes.splice(i,1);continue;}ctx.beginPath();ctx.ellipse(s.x,H*0.97,s.r,s.r*0.28,0,0,Math.PI*2);ctx.strokeStyle=`rgba(155,200,235,${ity*s.life*0.35})`;ctx.lineWidth=0.7;ctx.stroke();}_bgRaf=requestAnimationFrame(draw);}
+                draw(); return;
+            }
+
+            // fa-smog = fog at night
+            if (icon==='fa-smog') {
+                const sky=tint(18,20,30);
+                const wisps=Array.from({length:22},()=>({x:Math.random(),y:0.1+Math.random()*0.75,w:0.28+Math.random()*0.52,h:0.025+Math.random()*0.048,spd:(0.0001+Math.random()*0.00017)*(Math.random()>0.5?1:-1),op:0.22+Math.random()*0.35}));
+                function draw(){const W=canvas.width=window.innerWidth,H=canvas.height=window.innerHeight;ctx.clearRect(0,0,W,H);fillSky(sky,0.2);wisps.forEach(wi=>{wi.x+=wi.spd;if(wi.x>1.3)wi.x=-0.3;if(wi.x<-0.3)wi.x=1.3;const wx=wi.x*W,wy=wi.y*H,ww=wi.w*W,wh=wi.h*H;const g=ctx.createRadialGradient(wx+ww/2,wy,0,wx+ww/2,wy,Math.max(ww,wh)*0.62);g.addColorStop(0,`rgba(80,92,115,${ity*wi.op})`);g.addColorStop(1,`rgba(80,92,115,0)`);ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(wx+ww/2,wy,ww/2,wh/2,0,0,Math.PI*2);ctx.fill();});_bgRaf=requestAnimationFrame(draw);}
+                draw(); return;
+            }
+
+            // fa-cloud (overcast night) — dark sky, stars dimly visible, dark heavy clouds, moon behind clouds
+            if (icon==='fa-cloud') {
+                const sky=tint(4,5,14);
+                const stars=makeStars(140);
+                const clouds=makeClouds(52,0.72);
+                function draw(){
+                    const W=canvas.width=window.innerWidth,H=canvas.height=window.innerHeight;
+                    ctx.clearRect(0,0,W,H); fillSky(sky,0.5);
+                    // Stars faintly visible through thick clouds
+                    drawStars(stars,W,H,0.28);
+                    // Moon drawn before clouds so clouds pass over it
+                    drawMoon(W,H);
+                    tickClouds(clouds,38,16);
+                    _bgRaf=requestAnimationFrame(draw);
+                }
+                draw(); return;
+            }
+
+            // fa-cloud-sun / fa-cloud-moon (partly cloudy night) — stars, moon, few drifting clouds
+            if (icon==='fa-cloud-sun'||icon==='fa-cloud-moon') {
+                const sky=tint(4,5,14);
+                const stars=makeStars(200);
+                const clouds=makeClouds(16,0.45);
+                function draw(){
+                    const W=canvas.width=window.innerWidth,H=canvas.height=window.innerHeight;
+                    ctx.clearRect(0,0,W,H); fillSky(sky,0.38);
+                    drawStars(stars,W,H,0.92);
+                    drawMoon(W,H);
+                    tickClouds(clouds,48,24);
+                    _bgRaf=requestAnimationFrame(draw);
+                }
+                draw(); return;
+            }
+
+            // fa-sun / fa-moon (clear night) — full stars, moon, shooting star
+            {
+                const sky=tint(4,5,14);
+                const stars=makeStars(220);
+                let sX=0,sY=0,sVX=0,sVY=0,sLife=0,sTimer=0;
+                function draw(){
+                    const W=canvas.width=window.innerWidth,H=canvas.height=window.innerHeight;
+                    ctx.clearRect(0,0,W,H); fillSky(sky,0.36);
+                    drawStars(stars,W,H,1.0);
+                    drawMoon(W,H);
+                    sTimer++;if(sTimer>220&&sLife===0){sTimer=0;sLife=75;sX=0.04+Math.random()*0.5;sY=0.01+Math.random()*0.2;const a=Math.PI/6+Math.random()*Math.PI/8;sVX=Math.cos(a)*0.006;sVY=Math.sin(a)*0.004;}
+                    if(sLife>0){ctx.beginPath();ctx.moveTo(sX*W,sY*H);ctx.lineTo((sX-sVX*10)*W,(sY-sVY*10)*H);ctx.strokeStyle=`rgba(255,255,255,${ity*(sLife/75)*0.8})`;ctx.lineWidth=1.5;ctx.stroke();sX+=sVX;sY+=sVY;sLife--;}
+                    _bgRaf=requestAnimationFrame(draw);
+                }
+                draw(); return;
+            }
+        }
+
+        // ── DAY SCENES ──
+
+        // fa-bolt = thunderstorm day
+        if (icon==='fa-bolt') {
+            const sky=tint(22,26,42);
+            const drops=Array.from({length:260},()=>({x:Math.random(),y:Math.random(),len:(12+Math.random()*20)/1000,spd:0.009+Math.random()*0.01,op:0.25+Math.random()*0.32}));
+            let lTimer=0,lFlash=0,lX=0.5,lPts=[];
+            function mkBolt2(x){const p=[{x,y:0}];let cy=0;while(cy<0.72){cy+=0.04+Math.random()*0.05;p.push({x:p[p.length-1].x+(Math.random()-0.5)*0.055,y:cy});}return p;}
+            function draw(){const W=canvas.width=window.innerWidth,H=canvas.height=window.innerHeight;ctx.clearRect(0,0,W,H);fillSky(sky,0.5);drops.forEach(d=>{d.y+=d.spd;if(d.y>1.02){d.y=-0.02;d.x=Math.random();}ctx.beginPath();ctx.moveTo(d.x*W,d.y*H);ctx.lineTo(d.x*W+d.len*H*0.25,(d.y+d.len)*H);ctx.strokeStyle=`rgba(165,200,235,${ity*d.op})`;ctx.lineWidth=0.85;ctx.stroke();});lTimer++;if(lTimer>100&&lFlash===0){lTimer=0;lFlash=12;lX=0.1+Math.random()*0.8;lPts=mkBolt2(lX);}if(lFlash>0){const a=ity*(lFlash/12);const lg=ctx.createRadialGradient(lX*W,H*0.2,0,lX*W,H*0.2,W*0.45);lg.addColorStop(0,`rgba(205,220,255,${a*0.32})`);lg.addColorStop(1,`rgba(205,220,255,0)`);ctx.fillStyle=lg;ctx.fillRect(0,0,W,H);ctx.beginPath();ctx.moveTo(lPts[0].x*W,0);lPts.forEach(p=>ctx.lineTo(p.x*W,p.y*H));ctx.strokeStyle=`rgba(225,238,255,${a*0.9})`;ctx.lineWidth=lFlash>7?2.5:1.2;ctx.stroke();lFlash--;}_bgRaf=requestAnimationFrame(draw);}
+            draw(); return;
+        }
+
+        // fa-cloud-showers-heavy or fa-cloud-rain = rain day — grey sky, clouds, rain, splashes
+        if (icon==='fa-cloud-showers-heavy'||icon==='fa-cloud-rain') {
+            const heavy=icon==='fa-cloud-showers-heavy';
+            const drops=Array.from({length:heavy?230:150},()=>({x:Math.random(),y:Math.random(),len:(10+Math.random()*18)/1000,spd:(0.007+Math.random()*0.007)*(heavy?1.5:1),op:0.35+Math.random()*0.4}));
+            const splashes=[];let sTimer=0;
+            const clouds=makeClouds(60,0.74);
+            function draw(){
+                const W=canvas.width=window.innerWidth,H=canvas.height=window.innerHeight;
+                ctx.clearRect(0,0,W,H);
+                // Reference-accurate rain sky: light grey-white at top → dark grey at bottom
+                const skyGrad=ctx.createLinearGradient(0,0,0,H);
+                skyGrad.addColorStop(0,  `rgba(185,192,200,${ity})`);
+                skyGrad.addColorStop(0.4,`rgba(148,158,170,${ity})`);
+                skyGrad.addColorStop(1,  `rgba(90,102,118,${ity})`);
+                ctx.fillStyle=skyGrad; ctx.fillRect(0,0,W,H);
+                // Clouds blend into this grey sky
+                tickClouds(clouds,185,145);
+                // Rain on top
+                drops.forEach(d=>{d.y+=d.spd;if(d.y>1.02){d.y=-0.02;d.x=Math.random();}ctx.beginPath();ctx.moveTo(d.x*W,d.y*H);ctx.lineTo(d.x*W+d.len*H*0.22,(d.y+d.len)*H);ctx.strokeStyle=`rgba(155,172,195,${ity*d.op})`;ctx.lineWidth=heavy?1.1:0.7;ctx.stroke();});
+                sTimer++;if(sTimer>3){sTimer=0;splashes.push({x:Math.random()*W,life:1,r:0});}
+                for(let i=splashes.length-1;i>=0;i--){const s=splashes[i];s.r+=1.8;s.life-=0.07;if(s.life<=0){splashes.splice(i,1);continue;}ctx.beginPath();ctx.ellipse(s.x,H*0.97,s.r,s.r*0.28,0,0,Math.PI*2);ctx.strokeStyle=`rgba(160,178,200,${ity*s.life*0.38})`;ctx.lineWidth=0.7;ctx.stroke();}
+                _bgRaf=requestAnimationFrame(draw);
+            }
+            draw(); return;
+        }
+
+        // fa-smog = fog day
+        if (icon==='fa-smog') {
+            const sky=tint(105,115,130);
+            const wisps=Array.from({length:22},()=>({x:Math.random(),y:0.1+Math.random()*0.75,w:0.28+Math.random()*0.52,h:0.025+Math.random()*0.048,spd:(0.0001+Math.random()*0.00017)*(Math.random()>0.5?1:-1),op:0.32+Math.random()*0.42}));
+            function draw(){const W=canvas.width=window.innerWidth,H=canvas.height=window.innerHeight;ctx.clearRect(0,0,W,H);fillSky(sky,0.2);wisps.forEach(wi=>{wi.x+=wi.spd;if(wi.x>1.3)wi.x=-0.3;if(wi.x<-0.3)wi.x=1.3;const wx=wi.x*W,wy=wi.y*H,ww=wi.w*W,wh=wi.h*H;const g=ctx.createRadialGradient(wx+ww/2,wy,0,wx+ww/2,wy,Math.max(ww,wh)*0.62);g.addColorStop(0,`rgba(200,210,220,${ity*wi.op})`);g.addColorStop(1,`rgba(200,210,220,0)`);ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(wx+ww/2,wy,ww/2,wh/2,0,0,Math.PI*2);ctx.fill();});_bgRaf=requestAnimationFrame(draw);}
+            draw(); return;
+        }
+
+        // fa-cloud = overcast day — grey sky, heavy cloud layer
+        if (icon==='fa-cloud') {
+            const sky=tint(48,54,68);
+            const clouds=makeClouds(56,0.70);
+            function draw(){const W=canvas.width=window.innerWidth,H=canvas.height=window.innerHeight;ctx.clearRect(0,0,W,H);fillSky(sky,0.4);tickClouds(clouds,208,162);_bgRaf=requestAnimationFrame(draw);}
+            draw(); return;
+        }
+
+        // fa-cloud-sun = partly cloudy day — blue sky, sun, scattered clouds
+        if (icon==='fa-cloud-sun') {
+            const sky=tint(42,98,175);
+            const clouds=makeClouds(18,0.40);
+            const t=Math.max(0,Math.min(1,(hour-6)/12));
+            const sunXf=0.08+t*0.84, sunYf=0.04+Math.abs(t-0.5)*0.38;
+            function draw(){
+                const W=canvas.width=window.innerWidth,H=canvas.height=window.innerHeight;
+                ctx.clearRect(0,0,W,H); fillSky(sky,0.3);
+                const sunX=W*sunXf,sunY=H*sunYf;
+                const glow=ctx.createRadialGradient(sunX,sunY,0,sunX,sunY,Math.min(W,H)*0.5);
+                glow.addColorStop(0,`rgba(255,210,60,${ity*0.45})`);glow.addColorStop(0.2,`rgba(255,175,40,${ity*0.18})`);glow.addColorStop(1,`rgba(255,150,20,0)`);
+                ctx.fillStyle=glow;ctx.fillRect(0,0,W,H);
+                ctx.fillStyle=`rgba(255,220,80,${ity*0.88})`;ctx.beginPath();ctx.arc(sunX,sunY,26,0,Math.PI*2);ctx.fill();
+                tickClouds(clouds,248,208);
+                _bgRaf=requestAnimationFrame(draw);
+            }
+            draw(); return;
+        }
+
+        // fa-sun = clear day — blue sky, sun tracks hour, soft rotating rays
+        {
+            const sky=tint(32,88,175);
+            const rays=Array.from({length:12},(_,i)=>({angle:(i/12)*Math.PI*2,spd:0.00022+Math.random()*0.00014,width:0.032+Math.random()*0.048,op:0.065+Math.random()*0.09}));
+            const t=Math.max(0,Math.min(1,(hour-6)/12));
+            function draw(){
+                const W=canvas.width=window.innerWidth,H=canvas.height=window.innerHeight;
+                ctx.clearRect(0,0,W,H); fillSky(sky,0.3);
+                const sunX=W*(0.08+t*0.84),sunY=H*(0.04+Math.abs(t-0.5)*0.38);
+                const glow=ctx.createRadialGradient(sunX,sunY,0,sunX,sunY,Math.min(W,H)*0.6);
+                glow.addColorStop(0,`rgba(255,205,55,${ity*0.52})`);glow.addColorStop(0.22,`rgba(255,172,38,${ity*0.22})`);glow.addColorStop(1,`rgba(255,140,20,0)`);
+                ctx.fillStyle=glow;ctx.fillRect(0,0,W,H);
+                ctx.fillStyle=`rgba(255,215,65,${ity*0.92})`;ctx.beginPath();ctx.arc(sunX,sunY,30,0,Math.PI*2);ctx.fill();
+                rays.forEach(r=>{r.angle+=r.spd;const x1=sunX+Math.cos(r.angle)*34,y1=sunY+Math.sin(r.angle)*34,x2=sunX+Math.cos(r.angle+r.width)*H*1.8,y2=sunY+Math.sin(r.angle+r.width)*H*1.8,x3=sunX+Math.cos(r.angle)*H*1.8,y3=sunY+Math.sin(r.angle)*H*1.8;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.lineTo(x3,y3);ctx.closePath();ctx.fillStyle=`rgba(255,195,45,${ity*r.op})`;ctx.fill();});
+                _bgRaf=requestAnimationFrame(draw);
+            }
+            draw();
+        }
+    }
     // Edit mode — disable a chrome element and exit edit mode
     const FAVICON_EMOJIS = [
         '🏠','⚡','🔥','⭐','💎','🚀','🌙','☀️',
