@@ -924,10 +924,15 @@
                         <button class="size-btn" id="ptcl-fireworks" onclick="setParticleStyle('fireworks')">Sparks</button>
                         <button class="size-btn" id="ptcl-ribbons" onclick="setParticleStyle('ribbons')">Ribbons</button>
                     </div>
-                    <div style="display:flex; align-items:center; gap:8px; margin-top:2px;">
-                        <span style="font-size:0.72rem; color:#888; flex-shrink:0; width:38px;">Speed</span>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="font-size:0.72rem; color:#888; flex-shrink:0; width:52px;">Intensity</span>
+                        <input type="range" id="ptcl-intensity-slider" min="0" max="1" step="0.05" oninput="updateVisRealtime();document.getElementById('ptcl-intensity-val').textContent=Math.round(this.value*100)+'%'" style="flex:1;">
+                        <span id="ptcl-intensity-val" style="font-size:0.72rem; color:#888; width:30px; text-align:right;">30%</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="font-size:0.72rem; color:#888; flex-shrink:0; width:52px;">Speed</span>
                         <input type="range" id="particle-speed" min="0.1" max="3" step="0.1" value="1" oninput="updateParticleSpeed(this.value)" style="flex:1;">
-                        <span id="particle-speed-val" style="font-size:0.72rem; color:#888; width:28px; text-align:right;">1×</span>
+                        <span id="particle-speed-val" style="font-size:0.72rem; color:#888; width:30px; text-align:right;">1.0×</span>
                     </div>
                 </div>
             </div>
@@ -941,10 +946,11 @@
                     <em>city night rain &bull; dark forest &bull; space nebula &bull; tokyo night &bull; ocean waves &bull; fireplace</em>
                 </div>
                 <div id="vid-slots"></div>
-            </div>
-            <div id="vid-dim-row" style="display:none;">
-                <span class="slider-label" style="margin-top:8px;">Video Dim</span>
-                <input type="range" id="vid-dim-slider" min="0" max="0.95" step="0.01" oninput="applyVidDimNow()">
+                <div style="display:flex; align-items:center; gap:8px; margin-top:8px;">
+                    <span style="font-size:0.72rem; color:#888; flex-shrink:0; width:52px;">Dim</span>
+                    <input type="range" id="vid-dim-slider" min="0" max="0.95" step="0.01" oninput="applyVidDimNow();document.getElementById('vid-dim-val').textContent=Math.round(this.value*100)+'%'" style="flex:1;">
+                    <span id="vid-dim-val" style="font-size:0.72rem; color:#888; width:30px; text-align:right;">35%</span>
+                </div>
             </div>
 
             <!-- Photo sub-options -->
@@ -955,6 +961,11 @@
                     <button style="color:#f88;" onclick="updateBgImg('')">Remove Photo</button>
                 </div>
                 <input type="file" id="bg-file" style="display:none" accept="image/*" onchange="handleBgFile(this)">
+                <div style="display:flex; align-items:center; gap:8px; margin-top:6px;">
+                    <span class="slider-label" id="slider-label" style="margin:0; width:52px; flex-shrink:0; font-size:0.72rem; opacity:0.6;">Blur</span>
+                    <input type="range" id="photo-blur-slider" min="0" max="30" step="1" oninput="updateVisRealtime()" style="flex:1;">
+                    <span id="photo-blur-val" style="font-size:0.72rem; color:#888; width:30px; text-align:right;">0px</span>
+                </div>
             </div>
 
             <!-- Bg color — only for gradient/mesh modes -->
@@ -967,11 +978,11 @@
                         <button class="btn-icon" onclick="resetField('bg-color','#1C1B22','bgColor')" title="Reset"><i class="fa-solid fa-rotate-left"></i></button>
                     </div>
                 </div>
-            </div>
-
-            <div style="display:flex; align-items:center; gap:8px; margin-top:4px;">
-                <span class="slider-label" id="slider-label" style="margin:0; width:38px; flex-shrink:0;">Intensity</span>
-                <input type="range" id="unified-slider" min="0" max="1" step="0.05" oninput="updateVisRealtime()" style="flex:1;">
+                <div style="display:flex; align-items:center; gap:8px; margin-top:6px;">
+                    <span style="font-size:0.72rem; color:#888; flex-shrink:0; width:52px;">Intensity</span>
+                    <input type="range" id="grad-intensity-slider" min="0" max="1" step="0.05" oninput="updateVisRealtime();document.getElementById('grad-intensity-val').textContent=Math.round(this.value*100)+'%'" style="flex:1;">
+                    <span id="grad-intensity-val" style="font-size:0.72rem; color:#888; width:30px; text-align:right;">30%</span>
+                </div>
             </div>
         </div>
 
@@ -1967,10 +1978,34 @@
         document.getElementById(`size-${p.density || 'xl'}`).classList.add('active');
         document.getElementById('cat-sel').innerHTML = p.categories.map((c, i) => `<option value="${i}">${c.title}</option>`).join('');
         if(!p.categories[document.getElementById('cat-sel').value]) document.getElementById('cat-sel').value = 0;
-        const slider = document.getElementById('unified-slider'), label = document.querySelector('#slider-label');
-        if (p.bgImg || p.bgMode === 'photo') { label.textContent = "Photo Blur"; slider.min = 0; slider.max = 30; slider.step = 1; slider.value = p.fuzzy || 0; }
-        else if (!p.bgImg && (p.bgMode||'gradient')==='video') { label.textContent = "Video Dim"; slider.min = 0; slider.max = 0.95; slider.step = 0.01; slider.value = p.vidDim !== undefined ? p.vidDim : 0.35; }
-        else { label.textContent = "Intensity"; slider.min = 0; slider.max = 1; slider.step = 0.05; slider.value = (p.opacity !== undefined && p.opacity !== '') ? p.opacity : 0.3; }
+        // Sync sliders
+        const opVal = (p.opacity !== undefined && p.opacity !== '') ? parseFloat(p.opacity) : 0.3;
+        const opPct = Math.round(opVal*100) + '%';
+        // Photo blur
+        const photoBlur = document.getElementById('photo-blur-slider');
+        const photoBlurVal = document.getElementById('photo-blur-val');
+        if (photoBlur) photoBlur.value = p.fuzzy || 0;
+        if (photoBlurVal) photoBlurVal.textContent = (p.fuzzy||0) + 'px';
+        // Video dim
+        const vidDim = document.getElementById('vid-dim-slider');
+        const vidDimVal = document.getElementById('vid-dim-val');
+        if (vidDim) vidDim.value = p.vidDim !== undefined ? p.vidDim : 0.35;
+        if (vidDimVal) vidDimVal.textContent = Math.round((p.vidDim||0.35)*100) + '%';
+        // Gradient/mesh intensity
+        const gradSlider = document.getElementById('grad-intensity-slider');
+        const gradVal = document.getElementById('grad-intensity-val');
+        if (gradSlider) gradSlider.value = opVal;
+        if (gradVal) gradVal.textContent = opPct;
+        // Particles intensity
+        const ptclSlider = document.getElementById('ptcl-intensity-slider');
+        const ptclVal = document.getElementById('ptcl-intensity-val');
+        if (ptclSlider) ptclSlider.value = opVal;
+        if (ptclVal) ptclVal.textContent = opPct;
+        // Speed
+        const speedSlider = document.getElementById('particle-speed');
+        const speedLabel = document.getElementById('particle-speed-val');
+        if (speedSlider) speedSlider.value = p.particleSpeed !== undefined ? p.particleSpeed : 1;
+        if (speedLabel) speedLabel.textContent = (p.particleSpeed !== undefined ? parseFloat(p.particleSpeed).toFixed(1) : '1.0') + '×';
         renderProfileTabs();
         document.getElementById('ql-list-editor').innerHTML = p.ql.map((l, i) => {
             const ic = l.color || p.iconColor || '#ffffff';
@@ -2092,10 +2127,20 @@
         p.clockColor = document.getElementById('clock-color').value;
         p.clockFont = document.getElementById('clock-font').value;
         p.gridFont = document.getElementById('font-picker').value;
-        const sliderVal = document.getElementById('unified-slider').value;
-        if (p.bgImg) { p.fuzzy = sliderVal; }
-        else if (!p.bgImg && (p.bgMode||'gradient')==='video') { p.vidDim = parseFloat(sliderVal); applyVidDimNow(); }
-        else { p.opacity = sliderVal; }
+        // Read from mode-specific sliders
+        if (p.bgImg || p.bgMode === 'photo') {
+            const photoBlurEl = document.getElementById('photo-blur-slider');
+            if (photoBlurEl) { p.fuzzy = parseFloat(photoBlurEl.value); const v = document.getElementById('photo-blur-val'); if(v) v.textContent = Math.round(p.fuzzy)+'px'; }
+        } else if ((p.bgMode||'gradient') === 'video') {
+            // vid-dim handled by applyVidDimNow
+        } else if ((p.bgMode||'gradient') === 'particles') {
+            const el = document.getElementById('ptcl-intensity-slider');
+            if (el) p.opacity = el.value;
+        } else {
+            // gradient / mesh
+            const el = document.getElementById('grad-intensity-slider');
+            if (el) p.opacity = el.value;
+        }
         // Gradient manual colors
         const ga = document.getElementById('grad-color-a');
         const gb = document.getElementById('grad-color-b');
@@ -2105,8 +2150,6 @@
         const isVidRT = !p.bgImg && (p.bgMode||'gradient')==='video';
         const vsrRT = document.getElementById('vid-settings-row');
         if (vsrRT) vsrRT.style.display = isVidRT ? 'block' : 'none';
-        const vdrRT = document.getElementById('vid-dim-row');
-        if (vdrRT) vdrRT.style.display = isVidRT ? 'block' : 'none';
         syncBgSubRows(p);
         const cardSlider = document.getElementById('card-opacity-slider');
         if (cardSlider) {
@@ -2669,7 +2712,6 @@
         show('gradient-options-row', isGrad);
         show('particles-options-row', isPtcl);
         show('vid-settings-row', isVid);
-        show('vid-dim-row', isVid);
         show('photo-options-row', isPhoto);
         show('bg-color-row', showBgColor);
 
