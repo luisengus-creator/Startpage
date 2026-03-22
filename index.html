@@ -41,13 +41,14 @@
         .container { width: 100%; height: 100%; margin: 0 auto; padding: 2vh 2vw; display: flex; flex-direction: column; }
         .top-bar { display: flex; justify-content: space-between; align-items: center; z-index: 10; flex-shrink: 0; margin-bottom: 2vh; position: relative; }
         .nav-group { display: flex; gap: 1.2rem; align-items: center; }
-        .nav-link { cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; width: 1.9rem; height: 1.9rem; }        .nav-link i { font-size: 1.05rem; color: #ffffff; transition: 0.3s; width: 1.05rem; text-align: center; display: flex; align-items: center; justify-content: center; }
-        .nav-link i.fa-brands { font-size: 1.0rem; }
-        .nav-link { cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; width: 1.9rem; height: 1.9rem; }
+        .nav-link { cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; width: 1.9rem; height: 1.9rem; flex-shrink: 0; }
+        .nav-link i, .nav-link i.fa-brands { font-size: 1.05rem; color: #ffffff; transition: 0.3s; width: 1.2rem; text-align: center; }
         .nav-link:hover i { opacity: 0.6; }
-        /* Quick link favicon — same visual size as FA icons */
-        /* Quick link favicon — exact match to FA icon visual size */
+        /* Quick link favicon — same size as FA icons */
         .ql-img-icon { object-fit: contain; border-radius: 2px; width:1.05rem; height:1.05rem; display:block; flex-shrink:0; }
+        /* Profile photo — slightly smaller than the box so it matches icon visual weight */
+        #profile-nav-btn { overflow:hidden; }
+        #profile-nav-btn img { width:1.45rem !important; height:1.45rem !important; border-radius:50%; object-fit:cover; border:1px solid rgba(255,255,255,0.2); }
         #main-content { 
             flex-grow: 1; 
             display: flex; 
@@ -77,7 +78,7 @@
         }
 
         .column { 
-            background: rgba(255,255,255,var(--card-opacity, 0.02)); 
+            background: rgba(0,0,0,var(--card-opacity, 0.02)); 
             border-radius: 4px; 
             padding: calc(1.2rem * var(--scale) * var(--density-mod)); 
             position: relative; 
@@ -294,6 +295,7 @@
         }
         #weather-area.weather-loaded { opacity: 1; visibility: visible; }
         #weather-area.weather-hidden { opacity: 0 !important; visibility: hidden !important; pointer-events: none; height: 0 !important; padding: 0 !important; margin: 0 !important; overflow: hidden; }
+        #weather-area .weather-bg-wrap { background: rgba(0,0,0,var(--weather-backdrop,0)); border-radius: 14px; padding: 6px 18px 6px 18px; display:flex; flex-direction:column; align-items:center; gap:0.5rem; transition: background 0.3s; }
         #city-name { font-size: 0.75rem; opacity: 0.5; letter-spacing: 3px; cursor: pointer; text-transform: uppercase; }
         #weather-grid { display: flex; gap: 0.6rem; align-items: center; cursor: pointer; }
         .weather-card { background: rgba(255,255,255,0.03); padding: 0.5rem 0.7rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); text-align: center; min-width: 5.5rem; }
@@ -317,22 +319,33 @@
             box-sizing: border-box;
         }
         .settings-nav-item {
-            padding: 0.55rem 1.1rem; font-size: 0.72rem; font-weight: 600;
+            padding: 0.5rem 1.0rem; font-size: 0.70rem; font-weight: 600;
             color: #555; cursor: pointer; transition: 0.15s;
             border-left: 2px solid transparent;
             letter-spacing: 0.3px; white-space: nowrap;
             text-transform: uppercase; user-select: none;
+            display: flex; align-items: center; gap: 7px;
         }
+        .settings-nav-item i { font-size: 0.72rem; width: 0.9rem; text-align: center; flex-shrink: 0; }
         .settings-nav-item:hover { color: #aaa; background: rgba(255,255,255,0.03); }
         .settings-nav-item.active { 
             color: var(--modal-accent, #00d4ff); 
             border-left-color: var(--modal-accent, #00d4ff);
             background: rgba(0,212,255,0.06);
         }
+        /* Section header with accent bar */
+        .section-h {
+            font-size: 0.60rem; font-weight: 900; letter-spacing: 2px;
+            text-transform: uppercase; color: var(--modal-accent, #00d4ff);
+            margin-bottom: 14px; padding-bottom: 8px;
+            border-bottom: 1px solid rgba(0,212,255,0.15);
+            display: flex; align-items: center; gap: 6px;
+        }
+        .section-h::before { content:''; display:inline-block; width:3px; height:12px; background:var(--modal-accent,#00d4ff); border-radius:2px; flex-shrink:0; }
         #settings-nav-logo {
-            padding: 0.85rem 1.0rem 0.9rem 1.0rem;
+            padding: 0.7rem 1.0rem 0.5rem 1.0rem;
             border-bottom: 1px solid rgba(255,255,255,0.05);
-            margin-bottom: 0.6rem; flex-shrink: 0;
+            margin-bottom: 0.4rem; flex-shrink: 0;
         }
         #settings-nav-logo input[type="text"] {
             background: #111; border: 1px solid #222; color: #ccc;
@@ -348,7 +361,7 @@
         #settings-content::-webkit-scrollbar-track { background: transparent; }
         #settings-content::-webkit-scrollbar-thumb { background: #222; border-radius: 3px; }
         .settings-panel { display: none; }
-        .settings-panel.active { display: flex; flex-direction: column; justify-content: center; min-height: 100%; }
+        .settings-panel.active { display: flex; flex-direction: column; justify-content: flex-start; min-height: 100%; }
         .settings-panel .setting-block { padding-top: 0; border-bottom: none; padding-bottom: 0; width: 100%; }
         #settings-sidebar-footer {
             margin-top: auto; padding: 0.7rem;
@@ -699,37 +712,25 @@
         </div>
         <main id="main-content"><div id="grid"></div></main>
         <section id="weather-area" style="position:relative;">
-            <span id="city-name" onclick="cycleCity()">---</span>
-            <div id="weather-grid" onclick="openWeatherPopover(this)"></div>
-            <div id="weather-stats"></div>
+            <div class="weather-bg-wrap">
+                <span id="city-name" onclick="cycleCity()">---</span>
+                <div id="weather-grid" onclick="openWeatherPopover(this)"></div>
+                <div id="weather-stats"></div>
+            </div>
             <div class="chrome-overlay"><button class="edit-del-btn" onclick="event.stopPropagation(); editDisable('showWeather')">Delete</button></div>
         </section>
     </div>
 
     <div id="settings-modal" class="modal" style="display:none; flex-direction:row;">
         <div id="settings-sidebar">
-            <div id="settings-nav-logo">
-                <div style="display:flex; flex-direction:column; gap:6px;">
-                    <div>
-                        <div style="font-size:0.58rem; color:#555; letter-spacing:1px; text-transform:uppercase; margin-bottom:3px;">Tab Name</div>
-                        <input type="text" id="tab-title" placeholder="My Startpage" oninput="updateTabMeta()" style="height:24px; font-size:0.72rem; padding:0 6px; width:100%; box-sizing:border-box;">
-                    </div>
-                    <div>
-                        <div style="font-size:0.58rem; color:#555; letter-spacing:1px; text-transform:uppercase; margin-bottom:3px;">Tab Icon</div>
-                        <div style="display:flex; gap:4px; align-items:center;">
-                            <button class="icon-picker-btn" id="favicon-picker-btn" onclick="faviconPickerOpen(this)" title="Choose emoji icon" style="width:26px; height:24px; font-size:0.85rem; padding:0; flex-shrink:0;">🏠</button>
-                            <input type="text" id="tab-favicon" placeholder="or paste URL..." oninput="updateTabMeta()" style="height:24px; font-size:0.68rem; min-width:0; flex:1;">
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="settings-nav-item active" onclick="showSettingsPanel('profiles',this)">Profiles</div>
-            <div class="settings-nav-item" onclick="showSettingsPanel('display',this)">Display</div>
-            <div class="settings-nav-item" onclick="showSettingsPanel('quick-links',this)">Quick Links</div>
-            <div class="settings-nav-item" onclick="showSettingsPanel('categories',this)">Categories</div>
-            <div class="settings-nav-item" onclick="showSettingsPanel('background',this)">Background</div>
-            <div class="settings-nav-item" onclick="showSettingsPanel('clock',this)">Clock</div>
-            <div class="settings-nav-item" onclick="showSettingsPanel('weather',this)">Weather</div>
+            <div id="settings-nav-logo"></div>
+            <div class="settings-nav-item active" onclick="showSettingsPanel('profiles',this)"><i class="fa-solid fa-user"></i>Profiles</div>
+            <div class="settings-nav-item" onclick="showSettingsPanel('display',this)"><i class="fa-solid fa-display"></i>Display</div>
+            <div class="settings-nav-item" onclick="showSettingsPanel('quick-links',this)"><i class="fa-solid fa-link"></i>Quick Links</div>
+            <div class="settings-nav-item" onclick="showSettingsPanel('categories',this)"><i class="fa-solid fa-table-cells"></i>Categories</div>
+            <div class="settings-nav-item" onclick="showSettingsPanel('background',this)"><i class="fa-solid fa-image"></i>Background</div>
+            <div class="settings-nav-item" onclick="showSettingsPanel('clock',this)"><i class="fa-solid fa-clock"></i>Clock</div>
+            <div class="settings-nav-item" onclick="showSettingsPanel('weather',this)"><i class="fa-solid fa-cloud-sun"></i>Weather</div>
             <div id="settings-sidebar-footer">
                 <button class="btn-backup" onclick="exportData()">Backup</button>
                 <button class="btn-import" onclick="document.getElementById('file-input').click()">Import</button>
@@ -749,28 +750,35 @@
             <div class="settings-panel" id="panel-display">
         <div class="setting-block">
             <div class="section-h">Display & Navigation</div>
-            <div class="size-group">
-                <button class="size-btn" id="size-s" onclick="updateDensity('s')">Small</button>
-                <button class="size-btn" id="size-m" onclick="updateDensity('m')">Medium</button>
-                <button class="size-btn" id="size-l" onclick="updateDensity('l')">Large</button>
-                <button class="size-btn" id="size-xl" onclick="updateDensity('xl')">X-Large</button>
+            <div class="color-row" style="margin-bottom:8px;">
+                <span>Tab Name</span>
+                <input type="text" id="tab-title-display" placeholder="My Startpage" oninput="updateTabMetaFromDisplay()" style="width:160px; height:28px; font-size:0.78rem;">
             </div>
+            <div class="color-row" style="margin-bottom:0;">
+                <span>Tab Icon</span>
+                <div style="display:flex;gap:5px;align-items:center;">
+                    <button class="icon-picker-btn" id="favicon-picker-btn-2" onclick="faviconPickerOpen(this)" title="Choose emoji" style="width:28px;height:26px;font-size:0.9rem;padding:0;flex-shrink:0;">🏠</button>
+                    <input type="text" id="tab-favicon-display" placeholder="or paste URL..." oninput="updateTabMetaFromDisplay()" style="height:26px;font-size:0.75rem;flex:1;min-width:0;">
+                </div>
+            </div>
+            <div style="border-top:1px solid rgba(255,255,255,0.06); margin:14px 0;"></div>
             <div class="color-row" style="margin-bottom:12px;">
                 <span>Open Links On</span>
                 <select id="target-mode" onchange="updateVisRealtime()" class="select-inline"><option value="_self">Current Tab</option><option value="_blank">New Tab</option></select>
             </div>
-            <div class="color-row" style="margin-bottom:4px;">
+            <div class="color-row" style="margin-bottom:8px;">
                 <label class="label-inline" style="margin:0;"><input type="checkbox" id="search-enable" onchange="updateVisRealtime()"> Show Search Bar</label>
-                <div id="search-engine-wrap" class="color-field" style="margin:0;">
-                    <select id="search-engine" onchange="updateVisRealtime()" class="select-inline" style="margin:0;">
-                        <option value="google">Google</option>
-                        <option value="ddg">DuckDuckGo</option>
-                        <option value="startpage">Startpage</option>
-                        <option value="brave">Brave</option>
-                        <option value="qwant">Qwant</option>
-                        <option value="yandex">Yandex</option>
-                    </select>
-                </div>
+            </div>
+            <div id="search-engine-wrap" class="color-row" style="margin-bottom:4px;">
+                <span>Search Engine</span>
+                <select id="search-engine" onchange="updateVisRealtime()" class="select-inline">
+                    <option value="google">Google</option>
+                    <option value="ddg">DuckDuckGo</option>
+                    <option value="startpage">Startpage</option>
+                    <option value="brave">Brave</option>
+                    <option value="qwant">Qwant</option>
+                    <option value="yandex">Yandex</option>
+                </select>
             </div>
             <div class="color-row">
                 <span>Categories &amp; Links Font</span>
@@ -832,12 +840,18 @@
             <div class="settings-panel" id="panel-categories">
         <div class="setting-block">
             <div class="section-h">Categories & Content</div>
+            <div class="size-group">
+                <button class="size-btn" id="size-s" onclick="updateDensity('s')">Small</button>
+                <button class="size-btn" id="size-m" onclick="updateDensity('m')">Medium</button>
+                <button class="size-btn" id="size-l" onclick="updateDensity('l')">Large</button>
+                <button class="size-btn" id="size-xl" onclick="updateDensity('xl')">X-Large</button>
+            </div>
             <label class="label-inline"><input type="checkbox" id="header-vis-check" onchange="updateVisRealtime()"> Show Category Headers</label>
             <div class="color-row" style="margin-top:10px; margin-bottom:4px;">
-                <span>Card Opacity</span>
+                <span>Card Background</span>
                 <span id="card-opacity-val" style="font-size:0.72rem; color:#888;">0%</span>
             </div>
-            <input type="range" id="card-opacity-slider" min="0" max="0.5" step="0.01" oninput="updateVisRealtime()">
+            <input type="range" id="card-opacity-slider" min="0" max="1" step="0.01" oninput="updateCardOpacityNow()">
             <select id="cat-sel" onchange="syncCategoryEditor()" style="margin-bottom:8px; margin-top:12px;"></select>
             <div class="flex-row" style="margin-bottom:8px; align-items:center;">
                 <input type="text" id="cat-title" oninput="updateCatRealtime()" placeholder="Title">
@@ -861,9 +875,8 @@
                 <button class="bg-mode-btn" id="bgmode-gradient" onclick="setBgMode('gradient')">Gradient</button>
                 <button class="bg-mode-btn" id="bgmode-mesh" onclick="setBgMode('mesh')">Mesh</button>
                 <button class="bg-mode-btn" id="bgmode-particles" onclick="setBgMode('particles')">Particles</button>
-                <button class="bg-mode-btn" id="bgmode-time" onclick="setBgMode('time')">Time</button>
-                <button class="bg-mode-btn" id="bgmode-video" onclick="setBgMode('video')">Video</button>
                 <button class="bg-mode-btn" id="bgmode-photo" onclick="setBgMode('photo')">Photo</button>
+                <button class="bg-mode-btn" id="bgmode-video" onclick="setBgMode('video')">Video</button>
             </div>
 
             <!-- Gradient sub-options -->
@@ -1058,6 +1071,11 @@
             <div class="section-h">Weather</div>
             <label class="label-inline"><input type="checkbox" id="w-enable-check" onchange="updateVisRealtime()"> Enable Weather</label>
             <div id="weather-sub">
+            <div class="color-row" style="margin-bottom:4px;">
+                <span>Background</span>
+                <span id="weather-backdrop-val" style="font-size:0.72rem;color:#888;">0%</span>
+            </div>
+            <input type="range" id="weather-backdrop-slider" min="0" max="0.85" step="0.01" oninput="updateVisRealtime()" style="margin-bottom:10px;">
             <div class="color-row">
                 <span>Weather Size</span>
                 <select id="weather-size" onchange="updateVisRealtime()" class="select-inline">
@@ -1295,7 +1313,7 @@
 
     function getDefaults() {
         const baseQl = [{name:"fa-solid fa-server", url:"", vis:false, color:"", linkIcon:{type:'none',src:''}}, {name:"fa-solid fa-sliders", url:"", vis:false, color:"", linkIcon:{type:'none',src:''}}, {name:"fa-brands fa-spotify", url:"", vis:false, color:"", linkIcon:{type:'none',src:''}}, {name:"fa-solid fa-star", url:"", vis:false, color:"", linkIcon:{type:'none',src:''}}];
-        const makeProfile = (cats, density) => ({ ql: JSON.parse(JSON.stringify(baseQl)), categories: cats, showWeather: true, showHeaders: true, showClock: true, clockFormat: '24', clockSeconds: true, clockShowDate: true, clockDateFmt: 'long', clockSize: 'm', clockColor: '#ffffff', clockFont: 'Inter', iconColor: "#ffffff", bgColor: "#1C1B22", bgImg: "", bgMode: 'gradient', gradType: 'auto', gradDir: 'ltr', gradColorA: '#1C1B22', gradColorB: '#00d4ff', particleStyle: 'dots', opacity: 0.3, fuzzy: 0, weatherColor: "#ffffff", weatherFont: 'Inter', weatherSize: 'm', wShowDay: true, wShowDate: true, wDateFmt: 'dmy', wColored: true, wAqi: true, wUv: true, wPressure: true, wHumidity: true, wVisibility: true, wSunrise: true, density, gridFont: 'Inter', showSearch: true, searchEngine: 'startpage', profileIcon: 'fa-solid fa-user', profilePhoto: '', profileIconColor: '#ffffff', cardOpacity: 0.02, vidUrl: 'https://vimeo.com/446479256', vidMuted: true, vidDim: 0.35, vidSlots: ['https://vimeo.com/446479256','',''] });
+        const makeProfile = (cats, density) => ({ ql: JSON.parse(JSON.stringify(baseQl)), categories: cats, showWeather: true, showHeaders: true, showClock: true, clockFormat: '24', clockSeconds: true, clockShowDate: true, clockDateFmt: 'long', clockSize: 'm', clockColor: '#ffffff', clockFont: 'Inter', iconColor: "#ffffff", bgColor: "#1C1B22", bgImg: "", bgMode: 'gradient', gradType: 'auto', gradDir: 'ltr', gradColorA: '#1C1B22', gradColorB: '#00d4ff', particleStyle: 'dots', opacity: 0.3, fuzzy: 0, weatherColor: "#ffffff", weatherFont: 'Inter', weatherSize: 'm', weatherOpacity: 1, weatherBackdrop: 0, wShowDay: true, wShowDate: true, wDateFmt: 'dmy', wColored: true, wAqi: true, wUv: true, wPressure: true, wHumidity: true, wVisibility: true, wSunrise: true, density, gridFont: 'Inter', showSearch: true, searchEngine: 'startpage', profileIcon: 'fa-solid fa-user', profilePhoto: '', profileIconColor: '#ffffff', cardOpacity: 0.02, vidUrl: 'https://vimeo.com/446479256', vidMuted: true, vidDim: 0.35, vidSlots: ['https://vimeo.com/446479256','',''] });
         return {
             profile: 'p0', target: '_self', linkColor: "#cccccc", tabTitle: 'Startpage', tabFavicon: '', tabFaviconEmoji: '⭐',
             cities: [{name: "Lisboa", lat: 38.71, lon: -9.13}],
@@ -1325,6 +1343,9 @@
     state.profiles.forEach(p => { if (p && p.density === 'l') p.density = 'xl'; });
     // Migrate old mesh boolean to bgMode in all profiles
     state.profiles.forEach(p => { if (p && !p.bgMode) p.bgMode = 'gradient'; });
+    // Migrate any removed bgMode values (e.g. 'time') back to gradient
+    const validModes = ['gradient','mesh','particles','photo','video'];
+    state.profiles.forEach(p => { if (p && !validModes.includes(p.bgMode)) p.bgMode = 'gradient'; });
     // Migrate links missing linkIcon
     state.profiles.forEach(p => { if (p && p.categories) p.categories.forEach(c => { if (c.links) c.links.forEach(l => { if (!l.linkIcon) l.linkIcon = {type:'none', src:''}; }); }); });
     // Migrate ql missing linkIcon
@@ -1334,9 +1355,8 @@
     // Migrate missing profileIcon/profilePhoto
     state.profiles.forEach(p => { if (p && !p.profileIcon) p.profileIcon = 'fa-solid fa-user'; if (p && p.profilePhoto === undefined) p.profilePhoto = ''; if (p && !p.profileIconColor) p.profileIconColor = '#ffffff'; if (p && !p.weatherSize) p.weatherSize = 'm'; if (p && p.wShowDay === undefined) p.wShowDay = true; if (p && p.wShowDate === undefined) p.wShowDate = true; if (p && !p.wDateFmt) p.wDateFmt = 'dmy'; });
     // Migrate cardOpacity, video and scene fields
-    state.profiles.forEach(p => { if (p && p.cardOpacity === undefined) p.cardOpacity = 0.02; if (p && p.vidUrl === undefined) p.vidUrl = 'https://vimeo.com/446479256'; if (p && p.vidMuted === undefined) p.vidMuted = true; if (p && p.vidDim === undefined) p.vidDim = 0.35; if (p && !p.vidSlots) p.vidSlots = [p.vidUrl || 'https://vimeo.com/446479256','','']; if (p && !p.gradType) p.gradType = 'auto'; if (p && !p.gradDir) p.gradDir = 'ltr'; if (p && !p.gradColorA) p.gradColorA = '#1C1B22'; if (p && !p.gradColorB) p.gradColorB = '#00d4ff'; if (p && !p.particleStyle) p.particleStyle = 'dots'; });
+    state.profiles.forEach(p => { if (p && p.cardOpacity === undefined) p.cardOpacity = 0.02; if (p && p.vidUrl === undefined) p.vidUrl = 'https://vimeo.com/446479256'; if (p && p.vidMuted === undefined) p.vidMuted = true; if (p && p.vidDim === undefined) p.vidDim = 0.35; if (p && !p.vidSlots) p.vidSlots = [p.vidUrl || 'https://vimeo.com/446479256','','']; if (p && !p.gradType) p.gradType = 'auto'; if (p && !p.gradDir) p.gradDir = 'ltr'; if (p && !p.gradColorA) p.gradColorA = '#1C1B22'; if (p && !p.gradColorB) p.gradColorB = '#00d4ff'; if (p && !p.particleStyle) p.particleStyle = 'dots'; if (p && p.weatherOpacity === undefined) p.weatherOpacity = 1; if (p && p.weatherBackdrop === undefined) p.weatherBackdrop = 0; });
     let cityIdx = 0;
-    let _liveSkyCode = 0; // current WMO weathercode for live sky background
     function curProfile() { return state.profiles[parseInt(state.profile.replace('p',''))] || state.profiles[0]; }
     function curProfileIdx() { return parseInt(state.profile.replace('p','')); }
 
@@ -1588,7 +1608,11 @@
         const searchEngineWrap = document.getElementById('search-engine-wrap');
         if (clockSub) clockSub.className = p.showClock ? 'sub-enabled' : 'sub-disabled';
         if (weatherSub) weatherSub.className = p.showWeather ? 'sub-enabled' : 'sub-disabled';
-        if (searchEngineWrap) searchEngineWrap.className = (p.showSearch !== false) ? 'sub-enabled' : 'sub-disabled';
+        if (searchEngineWrap) {
+            const showSearch = p.showSearch !== false;
+            searchEngineWrap.style.opacity = showSearch ? '1' : '0.3';
+            searchEngineWrap.style.pointerEvents = showSearch ? 'auto' : 'none';
+        }
     }
 
     // Generic reset: set picker value, update state key, re-render, sync swatch
@@ -1793,6 +1817,10 @@
         document.body.style.backgroundColor = p.bgColor;
         applyGridFont(p.gridFont);
         applyUiFonts(p.clockFont, p.weatherFont);
+        const wBd = p.weatherBackdrop !== undefined ? p.weatherBackdrop : 0;
+        document.documentElement.style.setProperty('--weather-backdrop', wBd);
+        const wa = document.getElementById('weather-area');
+
         updateModalAccent();
         renderSearchBar();
         // Apply card opacity
@@ -1834,9 +1862,6 @@
                 else if (pStyle === 'ribbons')   { startRibbonsBg(p.categories.map(x=>x.color), intensity); }
                 else { startParticlesBg(p.categories.map(x=>x.color), intensity, pStyle); }
                 bg.style.opacity = 0;
-            } else if (mode === 'time') {
-                startLiveSkyBg(intensity);
-                bg.style.opacity = 0;
             } else if (mode === 'video') {
                 stopBgCanvas();
                 bg.style.opacity = 0;
@@ -1850,7 +1875,7 @@
         const profileNavBtn = document.getElementById('profile-nav-btn');
         if (profileNavBtn) {
             if (p.profilePhoto) {
-                profileNavBtn.innerHTML = `<img src="${p.profilePhoto}" style="width:1.9rem;height:1.9rem;border-radius:50%;object-fit:cover;border:1.5px solid rgba(255,255,255,0.15);" alt="Profile">`;
+                profileNavBtn.innerHTML = `<img src="${p.profilePhoto}" alt="Profile" onerror="this.style.display='none'">`;
             } else {
                 const pIcon = p.profileIcon || 'fa-solid fa-user';
                 profileNavBtn.innerHTML = `<i class="${pIcon}" style="font-size:1.05rem;color:${profileColor};transition:0.3s;"></i>`;
@@ -1948,6 +1973,7 @@
             const qlUrlInput = lic.type==='url'
                 ? '<input type="text" class="link-icon-url-input" placeholder="Image URL..." value="'+(lic.src||'')+'" oninput="updateQlIcon('+i+',\'url\',this.value)">'
                 : '';
+            const subStyle = l.vis ? '' : 'opacity:0.3;pointer-events:none;';
             return '<div class="ql-row" style="flex-wrap:wrap;gap:4px;">'
                 +'<div style="display:flex;gap:4px;align-items:center;width:100%;">'
                 +'<input type="checkbox" '+(l.vis?'checked':'')+' onchange="updateQlRealtime('+i+',\'vis\',this.checked)">'
@@ -1958,7 +1984,7 @@
                 +'<div class="cp-swatch" onclick="cpOpen(\'ql-color-'+i+'\')" style="background:'+ic+'"></div>'
                 +'<button class="btn-icon" onclick="updateQlRealtime('+i+',\'color\',\'\')" title="Reset color"><i class="fa-solid fa-rotate-left"></i></button>'
                 +'</div></div>'
-                +'<div class="link-icon-row" style="padding-left:20px;">'
+                +'<div class="link-icon-row" style="padding-left:20px;'+subStyle+'">'
                 +'<label><input type="radio" name="ql-icon-'+i+'" value="none" '+noneChk+' onchange="updateQlIcon('+i+',\'none\',\'\')"> None</label>'
                 +'<label><input type="radio" name="ql-icon-'+i+'" value="favicon" '+favChk+' onchange="updateQlIcon('+i+',\'favicon\',\'\')"> Favicon</label>'
                 +'<label><input type="radio" name="ql-icon-'+i+'" value="url" '+urlChk+' onchange="updateQlIcon('+i+',\'url\',\'\')"> URL</label>'
@@ -1975,8 +2001,13 @@
         const cardVal = (p.cardOpacity !== undefined && p.cardOpacity !== '') ? parseFloat(p.cardOpacity) : 0.02;
         if (cardSlider) cardSlider.value = cardVal;
         const cardValEl = document.getElementById('card-opacity-val');
-        if (cardValEl) cardValEl.textContent = Math.round(cardVal / 0.5 * 100) + '%';
+        if (cardValEl) cardValEl.textContent = Math.round(cardVal * 100) + '%';
         document.getElementById('weather-color-picker').value = p.weatherColor;
+        const wBdSlider = document.getElementById('weather-backdrop-slider');
+        const wBdVal = p.weatherBackdrop !== undefined ? p.weatherBackdrop : 0;
+        if (wBdSlider) wBdSlider.value = wBdVal;
+        const wBdLbl = document.getElementById('weather-backdrop-val');
+        if (wBdLbl) wBdLbl.textContent = Math.round(wBdVal / 0.85 * 100) + '%';
         document.getElementById('weather-font').value = p.weatherFont || 'Inter';
         document.getElementById('weather-size').value = p.weatherSize || 'm';
         document.getElementById('w-day-check').checked = (p.wShowDay !== false);
@@ -2008,13 +2039,12 @@
         // Sync all static swatches to their current values
         ['bg-color','clock-color','weather-color-picker','cat-color'].forEach(id => cpSyncSwatch(id));
         // Sync tab meta
-        const tabTitleEl = document.getElementById('tab-title');
-        const tabFavEl = document.getElementById('tab-favicon');
+        const tabTitleEl = document.getElementById('tab-title-display');
+        const tabFavEl = document.getElementById('tab-favicon-display');
         if (tabTitleEl) tabTitleEl.value = state.tabTitle || '';
         if (tabFavEl) tabFavEl.value = state.tabFavicon || '';
-        const faviconBtn = document.getElementById('favicon-picker-btn');
-        if (faviconBtn) faviconBtn.textContent = state.tabFaviconEmoji || '🏠';
-        renderFaviconGrid();
+        const faviconBtn2 = document.getElementById('favicon-picker-btn-2');
+        if (faviconBtn2) faviconBtn2.textContent = state.tabFaviconEmoji || '🏠';
         renderFaviconGrid();
     }
 
@@ -2025,6 +2055,13 @@
         p.searchEngine = document.getElementById('search-engine').value;
         p.bgColor = document.getElementById('bg-color').value;
         p.weatherColor = document.getElementById('weather-color-picker').value;
+        const wBdSliderRT = document.getElementById('weather-backdrop-slider');
+        if (wBdSliderRT) {
+            p.weatherBackdrop = parseFloat(wBdSliderRT.value);
+            document.documentElement.style.setProperty('--weather-backdrop', p.weatherBackdrop);
+            const wBdLblRT = document.getElementById('weather-backdrop-val');
+            if (wBdLblRT) wBdLblRT.textContent = Math.round(p.weatherBackdrop / 0.85 * 100) + '%';
+        }
         p.weatherFont = document.getElementById('weather-font').value;
         p.weatherSize = document.getElementById('weather-size').value;
         p.wShowDay  = document.getElementById('w-day-check').checked;
@@ -2066,8 +2103,9 @@
         const cardSlider = document.getElementById('card-opacity-slider');
         if (cardSlider) {
             p.cardOpacity = parseFloat(cardSlider.value);
+            document.documentElement.style.setProperty('--card-opacity', p.cardOpacity);
             const cardValEl = document.getElementById('card-opacity-val');
-            if (cardValEl) cardValEl.textContent = Math.round(p.cardOpacity / 0.5 * 100) + '%';
+            if (cardValEl) cardValEl.textContent = Math.round(p.cardOpacity * 100) + '%';
         }
         saveAndRender(); updateWeather(); tickClock();
         updateSectionStates();
@@ -2126,12 +2164,6 @@
             const url = `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&${dailyParams}&${currentParams}&timezone=auto`;
             const r = await fetch(url), d = await r.json();
             // Store today's weathercode for live sky background
-            _liveSkyCode = d.daily && d.daily.weathercode ? d.daily.weathercode[0] : 0;
-            // Restart live sky if it's the active background mode
-            if ((curProfile().bgMode || 'gradient') === 'time') {
-                const op = curProfile().opacity; const intensity = (op !== undefined && op !== '') ? parseFloat(op) : 0.3;
-                startLiveSkyBg(intensity);
-            }
 
             const sz = p.weatherSize || 'm';
             const cardScale = sz === 's' ? 0.78 : sz === 'l' ? 1.22 : 1.0;
@@ -2301,7 +2333,18 @@
         syncCategoryEditor();
     }
     function updateLinkRealtime(ci, li, k, v) { curProfile().categories[ci].links[li][k] = v; saveAndRender(); }
-    function updateQlRealtime(i, k, v) { curProfile().ql[i][k] = v; saveAndRender(); }
+    function updateQlRealtime(i, k, v) {
+        curProfile().ql[i][k] = v;
+        // When toggling visibility, update the sub-row grey-out immediately in the DOM
+        if (k === 'vis') {
+            const rows = document.querySelectorAll('#ql-list-editor .link-icon-row');
+            if (rows[i]) {
+                rows[i].style.opacity = v ? '1' : '0.3';
+                rows[i].style.pointerEvents = v ? 'auto' : 'none';
+            }
+        }
+        saveAndRender();
+    }
     // ── Column drag reorder ──
     let _colDragIdx = null;
     function colDragStart(e, i) { _colDragIdx = i; e.dataTransfer.effectAllowed = 'move'; e.currentTarget.classList.add('dragging'); }
@@ -2345,28 +2388,32 @@
             const accent = 'var(--modal-accent,#00d4ff)';
             const iconClass = p.profileIcon || 'fa-solid fa-user';
             const iconColor = p.profileIconColor || '#ffffff';
-            return `<div style="border:1px solid ${isActive ? accent : '#222'}; border-radius:10px; padding:10px 12px; margin-bottom:8px; background:${isActive ? 'rgba(0,212,255,0.04)' : '#0a0a0a'}; cursor:pointer;" onclick="switchProfileCard(${i})">
-                <div style="display:flex; align-items:center; gap:8px; margin-bottom:${isActive?'10':'0'}px;">
-                    <div style="width:28px;height:28px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;background:#111;">
-                        ${p.profilePhoto ? `<img src="${p.profilePhoto}" style="width:28px;height:28px;object-fit:cover;" onerror="this.style.display='none'">` : `<i class="${iconClass}" style="font-size:0.85rem;color:${iconColor};"></i>`}
+            const borderCol = isActive ? accent : '#1e1e1e';
+            const bgCol = isActive ? 'rgba(0,212,255,0.04)' : '#0d0d0d';
+            return `<div style="border:1px solid ${borderCol}; border-radius:10px; padding:11px 12px; margin-bottom:8px; background:${bgCol}; transition:border-color 0.2s, background 0.2s;">
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:9px;">
+                    <div style="width:26px;height:26px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;background:#111;">
+                        ${p.profilePhoto ? `<img src="${p.profilePhoto}" style="width:26px;height:26px;object-fit:cover;">` : `<i class="${iconClass}" style="font-size:0.80rem;color:${iconColor};"></i>`}
                     </div>
-                    <span style="font-size:0.78rem;font-weight:600;color:${isActive?accent:'#aaa'};flex:1;">${name}</span>
-                    ${isActive ? '' : `<button class="btn-icon" onclick="event.stopPropagation();deleteProfileAt(${i})" style="color:#f44;font-size:0.7rem;" title="Delete"><i class="fa-solid fa-trash-can"></i></button>`}
+                    <span style="font-size:0.78rem;font-weight:700;color:${isActive?accent:'#888'};flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${name}</span>
+                    ${isActive
+                        ? `<span style="font-size:0.62rem;color:${accent};background:rgba(0,212,255,0.12);padding:3px 0;border-radius:6px;letter-spacing:0.5px;font-weight:700;border:1px solid rgba(0,212,255,0.25);width:72px;text-align:center;display:inline-block;flex-shrink:0;">Active</span>`
+                        : `<button onclick="switchProfileCard(${i})" style="font-size:0.62rem;padding:3px 0;color:var(--modal-accent,#00d4ff);border-color:rgba(0,212,255,0.3);background:rgba(0,212,255,0.06);width:72px;text-align:center;flex-shrink:0;">Set Active</button>`}
+                    ${state.profiles.length > 1 ? `<button class="btn-icon" onclick="deleteProfileAt(${i})" style="color:#f44;font-size:0.68rem;flex-shrink:0;" title="Delete"><i class="fa-solid fa-trash-can"></i></button>` : ''}
                 </div>
-                ${isActive ? `
-                <div class="flex-row" style="margin-bottom:8px; margin-top:2px;">
+                <div style="display:flex;gap:5px;margin-bottom:7px;align-items:center;">
                     <input type="text" value="${name}" placeholder="Name..." style="height:26px;font-size:0.75rem;min-width:0;flex:1;" oninput="renameProfileInCard(this.value,${i})">
-                    <button class="icon-picker-btn" id="profile-icon-picker-btn" onclick="event.stopPropagation();pipOpen(this)" title="Choose icon" style="width:26px;height:26px;"><i id="profile-icon-preview" class="${iconClass}" style="color:${iconColor};font-size:0.82rem;"></i></button>
-                    <div class="color-field" style="flex-shrink:0;">
-                        <input type="color" id="profile-icon-color" value="${iconColor}" oninput="updateProfileIconColor(this.value)" style="display:none">
-                        <div class="cp-swatch" onclick="cpOpen('profile-icon-color')"></div>
+                    <button class="icon-picker-btn" onclick="event.stopPropagation();pipOpenForProfile(this,${i})" title="Choose icon" style="width:26px;height:26px;flex-shrink:0;"${isActive?' id="profile-icon-picker-btn"':''}><i class="${iconClass}" style="color:${iconColor};font-size:0.80rem;"${isActive?' id="profile-icon-preview"':''}></i></button>
+                    <div style="flex-shrink:0;display:flex;align-items:center;">
+                        <input type="color" value="${iconColor}" oninput="updateProfileIconColorAt(this.value,${i})" style="display:none"${isActive?' id="profile-icon-color"':''}>
+                        <div class="cp-swatch" onclick="cpOpenForProfile(${i})" style="margin:0;"></div>
                     </div>
                 </div>
-                <input type="text" value="${p.profilePhoto && !p.profilePhoto.startsWith('data:') ? p.profilePhoto : ''}" placeholder="Photo URL..." oninput="updateProfilePhoto(this.value)" style="height:26px;font-size:0.75rem;margin-bottom:6px;">
-                <div class="flex-row" style="margin-bottom:0;">
-                    <button onclick="document.getElementById('profile-photo-file').click()" style="font-size:0.72rem;padding:4px 8px;">Upload Photo</button>
-                    <button style="color:#f88;font-size:0.72rem;padding:4px 8px;" onclick="updateProfilePhoto('')">Remove</button>
-                </div>` : ''}
+                <input type="text" value="${p.profilePhoto && !p.profilePhoto.startsWith('data:') ? p.profilePhoto : ''}" placeholder="Photo URL..." oninput="updateProfilePhotoAt(this.value,${i})" style="height:26px;font-size:0.75rem;margin-bottom:6px;width:100%;box-sizing:border-box;">
+                <div style="display:flex;gap:6px;">
+                    <button onclick="triggerProfilePhotoUpload(${i})" style="font-size:0.70rem;padding:4px 8px;flex:1;">Upload</button>
+                    <button style="color:#f88;font-size:0.70rem;padding:4px 8px;flex:1;" onclick="updateProfilePhotoAt('',${i})">Remove</button>
+                </div>
             </div>`;
         }).join('');
     }
@@ -2384,6 +2431,34 @@
         state.profileNames.splice(idx, 1);
         state.profile = 'p0';
         saveAndRender(); renderSettings();
+    }
+    function updateProfileIconColorAt(val, idx) {
+        state.profiles[idx].profileIconColor = val;
+        if (state.profile === 'p' + idx) { cpSyncSwatch('profile-icon-color'); saveAndRender(); }
+        else { localStorage.setItem(KEY, JSON.stringify(state)); renderProfileCards(); }
+    }
+    function cpOpenForProfile(idx) {
+        // set active color input then open picker
+        const card = document.querySelectorAll('#profile-cards-list > div')[idx];
+        if (!card) return;
+        const inp = card.querySelector('input[type="color"]');
+        if (inp) { inp.id = 'profile-icon-color-tmp'; cpOpen('profile-icon-color-tmp'); }
+    }
+    function pipOpenForProfile(btn, idx) {
+        _ipTargetProfileIdx = idx;
+        pipOpen(btn);
+    }
+    let _ipTargetProfileIdx = null;
+    function updateProfilePhotoAt(val, idx) {
+        state.profiles[idx].profilePhoto = val;
+        if (state.profile === 'p' + idx) saveAndRender();
+        else { localStorage.setItem(KEY, JSON.stringify(state)); }
+        renderProfileCards();
+    }
+    let _profilePhotoUploadIdx = null;
+    function triggerProfilePhotoUpload(idx) {
+        _profilePhotoUploadIdx = idx;
+        document.getElementById('profile-photo-file').click();
     }
 
     function updateProfileIconColor(val) {
@@ -2433,15 +2508,21 @@
                 const canvas = document.createElement('canvas');
                 const SIZE = 256;
                 canvas.width = SIZE; canvas.height = SIZE;
-                // Crop to square from center
                 const s = Math.min(img.width, img.height);
                 const sx = (img.width - s) / 2, sy = (img.height - s) / 2;
                 canvas.getContext('2d').drawImage(img, sx, sy, s, s, 0, 0, SIZE, SIZE);
-                updateProfilePhoto(canvas.toDataURL('image/jpeg', 0.85));
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                if (_profilePhotoUploadIdx !== null) {
+                    updateProfilePhotoAt(dataUrl, _profilePhotoUploadIdx);
+                    _profilePhotoUploadIdx = null;
+                } else {
+                    updateProfilePhoto(dataUrl);
+                }
             };
             img.src = e.target.result;
         };
         reader.readAsDataURL(file);
+        input.value = '';
     }
 
     // ── Icon picker ──
@@ -2570,7 +2651,7 @@
         show('bg-color-row', showBgColor);
 
         // Sync bgmode buttons — photo button active if bgImg set
-        ['gradient','mesh','particles','time','video','photo'].forEach(m => {
+        ['gradient','mesh','particles','video','photo'].forEach(m => {
             const btn = document.getElementById('bgmode-' + m);
             if (!btn) return;
             const isActive = isPhoto ? m === 'photo' : m === mode;
@@ -2778,6 +2859,16 @@
             || e.target.closest('a,button,input,select,.modal,#overlay,.nav-link,.column,.weather-card,.wstat,#clock-display,#search-bar-wrap,#weather-area,.cat-title,#ql-nav,#profile-nav-btn,[onclick]');
         if (!isInteractive) toggleVidPlay();
     });
+
+    function updateCardOpacityNow() {
+        const p = curProfile();
+        const val = parseFloat(document.getElementById('card-opacity-slider')?.value ?? 0.02);
+        p.cardOpacity = val;
+        document.documentElement.style.setProperty('--card-opacity', val);
+        const lbl = document.getElementById('card-opacity-val');
+        if (lbl) lbl.textContent = Math.round(val * 100) + '%';
+        localStorage.setItem(KEY, JSON.stringify(state));
+    }
 
     function applyVidDimNow() {
         const p = curProfile();
@@ -3061,9 +3152,11 @@
             for(let i=0;i<cols;i++) drops[i]=-Math.floor(Math.random()*80);
         }
         init();
+        let mxFrame = 0;
         function draw(){
             const w=canvas.width=window.innerWidth,h=canvas.height=window.innerHeight;
             if(drops.length!==Math.floor(w/fontSize)) init();
+            mxFrame++;
             ctx.fillStyle=`rgba(0,0,0,${intensity*0.05})`;
             ctx.fillRect(0,0,w,h);
             ctx.font=`${fontSize}px monospace`;
@@ -3072,8 +3165,10 @@
                 const bright=Math.random()>0.95;
                 ctx.fillStyle=bright?`rgba(200,255,200,${intensity*0.9})`:`rgba(${r},${g},${b},${intensity*0.65})`;
                 if(drops[i]>0) ctx.fillText(ch,i*fontSize,drops[i]*fontSize);
-                if(drops[i]*fontSize>h&&Math.random()>0.975) drops[i]=0;
-                drops[i]++;
+                if(mxFrame % 3 === 0) {
+                    if(drops[i]*fontSize>h&&Math.random()>0.975) drops[i]=0;
+                    drops[i]++;
+                }
             }
             _bgRaf=requestAnimationFrame(draw);
         }
@@ -3180,248 +3275,6 @@
         draw();
     }
 
-    function startLiveSkyBg(intensity) {
-        stopBgCanvas();
-        const canvas = document.getElementById('bg-canvas');
-        const ctx = canvas.getContext('2d');
-        let frame = 0;
-
-        // ── Rich time-of-day sky ──
-        const now = new Date();
-        const hour = now.getHours() + now.getMinutes()/60;
-
-        // Sky palette: [topR,topG,topB, horizR,horizG,horizB, groundR,groundG,groundB]
-        function getSkyColors(h) {
-            if (h < 5)   return [[2,2,18],[8,4,30],[5,3,20]];         // deep night
-            if (h < 6)   return [[15,5,35],[80,25,60],[30,10,40]];    // pre-dawn purple
-            if (h < 7)   return [[35,15,60],[200,80,40],[100,40,20]]; // dawn red-orange
-            if (h < 8)   return [[80,100,180],[255,140,60],[150,80,30]]; // sunrise
-            if (h < 10)  return [[100,150,220],[255,200,120],[180,140,80]]; // morning
-            if (h < 16)  return [[55,120,210],[140,190,255],[100,160,220]]; // day blue
-            if (h < 18)  return [[80,130,200],[255,180,80],[200,130,60]];   // afternoon
-            if (h < 19)  return [[50,80,160],[255,120,40],[180,80,30]];     // golden hour
-            if (h < 20)  return [[30,40,100],[200,80,30],[100,40,20]];      // dusk
-            if (h < 21)  return [[10,15,50],[80,30,60],[20,10,30]];         // twilight
-            return [[2,2,18],[8,4,30],[5,3,20]];                            // night
-        }
-        const [topC, horizC, groundC] = getSkyColors(hour);
-        const isNight = hour < 6.5 || hour > 20.5;
-        const isSunrise = hour >= 6 && hour < 8.5;
-        const isSunset = hour >= 17.5 && hour < 20;
-        const isDay = hour >= 8.5 && hour < 17.5;
-
-        // Stars
-        const stars = Array.from({length:220}, () => ({
-            x:Math.random(), y:Math.random()*0.75,
-            r:0.3+Math.random()*1.2,
-            twinkle:Math.random()*Math.PI*2,
-            ts:0.006+Math.random()*0.014
-        }));
-
-        // Sun/moon position
-        const sunAngle = ((hour - 6) / 12) * Math.PI; // 0=east 6am, PI=west 6pm
-        const sunX = 0.15 + 0.7 * (hour - 6) / 12;
-        const sunY = 0.62 - Math.abs(Math.sin(sunAngle)) * 0.52;
-        const moonAngle = ((hour < 12 ? hour + 12 : hour - 12) / 12) * Math.PI;
-        const moonX = 0.15 + 0.7 * ((hour < 12 ? hour + 12 : hour - 12) / 12) % 1;
-        const moonY = 0.55 - Math.abs(Math.sin(moonAngle)) * 0.45;
-
-        // Clouds
-        const clouds = Array.from({length:5}, () => ({
-            x:Math.random(), y:0.12+Math.random()*0.32,
-            w:0.12+Math.random()*0.22, h:0.06+Math.random()*0.08,
-            spd:0.00008+Math.random()*0.00012
-        }));
-
-        // Birds (only daytime)
-        const birds = Array.from({length:8}, () => ({
-            x:Math.random(), y:0.1+Math.random()*0.35,
-            spd:0.0003+Math.random()*0.0005,
-            flapPhase:Math.random()*Math.PI*2,
-            size:1.5+Math.random()*2
-        }));
-
-        // Fireflies (only at night/dusk)
-        const flies = Array.from({length:30}, () => ({
-            x:Math.random(), y:0.55+Math.random()*0.42,
-            ox:Math.random()*Math.PI*2, oy:Math.random()*Math.PI*2,
-            rx:0.04+Math.random()*0.06, ry:0.02+Math.random()*0.04,
-            spd:0.008+Math.random()*0.012,
-            glow:Math.random()*Math.PI*2, gs:0.04+Math.random()*0.06
-        }));
-
-        // Shooting stars
-        const shooters = Array.from({length:3}, (_,i) => ({x:-1,y:-1,dx:0,dy:0,alpha:0,tlen:20,timer:200+i*250}));
-
-        function lerp(a, b, t) { return a + (b-a)*t; }
-
-        function draw() {
-            const w=canvas.width=window.innerWidth, h=canvas.height=window.innerHeight;
-            frame++;
-
-            // Sky gradient
-            const skyGrad = ctx.createLinearGradient(0,0,0,h);
-            skyGrad.addColorStop(0,   `rgba(${topC},${intensity})`);
-            skyGrad.addColorStop(0.55,`rgba(${horizC},${intensity})`);
-            skyGrad.addColorStop(1,   `rgba(${groundC},${intensity})`);
-            ctx.fillStyle=skyGrad; ctx.fillRect(0,0,w,h);
-
-            // Stars (night/twilight)
-            if (isNight || hour < 7.5 || hour > 19.5) {
-                const starA = isNight ? 1 : (hour < 7.5 ? (7.5-hour)/1.5 : (hour-19.5)/1.5);
-                stars.forEach(s => {
-                    s.twinkle += s.ts;
-                    const a = intensity * starA * (0.35+0.65*Math.abs(Math.sin(s.twinkle)));
-                    ctx.beginPath(); ctx.arc(s.x*w, s.y*h, s.r, 0, Math.PI*2);
-                    ctx.fillStyle=`rgba(255,255,255,${a})`; ctx.fill();
-                });
-                // Shooting stars
-                shooters.forEach((sh,si) => {
-                    sh.timer--;
-                    if (sh.timer<=0) {
-                        sh.timer=350+Math.random()*600+si*200;
-                        sh.x=Math.random()*0.7; sh.y=Math.random()*0.35;
-                        const ang=Math.PI/5+(Math.random()-0.5)*0.5;
-                        sh.dx=Math.cos(ang)*0.008; sh.dy=Math.sin(ang)*0.008;
-                        sh.alpha=1.0; sh.tlen=16+Math.random()*22;
-                    }
-                    if (sh.alpha>0&&sh.x>=0) {
-                        const tx=(sh.x-sh.dx*sh.tlen)*w, ty=(sh.y-sh.dy*sh.tlen)*h;
-                        const sg=ctx.createLinearGradient(tx,ty,sh.x*w,sh.y*h);
-                        sg.addColorStop(0,'rgba(255,255,255,0)');
-                        sg.addColorStop(1,`rgba(255,255,255,${sh.alpha*intensity*starA})`);
-                        ctx.beginPath(); ctx.moveTo(tx,ty); ctx.lineTo(sh.x*w,sh.y*h);
-                        ctx.strokeStyle=sg; ctx.lineWidth=1.4; ctx.stroke();
-                        sh.x+=sh.dx; sh.y+=sh.dy; sh.alpha-=0.024;
-                    }
-                });
-                // Moon
-                const mx=moonX*w, my=moonY*h;
-                if (my>0&&my<h*0.75) {
-                    const moonGlow=ctx.createRadialGradient(mx,my,0,mx,my,55);
-                    moonGlow.addColorStop(0,`rgba(220,230,255,${intensity*0.18})`);
-                    moonGlow.addColorStop(1,'rgba(220,230,255,0)');
-                    ctx.fillStyle=moonGlow; ctx.beginPath(); ctx.arc(mx,my,55,0,Math.PI*2); ctx.fill();
-                    ctx.beginPath(); ctx.arc(mx,my,16,0,Math.PI*2);
-                    ctx.fillStyle=`rgba(240,245,255,${intensity*0.92})`; ctx.fill();
-                    // Crescent shadow
-                    ctx.beginPath(); ctx.arc(mx+6,my-2,14,0,Math.PI*2);
-                    ctx.fillStyle=`rgba(${topC[0]+3},${topC[1]+3},${topC[2]+8},${intensity*0.85})`; ctx.fill();
-                }
-            }
-
-            // Sun
-            if (!isNight) {
-                const sx=sunX*w, sy=sunY*h;
-                if (sy>-30&&sy<h*0.88) {
-                    // Outer halo
-                    const haloR = isSunrise||isSunset ? 130 : 70;
-                    const haloC = isSunrise ? '255,120,40' : isSunset ? '255,90,20' : '255,240,180';
-                    const halo=ctx.createRadialGradient(sx,sy,0,sx,sy,haloR);
-                    halo.addColorStop(0,`rgba(${haloC},${intensity*0.30})`);
-                    halo.addColorStop(0.5,`rgba(${haloC},${intensity*0.10})`);
-                    halo.addColorStop(1,'rgba(0,0,0,0)');
-                    ctx.fillStyle=halo; ctx.fillRect(0,0,w,h);
-                    // Sun disc
-                    const discR = isSunrise||isSunset ? 26 : 22;
-                    const sunColor = isSunrise||isSunset ? `rgba(255,200,80,${intensity})` : `rgba(255,245,200,${intensity})`;
-                    ctx.beginPath(); ctx.arc(sx,sy,discR,0,Math.PI*2);
-                    ctx.fillStyle=sunColor; ctx.fill();
-                    // Rays (only when near horizon)
-                    if (isSunrise||isSunset) {
-                        ctx.strokeStyle=`rgba(255,200,80,${intensity*0.25})`;
-                        for(let i=0;i<8;i++) {
-                            const a=i*Math.PI/4+frame*0.002;
-                            ctx.beginPath(); ctx.moveTo(sx+Math.cos(a)*(discR+4),sy+Math.sin(a)*(discR+4));
-                            ctx.lineTo(sx+Math.cos(a)*(discR+18),sy+Math.sin(a)*(discR+18));
-                            ctx.lineWidth=1.5; ctx.stroke();
-                        }
-                    }
-                    // Atmospheric glow on horizon
-                    if (isSunrise||isSunset) {
-                        const atmH = h*0.35;
-                        const atm=ctx.createRadialGradient(sx,h*0.72,0,sx,h*0.72,atmH);
-                        atm.addColorStop(0,`rgba(255,100,20,${intensity*0.28})`);
-                        atm.addColorStop(0.5,`rgba(255,60,10,${intensity*0.10})`);
-                        atm.addColorStop(1,'rgba(0,0,0,0)');
-                        ctx.fillStyle=atm; ctx.fillRect(0,0,w,h);
-                    }
-                }
-            }
-
-            // Clouds
-            clouds.forEach(cl => {
-                cl.x=(cl.x+cl.spd)%1.3;
-                if(cl.x>1.25) cl.x=-0.25;
-                const cx=cl.x*w, cy=cl.y*h, cw=cl.w*w, ch=cl.h*h;
-                const isDay2=hour>=7&&hour<=19.5;
-                const cloudR = isNight ? 160 : isDay2 ? 245 : 200;
-                const cloudG = isNight ? 165 : isDay2 ? 245 : 170;
-                const cloudB = isNight ? 190 : isDay2 ? 255 : 140;
-                const cloudA = intensity*(isNight?0.12:0.55);
-                // Shadow
-                const shg=ctx.createRadialGradient(cx,cy+ch*0.5,0,cx,cy+ch*0.5,cw*0.6);
-                shg.addColorStop(0,`rgba(0,0,10,${intensity*0.12})`);
-                shg.addColorStop(1,'rgba(0,0,10,0)');
-                ctx.fillStyle=shg; ctx.beginPath(); ctx.ellipse(cx,cy+ch*0.55,cw*0.55,ch*0.22,0,0,Math.PI*2); ctx.fill();
-                // Puffs
-                [[0,0,1,0.85],[-.28,-.1,.65,.70],[.28,-.08,.65,.70],[-.15,-.22,.5,.65],[.15,-.20,.5,.65],
-                 [-.4,.05,.45,.60],[.4,.04,.45,.60],[0,-.32,.38,.55],[0,.12,.8,.5]].forEach(([ox,oy,rx,ry]) => {
-                    const pg=ctx.createRadialGradient(cx+ox*cw,cy+oy*ch-ch*0.12,0,cx+ox*cw,cy+oy*ch,Math.max(rx*cw,ry*ch));
-                    pg.addColorStop(0,`rgba(${cloudR},${cloudG},${cloudB},${cloudA*1.05})`);
-                    pg.addColorStop(0.6,`rgba(${cloudR-15},${cloudG-15},${cloudB-10},${cloudA*0.7})`);
-                    pg.addColorStop(1,'rgba(0,0,0,0)');
-                    ctx.fillStyle=pg; ctx.beginPath(); ctx.ellipse(cx+ox*cw,cy+oy*ch,rx*cw,ry*ch,0,0,Math.PI*2); ctx.fill();
-                });
-                // Highlight
-                const hlg=ctx.createRadialGradient(cx,cy-ch*0.25,0,cx,cy-ch*0.25,cw*0.28);
-                hlg.addColorStop(0,`rgba(255,255,255,${cloudA*0.65})`);
-                hlg.addColorStop(1,'rgba(255,255,255,0)');
-                ctx.fillStyle=hlg; ctx.beginPath(); ctx.ellipse(cx,cy-ch*0.25,cw*0.28,ch*0.22,0,0,Math.PI*2); ctx.fill();
-            });
-
-            // Birds (daytime)
-            if (isDay || isSunrise || isSunset) {
-                birds.forEach(b => {
-                    b.x=(b.x+b.spd)%1.1; if(b.x>1.05) b.x=-0.05;
-                    b.flapPhase+=0.08;
-                    const bx=b.x*w, by=b.y*h, flap=Math.sin(b.flapPhase)*b.size*1.2;
-                    const a=intensity*(isDay?0.35:0.2);
-                    ctx.strokeStyle=`rgba(20,20,30,${a})`; ctx.lineWidth=1.1;
-                    ctx.beginPath(); ctx.moveTo(bx-b.size*2,by+flap); ctx.quadraticCurveTo(bx,by,bx+b.size*2,by+flap); ctx.stroke();
-                });
-            }
-
-            // Fireflies (night/dusk)
-            if (isNight || hour > 19 || hour < 6.5) {
-                const flyA = isNight ? 0.9 : 0.5;
-                flies.forEach(f => {
-                    f.ox+=f.spd; f.oy+=f.spd*0.7; f.glow+=f.gs;
-                    const fx=(f.x+Math.sin(f.ox)*f.rx)*w;
-                    const fy=(f.y+Math.cos(f.oy)*f.ry)*h;
-                    if(fy<0||fy>h) return;
-                    const glowA=intensity*flyA*(0.4+0.6*Math.abs(Math.sin(f.glow)));
-                    const fg=ctx.createRadialGradient(fx,fy,0,fx,fy,8);
-                    fg.addColorStop(0,`rgba(180,255,120,${glowA})`);
-                    fg.addColorStop(0.4,`rgba(120,255,80,${glowA*0.35})`);
-                    fg.addColorStop(1,'rgba(0,0,0,0)');
-                    ctx.fillStyle=fg; ctx.beginPath(); ctx.arc(fx,fy,8,0,Math.PI*2); ctx.fill();
-                    ctx.beginPath(); ctx.arc(fx,fy,1.5,0,Math.PI*2);
-                    ctx.fillStyle=`rgba(220,255,180,${glowA})`; ctx.fill();
-                });
-            }
-
-            // Vignette
-            const vig=ctx.createRadialGradient(w/2,h/2,h*0.2,w/2,h/2,h*0.9);
-            vig.addColorStop(0,'rgba(0,0,0,0)');
-            vig.addColorStop(1,`rgba(0,0,0,${intensity*0.45})`);
-            ctx.fillStyle=vig; ctx.fillRect(0,0,w,h);
-
-            _bgRaf=requestAnimationFrame(draw);
-        }
-        draw();
-    }
-
 
     // Edit mode — disable a chrome element and exit edit mode
     const FAVICON_EMOJIS = [
@@ -3458,8 +3311,7 @@
     }
     function faviconPickEmoji(emoji) {
         setFaviconEmoji(emoji);
-        // Update the button preview
-        const btn = document.getElementById('favicon-picker-btn');
+        const btn = document.getElementById('favicon-picker-btn-2');
         if (btn) btn.textContent = emoji;
         ipClose(); _faviconPickerOpen = false;
     }
@@ -3489,13 +3341,35 @@
     }
 
     function updateTabMeta() {
-        const titleEl = document.getElementById('tab-title');
-        const faviconEl = document.getElementById('tab-favicon');
+        const titleEl = document.getElementById('tab-title-display');
+        const faviconEl = document.getElementById('tab-favicon-display');
         if (titleEl) state.tabTitle = titleEl.value;
         if (faviconEl && faviconEl.value) {
             state.tabFavicon = faviconEl.value;
-            state.tabFaviconEmoji = ''; // clear emoji selection
+            state.tabFaviconEmoji = '';
             renderFaviconGrid();
+        }
+        document.title = state.tabTitle || 'Startpage';
+        const fav = document.getElementById('favicon-link');
+        if (fav) {
+            if (state.tabFaviconEmoji) { fav.href = emojiToFavicon(state.tabFaviconEmoji); fav.type = 'image/svg+xml'; }
+            else { fav.href = state.tabFavicon || ''; fav.type = 'image/x-icon'; }
+        }
+        localStorage.setItem(KEY, JSON.stringify(state));
+    }
+    function updateTabMetaFromDisplay() {
+        const t2 = document.getElementById('tab-title-display');
+        const f2 = document.getElementById('tab-favicon-display');
+        if (t2) {
+            state.tabTitle = t2.value;
+            const t1 = document.getElementById('tab-title');
+            if (t1) t1.value = t2.value;
+        }
+        if (f2 && f2.value) {
+            state.tabFavicon = f2.value;
+            state.tabFaviconEmoji = '';
+            const f1 = document.getElementById('tab-favicon');
+            if (f1) f1.value = f2.value;
         }
         document.title = state.tabTitle || 'Startpage';
         const fav = document.getElementById('favicon-link');
