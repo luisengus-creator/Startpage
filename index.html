@@ -979,7 +979,7 @@
                 </div>
             </div>
 
-            <!-- Bg color — only for gradient/mesh modes -->
+            <!-- Bg color + intensity — gradient only -->
             <div id="bg-color-row" style="display:none;">
                 <div class="color-row" style="margin-top:8px;">
                     <span>Background Color</span>
@@ -992,7 +992,24 @@
                 <div style="display:flex; align-items:center; gap:8px; margin-top:6px;">
                     <span style="font-size:0.72rem; color:#888; flex-shrink:0; width:52px;">Intensity</span>
                     <input type="range" id="grad-intensity-slider" min="0" max="1" step="0.05" oninput="updateVisRealtime();document.getElementById('grad-intensity-val').textContent=Math.round(this.value*100)+'%'" style="flex:1;">
-                    <span id="grad-intensity-val" style="font-size:0.72rem; color:#888; width:30px; text-align:right;">30%</span>
+                    <span id="grad-intensity-val" style="font-size:0.72rem; color:#888; width:30px; text-align:right;">10%</span>
+                </div>
+            </div>
+
+            <!-- Bg color + intensity — mesh only -->
+            <div id="mesh-color-row" style="display:none;">
+                <div class="color-row" style="margin-top:8px;">
+                    <span>Background Color</span>
+                    <div class="color-field">
+                        <input type="color" id="bg-color-mesh" oninput="updateVisRealtime()" style="display:none">
+                        <div class="cp-swatch" onclick="cpOpen('bg-color-mesh')"></div>
+                        <button class="btn-icon" onclick="resetField('bg-color-mesh','#1C1B22','bgColor')" title="Reset"><i class="fa-solid fa-rotate-left"></i></button>
+                    </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px; margin-top:6px;">
+                    <span style="font-size:0.72rem; color:#888; flex-shrink:0; width:52px;">Intensity</span>
+                    <input type="range" id="mesh-intensity-slider" min="0" max="1" step="0.05" oninput="updateVisRealtime();document.getElementById('mesh-intensity-val').textContent=Math.round(this.value*100)+'%'" style="flex:1;">
+                    <span id="mesh-intensity-val" style="font-size:0.72rem; color:#888; width:30px; text-align:right;">10%</span>
                 </div>
             </div>
         </div>
@@ -1344,7 +1361,7 @@
 
     function getDefaults() {
         const baseQl = [{name:"fa-solid fa-server", url:"", vis:false, color:"", linkIcon:{type:'none',src:''}}, {name:"fa-solid fa-sliders", url:"", vis:false, color:"", linkIcon:{type:'none',src:''}}, {name:"fa-brands fa-spotify", url:"", vis:false, color:"", linkIcon:{type:'none',src:''}}, {name:"fa-solid fa-star", url:"", vis:false, color:"", linkIcon:{type:'none',src:''}}];
-        const makeProfile = (cats, density) => ({ ql: JSON.parse(JSON.stringify(baseQl)), categories: cats, showWeather: true, showHeaders: true, showClock: true, clockFormat: '24', clockSeconds: true, clockShowDate: true, clockDateFmt: 'long', clockSize: 'm', clockColor: '#ffffff', clockFont: 'Inter', iconColor: "#ffffff", bgColor: "#1C1B22", bgImg: "", bgMode: 'gradient', gradType: 'auto', gradDir: 'ltr', gradColorA: '#1C1B22', gradColorB: '#00d4ff', particleStyle: 'dots', opacity: 0.1, fuzzy: 0, weatherColor: "#ffffff", weatherFont: 'Inter', weatherSize: 'm', weatherOpacity: 1, weatherBackdrop: 0, wShowDay: true, wShowDate: true, wDateFmt: 'dmy', wColored: true, wAqi: true, wUv: true, wPressure: true, wHumidity: true, wVisibility: true, wSunrise: true, density, gridFont: 'Inter', showSearch: true, searchEngine: 'startpage', profileIcon: 'fa-solid fa-user', profilePhoto: '', profileIconColor: '#ffffff', cardOpacity: 0.02, vidUrl: 'https://vimeo.com/446479256', vidMuted: true, vidDim: 0.35, vidSlots: ['https://vimeo.com/446479256','',''] });
+        const makeProfile = (cats, density) => ({ ql: JSON.parse(JSON.stringify(baseQl)), categories: cats, showWeather: true, showHeaders: true, showClock: true, clockFormat: '24', clockSeconds: true, clockShowDate: true, clockDateFmt: 'long', clockSize: 'm', clockColor: '#ffffff', clockFont: 'Inter', iconColor: "#ffffff", bgColor: "#1C1B22", bgImg: "", bgMode: 'gradient', gradType: 'auto', gradDir: 'ltr', gradColorA: '#1C1B22', gradColorB: '#00d4ff', particleStyle: 'dots', opacity: 0.1, opGradient: 0.1, opMesh: 0.1, opParticles: 1.0, opTime: 1.0, fuzzy: 0, weatherColor: "#ffffff", weatherFont: 'Inter', weatherSize: 'm', weatherOpacity: 1, weatherBackdrop: 0, wShowDay: true, wShowDate: true, wDateFmt: 'dmy', wColored: true, wAqi: true, wUv: true, wPressure: true, wHumidity: true, wVisibility: true, wSunrise: true, density, gridFont: 'Inter', showSearch: true, searchEngine: 'startpage', profileIcon: 'fa-solid fa-user', profilePhoto: '', profileIconColor: '#ffffff', cardOpacity: 0.02, vidUrl: 'https://vimeo.com/446479256', vidMuted: true, vidDim: 0, vidSlots: ['https://vimeo.com/446479256','',''] });
         return {
             profile: 'p0', target: '_self', linkColor: "#cccccc", tabTitle: 'Startpage', tabFavicon: '', tabFaviconEmoji: '⭐',
             cities: [{name: "Lisboa", lat: 38.71, lon: -9.13}],
@@ -1386,9 +1403,20 @@
     // Migrate missing profileIcon/profilePhoto
     state.profiles.forEach(p => { if (p && !p.profileIcon) p.profileIcon = 'fa-solid fa-user'; if (p && p.profilePhoto === undefined) p.profilePhoto = ''; if (p && !p.profileIconColor) p.profileIconColor = '#ffffff'; if (p && !p.weatherSize) p.weatherSize = 'm'; if (p && p.wShowDay === undefined) p.wShowDay = true; if (p && p.wShowDate === undefined) p.wShowDate = true; if (p && !p.wDateFmt) p.wDateFmt = 'dmy'; });
     // Migrate cardOpacity, video and scene fields
-    state.profiles.forEach(p => { if (p && p.cardOpacity === undefined) p.cardOpacity = 0.02; if (p && p.vidUrl === undefined) p.vidUrl = 'https://vimeo.com/446479256'; if (p && p.vidMuted === undefined) p.vidMuted = true; if (p && p.vidDim === undefined) p.vidDim = 0.35; if (p && !p.vidSlots) p.vidSlots = [p.vidUrl || 'https://vimeo.com/446479256','','']; if (p && !p.gradType) p.gradType = 'auto'; if (p && !p.gradDir) p.gradDir = 'ltr'; if (p && !p.gradColorA) p.gradColorA = '#1C1B22'; if (p && !p.gradColorB) p.gradColorB = '#00d4ff'; if (p && !p.particleStyle) p.particleStyle = 'dots'; if (p && p.particleSpeed === undefined) p.particleSpeed = 1; if (p && p.weatherOpacity === undefined) p.weatherOpacity = 1; if (p && p.weatherBackdrop === undefined) p.weatherBackdrop = 0; });
-    // Reset gradient/mesh opacity from old 0.3 default to new 0.1 default
-    state.profiles.forEach(p => { if (p && (p.bgMode === 'gradient' || p.bgMode === 'mesh') && (parseFloat(p.opacity) === 0.3 || parseFloat(p.opacity) === 0.30)) p.opacity = 0.1; });
+    state.profiles.forEach(p => { if (p && p.cardOpacity === undefined) p.cardOpacity = 0.02; if (p && p.vidUrl === undefined) p.vidUrl = 'https://vimeo.com/446479256'; if (p && p.vidMuted === undefined) p.vidMuted = true; if (p && p.vidDim === undefined) p.vidDim = 0; if (p && !p.vidSlots) p.vidSlots = [p.vidUrl || 'https://vimeo.com/446479256','','']; if (p && !p.gradType) p.gradType = 'auto'; if (p && !p.gradDir) p.gradDir = 'ltr'; if (p && !p.gradColorA) p.gradColorA = '#1C1B22'; if (p && !p.gradColorB) p.gradColorB = '#00d4ff'; if (p && !p.particleStyle) p.particleStyle = 'dots'; if (p && p.particleSpeed === undefined) p.particleSpeed = 1.5; if (p && p.weatherOpacity === undefined) p.weatherOpacity = 1; if (p && p.weatherBackdrop === undefined) p.weatherBackdrop = 0; });
+    // Migrate per-mode intensity fields (each mode has its own slider value now)
+    state.profiles.forEach(p => {
+        if (!p) return;
+        if (p.opGradient === undefined) p.opGradient = 0.1;
+        if (p.opMesh     === undefined) p.opMesh     = 0.1;
+        if (p.opParticles === undefined) p.opParticles = 1.0;
+        if (p.opTime     === undefined) p.opTime     = 1.0;
+        if (p.fuzzy      === undefined) p.fuzzy      = 0;
+        // Reset video dim to 0 if it was the old 0.35 default
+        if (p.vidDim === 0.35) p.vidDim = 0;
+        // Reset particleSpeed to 1.5 if it was the old 1.0 default
+        if (p.particleSpeed === 1) p.particleSpeed = 1.5;
+    });
     let cityIdx = 0;
     let _wxCache = { code: 0, icon: 'fa-sun', tempC: 15, hour: new Date().getHours(), isDay: (new Date().getHours()>=6 && new Date().getHours()<21) };
     function curProfile() { return state.profiles[parseInt(state.profile.replace('p',''))] || state.profiles[0]; }
@@ -1869,9 +1897,9 @@
             stopBgCanvas();
         } else {
             const mode = p.bgMode || 'gradient';
-            const intensity = p.opacity !== undefined && p.opacity !== "" ? parseFloat(p.opacity) : 0.3;
             document.body.style.backgroundColor = p.bgColor;
             if (mode === 'gradient') {
+                const intensity = p.opGradient !== undefined ? parseFloat(p.opGradient) : 0.1;
                 let gradCss;
                 if (p.gradType === 'manual') {
                     const a = p.gradColorA || '#1C1B22', b = p.gradColorB || '#00d4ff';
@@ -1885,11 +1913,13 @@
                 bg.style.opacity = intensity;
                 stopBgCanvas();
             } else if (mode === 'mesh') {
+                const intensity = p.opMesh !== undefined ? parseFloat(p.opMesh) : 0.1;
                 startMeshBg(p.categories.map(x => x.color), intensity);
                 bg.style.opacity = 0;
             } else if (mode === 'particles') {
+                const intensity = p.opParticles !== undefined ? parseFloat(p.opParticles) : 1.0;
                 const pStyle = p.particleStyle || 'dots';
-                const pSpeed = p.particleSpeed !== undefined ? p.particleSpeed : 1;
+                const pSpeed = p.particleSpeed !== undefined ? p.particleSpeed : 1.5;
                 if (pStyle === 'bubbles')   { startBubblesBg(p.categories.map(x=>x.color), intensity, pSpeed); }
                 else if (pStyle === 'snow') { startSnowBg(p.categories.map(x=>x.color), intensity, pSpeed); }
                 else if (pStyle === 'matrix') { startMatrixBg(p.categories.map(x=>x.color), intensity, pSpeed); }
@@ -1901,6 +1931,7 @@
                 stopBgCanvas();
                 bg.style.opacity = 0;
             } else if (mode === 'time') {
+                const intensity = p.opTime !== undefined ? parseFloat(p.opTime) : 1.0;
                 startTimeBg(_wxCache, p.categories.map(x=>x.color), intensity);
                 bg.style.opacity = 0;
             } else {
@@ -1997,40 +2028,52 @@
         document.getElementById(`size-${p.density || 'xl'}`).classList.add('active');
         document.getElementById('cat-sel').innerHTML = p.categories.map((c, i) => `<option value="${i}">${c.title}</option>`).join('');
         if(!p.categories[document.getElementById('cat-sel').value]) document.getElementById('cat-sel').value = 0;
-        // Sync sliders
-        const opVal = (p.opacity !== undefined && p.opacity !== '') ? parseFloat(p.opacity) : 0.3;
-        const opPct = Math.round(opVal*100) + '%';
+        // Sync sliders — each mode has its own field
         // Photo blur
         const photoBlur = document.getElementById('photo-blur-slider');
         const photoBlurVal = document.getElementById('photo-blur-val');
-        if (photoBlur) photoBlur.value = p.fuzzy || 0;
-        if (photoBlurVal) photoBlurVal.textContent = (p.fuzzy||0) + 'px';
+        const fuzzyVal = p.fuzzy !== undefined ? parseFloat(p.fuzzy) : 0;
+        if (photoBlur) photoBlur.value = fuzzyVal;
+        if (photoBlurVal) photoBlurVal.textContent = Math.round(fuzzyVal) + 'px';
         // Video dim
         const vidDim = document.getElementById('vid-dim-slider');
         const vidDimVal = document.getElementById('vid-dim-val');
-        if (vidDim) vidDim.value = p.vidDim !== undefined ? p.vidDim : 0.35;
-        if (vidDimVal) vidDimVal.textContent = Math.round((p.vidDim||0.35)*100) + '%';
-        // Gradient/mesh intensity
+        const vidDimV = p.vidDim !== undefined ? parseFloat(p.vidDim) : 0;
+        if (vidDim) vidDim.value = vidDimV;
+        if (vidDimVal) vidDimVal.textContent = Math.round(vidDimV*100) + '%';
+        // Gradient/mesh intensity — uses opGradient
         const gradSlider = document.getElementById('grad-intensity-slider');
         const gradVal = document.getElementById('grad-intensity-val');
-        if (gradSlider) gradSlider.value = opVal;
-        if (gradVal) gradVal.textContent = opPct;
-        // Particles intensity
+        const gradOpV = p.opGradient !== undefined ? parseFloat(p.opGradient) : 0.1;
+        if (gradSlider) gradSlider.value = gradOpV;
+        if (gradVal) gradVal.textContent = Math.round(gradOpV*100) + '%';
+        // Mesh intensity — uses opMesh
+        const meshSlider = document.getElementById('mesh-intensity-slider');
+        const meshVal = document.getElementById('mesh-intensity-val');
+        const meshOpV = p.opMesh !== undefined ? parseFloat(p.opMesh) : 0.1;
+        if (meshSlider) meshSlider.value = meshOpV;
+        if (meshVal) meshVal.textContent = Math.round(meshOpV*100) + '%';
+        // Sync mesh bg-color-mesh swatch
+        const bgColorMesh = document.getElementById('bg-color-mesh');
+        if (bgColorMesh) { bgColorMesh.value = p.bgColor || '#1C1B22'; cpSyncSwatch('bg-color-mesh'); }
+        // Particles intensity — uses opParticles
         const ptclSlider = document.getElementById('ptcl-intensity-slider');
         const ptclVal = document.getElementById('ptcl-intensity-val');
-        if (ptclSlider) ptclSlider.value = opVal;
-        if (ptclVal) ptclVal.textContent = opPct;
-        // Weather/Time bg intensity — always reflects actual stored opacity
+        const ptclOpV = p.opParticles !== undefined ? parseFloat(p.opParticles) : 1.0;
+        if (ptclSlider) ptclSlider.value = ptclOpV;
+        if (ptclVal) ptclVal.textContent = Math.round(ptclOpV*100) + '%';
+        // Time intensity — uses opTime
         const wxSlider = document.getElementById('wx-intensity-slider');
         const wxVal = document.getElementById('wx-intensity-val');
-        const wxOpVal = (p.bgMode === 'time') ? (p.opacity !== undefined ? p.opacity : 1) : opVal;
-        if (wxSlider) wxSlider.value = wxOpVal;
-        if (wxVal) wxVal.textContent = Math.round(wxOpVal * 100) + '%';
-        // Speed
+        const wxOpV = p.opTime !== undefined ? parseFloat(p.opTime) : 1.0;
+        if (wxSlider) wxSlider.value = wxOpV;
+        if (wxVal) wxVal.textContent = Math.round(wxOpV*100) + '%';
+        // Speed — uses particleSpeed
         const speedSlider = document.getElementById('particle-speed');
         const speedLabel = document.getElementById('particle-speed-val');
-        if (speedSlider) speedSlider.value = p.particleSpeed !== undefined ? p.particleSpeed : 1;
-        if (speedLabel) speedLabel.textContent = (p.particleSpeed !== undefined ? parseFloat(p.particleSpeed).toFixed(1) : '1.0') + '×';
+        const speedV = p.particleSpeed !== undefined ? parseFloat(p.particleSpeed) : 1.5;
+        if (speedSlider) speedSlider.value = speedV;
+        if (speedLabel) speedLabel.textContent = speedV.toFixed(1) + '×';
         renderProfileTabs();
         document.getElementById('ql-list-editor').innerHTML = p.ql.map((l, i) => {
             const ic = l.color || p.iconColor || '#ffffff';
@@ -2105,7 +2148,7 @@
         syncCategoryEditor();
         updateSectionStates();
         // Sync all static swatches to their current values
-        ['bg-color','clock-color','weather-color-picker','cat-color'].forEach(id => cpSyncSwatch(id));
+        ['bg-color','bg-color-mesh','clock-color','weather-color-picker','cat-color'].forEach(id => cpSyncSwatch(id));
         // Sync tab meta
         const tabTitleEl = document.getElementById('tab-title-display');
         const tabFavEl = document.getElementById('tab-favicon-display');
@@ -2152,7 +2195,7 @@
         p.clockColor = document.getElementById('clock-color').value;
         p.clockFont = document.getElementById('clock-font').value;
         p.gridFont = document.getElementById('font-picker').value;
-        // Read from mode-specific sliders
+        // Read from mode-specific sliders — each writes only its own field
         if (p.bgImg || p.bgMode === 'photo') {
             const photoBlurEl = document.getElementById('photo-blur-slider');
             if (photoBlurEl) { p.fuzzy = parseFloat(photoBlurEl.value); const v = document.getElementById('photo-blur-val'); if(v) v.textContent = Math.round(p.fuzzy)+'px'; }
@@ -2160,14 +2203,22 @@
             // vid-dim handled by applyVidDimNow
         } else if ((p.bgMode||'gradient') === 'particles') {
             const el = document.getElementById('ptcl-intensity-slider');
-            if (el) p.opacity = el.value;
+            if (el) { p.opParticles = parseFloat(el.value); const v=document.getElementById('ptcl-intensity-val'); if(v) v.textContent=Math.round(p.opParticles*100)+'%'; }
+            const sp = document.getElementById('particle-speed');
+            if (sp) { p.particleSpeed = parseFloat(sp.value); const v=document.getElementById('particle-speed-val'); if(v) v.textContent=parseFloat(sp.value).toFixed(1)+'×'; }
         } else if ((p.bgMode||'gradient') === 'time') {
             const el = document.getElementById('wx-intensity-slider');
-            if (el) p.opacity = el.value;
+            if (el) { p.opTime = parseFloat(el.value); const v=document.getElementById('wx-intensity-val'); if(v) v.textContent=Math.round(p.opTime*100)+'%'; }
+        } else if ((p.bgMode||'gradient') === 'mesh') {
+            const el = document.getElementById('mesh-intensity-slider');
+            if (el) { p.opMesh = parseFloat(el.value); const v=document.getElementById('mesh-intensity-val'); if(v) v.textContent=Math.round(p.opMesh*100)+'%'; }
+            // Also sync bg-color-mesh → bgColor
+            const mc = document.getElementById('bg-color-mesh');
+            if (mc) p.bgColor = mc.value;
         } else {
-            // gradient / mesh
+            // gradient only
             const el = document.getElementById('grad-intensity-slider');
-            if (el) p.opacity = el.value;
+            if (el) { p.opGradient = parseFloat(el.value); const v=document.getElementById('grad-intensity-val'); if(v) v.textContent=Math.round(p.opGradient*100)+'%'; }
         }
         // Gradient manual colors
         const ga = document.getElementById('grad-color-a');
@@ -2745,7 +2796,7 @@
             p.bgImg = '';
         }
         // Time mode defaults to full intensity so scenes are clearly visible
-        if (mode === 'time' && (p.opacity === undefined || p.opacity < 0.5)) p.opacity = 1;
+        if (mode === 'time' && p.opTime === undefined) p.opTime = 1.0;
         syncBgSubRows(p);
         saveAndRender(); renderSettings();
     }
@@ -2758,7 +2809,8 @@
         const isVid   = !isPhoto && mode === 'video';
         const isWxClouds = false;
         const isWxScene  = !isPhoto && mode === 'time';
-        const showBgColor = isGrad || mode === 'mesh';
+        const showBgColor = isGrad;
+        const showMeshColor = !isPhoto && mode === 'mesh';
 
         const show = (id, val) => { const el=document.getElementById(id); if(el) el.style.display=val?'block':'none'; };
         show('gradient-options-row', isGrad);
@@ -2766,6 +2818,7 @@
         show('vid-settings-row', isVid);
         show('photo-options-row', isPhoto);
         show('bg-color-row', showBgColor);
+        show('mesh-color-row', showMeshColor);
         // Show the weather-scene intensity row (re-use gradient intensity UI)
         const wxIntRow = document.getElementById('wx-intensity-row');
         if (wxIntRow) wxIntRow.style.display = (isWxClouds || isWxScene) ? 'block' : 'none';
@@ -2969,7 +3022,7 @@
 
         if (wrap) wrap.style.display = 'block';
 
-        const dim = parseFloat(p.vidDim !== undefined ? p.vidDim : 0.35);
+        const dim = parseFloat(p.vidDim !== undefined ? p.vidDim : 0);
         if (dimEl) dimEl.style.background = `rgba(0,0,0,${dim})`;
 
         if (muteBtn) {
