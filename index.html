@@ -605,10 +605,10 @@ function cur(){return state.profiles[parseInt(state.profile.replace('p',''))]||s
 function curIdx(){return parseInt(state.profile.replace('p',''));}
 
 // ── Unsplash ──
-// Photo cache lives in sessionStorage — persists while tab is open, gone on close/refresh
+// Photo cache lives in localStorage keyed by city+condition — persists across tabs/pages, cleared only on manual refresh
 const PHOTO_CACHE_KEY='sp_photo_cache';
-function photoCache(){try{return JSON.parse(sessionStorage.getItem(PHOTO_CACHE_KEY)||'{}');}catch{return{};}}
-function photoCacheSet(key,entry){try{const c=photoCache();c[key]=entry;sessionStorage.setItem(PHOTO_CACHE_KEY,JSON.stringify(c));}catch{}}
+function photoCache(){try{return JSON.parse(localStorage.getItem(PHOTO_CACHE_KEY)||'{}');}catch{return{};}}
+function photoCacheSet(key,entry){try{const c=photoCache();c[key]=entry;localStorage.setItem(PHOTO_CACHE_KEY,JSON.stringify(c));}catch{}}
 function photoCacheKey(cityName,icon,isDay){return`${cityName}:${icon}:${isDay?'day':'night'}`;}
 
 function uQuery(icon,isDay){const pool=isDay?(UQ_DAY[icon]||UQ_DAY['fa-sun']):(UQ_NIGHT[icon]||UQ_NIGHT['fa-moon']);return pool[Math.floor(Math.random()*pool.length)];}
@@ -652,11 +652,11 @@ async function fetchUnsplashPhoto(force){
 function refreshWeather(){
   const btn=document.getElementById('weather-refresh-btn');
   if(btn){btn.style.transform='rotate(360deg)';setTimeout(()=>{btn.style.transition='opacity 0.2s';btn.style.transform='';setTimeout(()=>{btn.style.transition='opacity 0.2s,transform 0.4s';},50);},450);}
-  // Clear the sessionStorage entry for the current city+condition so it re-fetches
+  // Clear the localStorage entry for the current city+condition so it re-fetches
   const icon=_wxCache.icon||'fa-sun';const isDay=_wxCache.isDay!==false;
   const city=state.cities[cityIdx];const cityName=city?city.name:'';
   const cacheKey=photoCacheKey(cityName,icon,isDay);
-  try{const c=photoCache();delete c[cacheKey];sessionStorage.setItem(PHOTO_CACHE_KEY,JSON.stringify(c));}catch{}
+  try{const c=photoCache();delete c[cacheKey];localStorage.setItem(PHOTO_CACHE_KEY,JSON.stringify(c));}catch{}
   updateWeather();
 }
 function applyUnsplash(url,credit,creditLink){
@@ -673,7 +673,7 @@ function refreshUnsplashPhoto(){
   const icon=_wxCache.icon||'fa-sun';const isDay=_wxCache.isDay!==false;
   const city=state.cities[cityIdx];const cityName=city?city.name:'';
   const cacheKey=photoCacheKey(cityName,icon,isDay);
-  try{const c=photoCache();delete c[cacheKey];sessionStorage.setItem(PHOTO_CACHE_KEY,JSON.stringify(c));}catch{}
+  try{const c=photoCache();delete c[cacheKey];localStorage.setItem(PHOTO_CACHE_KEY,JSON.stringify(c));}catch{}
   fetchUnsplashPhoto(true);
 }
 
