@@ -631,11 +631,11 @@ async function fetchUnsplashPhoto(force){
   if(!force){
     const cache=photoCache();
     // Exact match first
-    if(cache[cacheKey]){const e=cache[cacheKey];applyUnsplash(e.url,e.credit,e.creditLink);uStatus(`Photo by ${e.credit} on Unsplash`);return;}
+    if(cache[cacheKey]){const e=cache[cacheKey];applyUnsplash(e.url,e.credit,e.creditLink,true);uStatus(`Photo by ${e.credit} on Unsplash`);return;}
     // Fallback: any cached photo for this city (weather may not have loaded yet)
     if(cityName){
       const anyKey=Object.keys(cache).find(k=>k.startsWith(cityName+':'));
-      if(anyKey){const e=cache[anyKey];applyUnsplash(e.url,e.credit,e.creditLink);uStatus(`Photo by ${e.credit} on Unsplash`);return;}
+      if(anyKey){const e=cache[anyKey];applyUnsplash(e.url,e.credit,e.creditLink,true);uStatus(`Photo by ${e.credit} on Unsplash`);return;}
     }
   }
   if(_uFetching)return;_uFetching=true;uStatus('Fetching photo...');
@@ -667,11 +667,15 @@ function refreshWeather(){
   try{const c=photoCache();delete c[cacheKey];localStorage.setItem(PHOTO_CACHE_KEY,JSON.stringify(c));}catch{}
   updateWeather();
 }
-function applyUnsplash(url,credit,creditLink){
+function applyUnsplash(url,credit,creditLink,instant=false){
   const p=cur();if(!url||p.bgMode!=='unsplash')return;
   const bg=document.getElementById('full-bg'),dim=document.getElementById('dim-el');
-  bg.style.opacity='0';
-  setTimeout(()=>{bg.style.backgroundImage=`url(${url})`;bg.style.backgroundSize='cover';bg.style.backgroundPosition='center';bg.style.filter=`blur(${p.unsplashBlur||0}px)`;bg.style.opacity='1';},400);
+  if(instant){
+    bg.style.transition='none';bg.style.backgroundImage=`url(${url})`;bg.style.backgroundSize='cover';bg.style.backgroundPosition='center';bg.style.filter=`blur(${p.unsplashBlur||0}px)`;bg.style.opacity='1';requestAnimationFrame(()=>{bg.style.transition='';});
+  } else {
+    bg.style.opacity='0';
+    setTimeout(()=>{bg.style.backgroundImage=`url(${url})`;bg.style.backgroundSize='cover';bg.style.backgroundPosition='center';bg.style.filter=`blur(${p.unsplashBlur||0}px)`;bg.style.opacity='1';},400);
+  }
   dim.style.background=`rgba(0,0,0,${p.unsplashDim??0.50})`;
   const el=document.getElementById('unsplash-credit');
   if(el){el.textContent=`Photo by ${credit} on Unsplash`;el.href=creditLink;el.classList.add('visible');}
