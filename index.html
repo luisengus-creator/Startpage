@@ -75,6 +75,9 @@ body{margin:0;padding:0;font-family:'Inter',system-ui,sans-serif;background-colo
 .ip-cell:hover{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.15);color:white}
 #weather-area{padding:0 0 1.8vh 0;display:flex;flex-direction:column;align-items:center;gap:0.5rem;z-index:10;flex-shrink:0;height:148px;justify-content:flex-end;opacity:0;visibility:hidden;transition:opacity 0.8s ease,visibility 0.8s ease}
 #weather-area.weather-loaded{opacity:1;visibility:visible}
+#weather-area.weather-loaded #weather-refresh-btn{opacity:0.55}
+@keyframes spin-once{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+.spin-anim{animation:spin-once 0.55s cubic-bezier(0.4,0,0.2,1) forwards}
 #weather-area.weather-hidden{opacity:0!important;visibility:hidden!important;pointer-events:none;height:0!important;padding:0!important;margin:0!important;overflow:hidden}
 #weather-area .weather-bg-wrap{background:rgba(0,0,0,var(--weather-backdrop,0));border-radius:14px;padding:6px 18px;display:flex;flex-direction:column;align-items:center;gap:0.5rem;transition:background 0.3s}
 #city-name{font-size:0.75rem;opacity:0.5;letter-spacing:3px;cursor:pointer;text-transform:uppercase}
@@ -228,7 +231,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
     <div class="weather-bg-wrap">
       <div style="display:flex;align-items:center;gap:0.5rem;">
         <span id="city-name" onclick="cycleCity()">---</span>
-        <span id="weather-refresh-btn" onclick="refreshWeather()" title="Refresh weather" style="cursor:pointer;opacity:0.35;font-size:0.65rem;transition:opacity 0.2s,transform 0.4s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='0.35'"><i class="fa-solid fa-rotate-right"></i></span>
+        <span id="weather-refresh-btn" onclick="refreshWeather()" title="Refresh weather &amp; photo" style="cursor:pointer;opacity:0;font-size:0.72rem;transition:opacity 0.3s,transform 0.5s cubic-bezier(0.4,0,0.2,1);display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:2px 8px 2px 6px;letter-spacing:0.3px;font-weight:600;" onmouseover="this.style.opacity='1';this.style.background='rgba(255,255,255,0.13)'" onmouseout="this.style.opacity='0.55';this.style.background='rgba(255,255,255,0.07)'"><i class="fa-solid fa-rotate-right" style="font-size:0.65rem;"></i><span style="font-size:0.60rem;color:inherit;">refresh</span></span>
       </div>
       <div id="weather-grid" onclick="openWeatherPopover(this)"></div>
       <div id="weather-stats"></div>
@@ -545,6 +548,12 @@ const UQ_NIGHT={
     'intense rainfall dark night storm',
     'storm heavy rain night dark wet'
   ],
+  'fa-snowflake':[
+    'snow falling night dark winter peaceful',
+    'snowy night dark winter landscape quiet',
+    'winter snow night dark frozen landscape',
+    'snowfall dark night silent winter'
+  ],
   'fa-bolt':[
     'lightning strike dark night sky storm',
     'thunderstorm lightning bolt night dark dramatic',
@@ -553,7 +562,7 @@ const UQ_NIGHT={
   ]
 };
 const W_DATA={0:{icon:'fa-sun',color:'#FFD700'},1:{icon:'fa-cloud-sun',color:'#FFB800'},2:{icon:'fa-cloud-sun',color:'#FFB800'},3:{icon:'fa-cloud',color:'#B0C4DE'},45:{icon:'fa-smog',color:'#778899'},51:{icon:'fa-cloud-rain',color:'#00BFFF'},61:{icon:'fa-cloud-showers-heavy',color:'#1E90FF'},95:{icon:'fa-bolt',color:'#BA55D3'}};
-const W_NIGHT={0:{icon:'fa-moon',color:'#C8D8F0'},1:{icon:'fa-cloud-moon',color:'#A0B8D8'},2:{icon:'fa-cloud-moon',color:'#A0B8D8'}};
+const W_NIGHT={0:{icon:'fa-moon',color:'#C8D8F0'},1:{icon:'fa-cloud-moon',color:'#A0B8D8'},2:{icon:'fa-cloud-moon',color:'#A0B8D8'},3:{icon:'fa-cloud',color:'#6A7D8E'},45:{icon:'fa-smog',color:'#556677'},48:{icon:'fa-smog',color:'#556677'},51:{icon:'fa-cloud-rain',color:'#4A7FAA'},53:{icon:'fa-cloud-rain',color:'#4A7FAA'},55:{icon:'fa-cloud-rain',color:'#4A7FAA'},61:{icon:'fa-cloud-showers-heavy',color:'#2E6EA0'},63:{icon:'fa-cloud-showers-heavy',color:'#2E6EA0'},65:{icon:'fa-cloud-showers-heavy',color:'#2E6EA0'},71:{icon:'fa-snowflake',color:'#A0BFCF'},73:{icon:'fa-snowflake',color:'#A0BFCF'},75:{icon:'fa-snowflake',color:'#A0BFCF'},77:{icon:'fa-snowflake',color:'#A0BFCF'},80:{icon:'fa-cloud-rain',color:'#4A7FAA'},81:{icon:'fa-cloud-showers-heavy',color:'#2E6EA0'},82:{icon:'fa-cloud-showers-heavy',color:'#2E6EA0'},85:{icon:'fa-snowflake',color:'#A0BFCF'},86:{icon:'fa-snowflake',color:'#A0BFCF'},95:{icon:'fa-bolt',color:'#7A55A0'},96:{icon:'fa-bolt',color:'#7A55A0'},99:{icon:'fa-bolt',color:'#7A55A0'}};
 const ICON_LIST=['fa-solid fa-server','fa-solid fa-terminal','fa-solid fa-code','fa-solid fa-database','fa-solid fa-microchip','fa-solid fa-network-wired','fa-solid fa-laptop','fa-solid fa-desktop','fa-solid fa-mobile','fa-solid fa-cloud','fa-solid fa-shield','fa-solid fa-lock','fa-solid fa-key','fa-solid fa-bug','fa-solid fa-robot','fa-solid fa-brain','fa-brands fa-github','fa-brands fa-gitlab','fa-brands fa-docker','fa-brands fa-linux','fa-brands fa-python','fa-brands fa-js','fa-brands fa-react','fa-brands fa-node','fa-solid fa-music','fa-solid fa-play','fa-solid fa-headphones','fa-solid fa-film','fa-solid fa-tv','fa-solid fa-camera','fa-solid fa-gamepad','fa-brands fa-spotify','fa-brands fa-youtube','fa-brands fa-twitch','fa-brands fa-discord','fa-brands fa-slack','fa-solid fa-briefcase','fa-solid fa-chart-line','fa-solid fa-calendar','fa-solid fa-clock','fa-solid fa-envelope','fa-solid fa-folder','fa-solid fa-magnifying-glass','fa-solid fa-pen','fa-solid fa-bookmark','fa-brands fa-google','fa-brands fa-microsoft','fa-brands fa-figma','fa-brands fa-twitter','fa-brands fa-reddit','fa-brands fa-linkedin','fa-brands fa-instagram','fa-brands fa-whatsapp','fa-brands fa-telegram','fa-solid fa-star','fa-solid fa-heart','fa-solid fa-fire','fa-solid fa-bolt','fa-solid fa-globe','fa-solid fa-house','fa-solid fa-user','fa-solid fa-gear','fa-solid fa-palette','fa-solid fa-sun','fa-solid fa-moon','fa-solid fa-leaf','fa-solid fa-mug-hot','fa-solid fa-car','fa-solid fa-plane','fa-solid fa-graduation-cap','fa-solid fa-book','fa-solid fa-flask','fa-solid fa-atom'];
 const PROF_ICONS=['fa-solid fa-house','fa-solid fa-user','fa-solid fa-user-tie','fa-solid fa-user-ninja','fa-solid fa-user-astronaut','fa-solid fa-briefcase','fa-solid fa-laptop','fa-solid fa-terminal','fa-solid fa-graduation-cap','fa-solid fa-palette','fa-solid fa-music','fa-solid fa-gamepad','fa-solid fa-dumbbell','fa-solid fa-heart','fa-solid fa-star','fa-solid fa-fire','fa-solid fa-brain','fa-solid fa-robot','fa-solid fa-cat','fa-solid fa-dog','fa-solid fa-dragon','fa-solid fa-ghost'];
 const FAV_EMOJIS=['🏠','⚡','🔥','⭐','💎','🚀','🌙','☀️','🌊','🌿','🦋','🐉','👾','🤖','🎮','🎵','📚','✏️','🔮','🧠','💡','🔑','🛡️','⚔️','🌸','🍀','🦊','🐺','🐧','🦁','🐙','🦄','🍕','☕','🎯','🏆','💻','📡','🔭','🧬'];
@@ -615,12 +624,27 @@ function photoCacheKey(cityName,icon,isDay){return`${cityName}:${icon}:${isDay?'
 
 function uQuery(icon,isDay){const pool=isDay?(UQ_DAY[icon]||UQ_DAY['fa-sun']):(UQ_NIGHT[icon]||UQ_NIGHT['fa-moon']);return pool[Math.floor(Math.random()*pool.length)];}
 function uQueryCity(icon,isDay,cityName){
-  // Build a city-specific query: "CityName weatherDesc day/night"
-  const base=uQuery(icon,isDay);
-  // Extract the first 2-3 meaningful words from the base query (skip generic trailing words)
-  const keywords=base.split(' ').slice(0,3).join(' ');
-  const dn=isDay?'day':'night';
-  return`${cityName} ${keywords} ${dn}`;
+  const hour=_wxCache.hour!=null?_wxCache.hour:new Date().getHours();
+  let timeDesc;
+  if(!isDay){
+    if(hour>=22||hour<2){timeDesc='late night';}
+    else if(hour>=2&&hour<5){timeDesc='deep night';}
+    else{timeDesc='night';}
+  } else {
+    if(hour>=5&&hour<9){timeDesc='sunrise morning';}
+    else if(hour>=9&&hour<12){timeDesc='morning';}
+    else if(hour>=12&&hour<15){timeDesc='midday';}
+    else if(hour>=15&&hour<18){timeDesc='afternoon';}
+    else if(hour>=18&&hour<21){timeDesc='golden hour sunset';}
+    else{timeDesc='dusk evening';}
+  }
+  const wxDesc={
+    'fa-sun':'sunny clear sky','fa-cloud-sun':'partly cloudy','fa-cloud':'overcast cloudy',
+    'fa-smog':'foggy misty','fa-cloud-rain':'rainy','fa-cloud-showers-heavy':'heavy rain',
+    'fa-snowflake':'snowy winter','fa-bolt':'thunderstorm',
+    'fa-moon':'clear starry night','fa-cloud-moon':'cloudy night moon'
+  }[icon]||(!isDay?'dark night':'scenic');
+  return`${cityName} ${wxDesc} ${timeDesc}`;
 }
 let _uFetching=false;
 async function fetchUnsplashPhoto(force){
@@ -630,43 +654,53 @@ async function fetchUnsplashPhoto(force){
   const cacheKey=photoCacheKey(cityName,icon,isDay);
   if(!force){
     const cache=photoCache();
-    // Exact match first
     if(cache[cacheKey]){const e=cache[cacheKey];applyUnsplash(e.url,e.credit,e.creditLink,true);uStatus(`Photo by ${e.credit} on Unsplash`);return;}
-    // Fallback: any cached photo for this city (weather may not have loaded yet)
+    // Only fallback to other cached city entries if same day/night state
     if(cityName){
-      const anyKey=Object.keys(cache).find(k=>k.startsWith(cityName+':'));
+      const dayKey=isDay?'day':'night';
+      const anyKey=Object.keys(cache).find(k=>k.startsWith(cityName+':')&&k.endsWith(':'+dayKey));
       if(anyKey){const e=cache[anyKey];applyUnsplash(e.url,e.credit,e.creditLink,true);uStatus(`Photo by ${e.credit} on Unsplash`);return;}
     }
   }
   if(_uFetching)return;_uFetching=true;uStatus('Fetching photo...');
+  async function tryFetch(q){
+    const r=await fetch(`https://api.unsplash.com/photos/random?query=${encodeURIComponent(q)}&orientation=landscape&content_filter=high&client_id=${key}`);
+    if(!r.ok)return null;
+    const d=await r.json();
+    if(!d.urls)return null;
+    return{url:d.urls.full||d.urls.regular,credit:d.user?.name||'Unknown',creditLink:(d.user?.links?.html||'#')+'?utm_source=startpage&utm_medium=referral'};
+  }
   try{
-    let url,credit,creditLink;
-    if(cityName){
-      const cityQ=uQueryCity(icon,isDay,cityName);
-      const r1=await fetch(`https://api.unsplash.com/photos/random?query=${encodeURIComponent(cityQ)}&orientation=landscape&content_filter=high&client_id=${key}`);
-      if(r1.ok){const d1=await r1.json();url=d1.urls?.full||d1.urls?.regular;credit=d1.user?.name||'Unknown';creditLink=(d1.user?.links?.html||'#')+'?utm_source=startpage&utm_medium=referral';}
-    }
-    if(!url){
-      const q=uQuery(icon,isDay);
-      const r2=await fetch(`https://api.unsplash.com/photos/random?query=${encodeURIComponent(q)}&orientation=landscape&content_filter=high&client_id=${key}`);
-      if(!r2.ok)throw new Error(r2.status);
-      const d2=await r2.json();url=d2.urls?.full||d2.urls?.regular;credit=d2.user?.name||'Unknown';creditLink=(d2.user?.links?.html||'#')+'?utm_source=startpage&utm_medium=referral';
-    }
-    photoCacheSet(cacheKey,{url,credit,creditLink});
-    applyUnsplash(url,credit,creditLink);uStatus(`Photo by ${credit} on Unsplash`);
+    let result=null;
+    // Tier 1: city + weather condition + time of day
+    if(cityName){result=await tryFetch(uQueryCity(icon,isDay,cityName));}
+    // Tier 2: weather condition + time of day (no city)
+    if(!result){result=await tryFetch(uQuery(icon,isDay));}
+    // Tier 3: just day/night landscape as last resort
+    if(!result){result=await tryFetch(isDay?'scenic daylight landscape nature':'scenic night landscape dark nature');}
+    if(!result)throw new Error('No result');
+    photoCacheSet(cacheKey,result);
+    applyUnsplash(result.url,result.credit,result.creditLink);
+    uStatus(`Photo by ${result.credit} on Unsplash`);
   }catch(e){uStatus('Failed — check your API key.');}
   finally{_uFetching=false;}
 }
 function refreshWeather(){
   const btn=document.getElementById('weather-refresh-btn');
-  if(btn){btn.style.transform='rotate(360deg)';setTimeout(()=>{btn.style.transition='opacity 0.2s';btn.style.transform='';setTimeout(()=>{btn.style.transition='opacity 0.2s,transform 0.4s';},50);},450);}
-  // Clear the localStorage entry for the current city+condition so it re-fetches
-  const icon=_wxCache.icon||'fa-sun';const isDay=_wxCache.isDay!==false;
+  const icon_el=btn?btn.querySelector('i'):null;
+  if(icon_el){icon_el.classList.remove('spin-anim');void icon_el.offsetWidth;icon_el.classList.add('spin-anim');setTimeout(()=>icon_el.classList.remove('spin-anim'),600);}
+  // Clear ALL cached photos for current city so a completely fresh photo is fetched
   const city=state.cities[cityIdx];const cityName=city?city.name:'';
-  const cacheKey=photoCacheKey(cityName,icon,isDay);
-  try{const c=photoCache();delete c[cacheKey];localStorage.setItem(PHOTO_CACHE_KEY,JSON.stringify(c));}catch{}
+  try{
+    const c=photoCache();
+    Object.keys(c).forEach(k=>{if(k.startsWith(cityName+':'))delete c[k];});
+    localStorage.setItem(PHOTO_CACHE_KEY,JSON.stringify(c));
+  }catch{}
+  // Re-fetch weather data first, which will also trigger a forced Unsplash fetch
+  _forcePhotoRefresh=true;
   updateWeather();
 }
+let _forcePhotoRefresh=false;
 function applyUnsplash(url,credit,creditLink,instant=false){
   const p=cur();if(!url||p.bgMode!=='unsplash')return;
   const bg=document.getElementById('full-bg'),dim=document.getElementById('dim-el');
@@ -944,15 +978,28 @@ async function updateWeather(){
     const url=`https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset&current=temperature_2m,relative_humidity_2m,surface_pressure,visibility,uv_index,weathercode,is_day&timezone=auto`;
     const r=await fetch(url),d=await r.json();
     const now=new Date();const cc=(d.current&&d.current.weathercode!=null)?d.current.weathercode:0;const dc=d.daily.weathercode[0]||0;const wc=cc>dc?cc:dc;
-    const isNight=!(d.current?(d.current.is_day===1):(now.getHours()>=6&&now.getHours()<21));
-    const icon=isNight&&W_NIGHT[wc]?W_NIGHT[wc].icon:(W_DATA[wc]||W_DATA[dc]||{icon:'fa-sun'}).icon;
-    _wxCache={code:wc,icon,isDay:!isNight,hour:now.getHours()};
+    // Use API's is_day field (timezone=auto makes it city-local). Fallback uses city's own sunrise/sunset if available.
+    let isNight;
+    if(d.current&&d.current.is_day!=null){
+      isNight=d.current.is_day!==1;
+    } else if(d.daily?.sunrise?.[0]&&d.daily?.sunset?.[0]){
+      const sr=new Date(d.daily.sunrise[0]).getTime(),ss=new Date(d.daily.sunset[0]).getTime(),nowMs=now.getTime();
+      isNight=nowMs<sr||nowMs>ss;
+    } else {
+      isNight=now.getHours()<6||now.getHours()>=21;
+    }
+    // For night, use current weathercode for icon (not the daily max) so we get the actual current sky
+    const nightCode=cc;
+    const icon=isNight?(W_NIGHT[nightCode]||W_NIGHT[wc]||{icon:'fa-moon'}).icon:(W_DATA[wc]||W_DATA[dc]||{icon:'fa-sun'}).icon;
+    // Extract city-local hour from API's current time string (format: "2024-01-01T22:00")
+    const cityLocalHour=d.current?.time?parseInt(d.current.time.slice(11,13)):now.getHours();
+    _wxCache={code:wc,icon,isDay:!isNight,hour:cityLocalHour};
     // Unsplash auto-refresh on condition change
     const cityName=city.name;
     const iChg=icon!==_lastWxIcon,dChg=_wxCache.isDay!==_lastWxIsDay;
     const cChg=cityName!==_lastWxCity;
     _lastWxIcon=icon;_lastWxIsDay=_wxCache.isDay;_lastWxCity=cityName;
-    if(p.bgMode==='unsplash'){fetchUnsplashPhoto(false);}
+    if(p.bgMode==='unsplash'){const force=_forcePhotoRefresh;_forcePhotoRefresh=false;fetchUnsplashPhoto(force);}
     else if(p.bgMode==='time'&&(iChg||dChg)){startTimeBg(_wxCache,p.categories.map(x=>x.color),p.opTime??1.0);}
     // Cards
     const sz=p.weatherSize||'m',cs=sz==='s'?0.78:sz==='l'?1.22:1.0;
