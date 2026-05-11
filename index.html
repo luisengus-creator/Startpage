@@ -136,8 +136,12 @@ input[type="range"]::-webkit-slider-thumb{appearance:none;width:13px;height:13px
 input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--modal-accent,#00d4ff);border-radius:50%;border:none}
 .city-item{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;background:rgba(255,255,255,0.02);padding:6px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.04)}
 .city-item span{font-size:0.75rem;color:#ddd;font-weight:500}
-.city-item i{color:#f44;cursor:pointer;font-size:0.7rem;opacity:0.5;transition:0.2s}
-.city-item i:hover{opacity:1}
+.city-item>i{color:#f44;cursor:pointer;font-size:0.7rem;opacity:0.5;transition:0.2s;flex-shrink:0}
+.city-item>i:hover{opacity:1}
+.photo-mode-toggle{display:flex;gap:2px;background:#0e0e0e;border:1px solid #222;border-radius:5px;padding:2px;flex-shrink:0;margin-right:6px}
+.pmt-btn{background:transparent;border:none;border-radius:3px;color:#555;cursor:pointer;font-size:0.62rem;font-weight:700;padding:2px 6px;transition:0.15s;width:auto}
+.pmt-btn:hover{color:#aaa}
+.pmt-btn.pmt-active{background:var(--modal-accent,#00d4ff);color:#000}
 #search-bar-wrap{flex-shrink:0;display:flex;justify-content:center;align-items:center;padding:0 2vw 1.4vh;height:52px}
 #search-bar-wrap.search-hidden{opacity:0;visibility:hidden;pointer-events:none;height:0!important;overflow:hidden;margin:0!important;padding:0!important}
 #search-form{display:flex;align-items:center;width:min(480px,90%);background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:24px;padding:0 6px 0 16px;transition:background 0.2s,border-color 0.2s,box-shadow 0.2s;gap:4px}
@@ -182,7 +186,11 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 .cp-custom-row span{font-size:0.68rem;color:#666;white-space:nowrap}
 .cp-custom-row input[type="color"]{width:28px!important;height:22px!important;flex-shrink:0}
 #weather-modal,#clock-popover,#wstat-popover{display:none!important;position:fixed;z-index:3000;background:#0e0e0e;border:1px solid var(--modal-accent-border,#00d4ff33);border-radius:12px;padding:1rem 1.1rem;box-shadow:0 8px 32px rgba(0,0,0,0.6)}
-#weather-modal{min-width:240px;width:280px}
+#weather-modal{min-width:300px;width:340px}
+#city-list-manager::-webkit-scrollbar{width:4px}
+#city-list-manager::-webkit-scrollbar-track{background:transparent}
+#city-list-manager::-webkit-scrollbar-thumb{background:#2a2a2a;border-radius:4px}
+#city-list-manager{scrollbar-width:thin;scrollbar-color:#2a2a2a transparent}
 #clock-popover,#wstat-popover{min-width:200px}
 #weather-modal.open,#clock-popover.open,#wstat-popover.open{display:block!important}
 .pop-title{font-size:0.58rem;font-weight:900;color:var(--modal-accent,#00d4ff);text-transform:uppercase;letter-spacing:2px;margin-bottom:0.8rem}
@@ -362,6 +370,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
       </div>
     </div>
     <!-- CLOCK -->
+    <div class="settings-panel" id="panel-clock">
       <div class="setting-block">
         <div class="section-h">Clock</div>
         <label class="label-inline"><input type="checkbox" id="clock-check" onchange="updateVis()"> Show Clock</label>
@@ -469,96 +478,102 @@ const UNSPLASH_KEY='j4U9kk58zkrYs3pTo9GWn-peKYzEriWcOnbNJPRUHjM';
 // We pick one query at random per fetch so results vary over time
 const UQ_DAY={
   'fa-sun':[
-    'bright sunny blue sky landscape daylight',
-    'golden hour sunlight nature daytime',
-    'sunny summer day clear sky outdoor',
-    'sunshine warm daylight countryside'
+    'clear blue sky sunny',
+    'blue sky sunshine clouds',
+    'bright sunny sky cloudless',
+    'sunlight blue sky daylight'
   ],
   'fa-cloud-sun':[
-    'partly cloudy sky sunlight daytime landscape',
-    'clouds and sun blue sky nature day',
-    'partial clouds sunny meadow daylight',
-    'mixed clouds sunshine outdoor day'
+    'partly cloudy sky sunlight',
+    'clouds and sun blue sky',
+    'sun rays through clouds sky',
+    'partly cloudy blue sky'
   ],
   'fa-cloud':[
-    'overcast grey cloudy sky daytime landscape',
-    'heavy grey clouds overcast day nature',
-    'dark overcast sky cloudy afternoon',
-    'cloudy grey day outdoor nature moody'
+    'overcast grey cloudy sky',
+    'heavy grey clouds sky',
+    'dark overcast cloudy sky',
+    'thick grey clouds overcast'
   ],
   'fa-smog':[
-    'foggy misty morning landscape daylight',
-    'thick fog forest mist daytime',
-    'misty morning haze nature fog day',
-    'fog rolling hills mist day landscape'
+    'foggy misty morning',
+    'thick fog mist grey',
+    'dense fog grey atmosphere',
+    'misty fog morning'
   ],
   'fa-cloud-rain':[
-    'rain falling daytime wet street puddles',
-    'light rain drizzle nature daylight landscape',
-    'rainy day grey sky wet road daytime',
-    'rainfall wet nature overcast day'
+    'rain drops water grey sky',
+    'rainy grey overcast sky',
+    'rainfall dark grey sky',
+    'rain drizzle grey clouds'
   ],
   'fa-cloud-showers-heavy':[
-    'heavy rain storm downpour daytime',
-    'pouring rain thunderstorm daylight street',
-    'storm heavy rainfall dark sky day',
-    'intense rain wet landscape daytime storm'
+    'heavy rain storm dark sky',
+    'downpour dark stormy sky',
+    'intense rain dark clouds',
+    'storm heavy rain sky'
+  ],
+  'fa-snowflake':[
+    'snowfall grey sky winter',
+    'snow falling white sky',
+    'winter snow overcast grey',
+    'snowstorm grey sky'
   ],
   'fa-bolt':[
-    'lightning bolt storm dark sky daytime',
-    'thunderstorm lightning strike day dramatic sky',
-    'storm lightning clouds dramatic daylight',
-    'lightning flash dark storm clouds day'
+    'dark storm clouds dramatic sky',
+    'thunderstorm dark clouds',
+    'stormy sky dark dramatic',
+    'dark clouds storm sky'
   ]
 };
 const UQ_NIGHT={
   'fa-moon':[
-    'clear night sky full moon stars dark',
-    'starry night sky milky way dark landscape',
-    'moonlit night clear sky stars nature',
-    'night sky stars moon dark peaceful'
+    'clear night sky stars moon',
+    'night sky stars dark',
+    'moonlit night sky stars',
+    'dark night sky moon stars'
   ],
   'fa-cloud-moon':[
-    'partly cloudy night sky moon visible dark',
-    'moonlight through clouds night dark sky',
-    'night sky clouds moon dark atmosphere',
-    'cloudy night moon glow dark landscape'
+    'cloudy night sky moon',
+    'night clouds moon dark sky',
+    'dark cloudy night moon',
+    'night sky clouds moonlight'
   ],
   'fa-cloud':[
-    'dark overcast night sky clouds no moon',
-    'heavy clouds night dark sky no stars',
-    'overcast night dark moody cloudy sky',
-    'dark cloudy night sky landscape'
+    'dark overcast night sky',
+    'dark cloudy night sky',
+    'overcast dark night clouds',
+    'heavy clouds dark night sky'
   ],
   'fa-smog':[
-    'foggy night city lights dark mist',
-    'misty night fog dark street atmosphere',
-    'fog night dark moody landscape',
-    'night fog mist dark atmosphere'
+    'foggy night mist dark',
+    'misty dark night fog',
+    'night fog dark atmosphere',
+    'dark fog mist night'
   ],
   'fa-cloud-rain':[
-    'rain night dark wet street city lights reflection',
-    'rainy night dark puddles wet road light',
-    'night rain falling dark wet pavement',
-    'dark rainy night rainfall city glow'
+    'rainy dark night sky',
+    'rain falling dark night',
+    'night rain dark sky',
+    'dark rainy night sky'
   ],
   'fa-cloud-showers-heavy':[
-    'heavy rain night storm dark dramatic',
-    'pouring rain dark night stormy sky',
-    'intense rainfall dark night storm',
-    'storm heavy rain night dark wet'
+    'heavy rain dark night storm',
+    'storm dark night rain',
+    'intense rain dark night sky',
+    'dark downpour night storm'
   ],
   'fa-snowflake':[
-    'snow falling night dark winter peaceful',
-    'snowy night dark winter landscape quiet',
-    'winter snow night dark frozen landscape',
-    'snowfall dark night silent winter'
+    'snow falling dark night winter',
+    'dark night snowfall winter',
+    'winter snow dark night sky',
+    'snowfall dark night quiet'
   ],
   'fa-bolt':[
-    'lightning strike dark night sky storm',
-    'thunderstorm lightning bolt night dark dramatic',
-    'lightning flash night dark stormy sky',
-    'night lightning storm dark dramatic sky'
+    'lightning storm dark night sky',
+    'dark stormy night sky',
+    'night storm dark sky lightning',
+    'dark dramatic night storm'
   ]
 };
 const W_DATA={0:{icon:'fa-sun',color:'#FFD700'},1:{icon:'fa-cloud-sun',color:'#FFB800'},2:{icon:'fa-cloud-sun',color:'#FFB800'},3:{icon:'fa-cloud',color:'#B0C4DE'},45:{icon:'fa-smog',color:'#778899'},51:{icon:'fa-cloud-rain',color:'#00BFFF'},61:{icon:'fa-cloud-showers-heavy',color:'#1E90FF'},95:{icon:'fa-bolt',color:'#BA55D3'}};
@@ -608,6 +623,7 @@ state.profiles.forEach(p=>{
   if(p.density==='l')p.density='xl';
 });
 if(!state.tabFaviconEmoji&&!state.tabFavicon)state.tabFaviconEmoji='⭐';
+if(state.cities)state.cities.forEach(c=>{if(!c.photoMode)c.photoMode='generic';});
 
 let cityIdx=0;
 let _wxCache={code:0,icon:'fa-sun',isDay:true,hour:new Date().getHours()};
@@ -620,7 +636,7 @@ function curIdx(){return parseInt(state.profile.replace('p',''));}
 const PHOTO_CACHE_KEY='sp_photo_cache';
 function photoCache(){try{return JSON.parse(localStorage.getItem(PHOTO_CACHE_KEY)||'{}');}catch{return{};}}
 function photoCacheSet(key,entry){try{const c=photoCache();c[key]=entry;localStorage.setItem(PHOTO_CACHE_KEY,JSON.stringify(c));}catch{}}
-function photoCacheKey(cityName,icon,isDay){return`${cityName}:${icon}:${isDay?'day':'night'}`;}
+function photoCacheKey(cityName,icon,isDay,photoMode){return`${photoMode||'generic'}:${cityName}:${icon}:${isDay?'day':'night'}`;}
 
 function uQuery(icon,isDay){const pool=isDay?(UQ_DAY[icon]||UQ_DAY['fa-sun']):(UQ_NIGHT[icon]||UQ_NIGHT['fa-moon']);return pool[Math.floor(Math.random()*pool.length)];}
 function uQueryCity(icon,isDay,cityName){
@@ -651,33 +667,54 @@ async function fetchUnsplashPhoto(force){
   const p=cur();const key=p.unsplashKey||UNSPLASH_KEY;if(!key)return;
   const icon=_wxCache.icon||'fa-sun';const isDay=_wxCache.isDay!==false;
   const city=state.cities[cityIdx];const cityName=city?city.name:'';
-  const cacheKey=photoCacheKey(cityName,icon,isDay);
+  const photoMode=(city&&city.photoMode)||'generic';
+  const cacheKey=photoCacheKey(cityName,icon,isDay,photoMode);
   if(!force){
     const cache=photoCache();
     if(cache[cacheKey]){const e=cache[cacheKey];applyUnsplash(e.url,e.credit,e.creditLink,true);uStatus(`Photo by ${e.credit} on Unsplash`);return;}
-    // Only fallback to other cached city entries if same day/night state
+    // Only fallback to other cached entries if same mode+city+day/night state
     if(cityName){
       const dayKey=isDay?'day':'night';
-      const anyKey=Object.keys(cache).find(k=>k.startsWith(cityName+':')&&k.endsWith(':'+dayKey));
+      const prefix=`${photoMode}:${cityName}:`;
+      const anyKey=Object.keys(cache).find(k=>k.startsWith(prefix)&&k.endsWith(':'+dayKey));
       if(anyKey){const e=cache[anyKey];applyUnsplash(e.url,e.credit,e.creditLink,true);uStatus(`Photo by ${e.credit} on Unsplash`);return;}
     }
   }
   if(_uFetching)return;_uFetching=true;uStatus('Fetching photo...');
-  async function tryFetch(q){
-    const r=await fetch(`https://api.unsplash.com/photos/random?query=${encodeURIComponent(q)}&orientation=landscape&content_filter=high&client_id=${key}`);
-    if(!r.ok)return null;
-    const d=await r.json();
-    if(!d.urls)return null;
-    return{url:d.urls.full||d.urls.regular,credit:d.user?.name||'Unknown',creditLink:(d.user?.links?.html||'#')+'?utm_source=startpage&utm_medium=referral'};
+  // Color hints per weather condition to further constrain results
+  const WX_COLOR={'fa-sun':'yellow','fa-cloud-sun':'','fa-cloud':'black','fa-smog':'black','fa-cloud-rain':'black','fa-cloud-showers-heavy':'black','fa-snowflake':'white','fa-bolt':'black','fa-moon':'black','fa-cloud-moon':'black'};
+  async function tryFetch(q,useSearch){
+    let url,d;
+    if(useSearch){
+      // Search endpoint: top 30 results sorted by relevance, pick one at random for variety
+      const color=WX_COLOR[icon]||'';
+      const colorParam=color?`&color=${color}`:'';
+      url=`https://api.unsplash.com/search/photos?query=${encodeURIComponent(q)}&orientation=landscape&content_filter=high&order_by=relevant&per_page=30${colorParam}&client_id=${key}`;
+      const r=await fetch(url);if(!r.ok)return null;
+      d=await r.json();
+      const results=d.results||[];if(!results.length)return null;
+      const pick=results[Math.floor(Math.random()*Math.min(results.length,10))];
+      return{url:pick.urls.full||pick.urls.regular,credit:pick.user?.name||'Unknown',creditLink:(pick.user?.links?.html||'#')+'?utm_source=startpage&utm_medium=referral'};
+    } else {
+      // Random endpoint for city mode
+      url=`https://api.unsplash.com/photos/random?query=${encodeURIComponent(q)}&orientation=landscape&content_filter=high&client_id=${key}`;
+      const r=await fetch(url);if(!r.ok)return null;
+      d=await r.json();if(!d.urls)return null;
+      return{url:d.urls.full||d.urls.regular,credit:d.user?.name||'Unknown',creditLink:(d.user?.links?.html||'#')+'?utm_source=startpage&utm_medium=referral'};
+    }
   }
   try{
     let result=null;
-    // Tier 1: city + weather condition + time of day
-    if(cityName){result=await tryFetch(uQueryCity(icon,isDay,cityName));}
-    // Tier 2: weather condition + time of day (no city)
-    if(!result){result=await tryFetch(uQuery(icon,isDay));}
-    // Tier 3: just day/night landscape as last resort
-    if(!result){result=await tryFetch(isDay?'scenic daylight landscape nature':'scenic night landscape dark nature');}
+    if(photoMode==='city'){
+      // City mode: try city+weather first (random), fall back to generic search
+      if(cityName){result=await tryFetch(uQueryCity(icon,isDay,cityName),false);}
+      if(!result){result=await tryFetch(uQuery(icon,isDay),true);}
+    } else {
+      // Generic mode: use search endpoint for reliable weather-only results
+      result=await tryFetch(uQuery(icon,isDay),true);
+    }
+    // Final fallback
+    if(!result){result=await tryFetch(isDay?'sky clouds':'night sky dark',true);}
     if(!result)throw new Error('No result');
     photoCacheSet(cacheKey,result);
     applyUnsplash(result.url,result.credit,result.creditLink);
@@ -693,7 +730,7 @@ function refreshWeather(){
   const city=state.cities[cityIdx];const cityName=city?city.name:'';
   try{
     const c=photoCache();
-    Object.keys(c).forEach(k=>{if(k.startsWith(cityName+':'))delete c[k];});
+    Object.keys(c).forEach(k=>{if(k.includes(':'+cityName+':'))delete c[k];});
     localStorage.setItem(PHOTO_CACHE_KEY,JSON.stringify(c));
   }catch{}
   // Re-fetch weather data first, which will also trigger a forced Unsplash fetch
@@ -742,7 +779,7 @@ document.addEventListener('click',e=>{if(_wstatOpen&&!document.getElementById('w
 
 function syncWxPop(){const p=cur();document.getElementById('wpop-day').checked=(p.wShowDay!==false);document.getElementById('wpop-date').checked=(p.wShowDate!==false);document.getElementById('wpop-size').value=p.weatherSize||'m';document.getElementById('wpop-icons').value=p.wColored?'colored':'solid';}
 function wxPopChange(){const p=cur();p.wShowDay=document.getElementById('wpop-day').checked;p.wShowDate=document.getElementById('wpop-date').checked;p.weatherSize=document.getElementById('wpop-size').value;p.wColored=document.getElementById('wpop-icons').value==='colored';saveAndRender();updateWeather();}
-function openWeatherPopover(anchor){const pop=document.getElementById('weather-modal');if(_wxPopOpen){pop.classList.remove('open');_wxPopOpen=false;return;}closeClockPop();closeWstatPop();syncWxPop();renderCityManager();pop.classList.add('open');_wxPopOpen=true;const r=anchor.getBoundingClientRect();const pw=280,ph=pop.offsetHeight||320;let left=r.left+r.width/2-pw/2;if(left+pw>window.innerWidth-10)left=window.innerWidth-pw-10;if(left<10)left=10;pop.style.left=left+'px';pop.style.top=(r.top-ph-10)+'px';}
+function openWeatherPopover(anchor){const pop=document.getElementById('weather-modal');if(_wxPopOpen){pop.classList.remove('open');_wxPopOpen=false;return;}closeClockPop();closeWstatPop();syncWxPop();renderCityManager();pop.classList.add('open');_wxPopOpen=true;const r=anchor.getBoundingClientRect();const pw=340,ph=pop.offsetHeight||320;let left=r.left+r.width/2-pw/2;if(left+pw>window.innerWidth-10)left=window.innerWidth-pw-10;if(left<10)left=10;pop.style.left=left+'px';pop.style.top=(r.top-ph-10)+'px';}
 function closeWxPop(){document.getElementById('weather-modal').classList.remove('open');document.getElementById('city-search-input').value='';document.getElementById('search-results').innerHTML='';_wxPopOpen=false;}
 document.addEventListener('click',e=>{if(_wxPopOpen&&!document.getElementById('weather-modal').contains(e.target)&&!e.target.closest('#weather-grid'))closeWxPop();});
 
@@ -960,14 +997,15 @@ function updateCardOpacity(){const p=cur();const v=parseFloat(document.getElemen
 function updatePhotoDim(){const p=cur();const v=parseFloat(document.getElementById('photo-dim').value);p.photoDim=v;document.getElementById('photo-dim-val').textContent=Math.round(v*100)+'%';const dim=document.getElementById('dim-el');if(dim&&(p.bgMode==='photo'||p.bgImg))dim.style.background=`rgba(0,0,0,${v})`;localStorage.setItem(KEY,JSON.stringify(state));}
 
 // ── City / Weather ──
-function renderCityManager(){document.getElementById('city-list-manager').innerHTML=state.cities.map((c,i)=>`<div class="city-item" draggable="true" ondragstart="cDS(event,${i})" ondragover="cDO(event,${i})" ondrop="cDrop(event,${i})" ondragleave="cDL(event)"><i class="fa-solid fa-grip-vertical drag-handle" style="color:#555;"></i><span>${c.name}</span><i class="fa-solid fa-trash-can" onclick="removeCity(${i})"></i></div>`).join('');}
+function renderCityManager(){const isUnsplash=cur().bgMode==='unsplash';document.getElementById('city-list-manager').innerHTML=state.cities.map((c,i)=>{const mode=c.photoMode||'generic';return`<div class="city-item" draggable="true" ondragstart="cDS(event,${i})" ondragover="cDO(event,${i})" ondrop="cDrop(event,${i})" ondragleave="cDL(event)"><i class="fa-solid fa-grip-vertical drag-handle" style="color:#555;"></i><span style="flex:1;">${c.name}</span>${isUnsplash?`<span class="photo-mode-toggle"><button class="pmt-btn${mode==='generic'?' pmt-active':''}" onclick="setCityPhotoMode(${i},'generic',event)">Generic</button><button class="pmt-btn${mode==='city'?' pmt-active':''}" onclick="setCityPhotoMode(${i},'city',event)">City</button></span>`:''}<i class="fa-solid fa-trash-can" onclick="removeCity(${i})"></i></div>`;}).join('');}
+function setCityPhotoMode(i,mode,event){if(event)event.stopPropagation();state.cities[i].photoMode=mode;localStorage.setItem(KEY,JSON.stringify(state));renderCityManager();const city=state.cities[cityIdx];if(i===cityIdx&&city){try{const c=photoCache();Object.keys(c).forEach(k=>{if(k.includes(':'+city.name+':'))delete c[k];});localStorage.setItem(PHOTO_CACHE_KEY,JSON.stringify(c));}catch{}fetchUnsplashPhoto(true);}}
 let _cdi=null;
 function cDS(e,i){_cdi=i;e.dataTransfer.effectAllowed='move';}
 function cDO(e,i){e.preventDefault();if(i!==_cdi)document.querySelectorAll('.city-item')[i]?.classList.add('drag-over');}
 function cDL(e){e.target.closest('.city-item')?.classList.remove('drag-over');}
 function cDrop(e,i){e.preventDefault();document.querySelectorAll('.city-item').forEach(el=>el.classList.remove('drag-over'));if(_cdi===null||_cdi===i)return;const m=state.cities.splice(_cdi,1)[0];state.cities.splice(i,0,m);_cdi=null;renderCityManager();saveAndRender();updateWeather();}
 async function searchCity(q){if(q.length<3){document.getElementById('search-results').innerHTML='';return;}const r=await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${q}&count=5&language=en&format=json`);const d=await r.json();document.getElementById('search-results').innerHTML=(d.results||[]).map(c=>`<div class="search-result-item" onclick="addCity('${c.name}',${c.latitude},${c.longitude})">${c.name}, ${c.admin1||''} (${c.country_code})</div>`).join('');}
-function addCity(name,lat,lon){state.cities.push({name,lat,lon});document.getElementById('search-results').innerHTML='';document.getElementById('city-search-input').value='';renderCityManager();saveAndRender();updateWeather();}
+function addCity(name,lat,lon){state.cities.push({name,lat,lon,photoMode:'generic'});document.getElementById('search-results').innerHTML='';document.getElementById('city-search-input').value='';renderCityManager();saveAndRender();updateWeather();}
 function removeCity(i){if(state.cities.length>1){state.cities.splice(i,1);cityIdx=0;renderCityManager();saveAndRender();updateWeather();}}
 function cycleCity(){cityIdx=(cityIdx+1)%state.cities.length;updateWeather();}
 
@@ -1145,7 +1183,7 @@ function setBgMode(mode){
   if(mode!=='photo')p.bgImg='';
   if(mode!=='unsplash'){const c=document.getElementById('unsplash-credit');if(c)c.classList.remove('visible');const d=document.getElementById('dim-el');if(d)d.style.background='rgba(0,0,0,0)';}
   if(mode!=='time')stopBgCanvas();
-  saveAndRender();renderSettings();
+  saveAndRender();renderSettings();renderCityManager();
 }
 function setGradType(t){const p=cur();p.gradType=t;document.getElementById('grad-manual-opts').style.display=t==='manual'?'block':'none';['auto','manual'].forEach(x=>{const b=document.getElementById('grad-'+x);if(b)b.classList.toggle('active',x===t);});saveAndRender();}
 function setGradDir(d){const p=cur();p.gradDir=d;['ltr','rtl','ttb','btt'].forEach(x=>{const b=document.getElementById('grad-'+x);if(b)b.classList.toggle('active',x===d);});saveAndRender();}
