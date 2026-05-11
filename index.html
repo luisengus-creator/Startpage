@@ -231,7 +231,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
     <div class="weather-bg-wrap">
       <div style="display:flex;align-items:center;gap:0.5rem;">
         <span id="city-name" onclick="cycleCity()">---</span>
-        <span id="weather-refresh-btn" onclick="refreshWeather()" title="Refresh weather &amp; photo" style="cursor:pointer;opacity:0;font-size:0.72rem;transition:opacity 0.3s,transform 0.5s cubic-bezier(0.4,0,0.2,1);display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:2px 8px 2px 6px;letter-spacing:0.3px;font-weight:600;" onmouseover="this.style.opacity='1';this.style.background='rgba(255,255,255,0.13)'" onmouseout="this.style.opacity='0.55';this.style.background='rgba(255,255,255,0.07)'"><i class="fa-solid fa-rotate-right" style="font-size:0.65rem;"></i><span style="font-size:0.60rem;color:inherit;">refresh</span></span>
+        <span id="weather-refresh-btn" onclick="refreshWeather()" title="Refresh weather &amp; photo" style="cursor:pointer;opacity:0.55;font-size:0.72rem;transition:opacity 0.3s,transform 0.5s cubic-bezier(0.4,0,0.2,1);display:inline-flex;align-items:center;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:4px 7px;font-weight:600;" onmouseover="this.style.opacity='1';this.style.background='rgba(255,255,255,0.13)'" onmouseout="this.style.opacity='0.55';this.style.background='rgba(255,255,255,0.07)'"><i class="fa-solid fa-rotate-right" style="font-size:0.65rem;"></i></span>
       </div>
       <div id="weather-grid" onclick="openWeatherPopover(this)"></div>
       <div id="weather-stats"></div>
