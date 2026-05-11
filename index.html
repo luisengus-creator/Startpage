@@ -1222,7 +1222,7 @@ function applyTabMeta(){document.title=state.tabTitle||'Startpage';const fav=doc
 
 function editDisable(key){cur()[key]=false;saveAndRender();updateWeather();tickClock();if(document.getElementById('settings-modal').style.display==='flex')renderSettings();}
 document.addEventListener('click',e=>{if(!document.body.classList.contains('edit-mode'))return;if(e.target.closest('.column')||e.target.closest('[onclick*="edit-mode"]')||e.target.closest('.modal')||e.target.closest('#overlay')||e.target.closest('.edit-del-btn'))return;document.body.classList.remove('edit-mode');});
-window.onload=()=>{saveAndRender();applyTabMeta();tickClock();setInterval(tickClock,1000);updateWeather();requestAnimationFrame(()=>document.documentElement.classList.add('ready'));};
+window.onload=()=>{saveAndRender();applyTabMeta();tickClock();setInterval(tickClock,1000);updateWeather();setInterval(()=>{updateWeather();if(cur().bgMode==='unsplash')fetchUnsplashPhoto(true);},30*60*1000);requestAnimationFrame(()=>document.documentElement.classList.add('ready'));};
 </script>
 </body>
 </html>
