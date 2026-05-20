@@ -11,7 +11,8 @@
 <style>
 :root{--bg:#1C1B22;--scale:1;--density-mod:1;--fs-unit:calc(1rem * var(--scale) * var(--density-mod));--fade-speed:0.5s;--grid-font:'Inter',system-ui,sans-serif}
 *{box-sizing:border-box}
-body{margin:0;padding:0;font-family:'Inter',system-ui,sans-serif;background-color:var(--bg);color:white;height:100vh;display:flex;flex-direction:column;overflow:hidden;font-size:var(--fs-unit)}
+body{margin:0;padding:0;font-family:'Inter',system-ui,sans-serif;background-color:var(--bg);color:white;height:100vh;display:flex;flex-direction:column;overflow:hidden;font-size:var(--fs-unit);opacity:0;transition:opacity 0.18s ease}
+body.page-ready{opacity:1}
 .full-bg-layer{position:fixed;inset:0;z-index:-1;pointer-events:none;background-size:cover;background-position:center;background-repeat:no-repeat;transition:opacity 1.2s ease}
 .ready .full-bg-layer{transition:opacity 1.2s ease,filter var(--fade-speed) ease}
 .container{width:100%;height:100%;margin:0 auto;padding:2vh 2vw;display:flex;flex-direction:column}
@@ -1244,7 +1245,7 @@ function applyTabMeta(){document.title=state.tabTitle||'Startpage';const fav=doc
 
 function editDisable(key){cur()[key]=false;saveAndRender();updateWeather();tickClock();if(document.getElementById('settings-modal').style.display==='flex')renderSettings();}
 document.addEventListener('click',e=>{if(!document.body.classList.contains('edit-mode'))return;if(e.target.closest('.column')||e.target.closest('[onclick*="edit-mode"]')||e.target.closest('.modal')||e.target.closest('#overlay')||e.target.closest('.edit-del-btn'))return;document.body.classList.remove('edit-mode');});
-window.onload=()=>{saveAndRender();applyTabMeta();tickClock();setInterval(tickClock,1000);updateWeather();setInterval(()=>{updateWeather();if(cur().bgMode==='unsplash')fetchUnsplashPhoto(true);},30*60*1000);requestAnimationFrame(()=>document.documentElement.classList.add('ready'));};
+window.onload=()=>{saveAndRender();applyTabMeta();tickClock();setInterval(tickClock,1000);updateWeather();setInterval(()=>{updateWeather();if(cur().bgMode==='unsplash')fetchUnsplashPhoto(true);},30*60*1000);requestAnimationFrame(()=>{document.documentElement.classList.add('ready');requestAnimationFrame(()=>document.body.classList.add('page-ready'));});};
 </script>
 </body>
 </html>
