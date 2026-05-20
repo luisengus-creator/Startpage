@@ -3,13 +3,14 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Startpage</title>
+<style>body{opacity:0}</style>
 <link id="favicon-link" rel="icon" type="image/x-icon" href="">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link id="gfont-link" rel="stylesheet" href=""><link id="gfont-link2" rel="stylesheet" href="">
 <style>
-:root{--bg:#1C1B22;--scale:1;--density-mod:1;--fs-unit:calc(1rem * var(--scale) * var(--density-mod));--fade-speed:0.5s;--grid-font:'Inter',system-ui,sans-serif}
+:root{--bg:#1C1B22;--scale:1;--density-mod:1;--fs-unit:calc(1rem * var(--scale) * var(--density-mod));--fade-speed:0.5s;--grid-font:'Inter',system-ui,sans-serif;--clock-backdrop:0;--search-backdrop:0.3}
 *{box-sizing:border-box}
 body{margin:0;padding:0;font-family:'Inter',system-ui,sans-serif;background-color:var(--bg);color:white;height:100vh;display:flex;flex-direction:column;overflow:hidden;font-size:var(--fs-unit);opacity:0;transition:opacity 0.18s ease}
 body.page-ready{opacity:1}
@@ -145,7 +146,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 .pmt-btn.pmt-active{background:var(--modal-accent,#00d4ff);color:#000}
 #search-bar-wrap{flex-shrink:0;display:flex;justify-content:center;align-items:center;padding:0 2vw 1.4vh;height:52px}
 #search-bar-wrap.search-hidden{opacity:0;visibility:hidden;pointer-events:none;height:0!important;overflow:hidden;margin:0!important;padding:0!important}
-#search-form{display:flex;align-items:center;width:min(480px,90%);background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:24px;padding:0 6px 0 16px;transition:background 0.2s,border-color 0.2s,box-shadow 0.2s;gap:4px}
+#search-form{display:flex;align-items:center;width:min(480px,90%);background:rgba(0,0,0,var(--search-backdrop));border:1px solid rgba(255,255,255,0.08);border-radius:24px;padding:0 6px 0 16px;transition:background 0.2s,border-color 0.2s,box-shadow 0.2s;gap:4px}
 #search-form:focus-within{background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.18);box-shadow:0 0 0 2px var(--modal-accent-border,rgba(0,212,255,0.15))}
 #search-input{flex:1;background:transparent;border:none;outline:none;color:white;font-size:0.88rem;height:38px;padding:0;font-family:'Inter',system-ui,sans-serif}
 #search-input::placeholder{color:rgba(255,255,255,0.25)}
@@ -164,7 +165,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 #search-submit:hover{color:white}
 .search-result-item{padding:6px 10px;border-bottom:1px solid #161616;cursor:pointer;font-size:0.75rem;color:#999;transition:background 0.12s,color 0.12s}
 .search-result-item:hover{background:rgba(255,255,255,0.06);color:var(--modal-accent,#00d4ff)}
-#clock-display{position:absolute;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;line-height:1.2;pointer-events:auto;cursor:pointer;isolation:isolate}
+#clock-display{position:absolute;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;line-height:1.2;pointer-events:auto;cursor:pointer;isolation:isolate;background:rgba(0,0,0,var(--clock-backdrop));border-radius:10px;padding:4px 12px;transition:background 0.3s}
 #clock-time{font-size:1.05rem;font-weight:600;letter-spacing:2px;opacity:0.9}
 #clock-date{font-size:0.6rem;opacity:0.4;letter-spacing:1.5px;text-transform:uppercase}
 .sub-disabled{opacity:0.3;pointer-events:none;transition:opacity 0.2s}
@@ -258,6 +259,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
     <div class="settings-nav-item" onclick="showPanel('categories',this)"><i class="fa-solid fa-table-cells"></i>Categories</div>
     <div class="settings-nav-item" onclick="showPanel('background',this)"><i class="fa-solid fa-image"></i>Background</div>
     <div class="settings-nav-item" onclick="showPanel('clock',this)"><i class="fa-solid fa-clock"></i>Clock</div>
+    <div class="settings-nav-item" onclick="showPanel('search',this)"><i class="fa-solid fa-magnifying-glass"></i>Search</div>
     <div class="settings-nav-item" onclick="showPanel('weather',this)"><i class="fa-solid fa-cloud-sun"></i>Weather</div>
     <div id="settings-sidebar-footer">
       <button class="btn-backup" onclick="exportData()">Backup</button>
@@ -287,12 +289,6 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
           </div>
         </div>
         <div class="color-row" style="margin-bottom:12px;"><span>Open Links On</span><select id="target-mode" onchange="updateVis()" class="select-inline"><option value="_self">Current Tab</option><option value="_blank">New Tab</option></select></div>
-        <div class="color-row" style="margin-bottom:8px;"><label class="label-inline" style="margin:0;"><input type="checkbox" id="search-enable" onchange="updateVis()"> Show Search Bar</label></div>
-        <div id="search-engine-wrap" class="color-row" style="margin-bottom:4px;"><span>Search Engine</span>
-          <select id="search-engine" onchange="updateVis()" class="select-inline">
-            <option value="google">Google</option><option value="ddg">DuckDuckGo</option><option value="startpage">Startpage</option><option value="brave">Brave</option><option value="qwant">Qwant</option><option value="yandex">Yandex</option>
-          </select>
-        </div>
         <div class="color-row"><span>Grid Font</span>
           <select id="font-picker" onchange="updateVis()" class="select-inline">
             <option value="Inter">Inter</option><option value="Roboto">Roboto</option><option value="DM Sans">DM Sans</option><option value="Nunito">Nunito</option><option value="Raleway">Raleway</option><option value="Sora">Sora</option><option value="Space Grotesk">Space Grotesk</option><option value="Outfit">Outfit</option><option value="Poppins">Poppins</option><option value="Lato">Lato</option><option value="Playfair Display">Playfair Display</option><option value="Merriweather">Merriweather</option><option value="Fira Code">Fira Code</option><option value="JetBrains Mono">JetBrains Mono</option><option value="Orbitron">Orbitron</option><option value="Bebas Neue">Bebas Neue</option>
@@ -345,7 +341,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
             </div>
           </div>
           <div class="color-row" style="margin-top:8px;"><span>Background Color</span><div class="color-field"><input type="color" id="bg-color" oninput="updateVis()" style="display:none"><div class="cp-swatch" onclick="cpOpen('bg-color')"></div><button class="btn-icon" onclick="resetBgColor()"><i class="fa-solid fa-rotate-left"></i></button></div></div>
-          <div style="display:flex;align-items:center;gap:8px;margin-top:6px;"><span style="font-size:0.72rem;color:#888;width:52px;flex-shrink:0;">Intensity</span><input type="range" id="grad-intensity" min="0" max="1" step="0.05" oninput="updateVis();document.getElementById('grad-intensity-val').textContent=Math.round(this.value*100)+'%'" style="flex:1;"><span id="grad-intensity-val" style="font-size:0.72rem;color:#888;width:30px;text-align:right;">10%</span></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:6px;"><span style="font-size:0.72rem;color:#888;width:52px;flex-shrink:0;">Intensity</span><input type="range" id="grad-intensity" min="0" max="1" step="0.01" oninput="updateVis();document.getElementById('grad-intensity-val').textContent=Math.round(this.value*100)+'%'" style="flex:1;"><span id="grad-intensity-val" style="font-size:0.72rem;color:#888;width:30px;text-align:right;">10%</span></div>
         </div>
         <!-- Photo options -->
         <div id="photo-opts" style="display:none;margin-top:8px;">
@@ -367,7 +363,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
         <!-- Time options -->
         <div id="time-opts" style="display:none;margin-top:8px;">
           <div style="font-size:0.68rem;color:#888;margin-bottom:8px;line-height:1.5;">Animated live scene driven by your current <strong style="color:#ccc;">weather &amp; time of day</strong>. Updates automatically.</div>
-          <div style="display:flex;align-items:center;gap:8px;margin-top:6px;"><span style="font-size:0.72rem;color:#888;width:52px;flex-shrink:0;">Intensity</span><input type="range" id="time-intensity" min="0" max="1" step="0.05" oninput="updateTimeIntensity()" style="flex:1;"><span id="time-intensity-val" style="font-size:0.72rem;color:#888;width:30px;text-align:right;">100%</span></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:6px;"><span style="font-size:0.72rem;color:#888;width:52px;flex-shrink:0;">Intensity</span><input type="range" id="time-intensity" min="0" max="1" step="0.01" oninput="updateTimeIntensity()" style="flex:1;"><span id="time-intensity-val" style="font-size:0.72rem;color:#888;width:30px;text-align:right;">100%</span></div>
         </div>
       </div>
     </div>
@@ -391,6 +387,24 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
             </select>
           </div>
           <div class="color-row"><span>Color</span><div class="color-field"><input type="color" id="clock-color" oninput="updateVis()" style="display:none"><div class="cp-swatch" onclick="cpOpen('clock-color')"></div><button class="btn-icon" onclick="resetField('clock-color','#ffffff','clockColor')"><i class="fa-solid fa-rotate-left"></i></button></div></div>
+          <div class="color-row" style="margin-bottom:4px;margin-top:4px;"><span>Backdrop</span><span id="clock-backdrop-val" style="font-size:0.72rem;color:#888;">0%</span></div>
+          <input type="range" id="clock-backdrop-slider" min="0" max="1" step="0.01" oninput="updateClockBackdrop(this.value)" style="margin-bottom:6px;">
+        </div>
+      </div>
+    </div>
+    <!-- SEARCH -->
+    <div class="settings-panel" id="panel-search">
+      <div class="setting-block">
+        <div class="section-h">Search Bar</div>
+        <label class="label-inline"><input type="checkbox" id="search-enable" onchange="updateVis()"> Show Search Bar</label>
+        <div id="search-sub">
+          <div class="color-row" style="margin-bottom:4px;margin-top:4px;"><span>Search Engine</span>
+            <select id="search-engine" onchange="updateVis()" class="select-inline">
+              <option value="google">Google</option><option value="ddg">DuckDuckGo</option><option value="startpage">Startpage</option><option value="brave">Brave</option><option value="qwant">Qwant</option><option value="yandex">Yandex</option>
+            </select>
+          </div>
+          <div class="color-row" style="margin-bottom:4px;margin-top:8px;"><span>Backdrop</span><span id="search-backdrop-val" style="font-size:0.72rem;color:#888;">30%</span></div>
+          <input type="range" id="search-backdrop-slider" min="0" max="1" step="0.01" oninput="updateSearchBackdrop(this.value)" style="margin-bottom:6px;">
         </div>
       </div>
     </div>
@@ -401,7 +415,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
         <label class="label-inline"><input type="checkbox" id="w-enable" onchange="updateVis()"> Enable Weather</label>
         <div id="weather-sub">
           <div class="color-row" style="margin-bottom:4px;"><span>Card Backdrop</span><span id="weather-backdrop-val" style="font-size:0.72rem;color:#888;">0%</span></div>
-          <input type="range" id="weather-backdrop" min="0" max="0.85" step="0.01" oninput="updateVis()" style="margin-bottom:10px;">
+          <input type="range" id="weather-backdrop" min="0" max="1" step="0.01" oninput="updateVis()" style="margin-bottom:10px;">
           <div class="color-row"><span>Size</span><select id="weather-size" onchange="updateVis()" class="select-inline"><option value="s">Small</option><option value="m">Medium</option><option value="l">Large</option></select></div>
           <label class="label-inline"><input type="checkbox" id="w-day" onchange="updateVis()"> Show Day</label>
           <label class="label-inline"><input type="checkbox" id="w-date" onchange="updateVis()"> Show Date</label>
@@ -822,7 +836,7 @@ function cpSync(id){const inp=document.getElementById(id);if(!inp)return;const s
 document.addEventListener('click',e=>{const pal=document.getElementById('cp-palette');if(!pal||!pal.classList.contains('open'))return;if(pal.contains(e.target)||e.target.classList.contains('cp-swatch'))return;cpClose();});
 
 // ── Layout helpers ──
-function updateSectionStates(){const p=cur();const cs=document.getElementById('clock-sub'),ws=document.getElementById('weather-sub'),sw=document.getElementById('search-engine-wrap');if(cs)cs.className=p.showClock?'sub-enabled':'sub-disabled';if(ws)ws.className=p.showWeather?'sub-enabled':'sub-disabled';if(sw){sw.style.opacity=(p.showSearch!==false)?'1':'0.3';sw.style.pointerEvents=(p.showSearch!==false)?'auto':'none';}}
+function updateSectionStates(){const p=cur();const cs=document.getElementById('clock-sub'),ws=document.getElementById('weather-sub'),ss=document.getElementById('search-sub');if(cs)cs.className=p.showClock?'sub-enabled':'sub-disabled';if(ws)ws.className=p.showWeather?'sub-enabled':'sub-disabled';if(ss)ss.className=(p.showSearch!==false)?'sub-enabled':'sub-disabled';}
 function resetField(pid,dv,sk){const inp=document.getElementById(pid);if(inp){inp.value=dv;cpSync(pid);}cur()[sk]=dv;saveAndRender();tickClock();}
 function resetCatColor(){const idx=document.getElementById('cat-sel').value,inp=document.getElementById('cat-color');if(inp){inp.value='#00d4ff';cpSync('cat-color');}cur().categories[idx].color='#00d4ff';saveAndRender();}
 function resetBgColor(){const inp=document.getElementById('bg-color');if(inp){inp.value='#1C1B22';cpSync('bg-color');}cur().bgColor='#1C1B22';saveAndRender();}
@@ -871,6 +885,8 @@ function saveAndRender(refreshModal=false){
   document.body.style.backgroundColor=p.bgColor;
   applyGridFont(p.gridFont);applyUiFonts(p.clockFont);
   document.documentElement.style.setProperty('--weather-backdrop',p.weatherBackdrop||0);
+  document.documentElement.style.setProperty('--clock-backdrop',p.clockBackdrop||0);
+  document.documentElement.style.setProperty('--search-backdrop',p.searchBackdrop??0.3);
   updateModalAccent();renderSearch();
   document.documentElement.style.setProperty('--card-opacity',p.cardOpacity??0.50);
   const bgA=document.getElementById('full-bg-a'),bgB=document.getElementById('full-bg-b'),dimEl=document.getElementById('dim-el'),credit=document.getElementById('unsplash-credit');
@@ -969,6 +985,8 @@ function renderSettings(){
   document.getElementById('clock-size').value=p.clockSize||'m';
   document.getElementById('clock-font').value=p.clockFont||'Inter';
   document.getElementById('clock-color').value=p.clockColor||'#ffffff';cpSync('clock-color');
+  const cbk=document.getElementById('clock-backdrop-slider'),cbkv=document.getElementById('clock-backdrop-val');if(cbk)cbk.value=p.clockBackdrop||0;if(cbkv)cbkv.textContent=Math.round((p.clockBackdrop||0)*100)+'%';
+  const sbk=document.getElementById('search-backdrop-slider'),sbkv=document.getElementById('search-backdrop-val');if(sbk)sbk.value=p.searchBackdrop??0.3;if(sbkv)sbkv.textContent=Math.round((p.searchBackdrop??0.3)*100)+'%';
   // weather
   document.getElementById('w-enable').checked=p.showWeather;
   document.getElementById('w-colored').checked=p.wColored;document.getElementById('w-solid').checked=!p.wColored;
@@ -976,7 +994,7 @@ function renderSettings(){
   document.getElementById('w-day').checked=(p.wShowDay!==false);document.getElementById('w-date').checked=(p.wShowDate!==false);
   document.getElementById('w-date-fmt').value=p.wDateFmt||'dmy';
   document.getElementById('weather-color').value=p.weatherColor||'#ffffff';cpSync('weather-color');
-  const wb=document.getElementById('weather-backdrop'),wbv=document.getElementById('weather-backdrop-val');if(wb)wb.value=p.weatherBackdrop||0;if(wbv)wbv.textContent=Math.round((p.weatherBackdrop||0)/0.85*100)+'%';
+  const wb=document.getElementById('weather-backdrop'),wbv=document.getElementById('weather-backdrop-val');if(wb)wb.value=p.weatherBackdrop||0;if(wbv)wbv.textContent=Math.round((p.weatherBackdrop||0)*100)+'%';
   document.getElementById('w-aqi').checked=!!p.wAqi;document.getElementById('w-uv').checked=(p.wUv!==false);document.getElementById('w-pressure').checked=(p.wPressure!==false);document.getElementById('w-humidity').checked=(p.wHumidity!==false);document.getElementById('w-visibility').checked=(p.wVisibility!==false);document.getElementById('w-sunrise').checked=(p.wSunrise!==false);
   // tab
   const tt=document.getElementById('tab-title-input'),tf=document.getElementById('tab-favicon-input');if(tt)tt.value=state.tabTitle||'';if(tf)tf.value=state.tabFavicon||'';const fb=document.getElementById('favicon-emoji-btn');if(fb)fb.textContent=state.tabFaviconEmoji||'⭐';
@@ -1005,7 +1023,7 @@ function updateVis(){
   p.wShowDay=document.getElementById('w-day').checked;
   p.wShowDate=document.getElementById('w-date').checked;
   p.wDateFmt=document.getElementById('w-date-fmt').value;
-  const wb=document.getElementById('weather-backdrop');if(wb){p.weatherBackdrop=parseFloat(wb.value);document.documentElement.style.setProperty('--weather-backdrop',p.weatherBackdrop);const wbv=document.getElementById('weather-backdrop-val');if(wbv)wbv.textContent=Math.round(p.weatherBackdrop/0.85*100)+'%';}
+  const wb=document.getElementById('weather-backdrop');if(wb){p.weatherBackdrop=parseFloat(wb.value);document.documentElement.style.setProperty('--weather-backdrop',p.weatherBackdrop);const wbv=document.getElementById('weather-backdrop-val');if(wbv)wbv.textContent=Math.round(p.weatherBackdrop*100)+'%';}
   p.wAqi=document.getElementById('w-aqi').checked;p.wUv=document.getElementById('w-uv').checked;p.wPressure=document.getElementById('w-pressure').checked;p.wHumidity=document.getElementById('w-humidity').checked;p.wVisibility=document.getElementById('w-visibility').checked;p.wSunrise=document.getElementById('w-sunrise').checked;
   // BG mode-specific
   const mode=p.bgMode||'gradient';
@@ -1017,6 +1035,8 @@ function updateVis(){
 }
 
 function updateCardOpacity(){const p=cur();const v=parseFloat(document.getElementById('card-opacity-slider').value);p.cardOpacity=v;document.documentElement.style.setProperty('--card-opacity',v);document.getElementById('card-opacity-val').textContent=Math.round(v*100)+'%';localStorage.setItem(KEY,JSON.stringify(state));}
+function updateClockBackdrop(v){const p=cur();v=parseFloat(v);p.clockBackdrop=v;document.documentElement.style.setProperty('--clock-backdrop',v);const el=document.getElementById('clock-backdrop-val');if(el)el.textContent=Math.round(v*100)+'%';localStorage.setItem(KEY,JSON.stringify(state));}
+function updateSearchBackdrop(v){const p=cur();v=parseFloat(v);p.searchBackdrop=v;document.documentElement.style.setProperty('--search-backdrop',v);const el=document.getElementById('search-backdrop-val');if(el)el.textContent=Math.round(v*100)+'%';localStorage.setItem(KEY,JSON.stringify(state));}
 function updatePhotoDim(){const p=cur();const v=parseFloat(document.getElementById('photo-dim').value);p.photoDim=v;document.getElementById('photo-dim-val').textContent=Math.round(v*100)+'%';const dim=document.getElementById('dim-el');if(dim&&(p.bgMode==='photo'||p.bgImg))dim.style.background=`rgba(0,0,0,${v})`;localStorage.setItem(KEY,JSON.stringify(state));}
 
 // ── City / Weather ──
@@ -1245,7 +1265,9 @@ function applyTabMeta(){document.title=state.tabTitle||'Startpage';const fav=doc
 
 function editDisable(key){cur()[key]=false;saveAndRender();updateWeather();tickClock();if(document.getElementById('settings-modal').style.display==='flex')renderSettings();}
 document.addEventListener('click',e=>{if(!document.body.classList.contains('edit-mode'))return;if(e.target.closest('.column')||e.target.closest('[onclick*="edit-mode"]')||e.target.closest('.modal')||e.target.closest('#overlay')||e.target.closest('.edit-del-btn'))return;document.body.classList.remove('edit-mode');});
-window.onload=()=>{saveAndRender();applyTabMeta();tickClock();setInterval(tickClock,1000);updateWeather();setInterval(()=>{updateWeather();if(cur().bgMode==='unsplash')fetchUnsplashPhoto(true);},30*60*1000);requestAnimationFrame(()=>{document.documentElement.classList.add('ready');requestAnimationFrame(()=>document.body.classList.add('page-ready'));});};
+window.onload=()=>{saveAndRender();applyTabMeta();tickClock();setInterval(tickClock,1000);updateWeather();setInterval(()=>{updateWeather();if(cur().bgMode==='unsplash')fetchUnsplashPhoto(true);},30*60*1000);// Wait two frames so the gradient transition suppression completes before revealing
+requestAnimationFrame(()=>requestAnimationFrame(()=>{document.documentElement.classList.add('ready');document.body.classList.add('page-ready');}));
+};
 </script>
 </body>
 </html>
