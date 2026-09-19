@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link id="gfont-link" rel="stylesheet" href=""><link id="gfont-link2" rel="stylesheet" href="">
 <style>
-:root{--bg:#1C1B22;--scale:1;--density-mod:1;--fs-unit:calc(1rem * var(--scale) * var(--density-mod));--fade-speed:0.5s;--grid-font:'Inter',system-ui,sans-serif;--clock-backdrop:0;--search-backdrop:0.3;--card-on:min(1,calc(var(--card-opacity,0.5) * 1000));--weather-on:min(1,calc(var(--weather-backdrop,0) * 1000));--search-on:min(1,calc(var(--search-backdrop,0.3) * 1000))}
+:root{--bg:#1C1B22;--scale:1;--density-mod:1;--fs-unit:calc(1rem * var(--scale) * var(--density-mod));--fade-speed:0.5s;--grid-font:'Inter',system-ui,sans-serif;--clock-backdrop:0;--search-backdrop:0.3;--card-rgb:0,0,0;--clock-rgb:0,0,0;--search-rgb:0,0,0;--weather-rgb:0,0,0;--card-on:min(1,calc(var(--card-opacity,0.5) * 1000));--weather-on:min(1,calc(var(--weather-backdrop,0) * 1000));--search-on:min(1,calc(var(--search-backdrop,0.3) * 1000))}
 *{box-sizing:border-box}
 body{margin:0;padding:0;font-family:'Inter',system-ui,sans-serif;background-color:var(--bg);color:white;height:100vh;display:flex;flex-direction:column;overflow:hidden;font-size:var(--fs-unit);opacity:0;transition:opacity 0.18s ease}
 body.page-ready{opacity:1}
@@ -28,7 +28,7 @@ body.page-ready{opacity:1}
 #main-content{flex-grow:1;display:flex;align-items:center;justify-content:center;width:100%;overflow:hidden;padding:1vh}
 #grid{display:flex;flex-wrap:nowrap;gap:calc(1.2rem * var(--scale) * var(--density-mod));justify-content:center;align-items:center;width:fit-content;max-width:100%;opacity:0;transition:none}
 .scaling-finished #grid{opacity:1;transition:opacity 0.15s ease}
-.column{background:rgba(0,0,0,var(--card-opacity,0.02));border-radius:4px;padding:calc(1.2rem * var(--scale) * var(--density-mod));position:relative;border:1px solid rgba(255,255,255,calc(0.06 * var(--card-on)));backdrop-filter:blur(calc(12px * var(--card-on)));text-align:center;flex:0 0 auto;width:fit-content;min-width:calc(160px * var(--scale) * var(--density-mod));overflow:hidden;transition:border-color 0.2s,background 0.2s,box-shadow 0.2s}
+.column{background:rgba(var(--card-rgb),var(--card-opacity,0.02));border-radius:4px;padding:calc(1.2rem * var(--scale) * var(--density-mod));position:relative;border:1px solid rgba(255,255,255,calc(0.06 * var(--card-on)));backdrop-filter:blur(calc(12px * var(--card-on)));text-align:center;flex:0 0 auto;width:fit-content;min-width:calc(160px * var(--scale) * var(--density-mod));overflow:hidden;transition:border-color 0.2s,background 0.2s,box-shadow 0.2s}
 .column:hover{box-shadow:inset 0 0 0 100vmax rgba(255,255,255,calc(0.09 * var(--card-opacity,0.5)));border-color:rgba(255,255,255,calc(0.13 * var(--card-on)))}
 .edit-mode .column{overflow:visible}
 .edit-overlay{display:none;position:absolute;inset:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(2px);z-index:10;align-items:center;justify-content:center;border-radius:4px}
@@ -81,7 +81,7 @@ body.page-ready{opacity:1}
 @keyframes spin-once{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
 .spin-anim{animation:spin-once 0.55s cubic-bezier(0.4,0,0.2,1) forwards}
 #weather-area.weather-hidden{opacity:0!important;visibility:hidden!important;pointer-events:none;height:0!important;padding:0!important;margin:0!important;overflow:hidden}
-#weather-area .weather-bg-wrap{background:rgba(0,0,0,var(--weather-backdrop,0));border-radius:14px;padding:6px 18px;display:flex;flex-direction:column;align-items:center;gap:0.5rem;transition:background 0.3s}
+#weather-area .weather-bg-wrap{background:rgba(var(--weather-rgb),var(--weather-backdrop,0));border-radius:14px;padding:6px 18px;display:flex;flex-direction:column;align-items:center;gap:0.5rem;transition:background 0.3s}
 #city-name{font-size:0.75rem;opacity:0.5;letter-spacing:3px;cursor:pointer;text-transform:uppercase}
 #weather-grid{display:flex;gap:0.6rem;align-items:center;cursor:pointer}
 .weather-card{background:rgba(255,255,255,calc(0.03 * var(--weather-on)));padding:0.5rem 0.7rem;border-radius:10px;border:1px solid rgba(255,255,255,calc(0.05 * var(--weather-on)));text-align:center;min-width:5.5rem}
@@ -146,7 +146,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 .pmt-btn.pmt-active{background:var(--modal-accent,#00d4ff);color:#000}
 #search-bar-wrap{flex-shrink:0;display:flex;justify-content:center;align-items:center;padding:0 2vw 1.4vh;height:52px}
 #search-bar-wrap.search-hidden{opacity:0;visibility:hidden;pointer-events:none;height:0!important;overflow:hidden;margin:0!important;padding:0!important}
-#search-form{display:flex;align-items:center;width:min(480px,90%);background:rgba(0,0,0,var(--search-backdrop));border:1px solid rgba(255,255,255,calc(0.08 * var(--search-on)));border-radius:24px;padding:0 6px 0 16px;transition:background 0.2s,border-color 0.2s,box-shadow 0.2s;gap:4px}
+#search-form{display:flex;align-items:center;width:min(480px,90%);background:rgba(var(--search-rgb),var(--search-backdrop));border:1px solid rgba(255,255,255,calc(0.08 * var(--search-on)));border-radius:24px;padding:0 6px 0 16px;transition:background 0.2s,border-color 0.2s,box-shadow 0.2s;gap:4px}
 #search-form:focus-within{border-color:rgba(255,255,255,0.18);box-shadow:0 0 0 2px var(--modal-accent-border,rgba(0,212,255,0.15))}
 #search-input{flex:1;background:transparent;border:none;outline:none;color:white;font-size:0.88rem;height:38px;padding:0;font-family:'Inter',system-ui,sans-serif}
 #search-input::placeholder{color:rgba(255,255,255,0.25)}
@@ -165,7 +165,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 #search-submit:hover{color:white}
 .search-result-item{padding:6px 10px;border-bottom:1px solid #161616;cursor:pointer;font-size:0.75rem;color:#999;transition:background 0.12s,color 0.12s}
 .search-result-item:hover{background:rgba(255,255,255,0.06);color:var(--modal-accent,#00d4ff)}
-#clock-display{position:absolute;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;line-height:1.2;pointer-events:auto;cursor:pointer;isolation:isolate;background:rgba(0,0,0,var(--clock-backdrop));border-radius:10px;padding:4px 12px;transition:background 0.3s}
+#clock-display{position:absolute;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;line-height:1.2;pointer-events:auto;cursor:pointer;isolation:isolate;background:rgba(var(--clock-rgb),var(--clock-backdrop));border-radius:10px;padding:4px 12px;transition:background 0.3s}
 #clock-time{font-size:1.05rem;font-weight:600;letter-spacing:2px;opacity:0.9}
 #clock-date{font-size:0.6rem;opacity:0.4;letter-spacing:1.5px;text-transform:uppercase}
 .sub-disabled{opacity:0.3;pointer-events:none;transition:opacity 0.2s}
@@ -315,11 +315,13 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
         <label class="label-inline"><input type="checkbox" id="header-vis-check" onchange="updateVis()"> Show Category Headers</label>
         <div class="color-row" style="margin-top:10px;margin-bottom:4px;"><span>Card Background</span><span id="card-opacity-val" style="font-size:0.72rem;color:#888;">0%</span></div>
         <input type="range" id="card-opacity-slider" min="0" max="1" step="0.01" oninput="updateCardOpacity()">
+        <div style="font-size:0.68rem;color:#666;margin-top:6px;">Opacity applies to every card. Each card's color is set per category below.</div>
         <select id="cat-sel" onchange="syncCatEditor()" style="margin:12px 0 8px;"></select>
         <div class="flex-row" style="margin-bottom:8px;align-items:center;">
           <input type="text" id="cat-title" oninput="updateCat('text')" onblur="saveAndRender()" placeholder="Title">
           <div class="color-field"><input type="color" id="cat-color" oninput="updateCat()" style="display:none"><div class="cp-swatch" onclick="cpOpen('cat-color')"></div><button class="btn-icon" onclick="resetCatColor()"><i class="fa-solid fa-rotate-left"></i></button></div>
         </div>
+        <div class="color-row" style="margin-bottom:8px;"><span>Card Background Color</span><div class="color-field"><input type="color" id="cat-bg-color" oninput="updateCatBg(this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('cat-bg-color')" title="Card background color for this category"></div><button class="btn-icon" onclick="resetCatBg()" title="Reset to black"><i class="fa-solid fa-rotate-left"></i></button></div></div>
         <input type="text" id="cat-url" oninput="updateCat('text')" onblur="saveAndRender()" placeholder="Header URL (optional)" style="margin-bottom:10px;">
         <div id="link-list-editor" style="border:1px solid #1a1a1a;padding:8px;border-radius:8px;background:#050505;margin-bottom:8px;"></div>
         <div class="flex-row"><button onclick="addCat()">+ Category</button><button onclick="addLink()">+ Link</button></div>
@@ -393,7 +395,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
           </div>
           <div class="color-row"><span>Color</span><div class="color-field"><input type="color" id="clock-color" oninput="updateVis()" style="display:none"><div class="cp-swatch" onclick="cpOpen('clock-color')"></div><button class="btn-icon" onclick="resetField('clock-color','#ffffff','clockColor')"><i class="fa-solid fa-rotate-left"></i></button></div></div>
           <div class="color-row" style="margin-bottom:4px;margin-top:4px;"><span>Backdrop</span><span id="clock-backdrop-val" style="font-size:0.72rem;color:#888;">0%</span></div>
-          <input type="range" id="clock-backdrop-slider" min="0" max="1" step="0.01" oninput="updateClockBackdrop(this.value)" style="margin-bottom:6px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><input type="range" id="clock-backdrop-slider" min="0" max="1" step="0.01" oninput="updateClockBackdrop(this.value)" style="flex:1;min-width:0;margin-top:0;"><div class="color-field"><input type="color" id="clock-bd-color" oninput="updateBackdropColor('clock',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('clock-bd-color')" title="Backdrop color"></div><button class="btn-icon" onclick="resetBackdropColor('clock')" title="Reset to black"><i class="fa-solid fa-rotate-left"></i></button></div></div>
         </div>
       </div>
     </div>
@@ -409,7 +411,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
             </select>
           </div>
           <div class="color-row" style="margin-bottom:4px;margin-top:8px;"><span>Backdrop</span><span id="search-backdrop-val" style="font-size:0.72rem;color:#888;">30%</span></div>
-          <input type="range" id="search-backdrop-slider" min="0" max="1" step="0.01" oninput="updateSearchBackdrop(this.value)" style="margin-bottom:6px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><input type="range" id="search-backdrop-slider" min="0" max="1" step="0.01" oninput="updateSearchBackdrop(this.value)" style="flex:1;min-width:0;margin-top:0;"><div class="color-field"><input type="color" id="search-bd-color" oninput="updateBackdropColor('search',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('search-bd-color')" title="Backdrop color"></div><button class="btn-icon" onclick="resetBackdropColor('search')" title="Reset to black"><i class="fa-solid fa-rotate-left"></i></button></div></div>
         </div>
       </div>
     </div>
@@ -420,7 +422,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
         <label class="label-inline"><input type="checkbox" id="w-enable" onchange="updateVis()"> Enable Weather</label>
         <div id="weather-sub">
           <div class="color-row" style="margin-bottom:4px;"><span>Card Backdrop</span><span id="weather-backdrop-val" style="font-size:0.72rem;color:#888;">0%</span></div>
-          <input type="range" id="weather-backdrop" min="0" max="1" step="0.01" oninput="updateVis()" style="margin-bottom:10px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><input type="range" id="weather-backdrop" min="0" max="1" step="0.01" oninput="updateVis()" style="flex:1;min-width:0;margin-top:0;"><div class="color-field"><input type="color" id="weather-bd-color" oninput="updateBackdropColor('weather',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('weather-bd-color')" title="Backdrop color"></div><button class="btn-icon" onclick="resetBackdropColor('weather')" title="Reset to black"><i class="fa-solid fa-rotate-left"></i></button></div></div>
           <div class="color-row"><span>Size</span><select id="weather-size" onchange="updateVis()" class="select-inline"><option value="s">Small</option><option value="m">Medium</option><option value="l">Large</option></select></div>
           <label class="label-inline"><input type="checkbox" id="w-day" onchange="updateVis()"> Show Day</label>
           <label class="label-inline"><input type="checkbox" id="w-date" onchange="updateVis()"> Show Date</label>
@@ -620,6 +622,7 @@ state.profiles.forEach(p=>{
   if(!['gradient','photo','unsplash'].includes(p.bgMode))p.bgMode='gradient';
   if(p.categories)p.categories.forEach(c=>{if(c.links)c.links.forEach(l=>{if(!l.linkIcon)l.linkIcon={type:'none',src:''};});});
   if(p.ql)p.ql.forEach(l=>{if(!l.linkIcon)l.linkIcon={type:'none',src:''};});
+  if(p.cardColor){if(p.categories)p.categories.forEach(c=>{if(!c.bgColor)c.bgColor=p.cardColor;});}delete p.cardColor;
   if(!p.profileIcon)p.profileIcon='fa-solid fa-user';
   if(p.profilePhoto===undefined)p.profilePhoto='';
   if(!p.profileIconColor)p.profileIconColor='#ffffff';
@@ -831,6 +834,16 @@ function openClockPopover(anchor){if(document.body.classList.contains('edit-mode
 function closeClockPop(){document.getElementById('clock-popover').classList.remove('open');_clockPopOpen=false;}
 document.addEventListener('click',e=>{if(_clockPopOpen&&!document.getElementById('clock-popover').contains(e.target)&&!e.target.closest('#clock-display'))closeClockPop();});
 
+// ── Backdrop colours (one per backdrop slider) ──
+const BD_COLORS={clock:{prop:'clockBackdropColor',cssVar:'--clock-rgb'},search:{prop:'searchBackdropColor',cssVar:'--search-rgb'},weather:{prop:'weatherBackdropColor',cssVar:'--weather-rgb'}};
+function hexToRgbStr(h){h=String(h||'').replace('#','');if(h.length===3)h=h.split('').map(c=>c+c).join('');const n=parseInt(h,16);return(h.length===6&&!isNaN(n))?`${(n>>16)&255},${(n>>8)&255},${n&255}`:'0,0,0';}
+function applyBackdropColors(p){for(const k in BD_COLORS){document.documentElement.style.setProperty(BD_COLORS[k].cssVar,hexToRgbStr(p[BD_COLORS[k].prop]||'#000000'));}}
+function syncBackdropColorInputs(p){for(const k in BD_COLORS){const i=document.getElementById(k+'-bd-color');if(i){i.value=p[BD_COLORS[k].prop]||'#000000';cpSync(k+'-bd-color');}}}
+function updateBackdropColor(k,hex){const p=cur();p[BD_COLORS[k].prop]=hex;applyBackdropColors(p);localStorage.setItem(KEY,JSON.stringify(state));}
+function updateCatBg(hex){const idx=document.getElementById('cat-sel').value,c=cur().categories[idx];if(!c)return;c.bgColor=hex;const col=document.querySelectorAll('#grid .column')[idx];if(col)col.style.setProperty('--card-rgb',hexToRgbStr(hex));localStorage.setItem(KEY,JSON.stringify(state));}
+function resetCatBg(){const i=document.getElementById('cat-bg-color');if(i){i.value='#000000';cpSync('cat-bg-color');}updateCatBg('#000000');}
+function resetBackdropColor(k){const i=document.getElementById(k+'-bd-color');if(i){i.value='#000000';cpSync(k+'-bd-color');}updateBackdropColor(k,'#000000');}
+
 // ── Color picker ──
 let _cpId=null;
 function cpOpen(id){const pal=document.getElementById('cp-palette');if(_cpId===id&&pal.classList.contains('open')){cpClose();return;}_cpId=id;document.getElementById('cp-presets').innerHTML=CP_P.map(c=>`<div class="cp-preset" style="background:${c}" onclick="cpPick('${c}')"></div>`).join('');const inp=document.getElementById(id);if(inp)document.getElementById('cp-native').value=inp.value;pal.classList.add('open');const sw=inp?inp.nextElementSibling:null;if(sw){const r=sw.getBoundingClientRect();let left=r.left,top=r.bottom+4;if(left+178>window.innerWidth-8)left=window.innerWidth-186;if(top+160>window.innerHeight-8)top=r.top-160-4;pal.style.left=left+'px';pal.style.top=top+'px';}}
@@ -895,7 +908,7 @@ function saveAndRender(refreshModal=false){
   document.documentElement.style.setProperty('--clock-backdrop',p.clockBackdrop||0);
   document.documentElement.style.setProperty('--search-backdrop',p.searchBackdrop??0.3);
   updateModalAccent();renderSearch();
-  document.documentElement.style.setProperty('--card-opacity',p.cardOpacity??0.50);
+  document.documentElement.style.setProperty('--card-opacity',p.cardOpacity??0.50);applyBackdropColors(p);
   const bgA=document.getElementById('full-bg-a'),bgB=document.getElementById('full-bg-b'),dimEl=document.getElementById('dim-el'),credit=document.getElementById('unsplash-credit');
   [bgA,bgB].forEach(bg=>{bg.style.backgroundImage='none';bg.style.background='none';bg.style.filter='none';bg.style.opacity=0;});_bgActiveLayer='a';
 
@@ -931,7 +944,7 @@ function saveAndRender(refreshModal=false){
   // QL
   document.getElementById('ql-nav').innerHTML=p.ql.filter(l=>l.vis).map(l=>{const ic=l.color||p.iconColor||'#ffffff';const lic=l.linkIcon||{type:'none',src:''};let ico='';if(lic.type==='favicon'&&l.url){try{const d=new URL(l.url).hostname;ico=`<img class="ql-img-icon" src="https://www.google.com/s2/favicons?domain=${d}&sz=64" alt="" onerror="this.style.display='none';this.nextSibling.style.display='flex'"><i class="${l.name}" style="color:${ic};display:none;font-size:1.05rem;"></i>`;}catch(e){ico=`<i class="${l.name}" style="color:${ic};font-size:1.05rem;"></i>`;}}else if(lic.type==='url'&&lic.src){ico=`<img class="ql-img-icon" src="${lic.src}" alt="" onerror="this.style.display='none';this.nextSibling.style.display='flex'"><i class="${l.name}" style="color:${ic};display:none;font-size:1.05rem;"></i>`;}else{ico=`<i class="${l.name}" style="color:${ic};font-size:1.05rem;"></i>`;}const title=l.url?new URL(l.url.startsWith('http')?l.url:'https://'+l.url).hostname:'';return`<a href="${l.url}" class="nav-link" target="${state.target}" title="${title}">${ico}</a>`;}).join('');
   // Grid
-  document.getElementById('grid').innerHTML=p.categories.map((c,ci)=>`<div class="column" draggable="true" ondragstart="colDS(event,${ci})" ondragover="colDO(event,${ci})" ondrop="colDrop(event,${ci})" ondragleave="colDL(event)" style="--cat-accent:${c.color}"><div style="position:absolute;inset:0;background:linear-gradient(${c.color}22,transparent);opacity:calc(var(--card-opacity,0.5) * 0.6);z-index:-1;"></div><div class="cat-title-row" style="position:relative;"><div class="cat-title ${p.showHeaders?'':'hidden-header'}" style="color:${c.color};"><a href="${c.url||'#'}" target="${state.target}" style="color:inherit;text-decoration:none;">${c.title}</a></div><div class="edit-overlay"><button class="edit-del-btn" onclick="delCat(${ci})">Delete</button></div></div>${c.links.map((l,li)=>{const lic=l.linkIcon||{type:'none',src:'',size:'m'};const io=lic.type!=='none'&&lic.iconOnly;const sz=lic.size==='s'?'calc(0.75rem * var(--scale) * var(--density-mod))':lic.size==='l'?'calc(1.5rem * var(--scale) * var(--density-mod))':lic.size==='xl'?'calc(2rem * var(--scale) * var(--density-mod))':'calc(1rem * var(--scale) * var(--density-mod))';const fid='fb-'+ci+'-'+li;let ih='';if(lic.type==='favicon'&&l.url){try{const d=new URL(l.url).hostname;const fb=l.name?l.name.charAt(0).toUpperCase():'?';const fbBg=l.color||state.linkColor||'#888';ih=`<img class="link-icon" style="width:${sz};height:${sz}" src="https://www.google.com/s2/favicons?domain=${d}&sz=32" alt="" onerror="this.style.display='none';document.getElementById('${fid}').style.display='inline-flex'"><span id="${fid}" class="link-icon-fallback" style="width:${sz};height:${sz};background:${fbBg}22;color:${fbBg}">${fb}</span>`;}catch(e){}}else if(lic.type==='url'&&lic.src){const fb=l.name?l.name.charAt(0).toUpperCase():'?';const fbBg=l.color||state.linkColor||'#888';ih=`<img class="link-icon" style="width:${sz};height:${sz}" src="${lic.src}" alt="" onerror="this.style.display='none';document.getElementById('${fid}').style.display='inline-flex'"><span id="${fid}" class="link-icon-fallback" style="width:${sz};height:${sz};background:${fbBg}22;color:${fbBg}">${fb}</span>`;}return`<div class="link-row"><a href="${l.url||'#'}" target="${state.target}" style="color:${l.color||state.linkColor}" class="${io?'icon-only':''}" ${io?`data-label="${l.name}"`:''}>${ih}<span class="link-label">${l.name}</span></a><div class="edit-overlay"><button class="edit-del-btn" onclick="delLink(${ci},${li})">Delete</button></div></div>`;}).join('')}<button class="edit-add-btn add-link-btn" onclick="addLinkTo(${ci})" title="Add link"><i class="fa-solid fa-plus"></i></button></div>`).join('')+`<button class="edit-add-btn add-cat-btn" onclick="addCatFromGrid()" title="Add category"><i class="fa-solid fa-plus"></i></button>`;
+  document.getElementById('grid').innerHTML=p.categories.map((c,ci)=>`<div class="column" draggable="true" ondragstart="colDS(event,${ci})" ondragover="colDO(event,${ci})" ondrop="colDrop(event,${ci})" ondragleave="colDL(event)" style="--cat-accent:${c.color};--card-rgb:${hexToRgbStr(c.bgColor)}"><div class="cat-title-row" style="position:relative;"><div class="cat-title ${p.showHeaders?'':'hidden-header'}" style="color:${c.color};"><a href="${c.url||'#'}" target="${state.target}" style="color:inherit;text-decoration:none;">${c.title}</a></div><div class="edit-overlay"><button class="edit-del-btn" onclick="delCat(${ci})">Delete</button></div></div>${c.links.map((l,li)=>{const lic=l.linkIcon||{type:'none',src:'',size:'m'};const io=lic.type!=='none'&&lic.iconOnly;const sz=lic.size==='s'?'calc(0.75rem * var(--scale) * var(--density-mod))':lic.size==='l'?'calc(1.5rem * var(--scale) * var(--density-mod))':lic.size==='xl'?'calc(2rem * var(--scale) * var(--density-mod))':'calc(1rem * var(--scale) * var(--density-mod))';const fid='fb-'+ci+'-'+li;let ih='';if(lic.type==='favicon'&&l.url){try{const d=new URL(l.url).hostname;const fb=l.name?l.name.charAt(0).toUpperCase():'?';const fbBg=l.color||state.linkColor||'#888';ih=`<img class="link-icon" style="width:${sz};height:${sz}" src="https://www.google.com/s2/favicons?domain=${d}&sz=32" alt="" onerror="this.style.display='none';document.getElementById('${fid}').style.display='inline-flex'"><span id="${fid}" class="link-icon-fallback" style="width:${sz};height:${sz};background:${fbBg}22;color:${fbBg}">${fb}</span>`;}catch(e){}}else if(lic.type==='url'&&lic.src){const fb=l.name?l.name.charAt(0).toUpperCase():'?';const fbBg=l.color||state.linkColor||'#888';ih=`<img class="link-icon" style="width:${sz};height:${sz}" src="${lic.src}" alt="" onerror="this.style.display='none';document.getElementById('${fid}').style.display='inline-flex'"><span id="${fid}" class="link-icon-fallback" style="width:${sz};height:${sz};background:${fbBg}22;color:${fbBg}">${fb}</span>`;}return`<div class="link-row"><a href="${l.url||'#'}" target="${state.target}" style="color:${l.color||state.linkColor}" class="${io?'icon-only':''}" ${io?`data-label="${l.name}"`:''}>${ih}<span class="link-label">${l.name}</span></a><div class="edit-overlay"><button class="edit-del-btn" onclick="delLink(${ci},${li})">Delete</button></div></div>`;}).join('')}<button class="edit-add-btn add-link-btn" onclick="addLinkTo(${ci})" title="Add link"><i class="fa-solid fa-plus"></i></button></div>`).join('')+`<button class="edit-add-btn add-cat-btn" onclick="addCatFromGrid()" title="Add category"><i class="fa-solid fa-plus"></i></button>`;
   document.getElementById('weather-area').classList.toggle('weather-hidden',!p.showWeather);
   if(!p.showWeather)document.getElementById('weather-area').classList.remove('weather-loaded');
   applyScaling();
@@ -974,6 +987,8 @@ function renderSettings(){
   const ti=document.getElementById('time-intensity'),tiv=document.getElementById('time-intensity-val');if(ti)ti.value=p.opTime??1.0;if(tiv)tiv.textContent=Math.round((p.opTime??1.0)*100)+'%';
   const cached=photoCache()[photoCacheKey((state.cities[cityIdx]||{name:''}).name,_wxCache.icon||'fa-sun',_wxCache.isDay!==false)];
   if(cached)uStatus(`Photo by ${cached.credit} on Unsplash`);
+  // backdrop colours
+  syncBackdropColorInputs(p);
   // card opacity
   const cs=document.getElementById('card-opacity-slider'),cv=document.getElementById('card-opacity-val');if(cs)cs.value=p.cardOpacity??0.50;if(cv)cv.textContent=Math.round((p.cardOpacity??0.50)*100)+'%';
   // QL
@@ -1116,7 +1131,7 @@ function showPanel(id,nav){document.querySelectorAll('.settings-panel').forEach(
 function syncCatEditor(){
   const p=cur(),idx=document.getElementById('cat-sel').value;
   if(idx===''||!p.categories[idx])return;
-  const c=p.categories[idx];document.getElementById('cat-title').value=c.title;document.getElementById('cat-color').value=c.color;cpSync('cat-color');document.getElementById('cat-url').value=c.url||'';
+  const c=p.categories[idx];document.getElementById('cat-title').value=c.title;document.getElementById('cat-color').value=c.color;cpSync('cat-color');document.getElementById('cat-url').value=c.url||'';document.getElementById('cat-bg-color').value=c.bgColor||'#000000';cpSync('cat-bg-color');
   document.getElementById('link-list-editor').innerHTML=c.links.map((l,li)=>{
     const lc=l.color||state.linkColor||'#cccccc';const lic=l.linkIcon||{type:'none',src:''};
     const nC=lic.type==='none'?'checked':'',fC=lic.type==='favicon'?'checked':'',uC=lic.type==='url'?'checked':'';
