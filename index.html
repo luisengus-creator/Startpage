@@ -28,8 +28,8 @@ body.page-ready{opacity:1}
 #main-content{flex-grow:1;display:flex;align-items:center;justify-content:center;width:100%;overflow:hidden;padding:1vh}
 #grid{display:flex;flex-wrap:nowrap;gap:calc(1.2rem * var(--scale) * var(--density-mod));justify-content:center;align-items:center;width:fit-content;max-width:100%;opacity:0;transition:none}
 .scaling-finished #grid{opacity:1;transition:opacity 0.15s ease}
-.column{background-color:rgba(var(--card-rgb),calc(var(--card-opacity,0.02) * var(--card-solid,1)));background-image:var(--card-img,none);border-radius:4px;padding:calc(1.2rem * var(--scale) * var(--density-mod));position:relative;border:1px solid rgba(255,255,255,calc(0.06 * var(--card-on)));backdrop-filter:blur(calc(12px * var(--card-on)));text-align:center;flex:0 0 auto;width:fit-content;min-width:calc(160px * var(--scale) * var(--density-mod));overflow:hidden;transition:border-color 0.2s,background 0.2s,box-shadow 0.2s}
-.column:hover{box-shadow:inset 0 0 0 100vmax rgba(255,255,255,calc(0.09 * var(--card-opacity,0.5)));border-color:rgba(255,255,255,calc(0.13 * var(--card-on)))}
+.column{background-color:rgba(var(--card-rgb),calc(var(--card-opacity,0.02) * var(--card-solid,1)));background-image:var(--card-img,none);background-origin:border-box;background-repeat:no-repeat;border-radius:4px;padding:calc(1.2rem * var(--scale) * var(--density-mod));position:relative;border:none;backdrop-filter:blur(calc(12px * var(--card-on)));text-align:center;flex:0 0 auto;width:fit-content;min-width:calc(160px * var(--scale) * var(--density-mod));overflow:hidden;transition:background 0.2s,box-shadow 0.2s}
+.column:hover{box-shadow:inset 0 0 0 100vmax rgba(255,255,255,calc(0.09 * var(--card-opacity,0.5)))}
 .edit-mode .column{overflow:visible}
 .edit-overlay{display:none;position:absolute;inset:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(2px);z-index:10;align-items:center;justify-content:center;border-radius:4px}
 .edit-mode .edit-overlay{display:flex}
@@ -81,7 +81,7 @@ body.page-ready{opacity:1}
 @keyframes spin-once{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
 .spin-anim{animation:spin-once 0.55s cubic-bezier(0.4,0,0.2,1) forwards}
 #weather-area.weather-hidden{opacity:0!important;visibility:hidden!important;pointer-events:none;height:0!important;padding:0!important;margin:0!important;overflow:hidden}
-#weather-area .weather-bg-wrap{background-color:rgba(var(--weather-rgb),calc(var(--weather-backdrop,0) * var(--weather-solid,1)));background-image:var(--weather-img,none);border-radius:14px;padding:6px 18px;display:flex;flex-direction:column;align-items:center;gap:0.5rem;transition:background 0.3s}
+#weather-area .weather-bg-wrap{background-color:rgba(var(--weather-rgb),calc(var(--weather-backdrop,0) * var(--weather-solid,1)));background-image:var(--weather-img,none);background-origin:border-box;background-repeat:no-repeat;border-radius:14px;padding:6px 18px;display:flex;flex-direction:column;align-items:center;gap:0.5rem;transition:background 0.3s}
 #city-name{font-size:0.75rem;opacity:0.5;letter-spacing:3px;cursor:pointer;text-transform:uppercase}
 #weather-grid{display:flex;gap:0.6rem;align-items:center;cursor:pointer}
 .weather-card{background:rgba(255,255,255,calc(0.03 * var(--weather-on)));padding:0.5rem 0.7rem;border-radius:10px;border:1px solid rgba(255,255,255,calc(0.05 * var(--weather-on)));text-align:center;min-width:5.5rem}
@@ -146,7 +146,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 .pmt-btn.pmt-active{background:var(--modal-accent,#00d4ff);color:#000}
 #search-bar-wrap{flex-shrink:0;display:flex;justify-content:center;align-items:center;padding:0 2vw 1.4vh;height:52px}
 #search-bar-wrap.search-hidden{opacity:0;visibility:hidden;pointer-events:none;height:0!important;overflow:hidden;margin:0!important;padding:0!important}
-#search-form{display:flex;align-items:center;width:min(480px,90%);background-color:rgba(var(--search-rgb),calc(var(--search-backdrop) * var(--search-solid,1)));background-image:var(--search-img,none);border:1px solid rgba(255,255,255,calc(0.08 * var(--search-on)));border-radius:24px;padding:0 6px 0 16px;transition:background 0.2s,border-color 0.2s,box-shadow 0.2s;gap:4px}
+#search-form{display:flex;align-items:center;width:min(480px,90%);background-color:rgba(var(--search-rgb),calc(var(--search-backdrop) * var(--search-solid,1)));background-image:var(--search-img,none);background-origin:border-box;background-repeat:no-repeat;border:1px solid rgba(255,255,255,calc(0.08 * var(--search-on)));border-radius:24px;padding:0 6px 0 16px;transition:background 0.2s,border-color 0.2s,box-shadow 0.2s;gap:4px}
 #search-form:focus-within{border-color:rgba(255,255,255,0.18);box-shadow:0 0 0 2px var(--modal-accent-border,rgba(0,212,255,0.15))}
 #search-input{flex:1;background:transparent;border:none;outline:none;color:white;font-size:0.88rem;height:38px;padding:0;font-family:'Inter',system-ui,sans-serif}
 #search-input::placeholder{color:rgba(255,255,255,0.25)}
@@ -165,7 +165,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 #search-submit:hover{color:white}
 .search-result-item{padding:6px 10px;border-bottom:1px solid #161616;cursor:pointer;font-size:0.75rem;color:#999;transition:background 0.12s,color 0.12s}
 .search-result-item:hover{background:rgba(255,255,255,0.06);color:var(--modal-accent,#00d4ff)}
-#clock-display{position:absolute;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;line-height:1.2;pointer-events:auto;cursor:pointer;isolation:isolate;background-color:rgba(var(--clock-rgb),calc(var(--clock-backdrop) * var(--clock-solid,1)));background-image:var(--clock-img,none);border-radius:10px;padding:4px 12px;transition:background 0.3s}
+#clock-display{position:absolute;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;line-height:1.2;pointer-events:auto;cursor:pointer;isolation:isolate;background-color:rgba(var(--clock-rgb),calc(var(--clock-backdrop) * var(--clock-solid,1)));background-image:var(--clock-img,none);background-origin:border-box;background-repeat:no-repeat;border-radius:10px;padding:4px 12px;transition:background 0.3s}
 #clock-time{font-size:1.05rem;font-weight:600;letter-spacing:2px;opacity:0.9}
 #clock-date{font-size:0.6rem;opacity:0.4;letter-spacing:1.5px;text-transform:uppercase}
 .sub-disabled{opacity:0.3;pointer-events:none;transition:opacity 0.2s}
