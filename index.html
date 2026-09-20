@@ -16,6 +16,8 @@ body{margin:0;padding:0;font-family:'Inter',system-ui,sans-serif;background-colo
 body.page-ready{opacity:1}
 .full-bg-layer{position:fixed;inset:0;z-index:-1;pointer-events:none;background-size:cover;background-position:center;background-repeat:no-repeat;transition:none}
 .ready .full-bg-layer{transition:opacity 1.2s ease,filter var(--fade-speed) ease}
+#dim-el{transition:none}
+.ready #dim-el{transition:background 0.4s ease}
 .container{width:100%;height:100%;margin:0 auto;padding:2vh 2vw;display:flex;flex-direction:column}
 .top-bar{display:flex;justify-content:space-between;align-items:center;z-index:10;flex-shrink:0;margin-bottom:2vh;position:relative}
 .nav-group{display:flex;gap:1.2rem;align-items:center}
@@ -218,6 +220,10 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 .cat-undo{display:none;align-items:center;gap:10px;margin:-6px 0 12px;padding:6px 10px;font-size:0.72rem;color:#aaa;background:#0d0d0d;border:1px solid #1e1e1e;border-radius:8px}
 .cat-undo-msg{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cat-undo-btn{width:auto;padding:2px 12px;font-size:0.72rem;font-weight:700;color:var(--modal-accent,#00d4ff);background:transparent;border:1px solid var(--modal-accent-border,#00d4ff44);border-radius:999px;cursor:pointer}
+.pos-grid{display:grid;grid-template-columns:repeat(3,22px);gap:4px}
+.pos-btn{width:22px;height:22px;padding:0;background:#0a0a0a;border:1px solid #222;border-radius:4px;cursor:pointer;transition:0.15s}
+.pos-btn:hover{background:#1a1a1a;border-color:#333}
+.pos-btn.active,.pos-btn.active:hover{background:var(--modal-accent,#00d4ff);border-color:var(--modal-accent,#00d4ff)}
 .cat-tab-dot{width:8px;height:8px;border-radius:50%;flex:none}
 .cat-tab-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cat-tabs-empty{grid-column:span 3;align-self:center;font-size:0.72rem;color:#666}
@@ -231,7 +237,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 <div id="full-bg-a" class="full-bg-layer"></div>
 <div id="full-bg-b" class="full-bg-layer"></div>
 <canvas id="bg-canvas" style="position:fixed;inset:0;z-index:-1;pointer-events:none;width:100%;height:100%;"></canvas>
-<div id="dim-el" style="position:fixed;inset:0;z-index:-1;background:rgba(0,0,0,0);pointer-events:none;transition:background 0.4s ease;"></div>
+<div id="dim-el" style="position:fixed;inset:0;z-index:-1;background:rgba(0,0,0,0);pointer-events:none;"></div>
 <a id="unsplash-credit" href="#" target="_blank" rel="noopener"></a>
 <div id="overlay" onclick="closeModals()"></div>
 <div class="container">
@@ -383,8 +389,17 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
           <input type="text" id="bg-img-url" placeholder="Photo URL..." oninput="updateBgImg(this.value)" style="margin-bottom:6px;height:28px;font-size:0.78rem;">
           <div class="flex-row" style="margin-bottom:6px;"><button onclick="document.getElementById('bg-file').click()">Upload Photo</button><button style="color:#f88;" onclick="updateBgImg('')">Remove</button></div>
           <input type="file" id="bg-file" style="display:none" accept="image/*" onchange="handleBgFile(this)">
-          <div style="display:flex;align-items:center;gap:8px;margin-top:6px;"><span style="font-size:0.72rem;color:#888;width:52px;flex-shrink:0;">Dim</span><input type="range" id="photo-dim" min="0" max="0.85" step="0.01" oninput="updatePhotoDim()" style="flex:1;"><span id="photo-dim-val" style="font-size:0.72rem;color:#888;width:30px;text-align:right;">0%</span></div>
-          <div style="display:flex;align-items:center;gap:8px;margin-top:6px;"><span style="font-size:0.72rem;color:#888;width:52px;flex-shrink:0;">Blur</span><input type="range" id="photo-blur" min="0" max="30" step="1" oninput="updateVis()" style="flex:1;"><span id="photo-blur-val" style="font-size:0.72rem;color:#888;width:30px;text-align:right;">0px</span></div>
+          <div class="cat-sub-h" style="margin-top:12px;">Fit</div>
+          <div class="size-group" id="photo-fit-group" style="margin-bottom:8px;"><button class="size-btn" data-fit="cover" onclick="setPhotoOpt('bgFit','cover')" title="Fill the screen (crops the edges if the shapes differ)">Fill</button><button class="size-btn" data-fit="contain" onclick="setPhotoOpt('bgFit','contain')" title="Show the whole photo (bars appear if the shapes differ)">Fit</button><button class="size-btn" data-fit="stretch" onclick="setPhotoOpt('bgFit','stretch')" title="Stretch to the screen (can distort)">Stretch</button><button class="size-btn" data-fit="center" onclick="setPhotoOpt('bgFit','center')" title="Original size, centered">Center</button><button class="size-btn" data-fit="tile" onclick="setPhotoOpt('bgFit','tile')" title="Repeat the photo">Tile</button></div>
+          <div id="photo-bars-row" style="display:none;align-items:center;gap:8px;margin-bottom:8px;"><span style="font-size:0.72rem;color:#888;width:66px;flex-shrink:0;">Bars</span><div class="size-group" id="photo-bars-group" style="flex:1;margin:0;"><button class="size-btn" data-bars="color" onclick="setPhotoOpt('bgBars','color')">Color</button><button class="size-btn" data-bars="blur" onclick="setPhotoOpt('bgBars','blur')">Blurred photo</button></div><div class="color-field" style="flex:none;"><input type="color" id="photo-bars-color" oninput="setPhotoOpt('photoBarsColor',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('photo-bars-color')" title="Bars color"></div></div></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:10px;"><span style="font-size:0.72rem;color:#888;width:66px;flex-shrink:0;">Position</span><div class="pos-grid" id="photo-pos-grid"><button class="pos-btn" data-pos="tl" onclick="setPhotoOpt('bgPos','tl')" title="Focus point"></button><button class="pos-btn" data-pos="t" onclick="setPhotoOpt('bgPos','t')" title="Focus point"></button><button class="pos-btn" data-pos="tr" onclick="setPhotoOpt('bgPos','tr')" title="Focus point"></button><button class="pos-btn" data-pos="l" onclick="setPhotoOpt('bgPos','l')" title="Focus point"></button><button class="pos-btn" data-pos="c" onclick="setPhotoOpt('bgPos','c')" title="Focus point"></button><button class="pos-btn" data-pos="r" onclick="setPhotoOpt('bgPos','r')" title="Focus point"></button><button class="pos-btn" data-pos="bl" onclick="setPhotoOpt('bgPos','bl')" title="Focus point"></button><button class="pos-btn" data-pos="b" onclick="setPhotoOpt('bgPos','b')" title="Focus point"></button><button class="pos-btn" data-pos="br" onclick="setPhotoOpt('bgPos','br')" title="Focus point"></button></div></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:10px;"><span style="font-size:0.72rem;color:#888;width:66px;flex-shrink:0;">Zoom</span><input type="range" id="photo-zoom" min="1" max="3" step="0.05" oninput="photoSlider('bgZoom')" style="flex:1;"><span id="photo-zoom-val" style="font-size:0.72rem;color:#888;width:36px;text-align:right;">0</span></div>
+          <div class="cat-sub-h">Look</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:10px;"><span style="font-size:0.72rem;color:#888;width:66px;flex-shrink:0;">Dim</span><input type="range" id="photo-dim" min="0" max="0.85" step="0.01" oninput="updatePhotoDim()" style="flex:1;"><span id="photo-dim-val" style="font-size:0.72rem;color:#888;width:36px;text-align:right;">0</span><div class="color-field" style="flex:none;"><input type="color" id="photo-tint" oninput="setPhotoOpt('photoTint',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('photo-tint')" title="Overlay color"></div></div></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:10px;"><span style="font-size:0.72rem;color:#888;width:66px;flex-shrink:0;">Blur</span><input type="range" id="photo-blur" min="0" max="30" step="1" oninput="updateVis()" style="flex:1;"><span id="photo-blur-val" style="font-size:0.72rem;color:#888;width:36px;text-align:right;">0</span></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:10px;"><span style="font-size:0.72rem;color:#888;width:66px;flex-shrink:0;">Vignette</span><input type="range" id="photo-vig" min="0" max="1" step="0.01" oninput="photoSlider('photoVignette')" style="flex:1;"><span id="photo-vig-val" style="font-size:0.72rem;color:#888;width:36px;text-align:right;">0</span></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:10px;"><span style="font-size:0.72rem;color:#888;width:66px;flex-shrink:0;">Saturation</span><input type="range" id="photo-sat" min="0" max="2" step="0.01" oninput="photoSlider('photoSat')" style="flex:1;"><span id="photo-sat-val" style="font-size:0.72rem;color:#888;width:36px;text-align:right;">0</span></div>
+          <button style="margin-top:12px;font-size:0.72rem;padding:5px 8px;" onclick="resetPhotoOpts()">Reset photo settings</button>
         </div>
         <!-- Unsplash options -->
         <div id="unsplash-opts" style="display:none;margin-top:8px;">
@@ -995,7 +1010,7 @@ function saveAndRender(refreshModal=false){
   updateModalAccent();renderSearch();
   applyBackdropColors(p);
   const bgA=document.getElementById('full-bg-a'),bgB=document.getElementById('full-bg-b'),dimEl=document.getElementById('dim-el'),credit=document.getElementById('unsplash-credit');
-  [bgA,bgB].forEach(bg=>{bg.style.backgroundImage='none';bg.style.background='none';bg.style.filter='none';bg.style.opacity=0;});_bgActiveLayer='a';
+  [bgA,bgB].forEach(bg=>{bg.style.backgroundImage='none';bg.style.background='none';bg.style.filter='none';bg.style.opacity=0;bg.style.transform='none';bg.style.transformOrigin='';});_bgActiveLayer='a';
 
   if(p.bgMode==='unsplash'&&!p.bgImg){
     stopBgCanvas();
@@ -1010,8 +1025,7 @@ function saveAndRender(refreshModal=false){
     if(credit)credit.classList.remove('visible');
     dimEl.style.background='rgba(0,0,0,0)';
     if(p.bgMode==='photo'&&p.bgImg){
-      bgA.style.backgroundImage=`url(${p.bgImg})`;bgA.style.backgroundSize='cover';bgA.style.backgroundPosition='center';bgA.style.filter=`blur(${p.fuzzy||0}px)`;bgA.style.opacity=1;bgB.style.opacity=0;
-      dimEl.style.background=`rgba(0,0,0,${p.photoDim??0.50})`;
+      applyPhotoBg(p);
     } else {
       // gradient
       let g;
@@ -1061,7 +1075,7 @@ function renderSettings(){
   // photo
   const pd=document.getElementById('photo-dim'),pdv=document.getElementById('photo-dim-val');if(pd)pd.value=p.photoDim??0.50;if(pdv)pdv.textContent=Math.round((p.photoDim??0.50)*100)+'%';
   const pb=document.getElementById('photo-blur'),pbv=document.getElementById('photo-blur-val');if(pb)pb.value=p.fuzzy||0;if(pbv)pbv.textContent=Math.round(p.fuzzy||0)+'px';
-  const biu=document.getElementById('bg-img-url');if(biu)biu.value=p.bgImg&&p.bgImg.startsWith('data:')?'Local Image Active':(p.bgImg||'');
+  const biu=document.getElementById('bg-img-url');if(biu)biu.value=p.bgImg&&p.bgImg.startsWith('data:')?'Local Image Active':(p.bgImg||'');syncPhotoOpts();
   // unsplash
   const uki=document.getElementById('unsplash-key-input');if(uki)uki.value=p.unsplashKey||UNSPLASH_KEY;
   const ud=document.getElementById('unsplash-dim'),udv=document.getElementById('unsplash-dim-val');if(ud)ud.value=p.unsplashDim??0.50;if(udv)udv.textContent=Math.round((p.unsplashDim??0.50)*100)+'%';
@@ -1138,7 +1152,53 @@ function updateVis(){
 function updateCardOpacity(){const c=curCat();if(!c)return;const v=parseFloat(document.getElementById('card-opacity-slider').value);c.bgOpacity=v;const col=document.querySelectorAll('#grid .column')[document.getElementById('cat-sel').value];if(col)col.style.setProperty('--card-opacity',v);document.getElementById('card-opacity-val').textContent=Math.round(v*100)+'%';localStorage.setItem(KEY,JSON.stringify(state));}
 function updateClockBackdrop(v){const p=cur();v=parseFloat(v);p.clockBackdrop=v;document.documentElement.style.setProperty('--clock-backdrop',v);const el=document.getElementById('clock-backdrop-val');if(el)el.textContent=Math.round(v*100)+'%';localStorage.setItem(KEY,JSON.stringify(state));}
 function updateSearchBackdrop(v){const p=cur();v=parseFloat(v);p.searchBackdrop=v;document.documentElement.style.setProperty('--search-backdrop',v);const el=document.getElementById('search-backdrop-val');if(el)el.textContent=Math.round(v*100)+'%';localStorage.setItem(KEY,JSON.stringify(state));}
-function updatePhotoDim(){const p=cur();const v=parseFloat(document.getElementById('photo-dim').value);p.photoDim=v;document.getElementById('photo-dim-val').textContent=Math.round(v*100)+'%';const dim=document.getElementById('dim-el');if(dim&&(p.bgMode==='photo'||p.bgImg))dim.style.background=`rgba(0,0,0,${v})`;localStorage.setItem(KEY,JSON.stringify(state));}
+// ── Photo background options (Photo mode): fit, position, zoom, bars, overlay colour, vignette, saturation ──
+const BG_POS={c:'center',t:'center top',b:'center bottom',l:'left center',r:'right center',tl:'left top',tr:'right top',bl:'left bottom',br:'right bottom'};
+const HEX6=/^#[0-9a-f]{6}$/i;
+function photoCfg(p){return{
+  fit:['cover','contain','stretch','center','tile'].includes(p.bgFit)?p.bgFit:'cover',
+  pos:BG_POS[p.bgPos]?p.bgPos:'c',
+  zoom:p.bgZoom>=1?Math.min(p.bgZoom,3):1,
+  bars:p.bgBars==='blur'?'blur':'color',
+  barsColor:HEX6.test(p.photoBarsColor||'')?p.photoBarsColor:(HEX6.test(p.bgColor||'')?p.bgColor:'#000000'),
+  tint:HEX6.test(p.photoTint||'')?p.photoTint:'#000000',
+  vig:p.photoVignette>0?Math.min(p.photoVignette,1):0,
+  sat:(p.photoSat>=0&&p.photoSat<=2)?p.photoSat:1};}
+function applyPhotoOverlay(p){const d=document.getElementById('dim-el');if(!d)return;const c=photoCfg(p),t=hexToRgbStr(c.tint);
+  d.style.background=(c.vig>0?`radial-gradient(ellipse at center,rgba(${t},0) 40%,rgba(${t},${c.vig}) 100%),`:'')+`rgba(${t},${p.photoDim??0.50})`;}
+function applyPhotoBg(p){
+  const bgA=document.getElementById('full-bg-a'),bgB=document.getElementById('full-bg-b');if(!bgA||!bgB)return;
+  const c=photoCfg(p),img=`url(${p.bgImg})`,pos=BG_POS[c.pos];
+  const size={cover:'cover',contain:'contain',stretch:'100% 100%',center:'auto',tile:'auto'}[c.fit];
+  const bars=(c.fit==='contain'||c.fit==='center');          // leftover space around the photo
+  const main=bars?bgB:bgA,back=bars?bgA:bgB;                // main = the photo, back = what shows in the bars
+  const sat=c.sat===1?'':` saturate(${c.sat})`;
+  if(bars){
+    back.style.background='none';
+    if(c.bars==='blur'){back.style.backgroundImage=img;back.style.backgroundSize='cover';back.style.backgroundPosition='center';back.style.backgroundRepeat='no-repeat';back.style.filter=`blur(40px)${sat} brightness(0.8)`;back.style.transform='scale(1.15)';}
+    else{back.style.backgroundColor=c.barsColor;back.style.filter='none';back.style.transform='none';}
+    back.style.opacity=1;
+  }else{back.style.opacity=0;back.style.transform='none';back.style.filter='none';}
+  main.style.background='none';
+  main.style.backgroundImage=img;main.style.backgroundSize=size;main.style.backgroundPosition=pos;main.style.backgroundRepeat=c.fit==='tile'?'repeat':'no-repeat';
+  main.style.filter=`blur(${p.fuzzy||0}px)${sat}`;main.style.transformOrigin=pos;main.style.transform=c.zoom>1?`scale(${c.zoom})`:'none';main.style.opacity=1;
+  applyPhotoOverlay(p);
+}
+function setPhotoOpt(k,v){const p=cur();p[k]=v;if(p.bgMode==='photo'&&p.bgImg)applyPhotoBg(p);localStorage.setItem(KEY,JSON.stringify(state));syncPhotoOpts();}
+function photoSlider(k){const ids={bgZoom:'photo-zoom',photoVignette:'photo-vig',photoSat:'photo-sat'};setPhotoOpt(k,parseFloat(document.getElementById(ids[k]).value));}
+function syncPhotoOpts(){
+  const p=cur(),c=photoCfg(p),$=id=>document.getElementById(id);if(!$('photo-fit-group'))return;
+  document.querySelectorAll('#photo-fit-group .size-btn').forEach(b=>b.classList.toggle('active',b.dataset.fit===c.fit));
+  document.querySelectorAll('#photo-bars-group .size-btn').forEach(b=>b.classList.toggle('active',b.dataset.bars===c.bars));
+  document.querySelectorAll('#photo-pos-grid .pos-btn').forEach(b=>b.classList.toggle('active',b.dataset.pos===c.pos));
+  $('photo-bars-row').style.display=(c.fit==='contain'||c.fit==='center')?'flex':'none';
+  const bc=$('photo-bars-color');if(bc){bc.value=c.barsColor;cpSync('photo-bars-color');const sw=bc.nextElementSibling;if(sw)sw.style.display=c.bars==='color'?'':'none';}
+  const tn=$('photo-tint');if(tn){tn.value=c.tint;cpSync('photo-tint');}
+  const setS=(id,vid,v)=>{const s=$(id);if(s&&document.activeElement!==s)s.value=v;const l=$(vid);if(l)l.textContent=Math.round(v*100)+'%';};
+  setS('photo-zoom','photo-zoom-val',c.zoom);setS('photo-vig','photo-vig-val',c.vig);setS('photo-sat','photo-sat-val',c.sat);
+}
+function resetPhotoOpts(){const p=cur();['bgFit','bgPos','bgZoom','bgBars','photoBarsColor','photoTint','photoVignette','photoSat'].forEach(k=>delete p[k]);p.photoDim=0.50;p.fuzzy=0;if(p.bgMode==='photo'&&p.bgImg)applyPhotoBg(p);localStorage.setItem(KEY,JSON.stringify(state));renderSettings();}
+function updatePhotoDim(){const p=cur();const v=parseFloat(document.getElementById('photo-dim').value);p.photoDim=v;document.getElementById('photo-dim-val').textContent=Math.round(v*100)+'%';if(p.bgMode==='photo'||p.bgImg)applyPhotoOverlay(p);localStorage.setItem(KEY,JSON.stringify(state));}
 
 // ── City / Weather ──
 function renderCityManager(){const isUnsplash=cur().bgMode==='unsplash';document.getElementById('city-list-manager').innerHTML=state.cities.map((c,i)=>{const mode=c.photoMode||'generic';return`<div class="city-item" draggable="true" ondragstart="cDS(event,${i})" ondragover="cDO(event,${i})" ondrop="cDrop(event,${i})" ondragleave="cDL(event)"><i class="fa-solid fa-grip-vertical drag-handle" style="color:#555;"></i><span style="flex:1;">${c.name}</span>${isUnsplash?`<span class="photo-mode-toggle"><button class="pmt-btn${mode==='generic'?' pmt-active':''}" onclick="setCityPhotoMode(${i},'generic',event)">Generic</button><button class="pmt-btn${mode==='city'?' pmt-active':''}" onclick="setCityPhotoMode(${i},'city',event)">City</button></span>`:''}<i class="fa-solid fa-trash-can" onclick="removeCity(${i})"></i></div>`;}).join('');}
