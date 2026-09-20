@@ -8,16 +8,15 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link id="gfont-link" rel="stylesheet" href=""><link id="gfont-link2" rel="stylesheet" href="">
 <style>
-:root{--bg:#1C1B22;--scale:1;--density-mod:1;--fs-unit:calc(1rem * var(--scale) * var(--density-mod));--fade-speed:0.5s;--grid-font:'Inter',system-ui,sans-serif;--clock-backdrop:0;--search-backdrop:0.3;--card-rgb:0,0,0;--clock-rgb:0,0,0;--search-rgb:0,0,0;--weather-rgb:0,0,0;--card-on:min(1,calc(var(--card-opacity,0.5) * 1000));--weather-on:min(1,calc(var(--weather-backdrop,0) * 1000));--search-on:min(1,calc(var(--search-backdrop,0.3) * 1000))}
+:root{--bg:#1C1B22;--scale:1;--density-mod:1;--fs-unit:calc(1rem * var(--scale) * var(--density-mod));--fade-speed:0.5s;--clock-backdrop:0;--search-backdrop:0.3;--card-rgb:0,0,0;--clock-rgb:0,0,0;--search-rgb:0,0,0;--weather-rgb:0,0,0;--card-on:min(1,calc(var(--card-opacity,0.5) * 1000));--weather-on:min(1,calc(var(--weather-backdrop,0) * 1000));--search-on:min(1,calc(var(--search-backdrop,0.3) * 1000))}
 *{box-sizing:border-box}
 body{margin:0;padding:0;font-family:'Inter',system-ui,sans-serif;background-color:var(--bg);color:white;height:100vh;display:flex;flex-direction:column;overflow:hidden;font-size:var(--fs-unit);opacity:0;transition:opacity 0.18s ease}
 body.page-ready{opacity:1}
 .full-bg-layer{position:fixed;inset:0;z-index:-1;pointer-events:none;background-size:cover;background-position:center;background-repeat:no-repeat;transition:none}
 .ready .full-bg-layer{transition:opacity 1.2s ease,filter var(--fade-speed) ease}
 #dim-el{transition:none}
-.ready #dim-el{transition:background 0.4s ease}
+#dim-el.dim-smooth{transition:background 0.4s ease}
 .container{width:100%;height:100%;margin:0 auto;padding:2vh 2vw;display:flex;flex-direction:column}
 .top-bar{display:flex;justify-content:space-between;align-items:center;z-index:10;flex-shrink:0;margin-bottom:2vh;position:relative}
 .nav-group{display:flex;gap:1.2rem;align-items:center}
@@ -42,7 +41,7 @@ body.page-ready{opacity:1}
 .cat-del-btn,.col-edit-overlay,.link-edit-overlay,.col-del-btn,.link-del-btn,.del-btn{display:none!important}
 .cat-title-row{margin:0 0 calc(1rem * var(--scale) * var(--density-mod)) 0}
 @keyframes accent-shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
-.cat-title{border-bottom:2px solid rgba(255,255,255,0.1);background-size:200% auto;transition:border-color 0.3s;margin:0;font-size:calc(1.3rem * var(--scale) * var(--density-mod));font-weight:700;padding-bottom:calc(10px * var(--scale) * var(--density-mod));white-space:nowrap;cursor:pointer;text-decoration:none;display:block;font-family:var(--grid-font)}
+.cat-title{border-bottom:2px solid rgba(255,255,255,0.1);background-size:200% auto;transition:border-color 0.3s;margin:0;font-size:calc(1.3rem * var(--scale) * var(--density-mod));font-weight:700;padding-bottom:calc(10px * var(--scale) * var(--density-mod));white-space:nowrap;cursor:pointer;text-decoration:none;display:block}
 .column:hover .cat-title{border-bottom:2px solid transparent;border-image:linear-gradient(90deg,transparent,var(--cat-accent,#00d4ff),transparent) 1;animation:accent-shimmer 2s linear infinite}
 .cat-title.hidden-header{display:none}
 .column.dragging{opacity:0.4}
@@ -54,7 +53,7 @@ body.page-ready{opacity:1}
 .editor-link-row.drag-over{border-top:2px solid var(--modal-accent,#00d4ff)}
 .city-item.drag-over{border-top:2px solid var(--modal-accent,#00d4ff)}
 .link-row{display:grid;grid-template-columns:1fr auto;align-items:center;white-space:nowrap;position:relative}
-.link-row a{text-decoration:none;transition:0.2s;font-size:calc(1rem * var(--scale) * var(--density-mod));font-family:var(--grid-font);padding:calc(0.5rem * var(--scale) * var(--density-mod)) calc(0.8rem * var(--scale) * var(--density-mod));text-align:center}
+.link-row a{text-decoration:none;transition:0.2s;font-size:calc(1rem * var(--scale) * var(--density-mod));padding:calc(0.5rem * var(--scale) * var(--density-mod)) calc(0.8rem * var(--scale) * var(--density-mod));text-align:center}
 .link-row a:hover{opacity:0.65}
 .link-icon{object-fit:contain;border-radius:3px;flex-shrink:0;margin-right:0.35rem;vertical-align:middle;display:inline-block;position:relative;top:-0.05em}
 .link-row a.icon-only .link-icon{margin-right:0}
@@ -150,7 +149,19 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 #search-bar-wrap.search-hidden{opacity:0;visibility:hidden;pointer-events:none;height:0!important;overflow:hidden;margin:0!important;padding:0!important}
 #search-form{display:flex;align-items:center;width:min(480px,90%);background-color:rgba(var(--search-rgb),calc(var(--search-backdrop) * var(--search-solid,1)));background-image:var(--search-img,none);background-origin:border-box;background-repeat:no-repeat;border:1px solid rgba(255,255,255,calc(0.08 * var(--search-on)));border-radius:24px;padding:0 6px 0 16px;transition:background 0.2s,border-color 0.2s,box-shadow 0.2s;gap:4px}
 #search-form:focus-within{border-color:rgba(255,255,255,0.18);box-shadow:0 0 0 2px var(--modal-accent-border,rgba(var(--accent-rgb,0,212,255),0.15))}
-#search-input{flex:1;background:transparent;border:none;outline:none;color:white;font-size:0.88rem;height:38px;padding:0;font-family:'Inter',system-ui,sans-serif}
+#search-input{flex:1;background:transparent;border:none;outline:none;color:white;font-size:0.88rem;height:38px;padding:0;font-family:inherit}
+#search-form{font-family:var(--search-font,'Inter',system-ui,sans-serif)}
+#search-form .se-current,#search-form .se-option,#search-form #search-submit{font-family:inherit}
+#weather-area{font-family:var(--weather-font,'Inter',system-ui,sans-serif)}
+/* font pickers (same control everywhere) */
+.font-field{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.font-field select{width:132px!important;height:28px!important;font-size:0.78rem!important;padding:0 6px!important}
+.font-all-btn{height:28px;gap:4px;white-space:nowrap;font-size:0.68rem;font-weight:700;padding:0 8px;color:var(--modal-accent,#00d4ff);border-color:var(--modal-accent-border,#00d4ff44)}
+.font-all-btn:hover{background:rgba(var(--accent-rgb,0,212,255),0.12)}
+.link-font-row{display:flex;align-items:center;gap:6px;margin-top:2px}
+.link-font-row>span{font-size:0.72rem;color:#888}
+.link-font-row .font-field select{height:24px!important;font-size:0.72rem!important}
+.link-font-row .font-all-btn{height:24px}
 #search-input::placeholder{color:rgba(255,255,255,0.25)}
 .se-dropdown{position:relative;flex-shrink:0}
 .se-current{display:flex;align-items:center;gap:4px;height:28px;padding:0 6px;border-radius:16px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.6);cursor:pointer;font-size:0.72rem;white-space:nowrap;transition:border-color 0.15s}
@@ -320,11 +331,6 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
           </div>
         </div>
         <div class="color-row" style="margin-bottom:12px;"><span>Open Links On</span><select id="target-mode" onchange="updateVis()" class="select-inline"><option value="_self">Current Tab</option><option value="_blank">New Tab</option></select></div>
-        <div class="color-row"><span>Grid Font</span>
-          <select id="font-picker" onchange="updateVis()" class="select-inline">
-            <option value="Inter">Inter</option><option value="Roboto">Roboto</option><option value="DM Sans">DM Sans</option><option value="Nunito">Nunito</option><option value="Raleway">Raleway</option><option value="Sora">Sora</option><option value="Space Grotesk">Space Grotesk</option><option value="Outfit">Outfit</option><option value="Poppins">Poppins</option><option value="Lato">Lato</option><option value="Playfair Display">Playfair Display</option><option value="Merriweather">Merriweather</option><option value="Fira Code">Fira Code</option><option value="JetBrains Mono">JetBrains Mono</option><option value="Orbitron">Orbitron</option><option value="Bebas Neue">Bebas Neue</option>
-          </select>
-        </div>
         <div class="color-row" style="margin-top:12px;"><span>Settings Color</span><div class="color-field"><input type="color" id="ui-accent-color" oninput="updateUiAccent(this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('ui-accent-color')" title="Accent color of this settings window"></div><button class="btn-icon" onclick="resetUiAccent()" title="Reset to blue"><i class="fa-solid fa-rotate-left"></i></button></div></div>
       </div>
     </div>
@@ -346,6 +352,8 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
         </div>
         <input type="text" id="cat-url" oninput="updateCat('text')" onblur="saveAndRender()" placeholder="Header URL (optional)" style="margin-bottom:10px;">
         <label class="label-inline"><input type="checkbox" id="header-vis-check" onchange="updateCatHeader()"> Show category header</label>
+        <div class="cat-sub-h">Font</div>
+        <div class="color-row" style="margin-bottom:4px;"><span>Category Font</span><div class="font-field"><select id="cat-font" onchange="updateCatFont(this.value)"></select><button class="btn-icon font-all-btn" onclick="applyFontEverywhere(document.getElementById('cat-font').value)" title="Use this font in every field of this profile: all categories, all links, clock, search and weather"><i class="fa-solid fa-clone"></i> All</button></div></div>
         <div class="cat-sub-h">Size</div>
         <div class="size-group" id="cat-size-group">
           <button class="size-btn" id="size-s" onclick="updateCatDensity('s')">Small</button><button class="size-btn" id="size-m" onclick="updateCatDensity('m')">Medium</button><button class="size-btn" id="size-l" onclick="updateCatDensity('l')">Large</button><button class="size-btn" id="size-xl" onclick="updateCatDensity('xl')">X-Large</button>
@@ -431,11 +439,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
             </select>
           </div>
           <div class="color-row"><span>Size</span><select id="clock-size" onchange="updateVis()" class="select-inline"><option value="s">Small</option><option value="m">Medium</option><option value="l">Large</option></select></div>
-          <div class="color-row"><span>Font</span>
-            <select id="clock-font" onchange="updateVis()" class="select-inline">
-              <option value="Inter">Inter</option><option value="Roboto">Roboto</option><option value="DM Sans">DM Sans</option><option value="Orbitron">Orbitron</option><option value="Bebas Neue">Bebas Neue</option><option value="JetBrains Mono">JetBrains Mono</option><option value="Poppins">Poppins</option>
-            </select>
-          </div>
+          <div class="color-row"><span>Font</span><div class="font-field"><select id="clock-font" onchange="updateVis()"></select><button class="btn-icon font-all-btn" onclick="applyFontEverywhere(document.getElementById('clock-font').value)" title="Use this font in every field of this profile: all categories, all links, clock, search and weather"><i class="fa-solid fa-clone"></i> All</button></div></div>
           <div class="color-row"><span>Color</span><div class="color-field"><input type="color" id="clock-color" oninput="updateVis()" style="display:none"><div class="cp-swatch" onclick="cpOpen('clock-color')"></div><button class="btn-icon" onclick="resetField('clock-color','#ffffff','clockColor')"><i class="fa-solid fa-rotate-left"></i></button></div></div>
           <div class="color-row" style="margin-bottom:4px;margin-top:4px;"><span>Backdrop</span><span id="clock-backdrop-val" style="font-size:0.72rem;color:#888;">0%</span></div>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><input type="range" id="clock-backdrop-slider" min="0" max="1" step="0.01" oninput="updateClockBackdrop(this.value)" style="flex:1;min-width:0;margin-top:0;"><div class="color-field"><input type="color" id="clock-bd-color" oninput="bdSet('clock','c1',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('clock-bd-color')" title="Color"></div><input type="color" id="clock-bd-color2" oninput="bdSet('clock','c2',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('clock-bd-color2')" title="Second gradient color"></div><button class="btn-icon" onclick="bdReset('clock')" title="Reset colors"><i class="fa-solid fa-rotate-left"></i></button></div></div>
@@ -454,6 +458,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
               <option value="google">Google</option><option value="ddg">DuckDuckGo</option><option value="startpage">Startpage</option><option value="brave">Brave</option><option value="qwant">Qwant</option><option value="yandex">Yandex</option>
             </select>
           </div>
+          <div class="color-row"><span>Font</span><div class="font-field"><select id="search-font" onchange="updateSimpleFont('searchFont',this.value)"></select><button class="btn-icon font-all-btn" onclick="applyFontEverywhere(document.getElementById('search-font').value)" title="Use this font in every field of this profile: all categories, all links, clock, search and weather"><i class="fa-solid fa-clone"></i> All</button></div></div>
           <div class="color-row" style="margin-bottom:4px;margin-top:8px;"><span>Backdrop</span><span id="search-backdrop-val" style="font-size:0.72rem;color:#888;">30%</span></div>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><input type="range" id="search-backdrop-slider" min="0" max="1" step="0.01" oninput="updateSearchBackdrop(this.value)" style="flex:1;min-width:0;margin-top:0;"><div class="color-field"><input type="color" id="search-bd-color" oninput="bdSet('search','c1',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('search-bd-color')" title="Color"></div><input type="color" id="search-bd-color2" oninput="bdSet('search','c2',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('search-bd-color2')" title="Second gradient color"></div><button class="btn-icon" onclick="bdReset('search')" title="Reset colors"><i class="fa-solid fa-rotate-left"></i></button></div></div>
           <div class="bd-style-row" style="margin-bottom:6px;"><div class="size-group" id="search-bd-modes"><button class="size-btn" data-mode="solid" onclick="bdSet('search','mode','solid')">Solid</button><button class="size-btn" data-mode="gradient" onclick="bdSet('search','mode','gradient')">Gradient</button></div><select id="search-bd-dir" onchange="bdSet('search','dir',this.value)"><option value="v">↓ Top to bottom</option><option value="h">→ Left to right</option><option value="d1">↘ Diagonal down</option><option value="d2">↗ Diagonal up</option><option value="r">◉ Radial (center out)</option></select></div>
@@ -470,6 +475,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><input type="range" id="weather-backdrop" min="0" max="1" step="0.01" oninput="updateVis()" style="flex:1;min-width:0;margin-top:0;"><div class="color-field"><input type="color" id="weather-bd-color" oninput="bdSet('weather','c1',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('weather-bd-color')" title="Color"></div><input type="color" id="weather-bd-color2" oninput="bdSet('weather','c2',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('weather-bd-color2')" title="Second gradient color"></div><button class="btn-icon" onclick="bdReset('weather')" title="Reset colors"><i class="fa-solid fa-rotate-left"></i></button></div></div>
           <div class="bd-style-row" style="margin-bottom:10px;"><div class="size-group" id="weather-bd-modes"><button class="size-btn" data-mode="solid" onclick="bdSet('weather','mode','solid')">Solid</button><button class="size-btn" data-mode="gradient" onclick="bdSet('weather','mode','gradient')">Gradient</button></div><select id="weather-bd-dir" onchange="bdSet('weather','dir',this.value)"><option value="v">↓ Top to bottom</option><option value="h">→ Left to right</option><option value="d1">↘ Diagonal down</option><option value="d2">↗ Diagonal up</option><option value="r">◉ Radial (center out)</option></select></div>
           <div class="color-row"><span>Size</span><select id="weather-size" onchange="updateVis()" class="select-inline"><option value="s">Small</option><option value="m">Medium</option><option value="l">Large</option></select></div>
+          <div class="color-row"><span>Font</span><div class="font-field"><select id="weather-font" onchange="updateSimpleFont('weatherFont',this.value)"></select><button class="btn-icon font-all-btn" onclick="applyFontEverywhere(document.getElementById('weather-font').value)" title="Use this font in every field of this profile: all categories, all links, clock, search and weather"><i class="fa-solid fa-clone"></i> All</button></div></div>
           <label class="label-inline"><input type="checkbox" id="w-day" onchange="updateVis()"> Show Day</label>
           <label class="label-inline"><input type="checkbox" id="w-date" onchange="updateVis()"> Show Date</label>
           <div class="color-row"><span>Date Format</span><select id="w-date-fmt" onchange="updateVis()" class="select-inline"><option value="dmy">DD/MM</option><option value="mdy">MM/DD</option></select></div>
@@ -542,6 +548,21 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 
 <script>
 const KEY='STARTPAGE_V67';
+// ── Fonts: one list, one picker everywhere (categories, links, clock, search, weather) ──
+const FONTS=['Inter','Roboto','DM Sans','Nunito','Raleway','Sora','Space Grotesk','Outfit','Poppins','Lato','Playfair Display','Merriweather','Fira Code','JetBrains Mono','Orbitron','Bebas Neue'];
+const SYS_FONTS=['Inter'];                       // Inter falls back to the system UI font, nothing to download
+const FONT_WGHT={'Bebas Neue':''};              // families that only ship one weight
+const fontName=f=>FONTS.includes(f)?f:'Inter';
+const fontStack=f=>`'${fontName(f)}',system-ui,sans-serif`;
+const fontOpts=cur=>FONTS.map(f=>`<option value="${f}"${f===fontName(cur)?' selected':''}>${f}</option>`).join('');
+// legacy: the old single "Grid Font" becomes the font of every category and link
+function migrateFonts(p){
+  const g=FONTS.includes(p.gridFont)?p.gridFont:'Inter';
+  (p.categories||[]).forEach(c=>{if(c.font===undefined)c.font=g;(c.links||[]).forEach(l=>{if(l.font===undefined)l.font=g;});});
+  if(!p.searchFont)p.searchFont='Inter';if(!p.weatherFont)p.weatherFont='Inter';if(!p.clockFont)p.clockFont='Inter';
+  delete p.gridFont;
+}
+['cat-font','clock-font','search-font','weather-font'].forEach(id=>{const e=document.getElementById(id);if(e)e.innerHTML=fontOpts();});
 const UNSPLASH_KEY='j4U9kk58zkrYs3pTo9GWn-peKYzEriWcOnbNJPRUHjM';
 // Each entry: [query, collections/topics hint]
 // We pick one query at random per fetch so results vary over time
@@ -655,7 +676,7 @@ const SE={google:{name:'Google',url:'https://www.google.com/search?q=',fav:'http
 
 function mkLinks(n){const l=[];for(let i=1;i<=n;i++)l.push({name:`Link ${i}`,url:'',color:'',linkIcon:{type:'none',src:''}});return l;}
 function mkCats(n,pfx){const c=[];for(let i=1;i<=n;i++)c.push({title:`${pfx} ${i}`,color:pfx==='Work'?'#ff8800':'#00d4ff',url:'',links:mkLinks(5)});return c;}
-function mkProf(cats,density){return{ql:[{name:'fa-solid fa-server',url:'',vis:false,color:'',linkIcon:{type:'none',src:''}},{name:'fa-solid fa-sliders',url:'',vis:false,color:'',linkIcon:{type:'none',src:''}},{name:'fa-brands fa-spotify',url:'',vis:false,color:'',linkIcon:{type:'none',src:''}},{name:'fa-solid fa-star',url:'',vis:false,color:'',linkIcon:{type:'none',src:''}}],categories:cats,showWeather:true,showHeaders:true,showClock:true,clockFormat:'24',clockSeconds:true,clockShowDate:true,clockDateFmt:'long',clockSize:'m',clockColor:'#ffffff',clockFont:'Inter',iconColor:'#ffffff',bgColor:'#1C1B22',bgImg:'',bgMode:'gradient',gradType:'auto',gradDir:'ltr',gradColorA:'#1C1B22',gradColorB:'#00d4ff',opGradient:0.1,fuzzy:0,photoDim:0.50,weatherColor:'#ffffff',weatherSize:'m',weatherBackdrop:0,wShowDay:true,wShowDate:true,wDateFmt:'dmy',wColored:true,wAqi:true,wUv:true,wPressure:true,wHumidity:true,wVisibility:true,wSunrise:true,density,gridFont:'Inter',showSearch:true,searchEngine:'startpage',profileIcon:'fa-solid fa-user',profilePhoto:'',profileIconColor:'#ffffff',cardOpacity:0.50,unsplashKey:UNSPLASH_KEY,unsplashDim:0.50,unsplashBlur:0,opTime:1.0};}
+function mkProf(cats,density){return{ql:[{name:'fa-solid fa-server',url:'',vis:false,color:'',linkIcon:{type:'none',src:''}},{name:'fa-solid fa-sliders',url:'',vis:false,color:'',linkIcon:{type:'none',src:''}},{name:'fa-brands fa-spotify',url:'',vis:false,color:'',linkIcon:{type:'none',src:''}},{name:'fa-solid fa-star',url:'',vis:false,color:'',linkIcon:{type:'none',src:''}}],categories:cats,showWeather:true,showHeaders:true,showClock:true,clockFormat:'24',clockSeconds:true,clockShowDate:true,clockDateFmt:'long',clockSize:'m',clockColor:'#ffffff',clockFont:'Inter',iconColor:'#ffffff',bgColor:'#1C1B22',bgImg:'',bgMode:'gradient',gradType:'auto',gradDir:'ltr',gradColorA:'#1C1B22',gradColorB:'#00d4ff',opGradient:0.1,fuzzy:0,photoDim:0.50,weatherColor:'#ffffff',weatherFont:'Inter',weatherSize:'m',weatherBackdrop:0,wShowDay:true,wShowDate:true,wDateFmt:'dmy',wColored:true,wAqi:true,wUv:true,wPressure:true,wHumidity:true,wVisibility:true,wSunrise:true,density,searchFont:'Inter',showSearch:true,searchEngine:'startpage',profileIcon:'fa-solid fa-user',profilePhoto:'',profileIconColor:'#ffffff',cardOpacity:0.50,unsplashKey:UNSPLASH_KEY,unsplashDim:0.50,unsplashBlur:0,opTime:1.0};}
 function getDefaults(){return{profile:'p0',target:'_self',linkColor:'#cccccc',tabTitle:'Startpage',tabFavicon:'',tabFaviconEmoji:'⭐',cities:[{name:'Lisboa',lat:38.71,lon:-9.13}],profileNames:['Profile 1','Profile 2'],profiles:[mkProf(mkCats(5,'Category'),'m'),mkProf(mkCats(3,'Work'),'m')]};}
 
 let state=JSON.parse(localStorage.getItem(KEY))||getDefaults();
@@ -665,6 +686,7 @@ if(!state.profileNames)state.profileNames=state.profiles.map((_,i)=>'Profile '+(
 const _pi=parseInt(state.profile.replace('p',''));if(isNaN(_pi)||_pi>=state.profiles.length)state.profile='p0';
 state.profiles.forEach(p=>{
   if(!p)return;
+  migrateFonts(p);
   if(!['gradient','photo','unsplash'].includes(p.bgMode))p.bgMode='gradient';
   if(p.categories)p.categories.forEach(c=>{if(c.links)c.links.forEach(l=>{if(!l.linkIcon)l.linkIcon={type:'none',src:''};});});
   if(p.ql)p.ql.forEach(l=>{if(!l.linkIcon)l.linkIcon={type:'none',src:''};});
@@ -861,7 +883,7 @@ function updateUnsplashKey(v){cur().unsplashKey=v.trim();localStorage.setItem(KE
 function updateUnsplashDim(){
   const p=cur();const v=parseFloat(document.getElementById('unsplash-dim').value);
   p.unsplashDim=v;document.getElementById('unsplash-dim-val').textContent=Math.round(v*100)+'%';
-  const dim=document.getElementById('dim-el');if(dim&&p.bgMode==='unsplash')dim.style.background=`rgba(0,0,0,${v})`;
+  dimSmooth();const dim=document.getElementById('dim-el');if(dim&&p.bgMode==='unsplash')dim.style.background=`rgba(0,0,0,${v})`;
   localStorage.setItem(KEY,JSON.stringify(state));
 }
 function uStatus(m){const el=document.getElementById('unsplash-status');if(el)el.textContent=m;}
@@ -943,7 +965,7 @@ function resetBgColor(){const inp=document.getElementById('bg-color');if(inp){in
 const DENS={s:0.6,m:0.73,l:0.86,xl:1.0};
 function catCfg(c,p){p=p||cur();return{density:DENS[c.density]?c.density:(DENS[p.density]?p.density:'xl'),showHeader:c.showHeader!==undefined?!!c.showHeader:p.showHeaders!==false,opacity:c.bgOpacity!==undefined?c.bgOpacity:(p.cardOpacity??0.5)};}
 function catStyle(c,p){const g=catCfg(c,p);return `${bdInline(c)};--density-mod:${DENS[g.density]};--card-opacity:${g.opacity}`;}
-function newCat(title){const p=cur(),last=p.categories[p.categories.length-1],g=last?catCfg(last,p):{density:DENS[p.density]?p.density:'xl',showHeader:p.showHeaders!==false,opacity:p.cardOpacity??0.5};return{title:title||'New Category',color:'#00d4ff',url:'',links:[],density:g.density,showHeader:g.showHeader,bgOpacity:g.opacity};}
+function newCat(title){const p=cur(),last=p.categories[p.categories.length-1],fnt=fontName(last&&last.font),g=last?catCfg(last,p):{density:DENS[p.density]?p.density:'xl',showHeader:p.showHeaders!==false,opacity:p.cardOpacity??0.5};return{title:title||'New Category',color:'#00d4ff',url:'',links:[],font:fnt,density:g.density,showHeader:g.showHeader,bgOpacity:g.opacity};}
 function curCat(){const i=document.getElementById('cat-sel');return i?(cur().categories[i.value]||null):null;}
 function updateCatDensity(s){const c=curCat();if(!c)return;c.density=s;saveAndRender(true);}
 function updateCatHeader(){const c=curCat();if(!c)return;c.showHeader=document.getElementById('header-vis-check').checked;saveAndRender(true);}
@@ -957,7 +979,7 @@ function renderCatTabs(){
 function selectCatTab(i){document.getElementById('cat-sel').value=i;syncCatEditor();}
 function syncCatTab(c){const t=document.querySelector('#cat-tabs .cat-tab.active');if(!t)return;const n=t.querySelector('.cat-tab-name'),d=t.querySelector('.cat-tab-dot');if(n)n.textContent=c.title||'Untitled';if(d)d.style.background=c.color;t.title=c.title||'Untitled';}
 
-function getLayoutKey(p){return[p.categories.map(c=>{const g=catCfg(c,p);return g.density+(g.showHeader?1:0);}).join(','),p.showWeather,p.showSearch,p.categories.length,p.categories.map(c=>c.links.length).join(','),p.categories.map(c=>c.title).join('|'),p.categories.map(c=>c.links.map(l=>l.name).join('~')).join('|'),p.gridFont||'Inter',document.body.classList.contains('edit-mode')].join(':');}
+function getLayoutKey(p){return[p.categories.map(c=>{const g=catCfg(c,p);return g.density+(g.showHeader?1:0);}).join(','),p.showWeather,p.showSearch,p.categories.length,p.categories.map(c=>c.links.length).join(','),p.categories.map(c=>c.title).join('|'),p.categories.map(c=>c.links.map(l=>l.name).join('~')).join('|'),p.categories.map(c=>fontName(c.font)+'>'+c.links.map(l=>fontName(l.font)).join(',')).join('|'),document.body.classList.contains('edit-mode')].join(':');}
 let _lastKey=null;
 function applyScaling(force){
   const p=cur();const grid=document.getElementById('grid');if(!grid)return;if(!p.categories.length){document.documentElement.classList.add('scaling-finished');return;}
@@ -969,9 +991,9 @@ function applyScaling(force){
   const avW=window.innerWidth*0.94;
   let natH=0;p.categories.forEach((c,i)=>{const m=mods[i];natH=Math.max(natH,(Math.max(c.links.length,1)*45*m)+((cfgs[i].showHeader?60:10)*m)+(ed?45*m:0));});
   const colGap=1.2*16*mod;
-  const tmp=document.createElement('canvas'),ctx=tmp.getContext('2d'),gf=p.gridFont||'Inter';
+  const tmp=document.createElement('canvas'),ctx=tmp.getContext('2d');
   let natW=0,maxW=0;
-  p.categories.forEach((c,i)=>{const m=mods[i],colPad=1.2*16*m*2;ctx.font=`700 ${1.3*16*m}px ${gf}, system-ui, sans-serif`;let mx=ctx.measureText(c.title).width;ctx.font=`400 ${1.0*16*m}px ${gf},system-ui,sans-serif`;c.links.forEach(l=>{mx=Math.max(mx,ctx.measureText(l.name).width);});maxW=Math.max(maxW,mx+colPad,160*m);});
+  p.categories.forEach((c,i)=>{const m=mods[i],colPad=1.2*16*m*2;ctx.font=`700 ${1.3*16*m}px ${fontStack(c.font)}`;let mx=ctx.measureText(c.title).width;c.links.forEach(l=>{ctx.font=`400 ${1.0*16*m}px ${fontStack(l.font)}`;mx=Math.max(mx,ctx.measureText(l.name).width);});maxW=Math.max(maxW,mx+colPad,160*m);});
   natW=maxW*p.categories.length+colGap*(p.categories.length-1);   // every card gets the width of the widest oneif(ed)natW+=colGap+42*mod;
   let scale=Math.min(avH/natH,avW/natW);scale=Math.max(Math.min(scale,1.6),0.5);
   document.documentElement.style.setProperty('--density-mod',mod);document.documentElement.style.setProperty('--scale',scale);document.documentElement.classList.add('scaling-finished');
@@ -979,12 +1001,34 @@ function applyScaling(force){
 window.addEventListener('resize',()=>applyScaling(true));
 new MutationObserver(()=>applyScaling()).observe(document.body,{attributes:true,attributeFilter:['class']});
 
-function switchProfile(idx){state.profile='p'+idx;_lastKey=null;saveAndRender();updateWeather();tickClock();if(document.getElementById('settings-modal').style.display==='flex')renderSettings();}
+function switchProfile(idx){state.profile='p'+idx;_lastKey=null;_instantBg=true;saveAndRender();updateWeather();tickClock();if(document.getElementById('settings-modal').style.display==='flex')renderSettings();}
 function toggleProfile(){switchProfile((curIdx()+1)%state.profiles.length);}
 
-const SYS_FONTS=['Inter'];
-function applyGridFont(font){font=font||'Inter';if(!SYS_FONTS.includes(font))document.getElementById('gfont-link').href=`https://fonts.googleapis.com/css2?family=${font.replace(/ /g,'+')}:wght@400;700&display=swap`;else document.getElementById('gfont-link').href='';document.documentElement.style.setProperty('--grid-font',`'${font}',system-ui,sans-serif`);}
-function applyUiFonts(cf){if(cf&&!SYS_FONTS.includes(cf))document.getElementById('gfont-link2').href=`https://fonts.googleapis.com/css2?family=${cf.replace(/ /g,'+')}:wght@400;600;700&display=swap`;else document.getElementById('gfont-link2').href='';}
+// Loads each Google font once, the first time any field uses it; re-measures the grid when it arrives.
+const _fontLinks=new Set();
+function ensureFont(f){
+  f=fontName(f);if(SYS_FONTS.includes(f)||_fontLinks.has(f))return;_fontLinks.add(f);
+  const w=FONT_WGHT[f]!==undefined?FONT_WGHT[f]:':wght@400;700';
+  const l=document.createElement('link');l.rel='stylesheet';
+  l.href=`https://fonts.googleapis.com/css2?family=${f.replace(/ /g,'+')}${w}&display=swap`;
+  l.onload=()=>{if(document.fonts&&document.fonts.load)Promise.all([document.fonts.load(`400 16px "${f}"`),document.fonts.load(`700 16px "${f}"`)]).then(()=>applyScaling(true)).catch(()=>{});};
+  document.head.appendChild(l);
+}
+function applyFonts(p){
+  const used=new Set([p.clockFont,p.searchFont,p.weatherFont]);
+  p.categories.forEach(c=>{used.add(c.font);c.links.forEach(l=>used.add(l.font));});
+  used.forEach(ensureFont);
+  const r=document.documentElement.style;r.setProperty('--search-font',fontStack(p.searchFont));r.setProperty('--weather-font',fontStack(p.weatherFont));
+}
+function updateCatFont(v){const c=curCat();if(!c)return;c.font=fontName(v);saveAndRender();}
+function updateSimpleFont(k,v){cur()[k]=fontName(v);saveAndRender();}
+// "All" button: same font in every field of the current profile
+function applyFontEverywhere(f){
+  f=fontName(f);const p=cur();
+  p.categories.forEach(c=>{c.font=f;c.links.forEach(l=>{l.font=f;});});
+  p.clockFont=p.searchFont=p.weatherFont=f;
+  saveAndRender();tickClock();renderSettings();
+}
 // Settings colour: global preference (state.uiAccent), drives the whole settings window + popups
 function contrastText(hex){const [r,g,b]=hexToRgbStr(hex).split(',').map(Number).map(v=>{v/=255;return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4);});const L=0.2126*r+0.7152*g+0.0722*b;return (L+0.05)/0.05>=1.05/(L+0.05)?'#000':'#fff';}
 function updateModalAccent(){const a=/^#[0-9a-f]{6}$/i.test(state.uiAccent||'')?state.uiAccent:'#00d4ff',s=document.documentElement.style;s.setProperty('--modal-accent',a);s.setProperty('--modal-accent-border',a+'44');s.setProperty('--accent-rgb',hexToRgbStr(a));s.setProperty('--accent-text',contrastText(a));}
@@ -1003,13 +1047,15 @@ function saveAndRender(refreshModal=false){
   localStorage.setItem(KEY,JSON.stringify(state));
   const p=cur();if(!p)return;
   document.body.style.backgroundColor=p.bgColor;
-  applyGridFont(p.gridFont);applyUiFonts(p.clockFont);
+  applyFonts(p);
   document.documentElement.style.setProperty('--weather-backdrop',p.weatherBackdrop||0);
   document.documentElement.style.setProperty('--clock-backdrop',p.clockBackdrop||0);
   document.documentElement.style.setProperty('--search-backdrop',p.searchBackdrop??0.3);
   updateModalAccent();renderSearch();
   applyBackdropColors(p);
   const bgA=document.getElementById('full-bg-a'),bgB=document.getElementById('full-bg-b'),dimEl=document.getElementById('dim-el'),credit=document.getElementById('unsplash-credit');
+  dimInstant();
+  if(_instantBg){_instantBg=false;const tok=++_atomicTok;[bgA,bgB].forEach(bg=>bg.style.transition='none');requestAnimationFrame(()=>requestAnimationFrame(()=>{if(tok===_atomicTok)[bgA,bgB].forEach(bg=>bg.style.transition='');}));}
   [bgA,bgB].forEach(bg=>{bg.style.backgroundImage='none';bg.style.background='none';bg.style.filter='none';bg.style.opacity=0;bg.style.transform='none';bg.style.transformOrigin='';});_bgActiveLayer='a';
 
   if(p.bgMode==='unsplash'&&!p.bgImg){
@@ -1043,7 +1089,7 @@ function saveAndRender(refreshModal=false){
   // QL
   document.getElementById('ql-nav').innerHTML=p.ql.filter(l=>l.vis).map(l=>{const ic=l.color||p.iconColor||'#ffffff';const lic=l.linkIcon||{type:'none',src:''};let ico='';if(lic.type==='favicon'&&l.url){try{const d=new URL(l.url).hostname;ico=`<img class="ql-img-icon" src="https://www.google.com/s2/favicons?domain=${d}&sz=64" alt="" onerror="this.style.display='none';this.nextSibling.style.display='flex'"><i class="${l.name}" style="color:${ic};display:none;font-size:1.05rem;"></i>`;}catch(e){ico=`<i class="${l.name}" style="color:${ic};font-size:1.05rem;"></i>`;}}else if(lic.type==='url'&&lic.src){ico=`<img class="ql-img-icon" src="${lic.src}" alt="" onerror="this.style.display='none';this.nextSibling.style.display='flex'"><i class="${l.name}" style="color:${ic};display:none;font-size:1.05rem;"></i>`;}else{ico=`<i class="${l.name}" style="color:${ic};font-size:1.05rem;"></i>`;}const title=l.url?new URL(l.url.startsWith('http')?l.url:'https://'+l.url).hostname:'';return`<a href="${l.url}" class="nav-link" target="${state.target}" title="${title}">${ico}</a>`;}).join('');
   // Grid
-  document.getElementById('grid').style.gridTemplateColumns=p.categories.length?`repeat(${p.categories.length},1fr)`:'';document.getElementById('grid').innerHTML=p.categories.map((c,ci)=>`<div class="column" draggable="true" ondragstart="colDS(event,${ci})" ondragover="colDO(event,${ci})" ondrop="colDrop(event,${ci})" ondragleave="colDL(event)" style="--cat-accent:${c.color};${catStyle(c,p)}"><div class="cat-title-row" style="position:relative;"><div class="cat-title ${catCfg(c,p).showHeader?'':'hidden-header'}" style="color:${c.color};"><a href="${c.url||'#'}" target="${state.target}" style="color:inherit;text-decoration:none;">${c.title}</a></div><div class="edit-overlay"><button class="edit-del-btn" onclick="delCat(${ci})">Delete</button></div></div>${c.links.map((l,li)=>{const lic=l.linkIcon||{type:'none',src:'',size:'m'};const io=lic.type!=='none'&&lic.iconOnly;const sz=lic.size==='s'?'calc(0.75rem * var(--scale) * var(--density-mod))':lic.size==='l'?'calc(1.5rem * var(--scale) * var(--density-mod))':lic.size==='xl'?'calc(2rem * var(--scale) * var(--density-mod))':'calc(1rem * var(--scale) * var(--density-mod))';const fid='fb-'+ci+'-'+li;let ih='';if(lic.type==='favicon'&&l.url){try{const d=new URL(l.url).hostname;const fb=l.name?l.name.charAt(0).toUpperCase():'?';const fbBg=l.color||state.linkColor||'#888';ih=`<img class="link-icon" style="width:${sz};height:${sz}" src="https://www.google.com/s2/favicons?domain=${d}&sz=32" alt="" onerror="this.style.display='none';document.getElementById('${fid}').style.display='inline-flex'"><span id="${fid}" class="link-icon-fallback" style="width:${sz};height:${sz};background:${fbBg}22;color:${fbBg}">${fb}</span>`;}catch(e){}}else if(lic.type==='url'&&lic.src){const fb=l.name?l.name.charAt(0).toUpperCase():'?';const fbBg=l.color||state.linkColor||'#888';ih=`<img class="link-icon" style="width:${sz};height:${sz}" src="${lic.src}" alt="" onerror="this.style.display='none';document.getElementById('${fid}').style.display='inline-flex'"><span id="${fid}" class="link-icon-fallback" style="width:${sz};height:${sz};background:${fbBg}22;color:${fbBg}">${fb}</span>`;}return`<div class="link-row"><a href="${l.url||'#'}" target="${state.target}" style="color:${l.color||state.linkColor}" class="${io?'icon-only':''}" ${io?`data-label="${l.name}"`:''}>${ih}<span class="link-label">${l.name}</span></a><div class="edit-overlay"><button class="edit-del-btn" onclick="delLink(${ci},${li})">Delete</button></div></div>`;}).join('')}<button class="edit-add-btn add-link-btn" onclick="addLinkTo(${ci})" title="Add link"><i class="fa-solid fa-plus"></i></button></div>`).join('')+`<button class="edit-add-btn add-cat-btn" onclick="addCatFromGrid()" title="Add category"><i class="fa-solid fa-plus"></i></button>`;
+  document.getElementById('grid').style.gridTemplateColumns=p.categories.length?`repeat(${p.categories.length},1fr)`:'';document.getElementById('grid').innerHTML=p.categories.map((c,ci)=>`<div class="column" draggable="true" ondragstart="colDS(event,${ci})" ondragover="colDO(event,${ci})" ondrop="colDrop(event,${ci})" ondragleave="colDL(event)" style="--cat-accent:${c.color};${catStyle(c,p)}"><div class="cat-title-row" style="position:relative;"><div class="cat-title ${catCfg(c,p).showHeader?'':'hidden-header'}" style="color:${c.color};font-family:${fontStack(c.font)};"><a href="${c.url||'#'}" target="${state.target}" style="color:inherit;text-decoration:none;">${c.title}</a></div><div class="edit-overlay"><button class="edit-del-btn" onclick="delCat(${ci})">Delete</button></div></div>${c.links.map((l,li)=>{const lic=l.linkIcon||{type:'none',src:'',size:'m'};const io=lic.type!=='none'&&lic.iconOnly;const sz=lic.size==='s'?'calc(0.75rem * var(--scale) * var(--density-mod))':lic.size==='l'?'calc(1.5rem * var(--scale) * var(--density-mod))':lic.size==='xl'?'calc(2rem * var(--scale) * var(--density-mod))':'calc(1rem * var(--scale) * var(--density-mod))';const fid='fb-'+ci+'-'+li;let ih='';if(lic.type==='favicon'&&l.url){try{const d=new URL(l.url).hostname;const fb=l.name?l.name.charAt(0).toUpperCase():'?';const fbBg=l.color||state.linkColor||'#888';ih=`<img class="link-icon" style="width:${sz};height:${sz}" src="https://www.google.com/s2/favicons?domain=${d}&sz=32" alt="" onerror="this.style.display='none';document.getElementById('${fid}').style.display='inline-flex'"><span id="${fid}" class="link-icon-fallback" style="width:${sz};height:${sz};background:${fbBg}22;color:${fbBg}">${fb}</span>`;}catch(e){}}else if(lic.type==='url'&&lic.src){const fb=l.name?l.name.charAt(0).toUpperCase():'?';const fbBg=l.color||state.linkColor||'#888';ih=`<img class="link-icon" style="width:${sz};height:${sz}" src="${lic.src}" alt="" onerror="this.style.display='none';document.getElementById('${fid}').style.display='inline-flex'"><span id="${fid}" class="link-icon-fallback" style="width:${sz};height:${sz};background:${fbBg}22;color:${fbBg}">${fb}</span>`;}return`<div class="link-row"><a href="${l.url||'#'}" target="${state.target}" style="color:${l.color||state.linkColor};font-family:${fontStack(l.font)}" class="${io?'icon-only':''}" ${io?`data-label="${l.name}"`:''}>${ih}<span class="link-label">${l.name}</span></a><div class="edit-overlay"><button class="edit-del-btn" onclick="delLink(${ci},${li})">Delete</button></div></div>`;}).join('')}<button class="edit-add-btn add-link-btn" onclick="addLinkTo(${ci})" title="Add link"><i class="fa-solid fa-plus"></i></button></div>`).join('')+`<button class="edit-add-btn add-cat-btn" onclick="addCatFromGrid()" title="Add category"><i class="fa-solid fa-plus"></i></button>`;
   document.getElementById('weather-area').classList.toggle('weather-hidden',!p.showWeather);
   if(!p.showWeather)document.getElementById('weather-area').classList.remove('weather-loaded');
   applyScaling();
@@ -1091,7 +1137,6 @@ function renderSettings(){
   document.getElementById('target-mode').value=state.target;
   document.getElementById('search-enable').checked=(p.showSearch!==false);
   document.getElementById('search-engine').value=p.searchEngine||'startpage';
-  document.getElementById('font-picker').value=p.gridFont||'Inter';
   {const ua=document.getElementById('ui-accent-color');if(ua){ua.value=state.uiAccent||'#00d4ff';cpSync('ui-accent-color');}}
   // clock
   document.getElementById('clock-check').checked=(p.showClock!==false);
@@ -1100,7 +1145,7 @@ function renderSettings(){
   document.getElementById('clock-format').value=p.clockFormat||'24';
   document.getElementById('clock-date-fmt').value=p.clockDateFmt||'long';
   document.getElementById('clock-size').value=p.clockSize||'m';
-  document.getElementById('clock-font').value=p.clockFont||'Inter';
+  document.getElementById('clock-font').value=fontName(p.clockFont);document.getElementById('search-font').value=fontName(p.searchFont);document.getElementById('weather-font').value=fontName(p.weatherFont);
   document.getElementById('clock-color').value=p.clockColor||'#ffffff';cpSync('clock-color');
   const cbk=document.getElementById('clock-backdrop-slider'),cbkv=document.getElementById('clock-backdrop-val');if(cbk)cbk.value=p.clockBackdrop||0;if(cbkv)cbkv.textContent=Math.round((p.clockBackdrop||0)*100)+'%';
   const sbk=document.getElementById('search-backdrop-slider'),sbkv=document.getElementById('search-backdrop-val');if(sbk)sbk.value=p.searchBackdrop??0.3;if(sbkv)sbkv.textContent=Math.round((p.searchBackdrop??0.3)*100)+'%';
@@ -1124,7 +1169,6 @@ function updateVis(){
   state.target=document.getElementById('target-mode').value;
   p.showSearch=document.getElementById('search-enable').checked;
   p.searchEngine=document.getElementById('search-engine').value;
-  p.gridFont=document.getElementById('font-picker').value;
   p.showClock=document.getElementById('clock-check').checked;
   p.clockSeconds=document.getElementById('clock-seconds').checked;
   p.clockShowDate=document.getElementById('clock-date-check').checked;
@@ -1132,7 +1176,7 @@ function updateVis(){
   p.clockDateFmt=document.getElementById('clock-date-fmt').value;
   p.clockSize=document.getElementById('clock-size').value;
   p.clockColor=document.getElementById('clock-color').value;
-  p.clockFont=document.getElementById('clock-font').value;
+  p.clockFont=fontName(document.getElementById('clock-font').value);
   p.showWeather=document.getElementById('w-enable').checked;
   p.weatherColor=document.getElementById('weather-color').value;
   p.weatherSize=document.getElementById('weather-size').value;
@@ -1164,6 +1208,13 @@ function photoCfg(p){return{
   tint:HEX6.test(p.photoTint||'')?p.photoTint:'#000000',
   vig:p.photoVignette>0?Math.min(p.photoVignette,1):0,
   sat:(p.photoSat>=0&&p.photoSat<=2)?p.photoSat:1};}
+// Re-applying the whole background (profile switch, mode change...) must jump to the new dim level, never animate from the old one.
+// The smooth fade is kept for the Dim slider only. Re-enabled two frames later, i.e. after the change has been rendered.
+// The dim layer has NO css transition by default (see #dim-el.dim-smooth). Only the slider handlers opt in, via dimSmooth(),
+// so a profile / mode switch can never animate the dim, whatever the timing or browser.
+let _dimSmoothT=0,_atomicTok=0,_instantBg=false;
+function dimInstant(){const d=document.getElementById('dim-el');if(!d)return;clearTimeout(_dimSmoothT);d.classList.remove('dim-smooth');}
+function dimSmooth(){const d=document.getElementById('dim-el');if(!d)return;d.classList.add('dim-smooth');clearTimeout(_dimSmoothT);_dimSmoothT=setTimeout(()=>d.classList.remove('dim-smooth'),500);}
 function applyPhotoOverlay(p){const d=document.getElementById('dim-el');if(!d)return;const c=photoCfg(p),t=hexToRgbStr(c.tint);
   d.style.background=(c.vig>0?`radial-gradient(ellipse at center,rgba(${t},0) 40%,rgba(${t},${c.vig}) 100%),`:'')+`rgba(${t},${p.photoDim??0.50})`;}
 function applyPhotoBg(p){
@@ -1184,7 +1235,7 @@ function applyPhotoBg(p){
   main.style.filter=`blur(${p.fuzzy||0}px)${sat}`;main.style.transformOrigin=pos;main.style.transform=c.zoom>1?`scale(${c.zoom})`:'none';main.style.opacity=1;
   applyPhotoOverlay(p);
 }
-function setPhotoOpt(k,v){const p=cur();p[k]=v;if(p.bgMode==='photo'&&p.bgImg)applyPhotoBg(p);localStorage.setItem(KEY,JSON.stringify(state));syncPhotoOpts();}
+function setPhotoOpt(k,v){dimSmooth();const p=cur();p[k]=v;if(p.bgMode==='photo'&&p.bgImg)applyPhotoBg(p);localStorage.setItem(KEY,JSON.stringify(state));syncPhotoOpts();}
 function photoSlider(k){const ids={bgZoom:'photo-zoom',photoVignette:'photo-vig',photoSat:'photo-sat'};setPhotoOpt(k,parseFloat(document.getElementById(ids[k]).value));}
 function syncPhotoOpts(){
   const p=cur(),c=photoCfg(p),$=id=>document.getElementById(id);if(!$('photo-fit-group'))return;
@@ -1198,7 +1249,7 @@ function syncPhotoOpts(){
   setS('photo-zoom','photo-zoom-val',c.zoom);setS('photo-vig','photo-vig-val',c.vig);setS('photo-sat','photo-sat-val',c.sat);
 }
 function resetPhotoOpts(){const p=cur();['bgFit','bgPos','bgZoom','bgBars','photoBarsColor','photoTint','photoVignette','photoSat'].forEach(k=>delete p[k]);p.photoDim=0.50;p.fuzzy=0;if(p.bgMode==='photo'&&p.bgImg)applyPhotoBg(p);localStorage.setItem(KEY,JSON.stringify(state));renderSettings();}
-function updatePhotoDim(){const p=cur();const v=parseFloat(document.getElementById('photo-dim').value);p.photoDim=v;document.getElementById('photo-dim-val').textContent=Math.round(v*100)+'%';if(p.bgMode==='photo'||p.bgImg)applyPhotoOverlay(p);localStorage.setItem(KEY,JSON.stringify(state));}
+function updatePhotoDim(){dimSmooth();const p=cur();const v=parseFloat(document.getElementById('photo-dim').value);p.photoDim=v;document.getElementById('photo-dim-val').textContent=Math.round(v*100)+'%';if(p.bgMode==='photo'||p.bgImg)applyPhotoOverlay(p);localStorage.setItem(KEY,JSON.stringify(state));}
 
 // ── City / Weather ──
 function renderCityManager(){const isUnsplash=cur().bgMode==='unsplash';document.getElementById('city-list-manager').innerHTML=state.cities.map((c,i)=>{const mode=c.photoMode||'generic';return`<div class="city-item" draggable="true" ondragstart="cDS(event,${i})" ondragover="cDO(event,${i})" ondrop="cDrop(event,${i})" ondragleave="cDL(event)"><i class="fa-solid fa-grip-vertical drag-handle" style="color:#555;"></i><span style="flex:1;">${c.name}</span>${isUnsplash?`<span class="photo-mode-toggle"><button class="pmt-btn${mode==='generic'?' pmt-active':''}" onclick="setCityPhotoMode(${i},'generic',event)">Generic</button><button class="pmt-btn${mode==='city'?' pmt-active':''}" onclick="setCityPhotoMode(${i},'city',event)">City</button></span>`:''}<i class="fa-solid fa-trash-can" onclick="removeCity(${i})"></i></div>`;}).join('');}
@@ -1278,7 +1329,7 @@ function syncCatEditor(){
   document.querySelectorAll('#cat-size-group .size-btn').forEach(b=>b.classList.toggle('active',b.id==='size-'+g.density));
   document.getElementById('header-vis-check').checked=g.showHeader;
   const cs=document.getElementById('card-opacity-slider'),cv=document.getElementById('card-opacity-val');if(cs)cs.value=g.opacity;if(cv)cv.textContent=Math.round(g.opacity*100)+'%';
-  document.getElementById('cat-title').value=c.title;document.getElementById('cat-color').value=c.color;cpSync('cat-color');document.getElementById('cat-url').value=c.url||'';bdSyncUI('card');
+  document.getElementById('cat-font').value=fontName(c.font);document.getElementById('cat-title').value=c.title;document.getElementById('cat-color').value=c.color;cpSync('cat-color');document.getElementById('cat-url').value=c.url||'';bdSyncUI('card');
   document.getElementById('link-list-editor').innerHTML=c.links.map((l,li)=>{
     const lc=l.color||state.linkColor||'#cccccc';const lic=l.linkIcon||{type:'none',src:''};
     const nC=lic.type==='none'?'checked':'',fC=lic.type==='favicon'?'checked':'',uC=lic.type==='url'?'checked':'';
@@ -1286,7 +1337,7 @@ function syncCatEditor(){
     const uIn=lic.type==='url'?`<input type="text" class="link-icon-url-input" placeholder="Image URL..." value="${lic.src||''}" oninput="updateLinkIcon(${idx},${li},'url',this.value,${io},'${sz}')">`:'';
     const ioBox=lic.type!=='none'?`<label style="margin-left:4px;"><input type="checkbox" ${lic.iconOnly?'checked':''} onchange="updateLinkIcon(${idx},${li},'${lic.type}','${lic.src||''}',this.checked,'${sz}')"> Icon only</label>`:'';
     const szB=lic.type!=='none'?`<div class="icon-size-group">${['s','m','l','xl'].map(s=>`<button class="icon-size-btn${sz===s?' active':''}" onclick="updateLinkIcon(${idx},${li},'${lic.type}','${lic.src||''}',${io},'${s}')">${s.toUpperCase()}</button>`).join('')}</div>`:'';
-    return`<div class="editor-link-row" draggable="true" onmousedown="if(event.target.tagName==='INPUT'||event.target.tagName==='TEXTAREA'){this.draggable=false;}" onmouseup="this.draggable=true;" onmouseleave="this.draggable=true;" ondragstart="lDS(event,${idx},${li})" ondragover="lDO(event,${idx},${li})" ondrop="lDrop(event,${idx},${li})" ondragleave="lDL(event)"><i class="fa-solid fa-grip-vertical drag-handle"></i><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;"><div style="display:flex;gap:4px;align-items:center;"><input type="text" value="${l.name}" oninput="updateLink(${idx},${li},'name',this.value)" onblur="saveAndRender()" style="flex:1;"><input type="text" value="${l.url}" placeholder="URL" oninput="updateLink(${idx},${li},'url',this.value)" onblur="saveAndRender()" style="flex:1;"></div><div class="link-icon-row"><label><input type="radio" name="li${idx}-${li}" value="none" ${nC} onchange="updateLinkIcon(${idx},${li},'none','',false,'m')"> None</label><label><input type="radio" name="li${idx}-${li}" value="favicon" ${fC} onchange="updateLinkIcon(${idx},${li},'favicon','',${io},'${sz}')"> Favicon</label><label><input type="radio" name="li${idx}-${li}" value="url" ${uC} onchange="updateLinkIcon(${idx},${li},'url','',${io},'${sz}')"> URL</label>${uIn}${ioBox}${szB}</div></div><div class="color-field" style="flex-shrink:0;"><input type="color" id="lc-${idx}-${li}" value="${lc}" oninput="updateLink(${idx},${li},'color',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('lc-${idx}-${li}')" style="background:${lc}"></div><button class="btn-icon" onclick="updateLink(${idx},${li},'color','');syncCatEditor();"><i class="fa-solid fa-rotate-left"></i></button></div><button class="btn-icon" style="color:#f44;" onclick="delLink(${idx},${li});syncCatEditor();"><i class="fa-solid fa-trash-can"></i></button></div>`;
+    return`<div class="editor-link-row" draggable="true" onmousedown="if(event.target.tagName==='INPUT'||event.target.tagName==='TEXTAREA'){this.draggable=false;}" onmouseup="this.draggable=true;" onmouseleave="this.draggable=true;" ondragstart="lDS(event,${idx},${li})" ondragover="lDO(event,${idx},${li})" ondrop="lDrop(event,${idx},${li})" ondragleave="lDL(event)"><i class="fa-solid fa-grip-vertical drag-handle"></i><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;"><div style="display:flex;gap:4px;align-items:center;"><input type="text" value="${l.name}" oninput="updateLink(${idx},${li},'name',this.value)" onblur="saveAndRender()" style="flex:1;"><input type="text" value="${l.url}" placeholder="URL" oninput="updateLink(${idx},${li},'url',this.value)" onblur="saveAndRender()" style="flex:1;"></div><div class="link-icon-row"><label><input type="radio" name="li${idx}-${li}" value="none" ${nC} onchange="updateLinkIcon(${idx},${li},'none','',false,'m')"> None</label><label><input type="radio" name="li${idx}-${li}" value="favicon" ${fC} onchange="updateLinkIcon(${idx},${li},'favicon','',${io},'${sz}')"> Favicon</label><label><input type="radio" name="li${idx}-${li}" value="url" ${uC} onchange="updateLinkIcon(${idx},${li},'url','',${io},'${sz}')"> URL</label>${uIn}${ioBox}${szB}</div><div class="link-font-row"><span>Font</span><div class="font-field"><select onchange="updateLink(${idx},${li},'font',this.value)">${fontOpts(l.font)}</select><button class="btn-icon font-all-btn" onclick="applyFontEverywhere(this.previousElementSibling.value)" title="Use this font in every field of this profile: all categories, all links, clock, search and weather"><i class="fa-solid fa-clone"></i> All</button></div></div></div><div class="color-field" style="flex-shrink:0;"><input type="color" id="lc-${idx}-${li}" value="${lc}" oninput="updateLink(${idx},${li},'color',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('lc-${idx}-${li}')" style="background:${lc}"></div><button class="btn-icon" onclick="updateLink(${idx},${li},'color','');syncCatEditor();"><i class="fa-solid fa-rotate-left"></i></button></div><button class="btn-icon" style="color:#f44;" onclick="delLink(${idx},${li});syncCatEditor();"><i class="fa-solid fa-trash-can"></i></button></div>`;
   }).join('');
 }
 function updateCat(f){const idx=document.getElementById('cat-sel').value,c=cur().categories[idx];c.title=document.getElementById('cat-title').value;c.color=document.getElementById('cat-color').value;c.url=document.getElementById('cat-url').value;syncCatTab(c);if(f==='text')localStorage.setItem(KEY,JSON.stringify(state));else saveAndRender();}
@@ -1335,7 +1386,7 @@ function ipClose(){document.getElementById('icon-picker-grid').classList.remove(
 document.addEventListener('click',e=>{if(!document.getElementById('icon-picker-grid').classList.contains('open'))return;if(!e.target.closest('#icon-picker-grid')&&!e.target.closest('.icon-picker-btn'))ipClose();});
 
 function addCat(){const cats=cur().categories;cats.push(newCat());document.getElementById('cat-sel').value=cats.length-1;saveAndRender(true);renderSettings();const t=document.getElementById('cat-title');if(t){t.focus();t.select();}}
-function addLink(){const c=cur().categories[document.getElementById('cat-sel').value];if(!c)return;c.links.push({name:'New Link',url:'',color:state.linkColor,linkIcon:{type:'none',src:''}});saveAndRender(true);}
+function addLink(){const c=cur().categories[document.getElementById('cat-sel').value];if(!c)return;c.links.push({name:'New Link',url:'',color:state.linkColor,font:fontName(c.font),linkIcon:{type:'none',src:''}});saveAndRender(true);}
 
 // ── Edit-mode helpers: add link / category straight from the main page ──
 function openCatEditor(ci,focusSel){
@@ -1347,7 +1398,7 @@ function openCatEditor(ci,focusSel){
 }
 function addLinkTo(ci){
   const c=cur().categories[ci];if(!c)return;
-  c.links.push({name:'New Link',url:'',color:state.linkColor,linkIcon:{type:'none',src:''}});
+  c.links.push({name:'New Link',url:'',color:state.linkColor,font:fontName(c.font),linkIcon:{type:'none',src:''}});
   saveAndRender();
   openCatEditor(ci,'#link-list-editor .editor-link-row:last-child input[type="text"]');
 }
@@ -1387,7 +1438,7 @@ function delLink(ci,li){cur().categories[ci].links.splice(li,1);saveAndRender();
 function addProfile(){state.profiles.push(mkProf(mkCats(5,'Category'),'m'));state.profileNames.push('Profile '+state.profiles.length);saveAndRender();renderSettings();}
 
 function exportData(){const now=new Date();const pad=n=>String(n).padStart(2,'0');const stamp=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}`;const b=new Blob([JSON.stringify(state)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`startpage_backup_${stamp}.json`;a.click();}
-function importData(input){const file=input.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{try{const imp=JSON.parse(e.target.result);if(!imp.profiles&&!imp.home&&!imp.work){alert('Invalid backup.');return;}const base=getDefaults();['profile','target','linkColor','tabTitle','tabFavicon','tabFaviconEmoji'].forEach(k=>{if(imp[k]!==undefined)base[k]=imp[k];});if(Array.isArray(imp.cities)&&imp.cities.length)base.cities=imp.cities;if(Array.isArray(imp.profiles)&&imp.profiles.length){base.profiles=imp.profiles;base.profileNames=imp.profileNames||imp.profiles.map((_,i)=>'Profile '+(i+1));}const pi=parseInt((base.profile||'p0').replace('p',''));if(isNaN(pi)||pi>=base.profiles.length)base.profile='p0';base.profiles.forEach(p=>{if(p&&!['gradient','photo','unsplash','time'].includes(p.bgMode))p.bgMode='gradient';if(p&&!p.unsplashKey)p.unsplashKey=UNSPLASH_KEY;if(p&&p.unsplashDim===undefined)p.unsplashDim=0.50;if(p&&p.opTime===undefined)p.opTime=1.0;});if(!base.tabFaviconEmoji&&!base.tabFavicon)base.tabFaviconEmoji='⭐';state=base;localStorage.setItem(KEY,JSON.stringify(state));saveAndRender();renderSettings();updateWeather();alert('Import successful!');closeModals();}catch(err){alert('Invalid backup: '+err.message);}};r.readAsText(file);input.value='';}
+function importData(input){const file=input.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{try{const imp=JSON.parse(e.target.result);if(!imp.profiles&&!imp.home&&!imp.work){alert('Invalid backup.');return;}const base=getDefaults();['profile','target','linkColor','tabTitle','tabFavicon','tabFaviconEmoji'].forEach(k=>{if(imp[k]!==undefined)base[k]=imp[k];});if(Array.isArray(imp.cities)&&imp.cities.length)base.cities=imp.cities;if(Array.isArray(imp.profiles)&&imp.profiles.length){base.profiles=imp.profiles;base.profileNames=imp.profileNames||imp.profiles.map((_,i)=>'Profile '+(i+1));}const pi=parseInt((base.profile||'p0').replace('p',''));if(isNaN(pi)||pi>=base.profiles.length)base.profile='p0';base.profiles.forEach(p=>{if(p)migrateFonts(p);if(p&&!['gradient','photo','unsplash','time'].includes(p.bgMode))p.bgMode='gradient';if(p&&!p.unsplashKey)p.unsplashKey=UNSPLASH_KEY;if(p&&p.unsplashDim===undefined)p.unsplashDim=0.50;if(p&&p.opTime===undefined)p.opTime=1.0;});if(!base.tabFaviconEmoji&&!base.tabFavicon)base.tabFaviconEmoji='⭐';state=base;localStorage.setItem(KEY,JSON.stringify(state));saveAndRender();renderSettings();updateWeather();alert('Import successful!');closeModals();}catch(err){alert('Invalid backup: '+err.message);}};r.readAsText(file);input.value='';}
 function resetToDefaults(){if(confirm('Factory reset? This will erase everything.')){state=getDefaults();saveAndRender();renderSettings();updateWeather();}}
 function handleBgFile(input){const file=input.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{const canvas=document.createElement('canvas');const MAX=1920;let w=img.width,h=img.height;if(w>MAX){h*=MAX/w;w=MAX;}canvas.width=w;canvas.height=h;canvas.getContext('2d').drawImage(img,0,0,w,h);updateBgImg(canvas.toDataURL('image/jpeg',0.7));};img.src=e.target.result;};r.readAsDataURL(file);}
 
@@ -1456,7 +1507,7 @@ function tickClock(){
   let hh=now.getHours();let ap='';if(use12){ap=hh>=12?' PM':' AM';hh=hh%12||12;}
   const ts=(p.clockSeconds!==false)?`${String(hh).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}${ap}`:`${String(hh).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}${ap}`;
   const te=document.getElementById('clock-time'),de=document.getElementById('clock-date');
-  const fnt=`'${p.clockFont||'Inter'}',system-ui,sans-serif`;
+  const fnt=fontStack(p.clockFont);
   te.textContent=ts;te.style.color=color;te.style.fontSize=spx;te.style.fontFamily=fnt;de.style.fontFamily=fnt;
   const sd=p.clockShowDate!==false;de.style.display=sd?'block':'none';de.style.color=color;de.style.fontSize=dpx;
   if(sd){const fmt=p.clockDateFmt||'long';const n=now;
