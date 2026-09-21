@@ -163,8 +163,18 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 [data-fstyle="italic"],[data-fstyle="italic"] :not(i){font-weight:400!important;font-style:italic!important}
 [data-fstyle="bolditalic"],[data-fstyle="bolditalic"] :not(i){font-weight:700!important;font-style:italic!important}
 [data-fstyle] i{font-style:normal!important}
-.clk-block{border:1px solid #1e1e1e;background:#0a0a0a;border-radius:12px;padding:14px 16px 8px;margin-top:24px}
-.clk-title{font-size:0.62rem;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--modal-accent,#00d4ff);margin-bottom:12px}
+.s-card{border:1px solid #1e1e1e;background:#0a0a0a;border-radius:12px;padding:14px 16px 8px;margin-top:24px}
+.section-h + .s-card{margin-top:4px}
+.s-field{margin-bottom:12px}
+.s-field>.s-lab{font-size:0.8rem;color:#bbb;margin-bottom:6px}
+.s-field .size-group{margin-bottom:0}
+.s-slide{margin-bottom:12px}
+.s-slide .color-row{margin-bottom:4px}
+.s-val{font-size:0.72rem;color:#888;min-width:30px;text-align:right}
+.bd-slide{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.bd-slide input[type=range]{flex:1;min-width:0;margin:0}
+.s-note{font-size:0.68rem;color:#888;margin-bottom:12px;line-height:1.5}
+.s-title{font-size:0.62rem;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--modal-accent,#00d4ff);margin-bottom:12px}
 .inl-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px 26px;margin-bottom:12px}
 .inl{display:flex;align-items:center;gap:8px}
 .inl>span{font-size:0.8rem;color:#bbb;white-space:nowrap}
@@ -329,29 +339,41 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
     <div class="settings-panel active" id="panel-profiles">
       <div class="setting-block">
         <div class="section-h">Profiles</div>
-        <div id="profile-cards-list"></div>
-        <button onclick="addProfile()" style="margin-top:6px;font-size:0.72rem;">+ Add Profile</button>
-        <input type="file" id="profile-photo-file" style="display:none" accept="image/*" onchange="handleProfilePhotoFile(this)">
+        <div class="s-card">
+          <div class="s-title">Your Profiles</div>
+          <div id="profile-cards-list"></div>
+          <button onclick="addProfile()" style="margin:6px 0 10px;font-size:0.72rem;">+ Add Profile</button>
+          <input type="file" id="profile-photo-file" style="display:none" accept="image/*" onchange="handleProfilePhotoFile(this)">
+        </div>
       </div>
     </div>
     <!-- DISPLAY -->
     <div class="settings-panel" id="panel-display">
       <div class="setting-block">
-        <div class="section-h">Display & Navigation</div>
-        <div class="color-row" style="margin-bottom:8px;"><span>Tab Name</span><input type="text" id="tab-title-input" placeholder="Startpage" oninput="updateTabMeta()" style="width:160px;height:28px;font-size:0.78rem;"></div>
-        <div class="color-row" style="margin-bottom:14px;"><span>Tab Icon</span>
-          <div style="display:flex;gap:5px;align-items:center;">
-            <button class="icon-picker-btn" id="favicon-emoji-btn" onclick="faviconPickerOpen(this)" style="width:28px;height:26px;font-size:0.9rem;padding:0;flex-shrink:0;">⭐</button>
-            <input type="text" id="tab-favicon-input" placeholder="or paste URL..." oninput="updateTabMeta()" style="height:26px;font-size:0.75rem;flex:1;min-width:0;">
+        <div class="section-h">Display &amp; Navigation</div>
+        <div class="s-card">
+          <div class="s-title">Browser Tab</div>
+          <div class="inl-row">
+            <div class="inl"><span>Tab Name</span><input type="text" id="tab-title-input" placeholder="Startpage" oninput="updateTabMeta()" style="width:200px;height:28px;font-size:0.78rem;"></div>
+            <div class="inl"><span>Tab Icon</span><button class="icon-picker-btn" id="favicon-emoji-btn" onclick="faviconPickerOpen(this)" style="width:28px;height:26px;font-size:0.9rem;padding:0;flex-shrink:0;">⭐</button><input type="text" id="tab-favicon-input" placeholder="or paste URL..." oninput="updateTabMeta()" style="width:200px;height:26px;font-size:0.75rem;"></div>
           </div>
         </div>
-        <div class="color-row" style="margin-bottom:12px;"><span>Open Links On</span><select id="target-mode" onchange="updateVis()" class="select-inline"><option value="_self">Current Tab</option><option value="_blank">New Tab</option></select></div>
-        <div class="color-row" style="margin-top:12px;"><span>Settings Color</span><div class="color-field"><input type="color" id="ui-accent-color" oninput="updateUiAccent(this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('ui-accent-color')" title="Accent color of this settings window"></div><button class="btn-icon" onclick="resetUiAccent()" title="Reset to blue"><i class="fa-solid fa-rotate-left"></i></button></div></div>
+        <div class="s-card">
+          <div class="s-title">Links</div>
+          <div class="inl-row"><div class="inl"><span>Open Links On</span><select id="target-mode" onchange="updateVis()"><option value="_self">Current Tab</option><option value="_blank">New Tab</option></select></div></div>
+        </div>
+        <div class="s-card">
+          <div class="s-title">Settings Window</div>
+          <div class="inl-row"><div class="inl"><span>Settings Color</span><div class="color-field"><input type="color" id="ui-accent-color" oninput="updateUiAccent(this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('ui-accent-color')" title="Accent color of this settings window"></div><button class="btn-icon" onclick="resetUiAccent()" title="Reset to blue"><i class="fa-solid fa-rotate-left"></i></button></div></div></div>
+        </div>
       </div>
     </div>
     <!-- QUICK LINKS -->
     <div class="settings-panel" id="panel-quick-links">
-      <div class="setting-block"><div class="section-h">Quick Links Bar</div><div id="ql-list-editor"></div></div>
+      <div class="setting-block">
+        <div class="section-h">Quick Links Bar</div>
+        <div class="s-card"><div class="s-title">Links</div><div id="ql-list-editor"></div></div>
+      </div>
     </div>
     <!-- CATEGORIES -->
     <div class="settings-panel" id="panel-categories">
@@ -361,26 +383,28 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
         <div class="cat-undo" id="cat-undo"></div>
         <input type="hidden" id="cat-sel" value="">
         <div id="cat-pane">
+        <div class="s-card" style="margin-top:14px;"><div class="s-title">Category</div>
         <div class="flex-row" style="margin-bottom:8px;align-items:center;">
           <input type="text" id="cat-title" oninput="updateCat('text')" onblur="saveAndRender()" placeholder="Title">
           <div class="color-field"><input type="color" id="cat-color" oninput="updateCat()" style="display:none"><div class="cp-swatch" onclick="cpOpen('cat-color')"></div><button class="btn-icon" onclick="resetCatColor()"><i class="fa-solid fa-rotate-left"></i></button></div>
         </div>
         <input type="text" id="cat-url" oninput="updateCat('text')" onblur="saveAndRender()" placeholder="Header URL (optional)" style="margin-bottom:10px;">
         <label class="label-inline"><input type="checkbox" id="header-vis-check" onchange="updateCatHeader()"> Show category header</label>
-        <div class="cat-sub-h">Font</div>
-        <div class="color-row" style="margin-bottom:4px;"><span>Category Font</span><div class="font-field" id="ff-cat"></div></div>
-        <div class="cat-sub-h">Size</div>
+        <div class="inl-row" style="margin-top:4px;"><div class="inl"><span>Font</span><div class="font-field" id="ff-cat"></div></div></div>
+        <div class="s-field"><div class="s-lab">Size</div>
         <div class="size-group" id="cat-size-group">
           <button class="size-btn" id="size-s" onclick="updateCatDensity('s')">Small</button><button class="size-btn" id="size-m" onclick="updateCatDensity('m')">Medium</button><button class="size-btn" id="size-l" onclick="updateCatDensity('l')">Large</button><button class="size-btn" id="size-xl" onclick="updateCatDensity('xl')">X-Large</button>
+        </div></div>
         </div>
-        <div class="cat-sub-h">Card Background</div>
+        <div class="s-card"><div class="s-title">Card Background</div>
         <div class="color-row" style="margin-bottom:4px;"><span>Opacity</span><span id="card-opacity-val" style="font-size:0.72rem;color:#888;">0%</span></div>
-        <input type="range" id="card-opacity-slider" min="0" max="1" step="0.01" oninput="updateCardOpacity()" style="margin-bottom:10px;">
-        <div class="color-row" style="margin-bottom:8px;"><span>Color</span><div class="color-field"><input type="color" id="cat-bg-color" oninput="bdSet('card','c1',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('cat-bg-color')" title="Color"></div><input type="color" id="cat-bg-color2" oninput="bdSet('card','c2',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('cat-bg-color2')" title="Second gradient color"></div><button class="btn-icon" onclick="bdReset('card')" title="Reset colors"><i class="fa-solid fa-rotate-left"></i></button></div></div>
+        <div class="bd-slide"><input type="range" id="card-opacity-slider" min="0" max="1" step="0.01" oninput="updateCardOpacity()"><div class="color-field"><input type="color" id="cat-bg-color" oninput="bdSet('card','c1',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('cat-bg-color')" title="Color"></div><input type="color" id="cat-bg-color2" oninput="bdSet('card','c2',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('cat-bg-color2')" title="Second gradient color"></div><button class="btn-icon" onclick="bdReset('card')" title="Reset colors"><i class="fa-solid fa-rotate-left"></i></button></div></div>
         <div class="bd-style-row" style="margin-bottom:10px;"><div class="size-group" id="cat-bg-modes"><button class="size-btn" data-mode="solid" onclick="bdSet('card','mode','solid')">Solid</button><button class="size-btn" data-mode="gradient" onclick="bdSet('card','mode','gradient')">Gradient</button></div><select id="cat-bg-dir" onchange="bdSet('card','dir',this.value)"><option value="v">↓ Top to bottom</option><option value="h">→ Left to right</option><option value="d1">↘ Diagonal down</option><option value="d2">↗ Diagonal up</option><option value="r">◉ Radial (center out)</option></select></div>
-        <div class="cat-sub-h">Links</div>
-        <div id="link-list-editor" style="border:1px solid #1a1a1a;padding:8px;border-radius:8px;background:#050505;margin-bottom:8px;"></div>
-        <div class="flex-row"><button onclick="addLink()">+ Link</button></div>
+        </div>
+        <div class="s-card"><div class="s-title">Links</div>
+        <div id="link-list-editor" style="margin-bottom:10px;"></div>
+        <div class="flex-row" style="margin-bottom:12px;"><button onclick="addLink()">+ Link</button></div>
+        </div>
         </div>
       </div>
     </div>
@@ -388,55 +412,69 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
     <div class="settings-panel" id="panel-background">
       <div class="setting-block">
         <div class="section-h">Background</div>
+        <div class="s-card"><div class="s-title">Mode</div>
         <div class="bg-mode-group">
           <button class="bg-mode-btn" id="bgmode-gradient" onclick="setBgMode('gradient')">Gradient</button>
           <button class="bg-mode-btn" id="bgmode-photo" onclick="setBgMode('photo')">Photo</button>
           <button class="bg-mode-btn" id="bgmode-unsplash" onclick="setBgMode('unsplash')">Weather</button>
           <button class="bg-mode-btn" id="bgmode-time" onclick="setBgMode('time')">Time</button>
         </div>
-        <!-- Gradient options -->
+        </div>
         <div id="gradient-opts" style="display:none;">
-          <div class="size-group" style="margin-bottom:8px;"><button class="size-btn" id="grad-auto" onclick="setGradType('auto')">Auto</button><button class="size-btn" id="grad-manual" onclick="setGradType('manual')">Manual</button></div>
-          <div id="grad-manual-opts" style="display:none;">
-            <div class="size-group" style="margin-bottom:8px;"><button class="size-btn" id="grad-ltr" onclick="setGradDir('ltr')">L→R</button><button class="size-btn" id="grad-rtl" onclick="setGradDir('rtl')">R→L</button><button class="size-btn" id="grad-ttb" onclick="setGradDir('ttb')">T→B</button><button class="size-btn" id="grad-btt" onclick="setGradDir('btt')">B→T</button></div>
-            <div style="display:flex;gap:10px;align-items:center;margin-bottom:6px;">
-              <span style="font-size:0.72rem;color:#888;">From</span><input type="color" id="grad-color-a" oninput="updateVis()" style="display:none"><div class="cp-swatch" onclick="cpOpen('grad-color-a')"></div>
-              <span style="font-size:0.72rem;color:#888;">To</span><input type="color" id="grad-color-b" oninput="updateVis()" style="display:none"><div class="cp-swatch" onclick="cpOpen('grad-color-b')"></div>
+          <div class="s-card">
+            <div class="s-title">Gradient</div>
+            <div class="s-field"><div class="s-lab">Type</div><div class="size-group"><button class="size-btn" id="grad-auto" onclick="setGradType('auto')">Auto</button><button class="size-btn" id="grad-manual" onclick="setGradType('manual')">Manual</button></div></div>
+            <div id="grad-manual-opts" style="display:none;">
+              <div class="s-field"><div class="s-lab">Direction</div><div class="size-group"><button class="size-btn" id="grad-ltr" onclick="setGradDir('ltr')">L→R</button><button class="size-btn" id="grad-rtl" onclick="setGradDir('rtl')">R→L</button><button class="size-btn" id="grad-ttb" onclick="setGradDir('ttb')">T→B</button><button class="size-btn" id="grad-btt" onclick="setGradDir('btt')">B→T</button></div></div>
+              <div class="inl-row">
+                <div class="inl"><span>From</span><div class="color-field"><input type="color" id="grad-color-a" oninput="updateVis()" style="display:none"><div class="cp-swatch" onclick="cpOpen('grad-color-a')"></div></div></div>
+                <div class="inl"><span>To</span><div class="color-field"><input type="color" id="grad-color-b" oninput="updateVis()" style="display:none"><div class="cp-swatch" onclick="cpOpen('grad-color-b')"></div></div></div>
+              </div>
             </div>
+            <div class="inl-row"><div class="inl"><span>Background Color</span><div class="color-field"><input type="color" id="bg-color" oninput="updateVis()" style="display:none"><div class="cp-swatch" onclick="cpOpen('bg-color')"></div><button class="btn-icon" onclick="resetBgColor()"><i class="fa-solid fa-rotate-left"></i></button></div></div></div>
+            <div class="s-slide"><div class="color-row"><span>Intensity</span><span id="grad-intensity-val" class="s-val">10%</span></div><div class="bd-slide"><input type="range" id="grad-intensity" min="0" max="1" step="0.01" oninput="updateVis();document.getElementById('grad-intensity-val').textContent=Math.round(this.value*100)+'%'" ></div></div>
           </div>
-          <div class="color-row" style="margin-top:8px;"><span>Background Color</span><div class="color-field"><input type="color" id="bg-color" oninput="updateVis()" style="display:none"><div class="cp-swatch" onclick="cpOpen('bg-color')"></div><button class="btn-icon" onclick="resetBgColor()"><i class="fa-solid fa-rotate-left"></i></button></div></div>
-          <div style="display:flex;align-items:center;gap:8px;margin-top:6px;"><span style="font-size:0.72rem;color:#888;width:52px;flex-shrink:0;">Intensity</span><input type="range" id="grad-intensity" min="0" max="1" step="0.01" oninput="updateVis();document.getElementById('grad-intensity-val').textContent=Math.round(this.value*100)+'%'" style="flex:1;"><span id="grad-intensity-val" style="font-size:0.72rem;color:#888;width:30px;text-align:right;">10%</span></div>
         </div>
-        <!-- Photo options -->
-        <div id="photo-opts" style="display:none;margin-top:8px;">
-          <input type="text" id="bg-img-url" placeholder="Photo URL..." oninput="updateBgImg(this.value)" style="margin-bottom:6px;height:28px;font-size:0.78rem;">
-          <div class="flex-row" style="margin-bottom:6px;"><button onclick="document.getElementById('bg-file').click()">Upload Photo</button><button style="color:#f88;" onclick="updateBgImg('')">Remove</button></div>
-          <input type="file" id="bg-file" style="display:none" accept="image/*" onchange="handleBgFile(this)">
-          <div class="cat-sub-h" style="margin-top:12px;">Fit</div>
-          <div class="size-group" id="photo-fit-group" style="margin-bottom:8px;"><button class="size-btn" data-fit="cover" onclick="setPhotoOpt('bgFit','cover')" title="Fill the screen (crops the edges if the shapes differ)">Fill</button><button class="size-btn" data-fit="contain" onclick="setPhotoOpt('bgFit','contain')" title="Show the whole photo (bars appear if the shapes differ)">Fit</button><button class="size-btn" data-fit="stretch" onclick="setPhotoOpt('bgFit','stretch')" title="Stretch to the screen (can distort)">Stretch</button><button class="size-btn" data-fit="center" onclick="setPhotoOpt('bgFit','center')" title="Original size, centered">Center</button><button class="size-btn" data-fit="tile" onclick="setPhotoOpt('bgFit','tile')" title="Repeat the photo">Tile</button></div>
-          <div id="photo-bars-row" style="display:none;align-items:center;gap:8px;margin-bottom:8px;"><span style="font-size:0.72rem;color:#888;width:66px;flex-shrink:0;">Bars</span><div class="size-group" id="photo-bars-group" style="flex:1;margin:0;"><button class="size-btn" data-bars="color" onclick="setPhotoOpt('bgBars','color')">Color</button><button class="size-btn" data-bars="blur" onclick="setPhotoOpt('bgBars','blur')">Blurred photo</button></div><div class="color-field" style="flex:none;"><input type="color" id="photo-bars-color" oninput="setPhotoOpt('photoBarsColor',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('photo-bars-color')" title="Bars color"></div></div></div>
-          <div style="display:flex;align-items:center;gap:8px;margin-top:10px;"><span style="font-size:0.72rem;color:#888;width:66px;flex-shrink:0;">Position</span><div class="pos-grid" id="photo-pos-grid"><button class="pos-btn" data-pos="tl" onclick="setPhotoOpt('bgPos','tl')" title="Focus point"></button><button class="pos-btn" data-pos="t" onclick="setPhotoOpt('bgPos','t')" title="Focus point"></button><button class="pos-btn" data-pos="tr" onclick="setPhotoOpt('bgPos','tr')" title="Focus point"></button><button class="pos-btn" data-pos="l" onclick="setPhotoOpt('bgPos','l')" title="Focus point"></button><button class="pos-btn" data-pos="c" onclick="setPhotoOpt('bgPos','c')" title="Focus point"></button><button class="pos-btn" data-pos="r" onclick="setPhotoOpt('bgPos','r')" title="Focus point"></button><button class="pos-btn" data-pos="bl" onclick="setPhotoOpt('bgPos','bl')" title="Focus point"></button><button class="pos-btn" data-pos="b" onclick="setPhotoOpt('bgPos','b')" title="Focus point"></button><button class="pos-btn" data-pos="br" onclick="setPhotoOpt('bgPos','br')" title="Focus point"></button></div></div>
-          <div style="display:flex;align-items:center;gap:8px;margin-top:10px;"><span style="font-size:0.72rem;color:#888;width:66px;flex-shrink:0;">Zoom</span><input type="range" id="photo-zoom" min="1" max="3" step="0.05" oninput="photoSlider('bgZoom')" style="flex:1;"><span id="photo-zoom-val" style="font-size:0.72rem;color:#888;width:36px;text-align:right;">0</span></div>
-          <div class="cat-sub-h">Look</div>
-          <div style="display:flex;align-items:center;gap:8px;margin-top:10px;"><span style="font-size:0.72rem;color:#888;width:66px;flex-shrink:0;">Dim</span><input type="range" id="photo-dim" min="0" max="0.85" step="0.01" oninput="updatePhotoDim()" style="flex:1;"><span id="photo-dim-val" style="font-size:0.72rem;color:#888;width:36px;text-align:right;">0</span><div class="color-field" style="flex:none;"><input type="color" id="photo-tint" oninput="setPhotoOpt('photoTint',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('photo-tint')" title="Overlay color"></div></div></div>
-          <div style="display:flex;align-items:center;gap:8px;margin-top:10px;"><span style="font-size:0.72rem;color:#888;width:66px;flex-shrink:0;">Blur</span><input type="range" id="photo-blur" min="0" max="30" step="1" oninput="updateVis()" style="flex:1;"><span id="photo-blur-val" style="font-size:0.72rem;color:#888;width:36px;text-align:right;">0</span></div>
-          <div style="display:flex;align-items:center;gap:8px;margin-top:10px;"><span style="font-size:0.72rem;color:#888;width:66px;flex-shrink:0;">Vignette</span><input type="range" id="photo-vig" min="0" max="1" step="0.01" oninput="photoSlider('photoVignette')" style="flex:1;"><span id="photo-vig-val" style="font-size:0.72rem;color:#888;width:36px;text-align:right;">0</span></div>
-          <div style="display:flex;align-items:center;gap:8px;margin-top:10px;"><span style="font-size:0.72rem;color:#888;width:66px;flex-shrink:0;">Saturation</span><input type="range" id="photo-sat" min="0" max="2" step="0.01" oninput="photoSlider('photoSat')" style="flex:1;"><span id="photo-sat-val" style="font-size:0.72rem;color:#888;width:36px;text-align:right;">0</span></div>
-          <button style="margin-top:12px;font-size:0.72rem;padding:5px 8px;" onclick="resetPhotoOpts()">Reset photo settings</button>
+        <div id="photo-opts" style="display:none;">
+          <div class="s-card">
+            <div class="s-title">Photo</div>
+            <input type="text" id="bg-img-url" placeholder="Photo URL..." oninput="updateBgImg(this.value)" style="margin-bottom:10px;height:28px;font-size:0.78rem;">
+            <div class="flex-row" style="margin-bottom:12px;"><button onclick="document.getElementById('bg-file').click()">Upload Photo</button><button style="color:#f88;" onclick="updateBgImg('')">Remove</button></div>
+            <input type="file" id="bg-file" style="display:none" accept="image/*" onchange="handleBgFile(this)">
+          </div>
+          <div class="s-card">
+            <div class="s-title">Fit &amp; Position</div>
+            <div class="s-field"><div class="s-lab">Fit</div><div class="size-group" id="photo-fit-group"><button class="size-btn" data-fit="cover" onclick="setPhotoOpt('bgFit','cover')" title="Fill the screen (crops the edges if the shapes differ)">Fill</button><button class="size-btn" data-fit="contain" onclick="setPhotoOpt('bgFit','contain')" title="Show the whole photo (bars appear if the shapes differ)">Fit</button><button class="size-btn" data-fit="stretch" onclick="setPhotoOpt('bgFit','stretch')" title="Stretch to the screen (can distort)">Stretch</button><button class="size-btn" data-fit="center" onclick="setPhotoOpt('bgFit','center')" title="Original size, centered">Center</button><button class="size-btn" data-fit="tile" onclick="setPhotoOpt('bgFit','tile')" title="Repeat the photo">Tile</button></div></div>
+            <div id="photo-bars-row" class="s-field" style="display:none;flex-direction:column;"><div class="s-lab">Bars</div><div class="bd-slide"><div class="size-group" id="photo-bars-group" style="flex:1;margin:0;"><button class="size-btn" data-bars="color" onclick="setPhotoOpt('bgBars','color')">Color</button><button class="size-btn" data-bars="blur" onclick="setPhotoOpt('bgBars','blur')">Blurred photo</button></div><div class="color-field"><input type="color" id="photo-bars-color" oninput="setPhotoOpt('photoBarsColor',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('photo-bars-color')" title="Bars color"></div></div></div></div>
+            <div class="color-row"><span>Position</span><div class="pos-grid" id="photo-pos-grid"><button class="pos-btn" data-pos="tl" onclick="setPhotoOpt('bgPos','tl')" title="Focus point"></button><button class="pos-btn" data-pos="t" onclick="setPhotoOpt('bgPos','t')" title="Focus point"></button><button class="pos-btn" data-pos="tr" onclick="setPhotoOpt('bgPos','tr')" title="Focus point"></button><button class="pos-btn" data-pos="l" onclick="setPhotoOpt('bgPos','l')" title="Focus point"></button><button class="pos-btn" data-pos="c" onclick="setPhotoOpt('bgPos','c')" title="Focus point"></button><button class="pos-btn" data-pos="r" onclick="setPhotoOpt('bgPos','r')" title="Focus point"></button><button class="pos-btn" data-pos="bl" onclick="setPhotoOpt('bgPos','bl')" title="Focus point"></button><button class="pos-btn" data-pos="b" onclick="setPhotoOpt('bgPos','b')" title="Focus point"></button><button class="pos-btn" data-pos="br" onclick="setPhotoOpt('bgPos','br')" title="Focus point"></button></div></div>
+            <div class="s-slide"><div class="color-row"><span>Zoom</span><span id="photo-zoom-val" class="s-val">0</span></div><div class="bd-slide"><input type="range" id="photo-zoom" min="1" max="3" step="0.05" oninput="photoSlider('bgZoom')" ></div></div>
+          </div>
+          <div class="s-card">
+            <div class="s-title">Look</div>
+            <div class="s-slide"><div class="color-row"><span>Dim</span><span id="photo-dim-val" class="s-val">0</span></div><div class="bd-slide"><input type="range" id="photo-dim" min="0" max="0.85" step="0.01" oninput="updatePhotoDim()" ><div class="color-field" style="flex:none;"><input type="color" id="photo-tint" oninput="setPhotoOpt('photoTint',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('photo-tint')" title="Overlay color"></div></div></div></div>
+            <div class="s-slide"><div class="color-row"><span>Blur</span><span id="photo-blur-val" class="s-val">0</span></div><div class="bd-slide"><input type="range" id="photo-blur" min="0" max="30" step="1" oninput="updateVis()" ></div></div>
+            <div class="s-slide"><div class="color-row"><span>Vignette</span><span id="photo-vig-val" class="s-val">0</span></div><div class="bd-slide"><input type="range" id="photo-vig" min="0" max="1" step="0.01" oninput="photoSlider('photoVignette')" ></div></div>
+            <div class="s-slide"><div class="color-row"><span>Saturation</span><span id="photo-sat-val" class="s-val">0</span></div><div class="bd-slide"><input type="range" id="photo-sat" min="0" max="2" step="0.01" oninput="photoSlider('photoSat')" ></div></div>
+            <button style="margin-bottom:12px;font-size:0.72rem;padding:5px 8px;" onclick="resetPhotoOpts()">Reset photo settings</button>
+          </div>
         </div>
-        <!-- Unsplash options -->
-        <div id="unsplash-opts" style="display:none;margin-top:8px;">
-          <div style="font-size:0.68rem;color:#888;margin-bottom:8px;line-height:1.5;">Fetches a real photo from <strong style="color:#ccc;">Unsplash</strong> matching your current weather &amp; time of day. Auto-refreshes when weather changes.</div>
-          <div class="color-row" style="margin-bottom:6px;"><span>API Key</span><input type="text" id="unsplash-key-input" placeholder="Unsplash Access Key" oninput="updateUnsplashKey(this.value)" style="width:190px;height:26px;font-size:0.72rem;"></div>
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span style="font-size:0.72rem;color:#888;width:52px;flex-shrink:0;">Dim</span><input type="range" id="unsplash-dim" min="0" max="0.85" step="0.01" oninput="updateUnsplashDim()" style="flex:1;"><span id="unsplash-dim-val" style="font-size:0.72rem;color:#888;width:30px;text-align:right;">30%</span></div>
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="font-size:0.72rem;color:#888;width:52px;flex-shrink:0;">Blur</span><input type="range" id="unsplash-blur" min="0" max="20" step="1" oninput="updateVis()" style="flex:1;"><span id="unsplash-blur-val" style="font-size:0.72rem;color:#888;width:30px;text-align:right;">0px</span></div>
-          <button onclick="refreshUnsplashPhoto()" style="font-size:0.72rem;padding:5px 8px;margin-bottom:4px;">🔄 Refresh Photo</button>
-          <div id="unsplash-status" style="font-size:0.65rem;color:#666;margin-top:4px;min-height:14px;"></div>
+        <div id="unsplash-opts" style="display:none;">
+          <div class="s-card">
+            <div class="s-title">Weather Photo</div>
+            <div class="s-note">Fetches a real photo from <strong style="color:#ccc;">Unsplash</strong> matching your current weather &amp; time of day. Auto-refreshes when weather changes.</div>
+            <div class="inl-row"><div class="inl"><span>API Key</span><input type="text" id="unsplash-key-input" placeholder="Unsplash Access Key" oninput="updateUnsplashKey(this.value)" style="width:260px;height:28px;font-size:0.75rem;"></div></div>
+            <div class="s-slide"><div class="color-row"><span>Dim</span><span id="unsplash-dim-val" class="s-val">30%</span></div><div class="bd-slide"><input type="range" id="unsplash-dim" min="0" max="0.85" step="0.01" oninput="updateUnsplashDim()" ></div></div>
+            <div class="s-slide"><div class="color-row"><span>Blur</span><span id="unsplash-blur-val" class="s-val">0px</span></div><div class="bd-slide"><input type="range" id="unsplash-blur" min="0" max="20" step="1" oninput="updateVis()" ></div></div>
+            <button onclick="refreshUnsplashPhoto()" style="font-size:0.72rem;padding:5px 8px;margin-bottom:4px;">🔄 Refresh Photo</button>
+            <div id="unsplash-status" style="font-size:0.65rem;color:#666;margin:4px 0 12px;min-height:14px;"></div>
+          </div>
         </div>
-        <!-- Time options -->
-        <div id="time-opts" style="display:none;margin-top:8px;">
-          <div style="font-size:0.68rem;color:#888;margin-bottom:8px;line-height:1.5;">Animated live scene driven by your current <strong style="color:#ccc;">weather &amp; time of day</strong>. Updates automatically.</div>
-          <div style="display:flex;align-items:center;gap:8px;margin-top:6px;"><span style="font-size:0.72rem;color:#888;width:52px;flex-shrink:0;">Intensity</span><input type="range" id="time-intensity" min="0" max="1" step="0.01" oninput="updateTimeIntensity()" style="flex:1;"><span id="time-intensity-val" style="font-size:0.72rem;color:#888;width:30px;text-align:right;">100%</span></div>
+        <div id="time-opts" style="display:none;">
+          <div class="s-card">
+            <div class="s-title">Live Scene</div>
+            <div class="s-note">Animated live scene driven by your current <strong style="color:#ccc;">weather &amp; time of day</strong>. Updates automatically.</div>
+            <div class="s-slide"><div class="color-row"><span>Intensity</span><span id="time-intensity-val" class="s-val">100%</span></div><div class="bd-slide"><input type="range" id="time-intensity" min="0" max="1" step="0.01" oninput="updateTimeIntensity()" ></div></div>
+          </div>
         </div>
       </div>
     </div>
@@ -444,8 +482,8 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
     <div class="settings-panel" id="panel-clock">
       <div class="setting-block">
         <div class="section-h">Clock</div>
-        <div class="clk-block" style="margin-top:4px;">
-          <div class="clk-title">Time</div>
+        <div class="s-card" style="margin-top:4px;">
+          <div class="s-title">Time</div>
           <label class="label-inline"><input type="checkbox" id="clock-check" onchange="updateVis()"> Show Clock</label>
           <div id="clock-sub">
             <div class="inl-row">
@@ -458,8 +496,8 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
           </div>
         </div>
         <div id="clock-rest">
-          <div class="clk-block">
-            <div class="clk-title">Date</div>
+          <div class="s-card">
+            <div class="s-title">Date</div>
             <label class="label-inline"><input type="checkbox" id="clock-date-check" onchange="updateVis()"> Show Date</label>
             <div id="clock-date-sub">
               <div class="inl-row">
@@ -474,8 +512,8 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
               <div class="inl-row"><div class="inl"><span>Font</span><div class="font-field" id="ff-cdate"></div></div></div>
             </div>
           </div>
-          <div class="clk-block">
-            <div class="clk-title">Backdrop</div>
+          <div class="s-card">
+            <div class="s-title">Backdrop</div>
           <div class="color-row" style="margin-bottom:4px;"><span>Opacity</span><span id="clock-backdrop-val" style="font-size:0.72rem;color:#888;">0%</span></div>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><input type="range" id="clock-backdrop-slider" min="0" max="1" step="0.01" oninput="updateClockBackdrop(this.value)" style="flex:1;min-width:0;margin-top:0;"><div class="color-field"><input type="color" id="clock-bd-color" oninput="bdSet('clock','c1',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('clock-bd-color')" title="Color"></div><input type="color" id="clock-bd-color2" oninput="bdSet('clock','c2',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('clock-bd-color2')" title="Second gradient color"></div><button class="btn-icon" onclick="bdReset('clock')" title="Reset colors"><i class="fa-solid fa-rotate-left"></i></button></div></div>
           <div class="bd-style-row" style="margin-bottom:6px;"><div class="size-group" id="clock-bd-modes"><button class="size-btn" data-mode="solid" onclick="bdSet('clock','mode','solid')">Solid</button><button class="size-btn" data-mode="gradient" onclick="bdSet('clock','mode','gradient')">Gradient</button></div><select id="clock-bd-dir" onchange="bdSet('clock','dir',this.value)"><option value="v">↓ Top to bottom</option><option value="h">→ Left to right</option><option value="d1">↘ Diagonal down</option><option value="d2">↗ Diagonal up</option><option value="r">◉ Radial (center out)</option></select></div>
@@ -487,17 +525,23 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
     <div class="settings-panel" id="panel-search">
       <div class="setting-block">
         <div class="section-h">Search Bar</div>
-        <label class="label-inline"><input type="checkbox" id="search-enable" onchange="updateVis()"> Show Search Bar</label>
-        <div id="search-sub">
-          <div class="color-row" style="margin-bottom:4px;margin-top:4px;"><span>Search Engine</span>
-            <select id="search-engine" onchange="updateVis()" class="select-inline">
+        <div class="s-card">
+          <div class="s-title">Search</div>
+          <label class="label-inline"><input type="checkbox" id="search-enable" onchange="updateVis()"> Show Search Bar</label>
+          <div id="search-sub">
+            <div class="inl-row"><div class="inl"><span>Search Engine</span><select id="search-engine" onchange="updateVis()">
               <option value="google">Google</option><option value="ddg">DuckDuckGo</option><option value="startpage">Startpage</option><option value="brave">Brave</option><option value="qwant">Qwant</option><option value="yandex">Yandex</option>
-            </select>
+            </select></div></div>
+            <div class="inl-row"><div class="inl"><span>Font</span><div class="font-field" id="ff-search"></div></div></div>
           </div>
-          <div class="color-row"><span>Font</span><div class="font-field" id="ff-search"></div></div>
-          <div class="color-row" style="margin-bottom:4px;margin-top:8px;"><span>Backdrop</span><span id="search-backdrop-val" style="font-size:0.72rem;color:#888;">30%</span></div>
+        </div>
+        <div id="search-rest">
+          <div class="s-card">
+            <div class="s-title">Backdrop</div>
+<div class="color-row" style="margin-bottom:4px;"><span>Opacity</span><span id="search-backdrop-val" style="font-size:0.72rem;color:#888;">30%</span></div>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><input type="range" id="search-backdrop-slider" min="0" max="1" step="0.01" oninput="updateSearchBackdrop(this.value)" style="flex:1;min-width:0;margin-top:0;"><div class="color-field"><input type="color" id="search-bd-color" oninput="bdSet('search','c1',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('search-bd-color')" title="Color"></div><input type="color" id="search-bd-color2" oninput="bdSet('search','c2',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('search-bd-color2')" title="Second gradient color"></div><button class="btn-icon" onclick="bdReset('search')" title="Reset colors"><i class="fa-solid fa-rotate-left"></i></button></div></div>
           <div class="bd-style-row" style="margin-bottom:6px;"><div class="size-group" id="search-bd-modes"><button class="size-btn" data-mode="solid" onclick="bdSet('search','mode','solid')">Solid</button><button class="size-btn" data-mode="gradient" onclick="bdSet('search','mode','gradient')">Gradient</button></div><select id="search-bd-dir" onchange="bdSet('search','dir',this.value)"><option value="v">↓ Top to bottom</option><option value="h">→ Left to right</option><option value="d1">↘ Diagonal down</option><option value="d2">↗ Diagonal up</option><option value="r">◉ Radial (center out)</option></select></div>
+          </div>
         </div>
       </div>
     </div>
@@ -505,20 +549,33 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
     <div class="settings-panel" id="panel-weather">
       <div class="setting-block">
         <div class="section-h">Weather</div>
-        <label class="label-inline"><input type="checkbox" id="w-enable" onchange="updateVis()"> Enable Weather</label>
-        <div id="weather-sub">
-          <div class="color-row" style="margin-bottom:4px;"><span>Card Backdrop</span><span id="weather-backdrop-val" style="font-size:0.72rem;color:#888;">0%</span></div>
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><input type="range" id="weather-backdrop" min="0" max="1" step="0.01" oninput="updateVis()" style="flex:1;min-width:0;margin-top:0;"><div class="color-field"><input type="color" id="weather-bd-color" oninput="bdSet('weather','c1',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('weather-bd-color')" title="Color"></div><input type="color" id="weather-bd-color2" oninput="bdSet('weather','c2',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('weather-bd-color2')" title="Second gradient color"></div><button class="btn-icon" onclick="bdReset('weather')" title="Reset colors"><i class="fa-solid fa-rotate-left"></i></button></div></div>
-          <div class="bd-style-row" style="margin-bottom:10px;"><div class="size-group" id="weather-bd-modes"><button class="size-btn" data-mode="solid" onclick="bdSet('weather','mode','solid')">Solid</button><button class="size-btn" data-mode="gradient" onclick="bdSet('weather','mode','gradient')">Gradient</button></div><select id="weather-bd-dir" onchange="bdSet('weather','dir',this.value)"><option value="v">↓ Top to bottom</option><option value="h">→ Left to right</option><option value="d1">↘ Diagonal down</option><option value="d2">↗ Diagonal up</option><option value="r">◉ Radial (center out)</option></select></div>
-          <div class="color-row"><span>Size</span><select id="weather-size" onchange="updateVis()" class="select-inline"><option value="s">Small</option><option value="m">Medium</option><option value="l">Large</option></select></div>
-          <div class="color-row"><span>Font</span><div class="font-field" id="ff-weather"></div></div>
-          <label class="label-inline"><input type="checkbox" id="w-day" onchange="updateVis()"> Show Day</label>
-          <label class="label-inline"><input type="checkbox" id="w-date" onchange="updateVis()"> Show Date</label>
-          <div class="color-row"><span>Date Format</span><select id="w-date-fmt" onchange="updateVis()" class="select-inline"><option value="dmy">DD/MM</option><option value="mdy">MM/DD</option></select></div>
-          <div class="color-row"><span>Text Color</span><div class="color-field"><input type="color" id="weather-color" oninput="updateVis()" style="display:none"><div class="cp-swatch" onclick="cpOpen('weather-color')"></div><button class="btn-icon" onclick="resetField('weather-color','#ffffff','weatherColor')"><i class="fa-solid fa-rotate-left"></i></button></div></div>
-          <div class="flex-row" style="margin-bottom:12px;"><label class="label-inline"><input type="checkbox" id="w-colored" onchange="toggleWxStyle('colored')"> Colored Icons</label><label class="label-inline"><input type="checkbox" id="w-solid" onchange="toggleWxStyle('solid')"> Solid Icons</label></div>
-          <div class="section-h" style="margin-bottom:10px;opacity:0.5;">Extra Info</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;">
+        <div class="s-card">
+          <div class="s-title">Weather</div>
+          <label class="label-inline"><input type="checkbox" id="w-enable" onchange="updateVis()"> Enable Weather</label>
+          <div id="weather-sub">
+            <div class="inl-row">
+              <div class="inl"><span>Size</span><select id="weather-size" onchange="updateVis()"><option value="s">Small</option><option value="m">Medium</option><option value="l">Large</option></select></div>
+              <div class="inl"><span>Text Color</span><div class="color-field"><input type="color" id="weather-color" oninput="updateVis()" style="display:none"><div class="cp-swatch" onclick="cpOpen('weather-color')"></div><button class="btn-icon" onclick="resetField('weather-color','#ffffff','weatherColor')"><i class="fa-solid fa-rotate-left"></i></button></div></div>
+            </div>
+            <div class="inl-row"><div class="inl"><span>Font</span><div class="font-field" id="ff-weather"></div></div></div>
+            <div class="inl-row">
+              <label class="label-inline inl"><input type="checkbox" id="w-colored" onchange="toggleWxStyle('colored')"> Colored Icons</label>
+              <label class="label-inline inl"><input type="checkbox" id="w-solid" onchange="toggleWxStyle('solid')"> Solid Icons</label>
+            </div>
+          </div>
+        </div>
+        <div id="weather-rest">
+          <div class="s-card">
+            <div class="s-title">Forecast</div>
+            <div class="inl-row">
+              <label class="label-inline inl"><input type="checkbox" id="w-day" onchange="updateVis()"> Show Day</label>
+              <label class="label-inline inl"><input type="checkbox" id="w-date" onchange="updateVis()"> Show Date</label>
+              <div class="inl"><span>Date Format</span><select id="w-date-fmt" onchange="updateVis()"><option value="dmy">DD/MM</option><option value="mdy">MM/DD</option></select></div>
+            </div>
+          </div>
+          <div class="s-card">
+            <div class="s-title">Extra Info</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;">
             <label class="label-inline" style="margin-bottom:8px;"><input type="checkbox" id="w-humidity" onchange="updateVis()"> Humidity</label>
             <label class="label-inline" style="margin-bottom:8px;"><input type="checkbox" id="w-uv" onchange="updateVis()"> UV Index</label>
             <label class="label-inline" style="margin-bottom:8px;"><input type="checkbox" id="w-pressure" onchange="updateVis()"> Pressure</label>
@@ -526,6 +583,13 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
             <label class="label-inline" style="margin-bottom:8px;"><input type="checkbox" id="w-aqi" onchange="updateVis()"> Air Quality</label>
             <label class="label-inline" style="margin-bottom:8px;"><input type="checkbox" id="w-sunrise" onchange="updateVis()"> Sunrise/Sunset</label>
           </div>
+          </div>
+          <div class="s-card">
+            <div class="s-title">Backdrop</div>
+<div class="color-row" style="margin-bottom:4px;"><span>Opacity</span><span id="weather-backdrop-val" style="font-size:0.72rem;color:#888;">0%</span></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><input type="range" id="weather-backdrop" min="0" max="1" step="0.01" oninput="updateVis()" style="flex:1;min-width:0;margin-top:0;"><div class="color-field"><input type="color" id="weather-bd-color" oninput="bdSet('weather','c1',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('weather-bd-color')" title="Color"></div><input type="color" id="weather-bd-color2" oninput="bdSet('weather','c2',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('weather-bd-color2')" title="Second gradient color"></div><button class="btn-icon" onclick="bdReset('weather')" title="Reset colors"><i class="fa-solid fa-rotate-left"></i></button></div></div>
+          <div class="bd-style-row" style="margin-bottom:10px;"><div class="size-group" id="weather-bd-modes"><button class="size-btn" data-mode="solid" onclick="bdSet('weather','mode','solid')">Solid</button><button class="size-btn" data-mode="gradient" onclick="bdSet('weather','mode','gradient')">Gradient</button></div><select id="weather-bd-dir" onchange="bdSet('weather','dir',this.value)"><option value="v">↓ Top to bottom</option><option value="h">→ Left to right</option><option value="d1">↘ Diagonal down</option><option value="d2">↗ Diagonal up</option><option value="r">◉ Radial (center out)</option></select></div>
+                    </div>
         </div>
       </div>
     </div>
@@ -1030,7 +1094,7 @@ function cpSync(id){const inp=document.getElementById(id);if(!inp)return;const s
 document.addEventListener('click',e=>{const pal=document.getElementById('cp-palette');if(!pal||!pal.classList.contains('open'))return;if(pal.contains(e.target)||e.target.classList.contains('cp-swatch'))return;cpClose();});
 
 // ── Layout helpers ──
-function updateSectionStates(){const p=cur();const cs=document.getElementById('clock-sub'),ws=document.getElementById('weather-sub'),ss=document.getElementById('search-sub');if(cs)cs.className=p.showClock?'sub-enabled':'sub-disabled';const cr=document.getElementById('clock-rest');if(cr)cr.className=p.showClock?'sub-enabled':'sub-disabled';const ds=document.getElementById('clock-date-sub');if(ds)ds.className=(p.clockShowDate!==false)?'sub-enabled':'sub-disabled';if(ws)ws.className=p.showWeather?'sub-enabled':'sub-disabled';if(ss)ss.className=(p.showSearch!==false)?'sub-enabled':'sub-disabled';}
+function updateSectionStates(){const p=cur();const cs=document.getElementById('clock-sub'),ws=document.getElementById('weather-sub'),ss=document.getElementById('search-sub');if(cs)cs.className=p.showClock?'sub-enabled':'sub-disabled';const sr=document.getElementById('search-rest');if(sr)sr.className=(p.showSearch!==false)?'sub-enabled':'sub-disabled';const wr=document.getElementById('weather-rest');if(wr)wr.className=p.showWeather?'sub-enabled':'sub-disabled';const cr=document.getElementById('clock-rest');if(cr)cr.className=p.showClock?'sub-enabled':'sub-disabled';const ds=document.getElementById('clock-date-sub');if(ds)ds.className=(p.clockShowDate!==false)?'sub-enabled':'sub-disabled';if(ws)ws.className=p.showWeather?'sub-enabled':'sub-disabled';if(ss)ss.className=(p.showSearch!==false)?'sub-enabled':'sub-disabled';}
 function resetField(pid,dv,sk){const inp=document.getElementById(pid);if(inp){inp.value=dv;cpSync(pid);}cur()[sk]=dv;saveAndRender();tickClock();}
 function resetCatColor(){const idx=document.getElementById('cat-sel').value,inp=document.getElementById('cat-color');if(inp){inp.value='#00d4ff';cpSync('cat-color');}cur().categories[idx].color='#00d4ff';syncCatTab(cur().categories[idx]);saveAndRender();}
 function resetBgColor(){const inp=document.getElementById('bg-color');if(inp){inp.value='#1C1B22';cpSync('bg-color');}cur().bgColor='#1C1B22';saveAndRender();}
