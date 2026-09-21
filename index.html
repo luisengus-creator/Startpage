@@ -41,7 +41,7 @@ body.page-ready{opacity:1}
 .cat-del-btn,.col-edit-overlay,.link-edit-overlay,.col-del-btn,.link-del-btn,.del-btn{display:none!important}
 .cat-title-row{margin:0 0 calc(1rem * var(--scale) * var(--density-mod)) 0}
 @keyframes accent-shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
-.cat-title{border-bottom:2px solid rgba(255,255,255,0.1);background-size:200% auto;transition:border-color 0.3s;margin:0;font-size:calc(1.3rem * var(--scale) * var(--density-mod));font-weight:700;padding-bottom:calc(10px * var(--scale) * var(--density-mod));white-space:nowrap;cursor:pointer;text-decoration:none;display:block}
+.cat-title{border-bottom:2px solid rgba(255,255,255,0.1);background-size:200% auto;transition:border-color 0.3s;margin:0;font-size:calc(1.3rem * var(--scale) * var(--density-mod) * var(--fsz,1));font-weight:700;padding-bottom:calc(10px * var(--scale) * var(--density-mod));white-space:nowrap;cursor:pointer;text-decoration:none;display:block}
 .column:hover .cat-title{border-bottom:2px solid transparent;border-image:linear-gradient(90deg,transparent,var(--cat-accent,#00d4ff),transparent) 1;animation:accent-shimmer 2s linear infinite}
 .cat-title.hidden-header{display:none}
 .column.dragging{opacity:0.4}
@@ -53,7 +53,7 @@ body.page-ready{opacity:1}
 .editor-link-row.drag-over{border-top:2px solid var(--modal-accent,#00d4ff)}
 .city-item.drag-over{border-top:2px solid var(--modal-accent,#00d4ff)}
 .link-row{display:grid;grid-template-columns:1fr auto;align-items:center;white-space:nowrap;position:relative}
-.link-row a{text-decoration:none;transition:0.2s;font-size:calc(1rem * var(--scale) * var(--density-mod));padding:calc(0.5rem * var(--scale) * var(--density-mod)) calc(0.8rem * var(--scale) * var(--density-mod));text-align:center}
+.link-row a{text-decoration:none;transition:0.2s;font-size:calc(1rem * var(--scale) * var(--density-mod) * var(--fsz,1));padding:calc(0.5rem * var(--scale) * var(--density-mod)) calc(0.8rem * var(--scale) * var(--density-mod));text-align:center}
 .link-row a:hover{opacity:0.65}
 .link-icon{object-fit:contain;border-radius:3px;flex-shrink:0;margin-right:0.35rem;vertical-align:middle;display:inline-block;position:relative;top:-0.05em}
 .link-row a.icon-only .link-icon{margin-right:0}
@@ -83,10 +83,10 @@ body.page-ready{opacity:1}
 .spin-anim{animation:spin-once 0.55s cubic-bezier(0.4,0,0.2,1) forwards}
 #weather-area.weather-hidden{opacity:0!important;visibility:hidden!important;pointer-events:none;height:0!important;padding:0!important;margin:0!important;overflow:hidden}
 #weather-area .weather-bg-wrap{background-color:rgba(var(--weather-rgb),calc(var(--weather-backdrop,0) * var(--weather-solid,1)));background-image:var(--weather-img,none);background-origin:border-box;background-repeat:no-repeat;border-radius:14px;padding:6px 18px;display:flex;flex-direction:column;align-items:center;gap:0.5rem;transition:background 0.3s}
-#city-name{font-size:0.75rem;opacity:0.5;letter-spacing:3px;cursor:pointer;text-transform:uppercase}
+#city-name{font-size:calc(0.75rem * var(--weather-fsz,1));opacity:0.5;letter-spacing:3px;cursor:pointer;text-transform:uppercase}
 #weather-grid{display:flex;gap:0.6rem;align-items:center;cursor:pointer}
 .weather-card{background:rgba(255,255,255,calc(0.03 * var(--weather-on)));padding:0.5rem 0.7rem;border-radius:10px;border:1px solid rgba(255,255,255,calc(0.05 * var(--weather-on)));text-align:center;min-width:5.5rem}
-.weather-temp{font-weight:bold;font-size:0.82rem}
+.weather-temp{font-weight:bold;font-size:calc(0.82rem * var(--weather-fsz,1))}
 .modal{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#0a0a0a;border-radius:16px;z-index:2000;width:min(1040px,96vw);height:min(88vh,680px);border:1px solid var(--modal-accent-border,#00d4ff33);overflow:hidden;padding:0}
 #settings-sidebar{width:148px;flex-shrink:0;background:#060606;border-right:1px solid rgba(255,255,255,0.05);display:flex;flex-direction:column;padding:1.2rem 0;overflow-y:auto;height:100%;box-sizing:border-box}
 .settings-nav-item{padding:0.5rem 1.0rem;font-size:0.70rem;font-weight:600;color:#555;cursor:pointer;transition:0.15s;border-left:2px solid transparent;letter-spacing:0.3px;white-space:nowrap;text-transform:uppercase;user-select:none;display:flex;align-items:center;gap:7px}
@@ -154,13 +154,28 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 #search-form .se-current,#search-form .se-option,#search-form #search-submit{font-family:inherit}
 #weather-area{font-family:var(--weather-font,'Inter',system-ui,sans-serif)}
 /* font pickers (same control everywhere) */
-.font-field{display:flex;align-items:center;gap:4px;flex-shrink:0}
-.font-field select{width:132px!important;height:28px!important;font-size:0.78rem!important;padding:0 6px!important}
+.font-field{display:flex;align-items:center;gap:4px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end}
+.font-field select{width:auto!important;height:28px!important;font-size:0.76rem!important;padding:0 4px!important}
+.font-field select[data-k="font"]{width:122px!important}.font-field select[data-k="style"]{width:88px!important}.font-field select[data-k="size"]{width:76px!important}
+/* text-style override on the weather widget (data-fstyle). Icons (<i>) are excluded so Font Awesome keeps its weight. */
+[data-fstyle="normal"],[data-fstyle="normal"] :not(i){font-weight:400!important;font-style:normal!important}
+[data-fstyle="bold"],[data-fstyle="bold"] :not(i){font-weight:700!important;font-style:normal!important}
+[data-fstyle="italic"],[data-fstyle="italic"] :not(i){font-weight:400!important;font-style:italic!important}
+[data-fstyle="bolditalic"],[data-fstyle="bolditalic"] :not(i){font-weight:700!important;font-style:italic!important}
+[data-fstyle] i{font-style:normal!important}
+.clk-block{border:1px solid #1e1e1e;background:#0a0a0a;border-radius:12px;padding:14px 16px 8px;margin-top:24px}
+.clk-title{font-size:0.62rem;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--modal-accent,#00d4ff);margin-bottom:12px}
+.inl-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px 26px;margin-bottom:12px}
+.inl{display:flex;align-items:center;gap:8px}
+.inl>span{font-size:0.8rem;color:#bbb;white-space:nowrap}
+.inl select{width:auto;height:28px;font-size:0.78rem;padding:0 6px}
+.inl-row .label-inline{margin:0}
 .font-all-btn{height:28px;gap:4px;white-space:nowrap;font-size:0.68rem;font-weight:700;padding:0 8px;color:var(--modal-accent,#00d4ff);border-color:var(--modal-accent-border,#00d4ff44)}
 .font-all-btn:hover{background:rgba(var(--accent-rgb,0,212,255),0.12)}
 .link-font-row{display:flex;align-items:center;gap:6px;margin-top:2px}
 .link-font-row>span{font-size:0.72rem;color:#888}
 .link-font-row .font-field select{height:24px!important;font-size:0.72rem!important}
+.link-font-row .font-field select[data-k="font"]{width:112px!important}.link-font-row .font-field select[data-k="style"]{width:82px!important}.link-font-row .font-field select[data-k="size"]{width:70px!important}
 .link-font-row .font-all-btn{height:24px}
 #search-input::placeholder{color:rgba(255,255,255,0.25)}
 .se-dropdown{position:relative;flex-shrink:0}
@@ -188,7 +203,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 .bg-mode-btn:hover{border-color:#444;color:#ccc}
 .bg-mode-btn.active{background:var(--modal-accent,#00d4ff);border-color:var(--modal-accent,#00d4ff);color:var(--accent-text,#000)}
 #weather-stats{display:flex;gap:1.2rem;align-items:center;justify-content:center;flex-wrap:wrap;position:relative}
-.wstat{display:flex;align-items:center;gap:0.3rem;font-size:0.65rem;opacity:0.6;white-space:nowrap;cursor:pointer;transition:opacity 0.15s}
+.wstat{display:flex;align-items:center;gap:0.3rem;font-size:calc(0.65rem * var(--weather-fsz,1));opacity:0.6;white-space:nowrap;cursor:pointer;transition:opacity 0.15s}
 .wstat:hover{opacity:1}
 .cp-swatch{width:34px;height:26px;border-radius:5px;border:1px solid #333;cursor:pointer;flex-shrink:0;transition:border-color 0.15s}
 .cp-swatch:hover{border-color:#555}
@@ -353,7 +368,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
         <input type="text" id="cat-url" oninput="updateCat('text')" onblur="saveAndRender()" placeholder="Header URL (optional)" style="margin-bottom:10px;">
         <label class="label-inline"><input type="checkbox" id="header-vis-check" onchange="updateCatHeader()"> Show category header</label>
         <div class="cat-sub-h">Font</div>
-        <div class="color-row" style="margin-bottom:4px;"><span>Category Font</span><div class="font-field"><select id="cat-font" onchange="updateCatFont(this.value)"></select><button class="btn-icon font-all-btn" onclick="applyFontEverywhere(document.getElementById('cat-font').value)" title="Use this font in every field of this profile: all categories, all links, clock, search and weather"><i class="fa-solid fa-clone"></i> All</button></div></div>
+        <div class="color-row" style="margin-bottom:4px;"><span>Category Font</span><div class="font-field" id="ff-cat"></div></div>
         <div class="cat-sub-h">Size</div>
         <div class="size-group" id="cat-size-group">
           <button class="size-btn" id="size-s" onclick="updateCatDensity('s')">Small</button><button class="size-btn" id="size-m" onclick="updateCatDensity('m')">Medium</button><button class="size-btn" id="size-l" onclick="updateCatDensity('l')">Large</button><button class="size-btn" id="size-xl" onclick="updateCatDensity('xl')">X-Large</button>
@@ -429,21 +444,42 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
     <div class="settings-panel" id="panel-clock">
       <div class="setting-block">
         <div class="section-h">Clock</div>
-        <label class="label-inline"><input type="checkbox" id="clock-check" onchange="updateVis()"> Show Clock</label>
-        <div id="clock-sub">
-          <div class="flex-row" style="margin-bottom:12px;"><label class="label-inline"><input type="checkbox" id="clock-seconds" onchange="updateVis()"> Seconds</label><label class="label-inline"><input type="checkbox" id="clock-date-check" onchange="updateVis()"> Show Date</label></div>
-          <div class="color-row"><span>Format</span><select id="clock-format" onchange="updateVis()" class="select-inline"><option value="24">24h</option><option value="12">12h AM/PM</option></select></div>
-          <div class="color-row"><span>Date Format</span>
-            <select id="clock-date-fmt" onchange="updateVis()" class="select-inline">
-              <option value="long">Monday, January 1</option><option value="long-year">Monday, January 1, 2026</option><option value="short">Mon, Jan 1</option><option value="medium">January 1, 2026</option><option value="dmy">DD-MM-YYYY</option><option value="mdy">MM-DD-YYYY</option><option value="iso">YYYY-MM-DD</option>
-            </select>
+        <div class="clk-block" style="margin-top:4px;">
+          <div class="clk-title">Time</div>
+          <label class="label-inline"><input type="checkbox" id="clock-check" onchange="updateVis()"> Show Clock</label>
+          <div id="clock-sub">
+            <div class="inl-row">
+              <div class="inl"><span>Format</span><select id="clock-format" onchange="updateVis()"><option value="24">24h</option><option value="12">12h AM/PM</option></select></div>
+              <label class="label-inline inl"><input type="checkbox" id="clock-seconds" onchange="updateVis()"> Seconds</label>
+              <div class="inl"><span>Size</span><select id="clock-size" onchange="updateVis()"><option value="s">Small</option><option value="m">Medium</option><option value="l">Large</option></select></div>
+              <div class="inl"><span>Color</span><div class="color-field"><input type="color" id="clock-color" oninput="updateVis()" style="display:none"><div class="cp-swatch" onclick="cpOpen('clock-color')"></div><button class="btn-icon" onclick="resetField('clock-color','#ffffff','clockColor')"><i class="fa-solid fa-rotate-left"></i></button></div></div>
+            </div>
+            <div class="inl-row"><div class="inl"><span>Font</span><div class="font-field" id="ff-clock"></div></div></div>
           </div>
-          <div class="color-row"><span>Size</span><select id="clock-size" onchange="updateVis()" class="select-inline"><option value="s">Small</option><option value="m">Medium</option><option value="l">Large</option></select></div>
-          <div class="color-row"><span>Font</span><div class="font-field"><select id="clock-font" onchange="updateVis()"></select><button class="btn-icon font-all-btn" onclick="applyFontEverywhere(document.getElementById('clock-font').value)" title="Use this font in every field of this profile: all categories, all links, clock, search and weather"><i class="fa-solid fa-clone"></i> All</button></div></div>
-          <div class="color-row"><span>Color</span><div class="color-field"><input type="color" id="clock-color" oninput="updateVis()" style="display:none"><div class="cp-swatch" onclick="cpOpen('clock-color')"></div><button class="btn-icon" onclick="resetField('clock-color','#ffffff','clockColor')"><i class="fa-solid fa-rotate-left"></i></button></div></div>
-          <div class="color-row" style="margin-bottom:4px;margin-top:4px;"><span>Backdrop</span><span id="clock-backdrop-val" style="font-size:0.72rem;color:#888;">0%</span></div>
+        </div>
+        <div id="clock-rest">
+          <div class="clk-block">
+            <div class="clk-title">Date</div>
+            <label class="label-inline"><input type="checkbox" id="clock-date-check" onchange="updateVis()"> Show Date</label>
+            <div id="clock-date-sub">
+              <div class="inl-row">
+                <div class="inl"><span>Date Format</span>
+                  <select id="clock-date-fmt" onchange="updateVis()" style="width:180px">
+                    <option value="long">Monday, January 1</option><option value="long-year">Monday, January 1, 2026</option><option value="short">Mon, Jan 1</option><option value="medium">January 1, 2026</option><option value="dmy">DD-MM-YYYY</option><option value="mdy">MM-DD-YYYY</option><option value="iso">YYYY-MM-DD</option>
+                  </select>
+                </div>
+                <div class="inl"><span>Size</span><select id="clock-date-size" onchange="updateVis()"><option value="small">Small</option><option value="normal">Normal</option><option value="big">Big</option></select></div>
+                <div class="inl"><span>Color</span><div class="color-field"><input type="color" id="clock-date-color" oninput="updateVis()" style="display:none"><div class="cp-swatch" onclick="cpOpen('clock-date-color')"></div><button class="btn-icon" onclick="resetField('clock-date-color','#ffffff','clockDateColor')"><i class="fa-solid fa-rotate-left"></i></button></div></div>
+              </div>
+              <div class="inl-row"><div class="inl"><span>Font</span><div class="font-field" id="ff-cdate"></div></div></div>
+            </div>
+          </div>
+          <div class="clk-block">
+            <div class="clk-title">Backdrop</div>
+          <div class="color-row" style="margin-bottom:4px;"><span>Opacity</span><span id="clock-backdrop-val" style="font-size:0.72rem;color:#888;">0%</span></div>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><input type="range" id="clock-backdrop-slider" min="0" max="1" step="0.01" oninput="updateClockBackdrop(this.value)" style="flex:1;min-width:0;margin-top:0;"><div class="color-field"><input type="color" id="clock-bd-color" oninput="bdSet('clock','c1',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('clock-bd-color')" title="Color"></div><input type="color" id="clock-bd-color2" oninput="bdSet('clock','c2',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('clock-bd-color2')" title="Second gradient color"></div><button class="btn-icon" onclick="bdReset('clock')" title="Reset colors"><i class="fa-solid fa-rotate-left"></i></button></div></div>
           <div class="bd-style-row" style="margin-bottom:6px;"><div class="size-group" id="clock-bd-modes"><button class="size-btn" data-mode="solid" onclick="bdSet('clock','mode','solid')">Solid</button><button class="size-btn" data-mode="gradient" onclick="bdSet('clock','mode','gradient')">Gradient</button></div><select id="clock-bd-dir" onchange="bdSet('clock','dir',this.value)"><option value="v">↓ Top to bottom</option><option value="h">→ Left to right</option><option value="d1">↘ Diagonal down</option><option value="d2">↗ Diagonal up</option><option value="r">◉ Radial (center out)</option></select></div>
+          </div>
         </div>
       </div>
     </div>
@@ -458,7 +494,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
               <option value="google">Google</option><option value="ddg">DuckDuckGo</option><option value="startpage">Startpage</option><option value="brave">Brave</option><option value="qwant">Qwant</option><option value="yandex">Yandex</option>
             </select>
           </div>
-          <div class="color-row"><span>Font</span><div class="font-field"><select id="search-font" onchange="updateSimpleFont('searchFont',this.value)"></select><button class="btn-icon font-all-btn" onclick="applyFontEverywhere(document.getElementById('search-font').value)" title="Use this font in every field of this profile: all categories, all links, clock, search and weather"><i class="fa-solid fa-clone"></i> All</button></div></div>
+          <div class="color-row"><span>Font</span><div class="font-field" id="ff-search"></div></div>
           <div class="color-row" style="margin-bottom:4px;margin-top:8px;"><span>Backdrop</span><span id="search-backdrop-val" style="font-size:0.72rem;color:#888;">30%</span></div>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><input type="range" id="search-backdrop-slider" min="0" max="1" step="0.01" oninput="updateSearchBackdrop(this.value)" style="flex:1;min-width:0;margin-top:0;"><div class="color-field"><input type="color" id="search-bd-color" oninput="bdSet('search','c1',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('search-bd-color')" title="Color"></div><input type="color" id="search-bd-color2" oninput="bdSet('search','c2',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('search-bd-color2')" title="Second gradient color"></div><button class="btn-icon" onclick="bdReset('search')" title="Reset colors"><i class="fa-solid fa-rotate-left"></i></button></div></div>
           <div class="bd-style-row" style="margin-bottom:6px;"><div class="size-group" id="search-bd-modes"><button class="size-btn" data-mode="solid" onclick="bdSet('search','mode','solid')">Solid</button><button class="size-btn" data-mode="gradient" onclick="bdSet('search','mode','gradient')">Gradient</button></div><select id="search-bd-dir" onchange="bdSet('search','dir',this.value)"><option value="v">↓ Top to bottom</option><option value="h">→ Left to right</option><option value="d1">↘ Diagonal down</option><option value="d2">↗ Diagonal up</option><option value="r">◉ Radial (center out)</option></select></div>
@@ -475,7 +511,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><input type="range" id="weather-backdrop" min="0" max="1" step="0.01" oninput="updateVis()" style="flex:1;min-width:0;margin-top:0;"><div class="color-field"><input type="color" id="weather-bd-color" oninput="bdSet('weather','c1',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('weather-bd-color')" title="Color"></div><input type="color" id="weather-bd-color2" oninput="bdSet('weather','c2',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('weather-bd-color2')" title="Second gradient color"></div><button class="btn-icon" onclick="bdReset('weather')" title="Reset colors"><i class="fa-solid fa-rotate-left"></i></button></div></div>
           <div class="bd-style-row" style="margin-bottom:10px;"><div class="size-group" id="weather-bd-modes"><button class="size-btn" data-mode="solid" onclick="bdSet('weather','mode','solid')">Solid</button><button class="size-btn" data-mode="gradient" onclick="bdSet('weather','mode','gradient')">Gradient</button></div><select id="weather-bd-dir" onchange="bdSet('weather','dir',this.value)"><option value="v">↓ Top to bottom</option><option value="h">→ Left to right</option><option value="d1">↘ Diagonal down</option><option value="d2">↗ Diagonal up</option><option value="r">◉ Radial (center out)</option></select></div>
           <div class="color-row"><span>Size</span><select id="weather-size" onchange="updateVis()" class="select-inline"><option value="s">Small</option><option value="m">Medium</option><option value="l">Large</option></select></div>
-          <div class="color-row"><span>Font</span><div class="font-field"><select id="weather-font" onchange="updateSimpleFont('weatherFont',this.value)"></select><button class="btn-icon font-all-btn" onclick="applyFontEverywhere(document.getElementById('weather-font').value)" title="Use this font in every field of this profile: all categories, all links, clock, search and weather"><i class="fa-solid fa-clone"></i> All</button></div></div>
+          <div class="color-row"><span>Font</span><div class="font-field" id="ff-weather"></div></div>
           <label class="label-inline"><input type="checkbox" id="w-day" onchange="updateVis()"> Show Day</label>
           <label class="label-inline"><input type="checkbox" id="w-date" onchange="updateVis()"> Show Date</label>
           <div class="color-row"><span>Date Format</span><select id="w-date-fmt" onchange="updateVis()" class="select-inline"><option value="dmy">DD/MM</option><option value="mdy">MM/DD</option></select></div>
@@ -510,12 +546,13 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
     <label class="label-inline"><input type="checkbox" id="cpop-seconds" onchange="clockPopChange()"> Seconds</label>
     <label class="label-inline"><input type="checkbox" id="cpop-date" onchange="clockPopChange()"> Show Date</label>
     <div style="display:grid;grid-template-columns:auto 1fr;gap:6px 10px;align-items:center;margin-top:4px;">
-      <span style="font-size:0.75rem;color:#888;">Size</span><select id="cpop-size" onchange="clockPopChange()" style="height:26px;font-size:0.75rem;padding:0 6px;"><option value="s">Small</option><option value="m">Medium</option><option value="l">Large</option></select>
+      <span style="font-size:0.75rem;color:#888;">Clock size</span><select id="cpop-size" onchange="clockPopChange()" style="height:26px;font-size:0.75rem;padding:0 6px;"><option value="s">Small</option><option value="m">Medium</option><option value="l">Large</option></select>
       <span style="font-size:0.75rem;color:#888;">Format</span><select id="cpop-format" onchange="clockPopChange()" style="height:26px;font-size:0.75rem;padding:0 6px;"><option value="24">24h</option><option value="12">12h AM/PM</option></select>
       <span id="cpop-datefmt-label" style="font-size:0.75rem;color:#888;">Date Fmt</span>
       <select id="cpop-datefmt" onchange="clockPopChange()" style="height:26px;font-size:0.75rem;padding:0 6px;">
         <option value="long">Monday, January 1</option><option value="long-year">Monday, January 1, 2026</option><option value="short">Mon, Jan 1</option><option value="medium">January 1, 2026</option><option value="dmy">DD-MM-YYYY</option><option value="mdy">MM-DD-YYYY</option><option value="iso">YYYY-MM-DD</option>
       </select>
+      <span id="cpop-dsize-label" style="font-size:0.75rem;color:#888;">Date size</span><select id="cpop-dsize" onchange="clockPopChange()" style="height:26px;font-size:0.75rem;padding:0 6px;"><option value="small">Small</option><option value="normal">Normal</option><option value="big">Big</option></select>
     </div>
   </div>
 </div>
@@ -555,14 +592,50 @@ const FONT_WGHT={'Bebas Neue':''};              // families that only ship one w
 const fontName=f=>FONTS.includes(f)?f:'Inter';
 const fontStack=f=>`'${fontName(f)}',system-ui,sans-serif`;
 const fontOpts=cur=>FONTS.map(f=>`<option value="${f}"${f===fontName(cur)?' selected':''}>${f}</option>`).join('');
+// Style and size. Every field has an explicit style; the starting one depends on the kind of field.
+const FSTYLES={normal:'Normal',bold:'Bold',italic:'Italic',bolditalic:'Bold Italic'};
+const FSTYLE_DEF={cat:'bold',link:'normal',clock:'bold',cdate:'normal',weather:'normal'};   // categories & clock bold, links & date normal
+const FSIZES={s:'Smaller',m:'Normal',l:'Larger'};
+const FSIZE_MULT={s:0.88,m:1,l:1.15};
+const fstyleName=(v,kind)=>FSTYLES[v]?v:(FSTYLE_DEF[kind]||'normal');
+const fsizeName=v=>FSIZES[v]?v:'m';
+const fsizeMult=v=>FSIZE_MULT[fsizeName(v)];
+const fstyleOpts=(cur,kind)=>Object.entries(FSTYLES).map(([k,l])=>`<option value="${k}"${k===fstyleName(cur,kind)?' selected':''}>${l}</option>`).join('');
+const fsizeOpts=cur=>Object.entries(FSIZES).map(([k,l])=>`<option value="${k}"${k===fsizeName(cur)?' selected':''}>${l}</option>`).join('');
+function fstyleParts(v,kind){v=fstyleName(v,kind);return{w:(v==='bold'||v==='bolditalic')?'700':'400',i:v==='italic'||v==='bolditalic'};}
+const fstyleCss=(v,kind)=>{const q=fstyleParts(v,kind);return `font-weight:${q.w};font-style:${q.i?'italic':'normal'};`;};
+// inline css for one category title / link: font + style + size multiplier (read by --fsz in the stylesheet)
+const fontCss=(o,kind)=>`font-family:${fontStack(o.font)};${fstyleCss(o.fontStyle,kind)}--fsz:${fsizeMult(o.fontSize)};`;
+const cleanFontProp=(k,v,kind)=>/fontstyle$/i.test(k)?fstyleName(v,kind):/fontsize$/i.test(k)?fsizeName(v):fontName(v);
+const kindOfKey=k=>/^clockDate/.test(k)?'cdate':/^clock/.test(k)?'clock':/^weather/.test(k)?'weather':'search';
+// One control used everywhere: [font][style][size][All]  (fontOnly: [font][All], used by the search bar).
+// kind = which field it belongs to (decides the default style); idp = id prefix for the static ones.
+function fontFieldHTML(kind,idp,vals,onchange,fontOnly){
+  const id=k=>idp?` id="${idp}-${k}"`:'';
+  return `<select${id('font')} data-k="font" title="Font" onchange="${onchange('font')}">${fontOpts(vals.font)}</select>`+
+    (fontOnly?'':`<select${id('fstyle')} data-k="style" title="Style" onchange="${onchange('fontStyle')}">${fstyleOpts(vals.fontStyle,kind)}</select>`+
+    `<select${id('fsize')} data-k="size" title="Size" onchange="${onchange('fontSize')}">${fsizeOpts(vals.fontSize)}</select>`)+
+    `<button class="btn-icon font-all-btn" onclick="applyFontEverywhere(this.parentElement)" title="Use this font in every field of this profile: all categories, all links, clock, date, search and weather (style and size are not changed)"><i class="fa-solid fa-clone"></i> All</button>`;
+}
+function syncFontField(idp,font,st,sz){const g=k=>document.getElementById(idp+'-'+k);if(g('font'))g('font').value=fontName(font);if(g('fstyle'))g('fstyle').value=fstyleName(st,idp);if(g('fsize'))g('fsize').value=fsizeName(sz);}
+// the date now has its own size and color; existing setups start with the clock's
+// Date sizes: Small is the date's usual look, then Normal and Big. Old saved values (s/m/l shared the clock's scale) are converted.
+const DATE_SIZES={small:['Small','0.6rem'],normal:['Normal','0.8rem'],big:['Big','1.05rem']};
+function dateSizeKey(v,clockSize){if(DATE_SIZES[v])return v;const old=['s','m','l'].includes(v)?v:(clockSize||'m');return old==='l'?'normal':'small';}
+const dateSizeOpts=()=>Object.entries(DATE_SIZES).map(([k,d])=>`<option value="${k}">${d[0]}</option>`).join('');
+function migrateClock(p){p.clockDateSize=dateSizeKey(p.clockDateSize,p.clockSize);if(!p.clockDateColor)p.clockDateColor=p.clockColor||'#ffffff';}
 // legacy: the old single "Grid Font" becomes the font of every category and link
 function migrateFonts(p){
   const g=FONTS.includes(p.gridFont)?p.gridFont:'Inter';
   (p.categories||[]).forEach(c=>{if(c.font===undefined)c.font=g;(c.links||[]).forEach(l=>{if(l.font===undefined)l.font=g;});});
   if(!p.searchFont)p.searchFont='Inter';if(!p.weatherFont)p.weatherFont='Inter';if(!p.clockFont)p.clockFont='Inter';
-  delete p.gridFont;
+  if(!p.clockDateFont)p.clockDateFont=p.clockFont;   // the date used to follow the clock font
+  delete p.searchFontStyle;delete p.searchFontSize;delete p.gridFont;
 }
-['cat-font','clock-font','search-font','weather-font'].forEach(id=>{const e=document.getElementById(id);if(e)e.innerHTML=fontOpts();});
+// static font fields (Categories, Clock, Date, Search, Weather)
+const _cap=k=>k[0].toUpperCase()+k.slice(1);
+[['cat',k=>`updateCatFont('${k}',this.value)`],['clock',k=>`updateSimpleFont('clock${_cap(k)}',this.value)`],['cdate',k=>`updateSimpleFont('clockDate${_cap(k)}',this.value)`],['search',k=>`updateSimpleFont('search${_cap(k)}',this.value)`,true],['weather',k=>`updateSimpleFont('weather${_cap(k)}',this.value)`]]
+  .forEach(([idp,oc,fo])=>{const e=document.getElementById('ff-'+idp);if(e)e.innerHTML=fontFieldHTML(idp,idp,{},oc,fo);});
 const UNSPLASH_KEY='j4U9kk58zkrYs3pTo9GWn-peKYzEriWcOnbNJPRUHjM';
 // Each entry: [query, collections/topics hint]
 // We pick one query at random per fetch so results vary over time
@@ -686,7 +759,7 @@ if(!state.profileNames)state.profileNames=state.profiles.map((_,i)=>'Profile '+(
 const _pi=parseInt(state.profile.replace('p',''));if(isNaN(_pi)||_pi>=state.profiles.length)state.profile='p0';
 state.profiles.forEach(p=>{
   if(!p)return;
-  migrateFonts(p);
+  migrateFonts(p);migrateClock(p);
   if(!['gradient','photo','unsplash'].includes(p.bgMode))p.bgMode='gradient';
   if(p.categories)p.categories.forEach(c=>{if(c.links)c.links.forEach(l=>{if(!l.linkIcon)l.linkIcon={type:'none',src:''};});});
   if(p.ql)p.ql.forEach(l=>{if(!l.linkIcon)l.linkIcon={type:'none',src:''};});
@@ -902,8 +975,8 @@ function openWeatherPopover(anchor){const pop=document.getElementById('weather-m
 function closeWxPop(){document.getElementById('weather-modal').classList.remove('open');document.getElementById('city-search-input').value='';document.getElementById('search-results').innerHTML='';_wxPopOpen=false;}
 document.addEventListener('click',e=>{if(_wxPopOpen&&!document.getElementById('weather-modal').contains(e.target)&&!e.target.closest('#weather-grid'))closeWxPop();});
 
-function syncClockPop(){const p=cur();const sc=p.showClock!==false,sd=p.clockShowDate!==false;document.getElementById('cpop-show').checked=sc;document.getElementById('cpop-seconds').checked=(p.clockSeconds!==false);document.getElementById('cpop-date').checked=sd;document.getElementById('cpop-format').value=p.clockFormat||'24';document.getElementById('cpop-datefmt').value=p.clockDateFmt||'long';document.getElementById('cpop-size').value=p.clockSize||'m';const sub=document.getElementById('cpop-sub');if(sub)sub.className=sc?'sub-enabled':'sub-disabled';const l=document.getElementById('cpop-datefmt-label'),s=document.getElementById('cpop-datefmt');[l,s].forEach(el=>{if(el)el.className=(sc&&sd)?'sub-enabled':'sub-disabled';});}
-function clockPopChange(){const p=cur();const sc=document.getElementById('cpop-show').checked,sd=document.getElementById('cpop-date').checked;p.showClock=sc;p.clockSeconds=document.getElementById('cpop-seconds').checked;p.clockShowDate=sd;p.clockFormat=document.getElementById('cpop-format').value;p.clockDateFmt=document.getElementById('cpop-datefmt').value;p.clockSize=document.getElementById('cpop-size').value;const sub=document.getElementById('cpop-sub');if(sub)sub.className=sc?'sub-enabled':'sub-disabled';const l=document.getElementById('cpop-datefmt-label'),s=document.getElementById('cpop-datefmt');[l,s].forEach(el=>{if(el)el.className=(sc&&sd)?'sub-enabled':'sub-disabled';});saveAndRender();tickClock();if(document.getElementById('settings-modal').style.display==='flex')renderSettings();}
+function syncClockPop(){const p=cur();const sc=p.showClock!==false,sd=p.clockShowDate!==false;document.getElementById('cpop-show').checked=sc;document.getElementById('cpop-seconds').checked=(p.clockSeconds!==false);document.getElementById('cpop-date').checked=sd;document.getElementById('cpop-format').value=p.clockFormat||'24';document.getElementById('cpop-datefmt').value=p.clockDateFmt||'long';document.getElementById('cpop-size').value=p.clockSize||'m';document.getElementById('cpop-dsize').value=dateSizeKey(p.clockDateSize,p.clockSize);const sub=document.getElementById('cpop-sub');if(sub)sub.className=sc?'sub-enabled':'sub-disabled';['cpop-datefmt-label','cpop-datefmt','cpop-dsize-label','cpop-dsize'].map(i=>document.getElementById(i)).forEach(el=>{if(el)el.className=(sc&&sd)?'sub-enabled':'sub-disabled';});}
+function clockPopChange(){const p=cur();const sc=document.getElementById('cpop-show').checked,sd=document.getElementById('cpop-date').checked;p.showClock=sc;p.clockSeconds=document.getElementById('cpop-seconds').checked;p.clockShowDate=sd;p.clockFormat=document.getElementById('cpop-format').value;p.clockDateFmt=document.getElementById('cpop-datefmt').value;p.clockSize=document.getElementById('cpop-size').value;p.clockDateSize=document.getElementById('cpop-dsize').value;const sub=document.getElementById('cpop-sub');if(sub)sub.className=sc?'sub-enabled':'sub-disabled';['cpop-datefmt-label','cpop-datefmt','cpop-dsize-label','cpop-dsize'].map(i=>document.getElementById(i)).forEach(el=>{if(el)el.className=(sc&&sd)?'sub-enabled':'sub-disabled';});saveAndRender();tickClock();if(document.getElementById('settings-modal').style.display==='flex')renderSettings();}
 function openClockPopover(anchor){if(document.body.classList.contains('edit-mode'))return;const pop=document.getElementById('clock-popover');if(_clockPopOpen){pop.classList.remove('open');_clockPopOpen=false;return;}closeWstatPop();syncClockPop();pop.classList.add('open');_clockPopOpen=true;const r=anchor.getBoundingClientRect();const pw=240,ph=pop.offsetHeight||200;let left=r.left+r.width/2-pw/2;if(left+pw>window.innerWidth-10)left=window.innerWidth-pw-10;if(left<10)left=10;pop.style.left=left+'px';pop.style.top=(r.bottom+8)+'px';}
 function closeClockPop(){document.getElementById('clock-popover').classList.remove('open');_clockPopOpen=false;}
 document.addEventListener('click',e=>{if(_clockPopOpen&&!document.getElementById('clock-popover').contains(e.target)&&!e.target.closest('#clock-display'))closeClockPop();});
@@ -957,7 +1030,7 @@ function cpSync(id){const inp=document.getElementById(id);if(!inp)return;const s
 document.addEventListener('click',e=>{const pal=document.getElementById('cp-palette');if(!pal||!pal.classList.contains('open'))return;if(pal.contains(e.target)||e.target.classList.contains('cp-swatch'))return;cpClose();});
 
 // ── Layout helpers ──
-function updateSectionStates(){const p=cur();const cs=document.getElementById('clock-sub'),ws=document.getElementById('weather-sub'),ss=document.getElementById('search-sub');if(cs)cs.className=p.showClock?'sub-enabled':'sub-disabled';if(ws)ws.className=p.showWeather?'sub-enabled':'sub-disabled';if(ss)ss.className=(p.showSearch!==false)?'sub-enabled':'sub-disabled';}
+function updateSectionStates(){const p=cur();const cs=document.getElementById('clock-sub'),ws=document.getElementById('weather-sub'),ss=document.getElementById('search-sub');if(cs)cs.className=p.showClock?'sub-enabled':'sub-disabled';const cr=document.getElementById('clock-rest');if(cr)cr.className=p.showClock?'sub-enabled':'sub-disabled';const ds=document.getElementById('clock-date-sub');if(ds)ds.className=(p.clockShowDate!==false)?'sub-enabled':'sub-disabled';if(ws)ws.className=p.showWeather?'sub-enabled':'sub-disabled';if(ss)ss.className=(p.showSearch!==false)?'sub-enabled':'sub-disabled';}
 function resetField(pid,dv,sk){const inp=document.getElementById(pid);if(inp){inp.value=dv;cpSync(pid);}cur()[sk]=dv;saveAndRender();tickClock();}
 function resetCatColor(){const idx=document.getElementById('cat-sel').value,inp=document.getElementById('cat-color');if(inp){inp.value='#00d4ff';cpSync('cat-color');}cur().categories[idx].color='#00d4ff';syncCatTab(cur().categories[idx]);saveAndRender();}
 function resetBgColor(){const inp=document.getElementById('bg-color');if(inp){inp.value='#1C1B22';cpSync('bg-color');}cur().bgColor='#1C1B22';saveAndRender();}
@@ -965,7 +1038,9 @@ function resetBgColor(){const inp=document.getElementById('bg-color');if(inp){in
 const DENS={s:0.6,m:0.73,l:0.86,xl:1.0};
 function catCfg(c,p){p=p||cur();return{density:DENS[c.density]?c.density:(DENS[p.density]?p.density:'xl'),showHeader:c.showHeader!==undefined?!!c.showHeader:p.showHeaders!==false,opacity:c.bgOpacity!==undefined?c.bgOpacity:(p.cardOpacity??0.5)};}
 function catStyle(c,p){const g=catCfg(c,p);return `${bdInline(c)};--density-mod:${DENS[g.density]};--card-opacity:${g.opacity}`;}
-function newCat(title){const p=cur(),last=p.categories[p.categories.length-1],fnt=fontName(last&&last.font),g=last?catCfg(last,p):{density:DENS[p.density]?p.density:'xl',showHeader:p.showHeaders!==false,opacity:p.cardOpacity??0.5};return{title:title||'New Category',color:'#00d4ff',url:'',links:[],font:fnt,density:g.density,showHeader:g.showHeader,bgOpacity:g.opacity};}
+function newCat(title){const p=cur(),last=p.categories[p.categories.length-1],fnt=fontName(last&&last.font),fst=fstyleName(last&&last.fontStyle,'cat'),fsz=fsizeName(last&&last.fontSize),g=last?catCfg(last,p):{density:DENS[p.density]?p.density:'xl',showHeader:p.showHeaders!==false,opacity:p.cardOpacity??0.5};return{title:title||'New Category',color:'#00d4ff',url:'',links:[],font:fnt,fontStyle:fst,fontSize:fsz,density:g.density,showHeader:g.showHeader,bgOpacity:g.opacity};}
+// a new link copies the font settings of the last link in its category (or the category's font if it is empty)
+function newLinkFont(c){const l=c.links[c.links.length-1];return l?{font:fontName(l.font),fontStyle:fstyleName(l.fontStyle,'link'),fontSize:fsizeName(l.fontSize)}:{font:fontName(c.font)};}
 function curCat(){const i=document.getElementById('cat-sel');return i?(cur().categories[i.value]||null):null;}
 function updateCatDensity(s){const c=curCat();if(!c)return;c.density=s;saveAndRender(true);}
 function updateCatHeader(){const c=curCat();if(!c)return;c.showHeader=document.getElementById('header-vis-check').checked;saveAndRender(true);}
@@ -979,7 +1054,7 @@ function renderCatTabs(){
 function selectCatTab(i){document.getElementById('cat-sel').value=i;syncCatEditor();}
 function syncCatTab(c){const t=document.querySelector('#cat-tabs .cat-tab.active');if(!t)return;const n=t.querySelector('.cat-tab-name'),d=t.querySelector('.cat-tab-dot');if(n)n.textContent=c.title||'Untitled';if(d)d.style.background=c.color;t.title=c.title||'Untitled';}
 
-function getLayoutKey(p){return[p.categories.map(c=>{const g=catCfg(c,p);return g.density+(g.showHeader?1:0);}).join(','),p.showWeather,p.showSearch,p.categories.length,p.categories.map(c=>c.links.length).join(','),p.categories.map(c=>c.title).join('|'),p.categories.map(c=>c.links.map(l=>l.name).join('~')).join('|'),p.categories.map(c=>fontName(c.font)+'>'+c.links.map(l=>fontName(l.font)).join(',')).join('|'),document.body.classList.contains('edit-mode')].join(':');}
+function getLayoutKey(p){return[p.categories.map(c=>{const g=catCfg(c,p);return g.density+(g.showHeader?1:0);}).join(','),p.showWeather,p.showSearch,p.categories.length,p.categories.map(c=>c.links.length).join(','),p.categories.map(c=>c.title).join('|'),p.categories.map(c=>c.links.map(l=>l.name).join('~')).join('|'),p.categories.map(c=>[fontName(c.font),fstyleName(c.fontStyle,'cat'),fsizeName(c.fontSize)].join('/')+'>'+c.links.map(l=>[fontName(l.font),fstyleName(l.fontStyle,'link'),fsizeName(l.fontSize)].join('/')).join(',')).join('|'),document.body.classList.contains('edit-mode')].join(':');}
 let _lastKey=null;
 function applyScaling(force){
   const p=cur();const grid=document.getElementById('grid');if(!grid)return;if(!p.categories.length){document.documentElement.classList.add('scaling-finished');return;}
@@ -989,11 +1064,11 @@ function applyScaling(force){
   const mod=mods.reduce((a,b)=>a+b,0)/mods.length; // average: used for the gap between cards and the "+" strip
   const avH=window.innerHeight-56-(p.showSearch!==false?52:0)-(p.showWeather?148:0)-Math.round(window.innerHeight*0.04)-16;
   const avW=window.innerWidth*0.94;
-  let natH=0;p.categories.forEach((c,i)=>{const m=mods[i];natH=Math.max(natH,(Math.max(c.links.length,1)*45*m)+((cfgs[i].showHeader?60:10)*m)+(ed?45*m:0));});
+  let natH=0;p.categories.forEach((c,i)=>{const m=mods[i];const rows=c.links.length?c.links.reduce((a,l)=>a+45*m+(fsizeMult(l.fontSize)-1)*20*m,0):45*m;natH=Math.max(natH,rows+((cfgs[i].showHeader?60+(fsizeMult(c.fontSize)-1)*26:10)*m)+(ed?45*m:0));});
   const colGap=1.2*16*mod;
   const tmp=document.createElement('canvas'),ctx=tmp.getContext('2d');
   let natW=0,maxW=0;
-  p.categories.forEach((c,i)=>{const m=mods[i],colPad=1.2*16*m*2;ctx.font=`700 ${1.3*16*m}px ${fontStack(c.font)}`;let mx=ctx.measureText(c.title).width;c.links.forEach(l=>{ctx.font=`400 ${1.0*16*m}px ${fontStack(l.font)}`;mx=Math.max(mx,ctx.measureText(l.name).width);});maxW=Math.max(maxW,mx+colPad,160*m);});
+  p.categories.forEach((c,i)=>{const m=mods[i],colPad=1.2*16*m*2;const cf=(o,kind,px)=>{const q=fstyleParts(o.fontStyle,kind);return `${q.i?'italic ':''}${q.w} ${px*fsizeMult(o.fontSize)}px ${fontStack(o.font)}`;};ctx.font=cf(c,'cat',1.3*16*m);let mx=ctx.measureText(c.title).width;c.links.forEach(l=>{ctx.font=cf(l,'link',1.0*16*m);mx=Math.max(mx,ctx.measureText(l.name).width);});maxW=Math.max(maxW,mx+colPad,160*m);});
   natW=maxW*p.categories.length+colGap*(p.categories.length-1);   // every card gets the width of the widest oneif(ed)natW+=colGap+42*mod;
   let scale=Math.min(avH/natH,avW/natW);scale=Math.max(Math.min(scale,1.6),0.5);
   document.documentElement.style.setProperty('--density-mod',mod);document.documentElement.style.setProperty('--scale',scale);document.documentElement.classList.add('scaling-finished');
@@ -1015,18 +1090,20 @@ function ensureFont(f){
   document.head.appendChild(l);
 }
 function applyFonts(p){
-  const used=new Set([p.clockFont,p.searchFont,p.weatherFont]);
+  const used=new Set([p.clockFont,p.clockDateFont,p.searchFont,p.weatherFont]);
   p.categories.forEach(c=>{used.add(c.font);c.links.forEach(l=>used.add(l.font));});
   used.forEach(ensureFont);
   const r=document.documentElement.style;r.setProperty('--search-font',fontStack(p.searchFont));r.setProperty('--weather-font',fontStack(p.weatherFont));
+  r.setProperty('--weather-fsz',fsizeMult(p.weatherFontSize));
+  const wa=document.getElementById('weather-area');if(wa)wa.setAttribute('data-fstyle',fstyleName(p.weatherFontStyle,'weather'));
 }
-function updateCatFont(v){const c=curCat();if(!c)return;c.font=fontName(v);saveAndRender();}
-function updateSimpleFont(k,v){cur()[k]=fontName(v);saveAndRender();}
-// "All" button: same font in every field of the current profile
-function applyFontEverywhere(f){
-  f=fontName(f);const p=cur();
+function updateCatFont(k,v){const c=curCat();if(!c)return;c[k]=cleanFontProp(k,v,'cat');saveAndRender();}
+function updateSimpleFont(k,v){cur()[k]=cleanFontProp(k,v,kindOfKey(k));saveAndRender();tickClock();}
+// "All" button: the same font in every field of the current profile (styles and sizes are left alone)
+function applyFontEverywhere(box){
+  const f=fontName(box.querySelector('[data-k="font"]').value),p=cur();
   p.categories.forEach(c=>{c.font=f;c.links.forEach(l=>{l.font=f;});});
-  p.clockFont=p.searchFont=p.weatherFont=f;
+  p.clockFont=p.clockDateFont=p.searchFont=p.weatherFont=f;
   saveAndRender();tickClock();renderSettings();
 }
 // Settings colour: global preference (state.uiAccent), drives the whole settings window + popups
@@ -1089,7 +1166,7 @@ function saveAndRender(refreshModal=false){
   // QL
   document.getElementById('ql-nav').innerHTML=p.ql.filter(l=>l.vis).map(l=>{const ic=l.color||p.iconColor||'#ffffff';const lic=l.linkIcon||{type:'none',src:''};let ico='';if(lic.type==='favicon'&&l.url){try{const d=new URL(l.url).hostname;ico=`<img class="ql-img-icon" src="https://www.google.com/s2/favicons?domain=${d}&sz=64" alt="" onerror="this.style.display='none';this.nextSibling.style.display='flex'"><i class="${l.name}" style="color:${ic};display:none;font-size:1.05rem;"></i>`;}catch(e){ico=`<i class="${l.name}" style="color:${ic};font-size:1.05rem;"></i>`;}}else if(lic.type==='url'&&lic.src){ico=`<img class="ql-img-icon" src="${lic.src}" alt="" onerror="this.style.display='none';this.nextSibling.style.display='flex'"><i class="${l.name}" style="color:${ic};display:none;font-size:1.05rem;"></i>`;}else{ico=`<i class="${l.name}" style="color:${ic};font-size:1.05rem;"></i>`;}const title=l.url?new URL(l.url.startsWith('http')?l.url:'https://'+l.url).hostname:'';return`<a href="${l.url}" class="nav-link" target="${state.target}" title="${title}">${ico}</a>`;}).join('');
   // Grid
-  document.getElementById('grid').style.gridTemplateColumns=p.categories.length?`repeat(${p.categories.length},1fr)`:'';document.getElementById('grid').innerHTML=p.categories.map((c,ci)=>`<div class="column" draggable="true" ondragstart="colDS(event,${ci})" ondragover="colDO(event,${ci})" ondrop="colDrop(event,${ci})" ondragleave="colDL(event)" style="--cat-accent:${c.color};${catStyle(c,p)}"><div class="cat-title-row" style="position:relative;"><div class="cat-title ${catCfg(c,p).showHeader?'':'hidden-header'}" style="color:${c.color};font-family:${fontStack(c.font)};"><a href="${c.url||'#'}" target="${state.target}" style="color:inherit;text-decoration:none;">${c.title}</a></div><div class="edit-overlay"><button class="edit-del-btn" onclick="delCat(${ci})">Delete</button></div></div>${c.links.map((l,li)=>{const lic=l.linkIcon||{type:'none',src:'',size:'m'};const io=lic.type!=='none'&&lic.iconOnly;const sz=lic.size==='s'?'calc(0.75rem * var(--scale) * var(--density-mod))':lic.size==='l'?'calc(1.5rem * var(--scale) * var(--density-mod))':lic.size==='xl'?'calc(2rem * var(--scale) * var(--density-mod))':'calc(1rem * var(--scale) * var(--density-mod))';const fid='fb-'+ci+'-'+li;let ih='';if(lic.type==='favicon'&&l.url){try{const d=new URL(l.url).hostname;const fb=l.name?l.name.charAt(0).toUpperCase():'?';const fbBg=l.color||state.linkColor||'#888';ih=`<img class="link-icon" style="width:${sz};height:${sz}" src="https://www.google.com/s2/favicons?domain=${d}&sz=32" alt="" onerror="this.style.display='none';document.getElementById('${fid}').style.display='inline-flex'"><span id="${fid}" class="link-icon-fallback" style="width:${sz};height:${sz};background:${fbBg}22;color:${fbBg}">${fb}</span>`;}catch(e){}}else if(lic.type==='url'&&lic.src){const fb=l.name?l.name.charAt(0).toUpperCase():'?';const fbBg=l.color||state.linkColor||'#888';ih=`<img class="link-icon" style="width:${sz};height:${sz}" src="${lic.src}" alt="" onerror="this.style.display='none';document.getElementById('${fid}').style.display='inline-flex'"><span id="${fid}" class="link-icon-fallback" style="width:${sz};height:${sz};background:${fbBg}22;color:${fbBg}">${fb}</span>`;}return`<div class="link-row"><a href="${l.url||'#'}" target="${state.target}" style="color:${l.color||state.linkColor};font-family:${fontStack(l.font)}" class="${io?'icon-only':''}" ${io?`data-label="${l.name}"`:''}>${ih}<span class="link-label">${l.name}</span></a><div class="edit-overlay"><button class="edit-del-btn" onclick="delLink(${ci},${li})">Delete</button></div></div>`;}).join('')}<button class="edit-add-btn add-link-btn" onclick="addLinkTo(${ci})" title="Add link"><i class="fa-solid fa-plus"></i></button></div>`).join('')+`<button class="edit-add-btn add-cat-btn" onclick="addCatFromGrid()" title="Add category"><i class="fa-solid fa-plus"></i></button>`;
+  document.getElementById('grid').style.gridTemplateColumns=p.categories.length?`repeat(${p.categories.length},1fr)`:'';document.getElementById('grid').innerHTML=p.categories.map((c,ci)=>`<div class="column" draggable="true" ondragstart="colDS(event,${ci})" ondragover="colDO(event,${ci})" ondrop="colDrop(event,${ci})" ondragleave="colDL(event)" style="--cat-accent:${c.color};${catStyle(c,p)}"><div class="cat-title-row" style="position:relative;"><div class="cat-title ${catCfg(c,p).showHeader?'':'hidden-header'}" style="color:${c.color};${fontCss(c,'cat')}"><a href="${c.url||'#'}" target="${state.target}" style="color:inherit;text-decoration:none;">${c.title}</a></div><div class="edit-overlay"><button class="edit-del-btn" onclick="delCat(${ci})">Delete</button></div></div>${c.links.map((l,li)=>{const lic=l.linkIcon||{type:'none',src:'',size:'m'};const io=lic.type!=='none'&&lic.iconOnly;const sz=lic.size==='s'?'calc(0.75rem * var(--scale) * var(--density-mod))':lic.size==='l'?'calc(1.5rem * var(--scale) * var(--density-mod))':lic.size==='xl'?'calc(2rem * var(--scale) * var(--density-mod))':'calc(1rem * var(--scale) * var(--density-mod))';const fid='fb-'+ci+'-'+li;let ih='';if(lic.type==='favicon'&&l.url){try{const d=new URL(l.url).hostname;const fb=l.name?l.name.charAt(0).toUpperCase():'?';const fbBg=l.color||state.linkColor||'#888';ih=`<img class="link-icon" style="width:${sz};height:${sz}" src="https://www.google.com/s2/favicons?domain=${d}&sz=32" alt="" onerror="this.style.display='none';document.getElementById('${fid}').style.display='inline-flex'"><span id="${fid}" class="link-icon-fallback" style="width:${sz};height:${sz};background:${fbBg}22;color:${fbBg}">${fb}</span>`;}catch(e){}}else if(lic.type==='url'&&lic.src){const fb=l.name?l.name.charAt(0).toUpperCase():'?';const fbBg=l.color||state.linkColor||'#888';ih=`<img class="link-icon" style="width:${sz};height:${sz}" src="${lic.src}" alt="" onerror="this.style.display='none';document.getElementById('${fid}').style.display='inline-flex'"><span id="${fid}" class="link-icon-fallback" style="width:${sz};height:${sz};background:${fbBg}22;color:${fbBg}">${fb}</span>`;}return`<div class="link-row"><a href="${l.url||'#'}" target="${state.target}" style="color:${l.color||state.linkColor};${fontCss(l,'link')}" class="${io?'icon-only':''}" ${io?`data-label="${l.name}"`:''}>${ih}<span class="link-label">${l.name}</span></a><div class="edit-overlay"><button class="edit-del-btn" onclick="delLink(${ci},${li})">Delete</button></div></div>`;}).join('')}<button class="edit-add-btn add-link-btn" onclick="addLinkTo(${ci})" title="Add link"><i class="fa-solid fa-plus"></i></button></div>`).join('')+`<button class="edit-add-btn add-cat-btn" onclick="addCatFromGrid()" title="Add category"><i class="fa-solid fa-plus"></i></button>`;
   document.getElementById('weather-area').classList.toggle('weather-hidden',!p.showWeather);
   if(!p.showWeather)document.getElementById('weather-area').classList.remove('weather-loaded');
   applyScaling();
@@ -1144,9 +1221,9 @@ function renderSettings(){
   document.getElementById('clock-date-check').checked=(p.clockShowDate!==false);
   document.getElementById('clock-format').value=p.clockFormat||'24';
   document.getElementById('clock-date-fmt').value=p.clockDateFmt||'long';
-  document.getElementById('clock-size').value=p.clockSize||'m';
-  document.getElementById('clock-font').value=fontName(p.clockFont);document.getElementById('search-font').value=fontName(p.searchFont);document.getElementById('weather-font').value=fontName(p.weatherFont);
-  document.getElementById('clock-color').value=p.clockColor||'#ffffff';cpSync('clock-color');
+  document.getElementById('clock-size').value=p.clockSize||'m';document.getElementById('clock-date-size').value=dateSizeKey(p.clockDateSize,p.clockSize);
+  syncFontField('clock',p.clockFont,p.clockFontStyle,p.clockFontSize);syncFontField('cdate',p.clockDateFont,p.clockDateFontStyle,p.clockDateFontSize);syncFontField('search',p.searchFont);syncFontField('weather',p.weatherFont,p.weatherFontStyle,p.weatherFontSize);
+  document.getElementById('clock-color').value=p.clockColor||'#ffffff';cpSync('clock-color');document.getElementById('clock-date-color').value=p.clockDateColor||p.clockColor||'#ffffff';cpSync('clock-date-color');
   const cbk=document.getElementById('clock-backdrop-slider'),cbkv=document.getElementById('clock-backdrop-val');if(cbk)cbk.value=p.clockBackdrop||0;if(cbkv)cbkv.textContent=Math.round((p.clockBackdrop||0)*100)+'%';
   const sbk=document.getElementById('search-backdrop-slider'),sbkv=document.getElementById('search-backdrop-val');if(sbk)sbk.value=p.searchBackdrop??0.3;if(sbkv)sbkv.textContent=Math.round((p.searchBackdrop??0.3)*100)+'%';
   // weather
@@ -1174,8 +1251,8 @@ function updateVis(){
   p.clockShowDate=document.getElementById('clock-date-check').checked;
   p.clockFormat=document.getElementById('clock-format').value;
   p.clockDateFmt=document.getElementById('clock-date-fmt').value;
-  p.clockSize=document.getElementById('clock-size').value;
-  p.clockColor=document.getElementById('clock-color').value;
+  p.clockSize=document.getElementById('clock-size').value;p.clockDateSize=document.getElementById('clock-date-size').value;
+  p.clockColor=document.getElementById('clock-color').value;p.clockDateColor=document.getElementById('clock-date-color').value;
   p.clockFont=fontName(document.getElementById('clock-font').value);
   p.showWeather=document.getElementById('w-enable').checked;
   p.weatherColor=document.getElementById('weather-color').value;
@@ -1299,7 +1376,7 @@ async function updateWeather(){
     const dfs=(0.62*cs).toFixed(2)+'rem',ifs=(1.10*cs).toFixed(2)+'rem',tfs=(0.88*cs).toFixed(2)+'rem',tms=(0.72*cs).toFixed(2)+'rem';
     const cp=sz==='s'?'0.35rem 0.5rem':sz==='l'?'0.65rem 0.9rem':'0.5rem 0.7rem',mw=sz==='s'?'4.2rem':sz==='l'?'7.2rem':'6.0rem';
     function fmtD(ds){const dt=new Date(ds+'T12:00:00');return(p.wDateFmt==='mdy')?dt.toLocaleDateString('en-US',{month:'2-digit',day:'2-digit'}):dt.toLocaleDateString('en-GB',{day:'2-digit',month:'2-digit'});}
-    document.getElementById('weather-grid').innerHTML=d.daily.time.slice(0,7).map((t,i)=>{const rc=d.daily.weathercode[i];const un=(i===0)&&isNight;const wx=(un&&W_NIGHT[rc])?W_NIGHT[rc]:(W_DATA[rc]||{icon:'fa-sun',color:'#FFD700'});const ic2=p.wColored?wx.color:p.weatherColor;const dn=(p.wShowDay!==false)?new Date(t+'T12:00:00').toLocaleDateString('en',{weekday:'short'}):'';const ds2=(p.wShowDate!==false)?fmtD(t):'';return`<div class="weather-card" style="padding:${cp};min-width:${mw};"><div style="display:flex;align-items:baseline;justify-content:center;gap:4px;margin-bottom:0.2rem;"><span style="font-size:${dfs};opacity:0.6;text-transform:uppercase;font-weight:700;">${dn}</span>${ds2?`<span style="font-size:${dfs};opacity:0.6;font-weight:700;">${ds2}</span>`:''}</div><i class="fa-solid ${wx.icon}" style="color:${ic2};font-size:${ifs};margin:0.25rem 0;display:block;"></i><div style="display:flex;align-items:baseline;justify-content:center;gap:5px;"><span style="color:${p.weatherColor};font-size:${tfs};font-weight:700;">${Math.round(d.daily.temperature_2m_max[i])}°</span><span style="color:${p.weatherColor};font-size:${tms};opacity:0.45;">${Math.round(d.daily.temperature_2m_min[i])}°</span></div></div>`;}).join('');
+    document.getElementById('weather-grid').innerHTML=d.daily.time.slice(0,7).map((t,i)=>{const rc=d.daily.weathercode[i];const un=(i===0)&&isNight;const wx=(un&&W_NIGHT[rc])?W_NIGHT[rc]:(W_DATA[rc]||{icon:'fa-sun',color:'#FFD700'});const ic2=p.wColored?wx.color:p.weatherColor;const dn=(p.wShowDay!==false)?new Date(t+'T12:00:00').toLocaleDateString('en',{weekday:'short'}):'';const ds2=(p.wShowDate!==false)?fmtD(t):'';return`<div class="weather-card" style="padding:${cp};min-width:${mw};"><div style="display:flex;align-items:baseline;justify-content:center;gap:4px;margin-bottom:0.2rem;"><span style="font-size:calc(${dfs} * var(--weather-fsz,1));opacity:0.6;text-transform:uppercase;font-weight:700;">${dn}</span>${ds2?`<span style="font-size:calc(${dfs} * var(--weather-fsz,1));opacity:0.6;font-weight:700;">${ds2}</span>`:''}</div><i class="fa-solid ${wx.icon}" style="color:${ic2};font-size:${ifs};margin:0.25rem 0;display:block;"></i><div style="display:flex;align-items:baseline;justify-content:center;gap:5px;"><span style="color:${p.weatherColor};font-size:calc(${tfs} * var(--weather-fsz,1));font-weight:700;">${Math.round(d.daily.temperature_2m_max[i])}°</span><span style="color:${p.weatherColor};font-size:calc(${tms} * var(--weather-fsz,1));opacity:0.45;">${Math.round(d.daily.temperature_2m_min[i])}°</span></div></div>`;}).join('');
     const c=d.current||{},stats=[];
     if(p.wHumidity&&c.relative_humidity_2m!=null)stats.push(`<div class="wstat" onclick="openWstatPopover(this)" style="color:${p.weatherColor}"><i class="fa-solid fa-droplet"></i> ${c.relative_humidity_2m}%</div>`);
     if(p.wUv&&c.uv_index!=null)stats.push(`<div class="wstat" onclick="openWstatPopover(this)" style="color:${p.weatherColor}"><i class="fa-solid fa-sun"></i> UV ${c.uv_index.toFixed(1)}</div>`);
@@ -1329,7 +1406,7 @@ function syncCatEditor(){
   document.querySelectorAll('#cat-size-group .size-btn').forEach(b=>b.classList.toggle('active',b.id==='size-'+g.density));
   document.getElementById('header-vis-check').checked=g.showHeader;
   const cs=document.getElementById('card-opacity-slider'),cv=document.getElementById('card-opacity-val');if(cs)cs.value=g.opacity;if(cv)cv.textContent=Math.round(g.opacity*100)+'%';
-  document.getElementById('cat-font').value=fontName(c.font);document.getElementById('cat-title').value=c.title;document.getElementById('cat-color').value=c.color;cpSync('cat-color');document.getElementById('cat-url').value=c.url||'';bdSyncUI('card');
+  syncFontField('cat',c.font,c.fontStyle,c.fontSize);document.getElementById('cat-title').value=c.title;document.getElementById('cat-color').value=c.color;cpSync('cat-color');document.getElementById('cat-url').value=c.url||'';bdSyncUI('card');
   document.getElementById('link-list-editor').innerHTML=c.links.map((l,li)=>{
     const lc=l.color||state.linkColor||'#cccccc';const lic=l.linkIcon||{type:'none',src:''};
     const nC=lic.type==='none'?'checked':'',fC=lic.type==='favicon'?'checked':'',uC=lic.type==='url'?'checked':'';
@@ -1337,7 +1414,7 @@ function syncCatEditor(){
     const uIn=lic.type==='url'?`<input type="text" class="link-icon-url-input" placeholder="Image URL..." value="${lic.src||''}" oninput="updateLinkIcon(${idx},${li},'url',this.value,${io},'${sz}')">`:'';
     const ioBox=lic.type!=='none'?`<label style="margin-left:4px;"><input type="checkbox" ${lic.iconOnly?'checked':''} onchange="updateLinkIcon(${idx},${li},'${lic.type}','${lic.src||''}',this.checked,'${sz}')"> Icon only</label>`:'';
     const szB=lic.type!=='none'?`<div class="icon-size-group">${['s','m','l','xl'].map(s=>`<button class="icon-size-btn${sz===s?' active':''}" onclick="updateLinkIcon(${idx},${li},'${lic.type}','${lic.src||''}',${io},'${s}')">${s.toUpperCase()}</button>`).join('')}</div>`:'';
-    return`<div class="editor-link-row" draggable="true" onmousedown="if(event.target.tagName==='INPUT'||event.target.tagName==='TEXTAREA'){this.draggable=false;}" onmouseup="this.draggable=true;" onmouseleave="this.draggable=true;" ondragstart="lDS(event,${idx},${li})" ondragover="lDO(event,${idx},${li})" ondrop="lDrop(event,${idx},${li})" ondragleave="lDL(event)"><i class="fa-solid fa-grip-vertical drag-handle"></i><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;"><div style="display:flex;gap:4px;align-items:center;"><input type="text" value="${l.name}" oninput="updateLink(${idx},${li},'name',this.value)" onblur="saveAndRender()" style="flex:1;"><input type="text" value="${l.url}" placeholder="URL" oninput="updateLink(${idx},${li},'url',this.value)" onblur="saveAndRender()" style="flex:1;"></div><div class="link-icon-row"><label><input type="radio" name="li${idx}-${li}" value="none" ${nC} onchange="updateLinkIcon(${idx},${li},'none','',false,'m')"> None</label><label><input type="radio" name="li${idx}-${li}" value="favicon" ${fC} onchange="updateLinkIcon(${idx},${li},'favicon','',${io},'${sz}')"> Favicon</label><label><input type="radio" name="li${idx}-${li}" value="url" ${uC} onchange="updateLinkIcon(${idx},${li},'url','',${io},'${sz}')"> URL</label>${uIn}${ioBox}${szB}</div><div class="link-font-row"><span>Font</span><div class="font-field"><select onchange="updateLink(${idx},${li},'font',this.value)">${fontOpts(l.font)}</select><button class="btn-icon font-all-btn" onclick="applyFontEverywhere(this.previousElementSibling.value)" title="Use this font in every field of this profile: all categories, all links, clock, search and weather"><i class="fa-solid fa-clone"></i> All</button></div></div></div><div class="color-field" style="flex-shrink:0;"><input type="color" id="lc-${idx}-${li}" value="${lc}" oninput="updateLink(${idx},${li},'color',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('lc-${idx}-${li}')" style="background:${lc}"></div><button class="btn-icon" onclick="updateLink(${idx},${li},'color','');syncCatEditor();"><i class="fa-solid fa-rotate-left"></i></button></div><button class="btn-icon" style="color:#f44;" onclick="delLink(${idx},${li});syncCatEditor();"><i class="fa-solid fa-trash-can"></i></button></div>`;
+    return`<div class="editor-link-row" draggable="true" onmousedown="if(event.target.tagName==='INPUT'||event.target.tagName==='TEXTAREA'){this.draggable=false;}" onmouseup="this.draggable=true;" onmouseleave="this.draggable=true;" ondragstart="lDS(event,${idx},${li})" ondragover="lDO(event,${idx},${li})" ondrop="lDrop(event,${idx},${li})" ondragleave="lDL(event)"><i class="fa-solid fa-grip-vertical drag-handle"></i><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;"><div style="display:flex;gap:4px;align-items:center;"><input type="text" value="${l.name}" oninput="updateLink(${idx},${li},'name',this.value)" onblur="saveAndRender()" style="flex:1;"><input type="text" value="${l.url}" placeholder="URL" oninput="updateLink(${idx},${li},'url',this.value)" onblur="saveAndRender()" style="flex:1;"></div><div class="link-icon-row"><label><input type="radio" name="li${idx}-${li}" value="none" ${nC} onchange="updateLinkIcon(${idx},${li},'none','',false,'m')"> None</label><label><input type="radio" name="li${idx}-${li}" value="favicon" ${fC} onchange="updateLinkIcon(${idx},${li},'favicon','',${io},'${sz}')"> Favicon</label><label><input type="radio" name="li${idx}-${li}" value="url" ${uC} onchange="updateLinkIcon(${idx},${li},'url','',${io},'${sz}')"> URL</label>${uIn}${ioBox}${szB}</div><div class="link-font-row"><span>Font</span><div class="font-field">${fontFieldHTML('link','',l,k=>`updateLink(${idx},${li},'${k}',this.value)`)}</div></div></div><div class="color-field" style="flex-shrink:0;"><input type="color" id="lc-${idx}-${li}" value="${lc}" oninput="updateLink(${idx},${li},'color',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('lc-${idx}-${li}')" style="background:${lc}"></div><button class="btn-icon" onclick="updateLink(${idx},${li},'color','');syncCatEditor();"><i class="fa-solid fa-rotate-left"></i></button></div><button class="btn-icon" style="color:#f44;" onclick="delLink(${idx},${li});syncCatEditor();"><i class="fa-solid fa-trash-can"></i></button></div>`;
   }).join('');
 }
 function updateCat(f){const idx=document.getElementById('cat-sel').value,c=cur().categories[idx];c.title=document.getElementById('cat-title').value;c.color=document.getElementById('cat-color').value;c.url=document.getElementById('cat-url').value;syncCatTab(c);if(f==='text')localStorage.setItem(KEY,JSON.stringify(state));else saveAndRender();}
@@ -1386,7 +1463,7 @@ function ipClose(){document.getElementById('icon-picker-grid').classList.remove(
 document.addEventListener('click',e=>{if(!document.getElementById('icon-picker-grid').classList.contains('open'))return;if(!e.target.closest('#icon-picker-grid')&&!e.target.closest('.icon-picker-btn'))ipClose();});
 
 function addCat(){const cats=cur().categories;cats.push(newCat());document.getElementById('cat-sel').value=cats.length-1;saveAndRender(true);renderSettings();const t=document.getElementById('cat-title');if(t){t.focus();t.select();}}
-function addLink(){const c=cur().categories[document.getElementById('cat-sel').value];if(!c)return;c.links.push({name:'New Link',url:'',color:state.linkColor,font:fontName(c.font),linkIcon:{type:'none',src:''}});saveAndRender(true);}
+function addLink(){const c=cur().categories[document.getElementById('cat-sel').value];if(!c)return;c.links.push(Object.assign({name:'New Link',url:'',color:state.linkColor,linkIcon:{type:'none',src:''}},newLinkFont(c)));saveAndRender(true);}
 
 // ── Edit-mode helpers: add link / category straight from the main page ──
 function openCatEditor(ci,focusSel){
@@ -1398,7 +1475,7 @@ function openCatEditor(ci,focusSel){
 }
 function addLinkTo(ci){
   const c=cur().categories[ci];if(!c)return;
-  c.links.push({name:'New Link',url:'',color:state.linkColor,font:fontName(c.font),linkIcon:{type:'none',src:''}});
+  c.links.push(Object.assign({name:'New Link',url:'',color:state.linkColor,linkIcon:{type:'none',src:''}},newLinkFont(c)));
   saveAndRender();
   openCatEditor(ci,'#link-list-editor .editor-link-row:last-child input[type="text"]');
 }
@@ -1438,7 +1515,7 @@ function delLink(ci,li){cur().categories[ci].links.splice(li,1);saveAndRender();
 function addProfile(){state.profiles.push(mkProf(mkCats(5,'Category'),'m'));state.profileNames.push('Profile '+state.profiles.length);saveAndRender();renderSettings();}
 
 function exportData(){const now=new Date();const pad=n=>String(n).padStart(2,'0');const stamp=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}`;const b=new Blob([JSON.stringify(state)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`startpage_backup_${stamp}.json`;a.click();}
-function importData(input){const file=input.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{try{const imp=JSON.parse(e.target.result);if(!imp.profiles&&!imp.home&&!imp.work){alert('Invalid backup.');return;}const base=getDefaults();['profile','target','linkColor','tabTitle','tabFavicon','tabFaviconEmoji'].forEach(k=>{if(imp[k]!==undefined)base[k]=imp[k];});if(Array.isArray(imp.cities)&&imp.cities.length)base.cities=imp.cities;if(Array.isArray(imp.profiles)&&imp.profiles.length){base.profiles=imp.profiles;base.profileNames=imp.profileNames||imp.profiles.map((_,i)=>'Profile '+(i+1));}const pi=parseInt((base.profile||'p0').replace('p',''));if(isNaN(pi)||pi>=base.profiles.length)base.profile='p0';base.profiles.forEach(p=>{if(p)migrateFonts(p);if(p&&!['gradient','photo','unsplash','time'].includes(p.bgMode))p.bgMode='gradient';if(p&&!p.unsplashKey)p.unsplashKey=UNSPLASH_KEY;if(p&&p.unsplashDim===undefined)p.unsplashDim=0.50;if(p&&p.opTime===undefined)p.opTime=1.0;});if(!base.tabFaviconEmoji&&!base.tabFavicon)base.tabFaviconEmoji='⭐';state=base;localStorage.setItem(KEY,JSON.stringify(state));saveAndRender();renderSettings();updateWeather();alert('Import successful!');closeModals();}catch(err){alert('Invalid backup: '+err.message);}};r.readAsText(file);input.value='';}
+function importData(input){const file=input.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{try{const imp=JSON.parse(e.target.result);if(!imp.profiles&&!imp.home&&!imp.work){alert('Invalid backup.');return;}const base=getDefaults();['profile','target','linkColor','tabTitle','tabFavicon','tabFaviconEmoji'].forEach(k=>{if(imp[k]!==undefined)base[k]=imp[k];});if(Array.isArray(imp.cities)&&imp.cities.length)base.cities=imp.cities;if(Array.isArray(imp.profiles)&&imp.profiles.length){base.profiles=imp.profiles;base.profileNames=imp.profileNames||imp.profiles.map((_,i)=>'Profile '+(i+1));}const pi=parseInt((base.profile||'p0').replace('p',''));if(isNaN(pi)||pi>=base.profiles.length)base.profile='p0';base.profiles.forEach(p=>{if(p){migrateFonts(p);migrateClock(p);}if(p&&!['gradient','photo','unsplash','time'].includes(p.bgMode))p.bgMode='gradient';if(p&&!p.unsplashKey)p.unsplashKey=UNSPLASH_KEY;if(p&&p.unsplashDim===undefined)p.unsplashDim=0.50;if(p&&p.opTime===undefined)p.opTime=1.0;});if(!base.tabFaviconEmoji&&!base.tabFavicon)base.tabFaviconEmoji='⭐';state=base;localStorage.setItem(KEY,JSON.stringify(state));saveAndRender();renderSettings();updateWeather();alert('Import successful!');closeModals();}catch(err){alert('Invalid backup: '+err.message);}};r.readAsText(file);input.value='';}
 function resetToDefaults(){if(confirm('Factory reset? This will erase everything.')){state=getDefaults();saveAndRender();renderSettings();updateWeather();}}
 function handleBgFile(input){const file=input.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{const canvas=document.createElement('canvas');const MAX=1920;let w=img.width,h=img.height;if(w>MAX){h*=MAX/w;w=MAX;}canvas.width=w;canvas.height=h;canvas.getContext('2d').drawImage(img,0,0,w,h);updateBgImg(canvas.toDataURL('image/jpeg',0.7));};img.src=e.target.result;};r.readAsDataURL(file);}
 
@@ -1502,14 +1579,16 @@ function updateBgImg(v){const p=cur();p.bgImg=v;if(v)p.bgMode='photo';saveAndRen
 function tickClock(){
   const p=cur();const el=document.getElementById('clock-display');if(!el)return;
   const show=p.showClock!==false;el.style.display=show?'flex':'none';if(!show)return;
-  const now=new Date();const use12=(p.clockFormat||'24')==='12';const color=p.clockColor||'#ffffff';
-  const sz=p.clockSize||'m';const spx=sz==='s'?'0.75rem':sz==='l'?'1.4rem':'1.05rem';const dpx=sz==='s'?'0.5rem':sz==='l'?'0.75rem':'0.6rem';
+  const now=new Date();const use12=(p.clockFormat||'24')==='12';const color=p.clockColor||'#ffffff',dcolor=p.clockDateColor||color;
+  const sz=p.clockSize||'m';const spx=sz==='s'?'0.75rem':sz==='l'?'1.4rem':'1.05rem';const dpx=DATE_SIZES[dateSizeKey(p.clockDateSize,p.clockSize)][1];
   let hh=now.getHours();let ap='';if(use12){ap=hh>=12?' PM':' AM';hh=hh%12||12;}
   const ts=(p.clockSeconds!==false)?`${String(hh).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}${ap}`:`${String(hh).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}${ap}`;
   const te=document.getElementById('clock-time'),de=document.getElementById('clock-date');
   const fnt=fontStack(p.clockFont);
-  te.textContent=ts;te.style.color=color;te.style.fontSize=spx;te.style.fontFamily=fnt;de.style.fontFamily=fnt;
-  const sd=p.clockShowDate!==false;de.style.display=sd?'block':'none';de.style.color=color;de.style.fontSize=dpx;
+  const cq=fstyleParts(p.clockFontStyle,'clock'),cm=fsizeMult(p.clockFontSize),dq=fstyleParts(p.clockDateFontStyle,'cdate'),dm=fsizeMult(p.clockDateFontSize);
+  te.textContent=ts;te.style.color=color;te.style.fontSize=`calc(${spx} * ${cm})`;te.style.fontFamily=fnt;de.style.fontFamily=fontStack(p.clockDateFont);
+  te.style.fontWeight=cq.w;te.style.fontStyle=cq.i?'italic':'normal';de.style.fontWeight=dq.w;de.style.fontStyle=dq.i?'italic':'normal';
+  const sd=p.clockShowDate!==false;de.style.display=sd?'block':'none';de.style.color=dcolor;de.style.fontSize=`calc(${dpx} * ${dm})`;
   if(sd){const fmt=p.clockDateFmt||'long';const n=now;
     if(fmt==='long')de.textContent=n.toLocaleDateString('en',{weekday:'long',month:'long',day:'numeric'});
     else if(fmt==='long-year')de.textContent=n.toLocaleDateString('en',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
