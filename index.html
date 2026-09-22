@@ -106,7 +106,7 @@ body.page-ready{opacity:1}
 #overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:1000;backdrop-filter:blur(5px)}
 .setting-block{margin-bottom:0;padding:1.6rem 0;border-bottom:1px solid var(--modal-accent-border,rgba(var(--accent-rgb,0,212,255),0.15))}
 .setting-block:last-of-type{border-bottom:none}
-input,select{background:#111;border:1px solid #222;color:white;padding:0 10px;border-radius:6px;width:100%;font-size:0.82rem;height:34px}
+input,select{background:#111;border:1px solid #222;color:white;padding:0 10px;border-radius:6px;width:100%;font-size:0.82rem;height:34px;line-height:32px}
 input:focus,select:focus{outline:none;border-color:var(--modal-accent,#00d4ff)}
 .size-group{display:flex;gap:4px;background:#111;padding:4px;border-radius:8px;border:1px solid #222;margin-bottom:14px}
 .size-btn{flex:1;height:30px;border-radius:5px;border:none;background:transparent;color:#555;cursor:pointer;transition:0.2s;font-weight:700;font-size:0.78rem}
@@ -125,7 +125,7 @@ input[type="checkbox"]{width:14px!important;height:14px!important;margin:0;curso
 input[type="color"]{width:34px!important;height:26px!important;padding:2px 3px!important;border:1px solid #333!important;border-radius:5px!important;background:#111!important;cursor:pointer;flex-shrink:0}
 .btn-icon{background:transparent;border:1px solid #2a2a2a;border-radius:4px;color:#555;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.6rem;transition:0.15s;padding:0 6px;width:auto}
 .btn-icon:hover{border-color:#444;color:#ccc;background:#1a1a1a}
-.select-inline{width:148px!important;height:28px!important;font-size:0.78rem!important;padding:0 6px!important;flex-shrink:0}
+.select-inline{width:148px!important;height:28px!important;line-height:26px!important;font-size:0.78rem!important;padding:0 6px!important;flex-shrink:0}
 .flex-row input,div[style*="display:flex"]>input{width:auto!important}
 .ql-row{display:flex;gap:5px;align-items:center;margin-bottom:0;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,0.25)}
 .ql-row:last-child{border-bottom:none}
@@ -155,7 +155,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 #weather-area{font-family:var(--weather-font,'Inter',system-ui,sans-serif)}
 /* font pickers (same control everywhere) */
 .font-field{display:flex;align-items:center;gap:4px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end}
-.font-field select{width:auto!important;height:28px!important;font-size:0.76rem!important;padding:0 4px!important}
+.font-field select{width:auto!important;height:28px!important;line-height:26px!important;font-size:0.76rem!important;padding:0 4px!important}
 .font-field select[data-k="style"]{width:88px!important}.font-field select[data-k="size"]{width:76px!important}
 /* custom font-name dropdown: native <select> options can't be styled per-font on every browser (Firefox in particular
    ignores font-family on <option>), so the real <select> is kept (hidden) purely as the value store / onchange hook,
@@ -193,13 +193,13 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 .inl-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px 26px;margin-bottom:12px}
 .inl{display:flex;align-items:center;gap:8px}
 .inl>span{font-size:0.8rem;color:#bbb;white-space:nowrap}
-.inl select{width:auto;height:28px;font-size:0.78rem;padding:0 6px}
+.inl select{width:auto;height:28px;line-height:26px;font-size:0.78rem;padding:0 6px}
 .inl-row .label-inline{margin:0}
 .font-all-btn{height:28px;gap:4px;white-space:nowrap;font-size:0.68rem;font-weight:700;padding:0 8px;color:var(--modal-accent,#00d4ff);border-color:var(--modal-accent-border,#00d4ff44)}
 .font-all-btn:hover{background:rgba(var(--accent-rgb,0,212,255),0.12)}
 .link-font-row{display:flex;align-items:center;gap:6px;margin-top:2px}
 .link-font-row>span{font-size:0.72rem;color:#888}
-.link-font-row .font-field select{height:24px!important;font-size:0.72rem!important}
+.link-font-row .font-field select{height:24px!important;line-height:22px!important;font-size:0.72rem!important}
 .link-font-row .font-field select[data-k="style"]{width:82px!important}.link-font-row .font-field select[data-k="size"]{width:70px!important}
 .link-font-row .font-all-btn{height:24px}
 #search-input::placeholder{color:rgba(255,255,255,0.25)}
@@ -629,13 +629,13 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
     <label class="label-inline"><input type="checkbox" id="cpop-seconds" onchange="clockPopChange()"> Seconds</label>
     <label class="label-inline"><input type="checkbox" id="cpop-date" onchange="clockPopChange()"> Show Date</label>
     <div style="display:grid;grid-template-columns:auto 1fr;gap:6px 10px;align-items:center;margin-top:4px;">
-      <span style="font-size:0.75rem;color:#888;">Clock size</span><select id="cpop-size" onchange="clockPopChange()" style="height:26px;font-size:0.75rem;padding:0 6px;"><option value="s">Small</option><option value="m">Medium</option><option value="l">Large</option></select>
-      <span style="font-size:0.75rem;color:#888;">Format</span><select id="cpop-format" onchange="clockPopChange()" style="height:26px;font-size:0.75rem;padding:0 6px;"><option value="24">24h</option><option value="12">12h AM/PM</option></select>
+      <span style="font-size:0.75rem;color:#888;">Clock size</span><select id="cpop-size" onchange="clockPopChange()" style="height:26px;line-height:24px;font-size:0.75rem;padding:0 6px;"><option value="s">Small</option><option value="m">Medium</option><option value="l">Large</option></select>
+      <span style="font-size:0.75rem;color:#888;">Format</span><select id="cpop-format" onchange="clockPopChange()" style="height:26px;line-height:24px;font-size:0.75rem;padding:0 6px;"><option value="24">24h</option><option value="12">12h AM/PM</option></select>
       <span id="cpop-datefmt-label" style="font-size:0.75rem;color:#888;">Date Fmt</span>
-      <select id="cpop-datefmt" onchange="clockPopChange()" style="height:26px;font-size:0.75rem;padding:0 6px;">
+      <select id="cpop-datefmt" onchange="clockPopChange()" style="height:26px;line-height:24px;font-size:0.75rem;padding:0 6px;">
         <option value="long">Monday, January 1</option><option value="long-year">Monday, January 1, 2026</option><option value="short">Mon, Jan 1</option><option value="medium">January 1, 2026</option><option value="dmy">DD-MM-YYYY</option><option value="mdy">MM-DD-YYYY</option><option value="iso">YYYY-MM-DD</option>
       </select>
-      <span id="cpop-dsize-label" style="font-size:0.75rem;color:#888;">Date size</span><select id="cpop-dsize" onchange="clockPopChange()" style="height:26px;font-size:0.75rem;padding:0 6px;"><option value="small">Small</option><option value="normal">Normal</option><option value="big">Big</option></select>
+      <span id="cpop-dsize-label" style="font-size:0.75rem;color:#888;">Date size</span><select id="cpop-dsize" onchange="clockPopChange()" style="height:26px;line-height:24px;font-size:0.75rem;padding:0 6px;"><option value="small">Small</option><option value="normal">Normal</option><option value="big">Big</option></select>
     </div>
   </div>
 </div>
@@ -657,8 +657,8 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
   <label class="label-inline"><input type="checkbox" id="wpop-day" onchange="wxPopChange()"> Show Day</label>
   <label class="label-inline"><input type="checkbox" id="wpop-date" onchange="wxPopChange()"> Show Date</label>
   <div style="display:grid;grid-template-columns:auto 1fr;gap:6px 10px;align-items:center;margin-top:4px;margin-bottom:10px;">
-    <span style="font-size:0.75rem;color:#888;">Size</span><select id="wpop-size" onchange="wxPopChange()" style="height:26px;font-size:0.75rem;padding:0 6px;"><option value="s">Small</option><option value="m">Medium</option><option value="l">Large</option></select>
-    <span style="font-size:0.75rem;color:#888;">Icons</span><select id="wpop-icons" onchange="wxPopChange()" style="height:26px;font-size:0.75rem;padding:0 6px;"><option value="colored">Colored</option><option value="solid">Solid</option></select>
+    <span style="font-size:0.75rem;color:#888;">Size</span><select id="wpop-size" onchange="wxPopChange()" style="height:26px;line-height:24px;font-size:0.75rem;padding:0 6px;"><option value="s">Small</option><option value="m">Medium</option><option value="l">Large</option></select>
+    <span style="font-size:0.75rem;color:#888;">Icons</span><select id="wpop-icons" onchange="wxPopChange()" style="height:26px;line-height:24px;font-size:0.75rem;padding:0 6px;"><option value="colored">Colored</option><option value="solid">Solid</option></select>
   </div>
   <div class="pop-title" style="margin-bottom:6px;">Locations</div>
   <div id="city-list-manager" style="margin-bottom:0.8rem;max-height:120px;overflow-y:auto;padding-right:4px;"></div>
