@@ -359,6 +359,10 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
           </div>
         </div>
         <div class="s-card">
+          <div class="s-title">Global Font</div>
+          <div class="inl-row"><div class="inl"><span>Font</span><select id="ff-global" onchange="applyGlobalFont(this.value)"></select></div></div>
+        </div>
+        <div class="s-card">
           <div class="s-title">Links</div>
           <div class="inl-row"><div class="inl"><span>Open Links On</span><select id="target-mode" onchange="updateVis()"><option value="_self">Current Tab</option><option value="_blank">New Tab</option></select></div></div>
         </div>
@@ -655,7 +659,7 @@ const SYS_FONTS=['Inter'];                       // Inter falls back to the syst
 const FONT_WGHT={'Bebas Neue':''};              // families that only ship one weight
 const fontName=f=>FONTS.includes(f)?f:'Inter';
 const fontStack=f=>`'${fontName(f)}',system-ui,sans-serif`;
-const fontOpts=cur=>FONTS.map(f=>`<option value="${f}"${f===fontName(cur)?' selected':''}>${f}</option>`).join('');
+const fontOpts=cur=>FONTS.map(f=>`<option value="${f}"${f===fontName(cur)?' selected':''} style="font-family:'${f}',system-ui,sans-serif">${f}</option>`).join('');
 // Style and size. Every field has an explicit style; the starting one depends on the kind of field.
 const FSTYLES={normal:'Normal',bold:'Bold',italic:'Italic',bolditalic:'Bold Italic'};
 const FSTYLE_DEF={cat:'bold',link:'normal',clock:'bold',cdate:'normal',weather:'normal'};   // categories & clock bold, links & date normal
@@ -700,6 +704,8 @@ function migrateFonts(p){
 const _cap=k=>k[0].toUpperCase()+k.slice(1);
 [['cat',k=>`updateCatFont('${k}',this.value)`],['clock',k=>`updateSimpleFont('clock${_cap(k)}',this.value)`],['cdate',k=>`updateSimpleFont('clockDate${_cap(k)}',this.value)`],['search',k=>`updateSimpleFont('search${_cap(k)}',this.value)`,true],['weather',k=>`updateSimpleFont('weather${_cap(k)}',this.value)`]]
   .forEach(([idp,oc,fo])=>{const e=document.getElementById('ff-'+idp);if(e)e.innerHTML=fontFieldHTML(idp,idp,{},oc,fo);});
+{const g=document.getElementById('ff-global');if(g)g.innerHTML=fontOpts('Inter');}
+function applyGlobalFont(v){const f=fontName(v),p=cur();p.categories.forEach(c=>{c.font=f;c.links.forEach(l=>{l.font=f;});});p.clockFont=p.clockDateFont=p.searchFont=p.weatherFont=f;saveAndRender();tickClock();renderSettings();}
 const UNSPLASH_KEY='j4U9kk58zkrYs3pTo9GWn-peKYzEriWcOnbNJPRUHjM';
 // Each entry: [query, collections/topics hint]
 // We pick one query at random per fetch so results vary over time
@@ -1455,7 +1461,7 @@ async function updateWeather(){
 }
 
 function toggleWxStyle(t){const p=cur();if(t==='colored'){p.wColored=true;document.getElementById('w-solid').checked=false;}else{p.wColored=false;document.getElementById('w-colored').checked=false;}updateVis();}
-function openModal(id){const el=document.getElementById(id);el.style.display=id==='settings-modal'?'flex':'block';document.getElementById('overlay').style.display='block';if(id==='settings-modal')renderSettings();}
+function openModal(id){const el=document.getElementById(id);el.style.display=id==='settings-modal'?'flex':'block';document.getElementById('overlay').style.display='block';if(id==='settings-modal'){FONTS.forEach(ensureFont);renderSettings();}}
 function closeModals(){hideCatUndo();document.querySelectorAll('.modal').forEach(m=>m.style.display='none');document.getElementById('overlay').style.display='none';}
 function showPanel(id,nav){document.querySelectorAll('.settings-panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.settings-nav-item').forEach(n=>n.classList.remove('active'));const panel=document.getElementById('panel-'+id);if(panel)panel.classList.add('active');if(nav)nav.classList.add('active');const c=document.getElementById('settings-content');if(c)c.scrollTop=0;}
 
