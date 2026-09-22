@@ -156,7 +156,22 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 /* font pickers (same control everywhere) */
 .font-field{display:flex;align-items:center;gap:4px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end}
 .font-field select{width:auto!important;height:28px!important;font-size:0.76rem!important;padding:0 4px!important}
-.font-field select[data-k="font"]{width:122px!important}.font-field select[data-k="style"]{width:88px!important}.font-field select[data-k="size"]{width:76px!important}
+.font-field select[data-k="style"]{width:88px!important}.font-field select[data-k="size"]{width:76px!important}
+/* custom font-name dropdown: native <select> options can't be styled per-font on every browser (Firefox in particular
+   ignores font-family on <option>), so the real <select> is kept (hidden) purely as the value store / onchange hook,
+   and this button+menu pair is what's actually shown, with each entry rendered in its own font. */
+.font-dd{position:relative;flex-shrink:0}
+.font-dd select{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.font-dd-btn{display:flex;align-items:center;justify-content:space-between;gap:6px;width:122px;height:28px;padding:0 8px;border-radius:6px;border:1px solid #222;background:#111;color:#fff;cursor:pointer;font-size:0.76rem}
+.font-dd-btn:hover{border-color:#333}
+.font-dd-btn i{font-size:0.6rem;opacity:0.5;flex-shrink:0}
+.font-dd-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;text-align:left}
+.font-dd-menu{display:none;position:fixed;z-index:4000;background:#0e0e0e;border:1px solid var(--modal-accent-border,#00d4ff33);border-radius:10px;padding:4px;box-shadow:0 8px 28px rgba(0,0,0,0.7);min-width:150px;max-height:260px;overflow-y:auto;overflow-x:hidden;box-sizing:border-box;scrollbar-width:thin;scrollbar-color:#333 transparent}
+.font-dd-menu.open{display:block}
+.font-dd-option{padding:7px 10px;border-radius:6px;cursor:pointer;font-size:0.85rem;color:#aaa;transition:background 0.1s,color 0.1s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.font-dd-option:hover{background:rgba(255,255,255,0.06);color:#fff}
+.font-dd-option.active{color:var(--modal-accent,#00d4ff)}
+.link-font-row .font-dd-btn{width:112px;height:24px;font-size:0.72rem}
 /* text-style override on the weather widget (data-fstyle). Icons (<i>) are excluded so Font Awesome keeps its weight. */
 [data-fstyle="normal"],[data-fstyle="normal"] :not(i){font-weight:400!important;font-style:normal!important}
 [data-fstyle="bold"],[data-fstyle="bold"] :not(i){font-weight:700!important;font-style:normal!important}
@@ -185,7 +200,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 .link-font-row{display:flex;align-items:center;gap:6px;margin-top:2px}
 .link-font-row>span{font-size:0.72rem;color:#888}
 .link-font-row .font-field select{height:24px!important;font-size:0.72rem!important}
-.link-font-row .font-field select[data-k="font"]{width:112px!important}.link-font-row .font-field select[data-k="style"]{width:82px!important}.link-font-row .font-field select[data-k="size"]{width:70px!important}
+.link-font-row .font-field select[data-k="style"]{width:82px!important}.link-font-row .font-field select[data-k="size"]{width:70px!important}
 .link-font-row .font-all-btn{height:24px}
 #search-input::placeholder{color:rgba(255,255,255,0.25)}
 .se-dropdown{position:relative;flex-shrink:0}
@@ -360,7 +375,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
         </div>
         <div class="s-card">
           <div class="s-title">Global Font</div>
-          <div class="inl-row"><div class="inl"><span>Font</span><select id="ff-global" onchange="applyGlobalFont(this.value)"></select></div></div>
+          <div class="inl-row"><div class="inl"><span>Font</span><div id="ff-global-holder"></div></div></div>
         </div>
         <div class="s-card">
           <div class="s-title">Links</div>
@@ -660,6 +675,45 @@ const FONT_WGHT={'Bebas Neue':''};              // families that only ship one w
 const fontName=f=>FONTS.includes(f)?f:'Inter';
 const fontStack=f=>`'${fontName(f)}',system-ui,sans-serif`;
 const fontOpts=cur=>FONTS.map(f=>`<option value="${f}"${f===fontName(cur)?' selected':''} style="font-family:'${f}',system-ui,sans-serif">${f}</option>`).join('');
+// Custom font-name dropdown: a real <select> (hidden, data-k="font") stays the source of truth so every
+// existing onchange/.value/querySelector hook keeps working; the visible button+menu is what the user
+// actually sees, with every option rendered in its own font — this works the same on every browser, unlike
+// styling native <option> elements (Firefox in particular won't show per-option font-family previews).
+let _fddSeq=0;
+function fontDDHTML(fid,curFont,onchangeAttr){
+  const cf=fontName(curFont);
+  const opts=FONTS.map(f=>`<div class="font-dd-option${f===cf?' active':''}" data-value="${f}" style="font-family:'${f}',system-ui,sans-serif" onclick="selectFontDD('${fid}','${f}')">${f}</div>`).join('');
+  return `<div class="font-dd">`+
+    `<select id="${fid}" data-k="font" tabindex="-1" onchange="${onchangeAttr}">${fontOpts(curFont)}</select>`+
+    `<button type="button" class="font-dd-btn" onclick="toggleFontDD(event,'${fid}')" title="Font"><span class="font-dd-label" style="font-family:'${cf}',system-ui,sans-serif">${cf}</span><i class="fa-solid fa-chevron-down"></i></button>`+
+    `<div class="font-dd-menu" id="${fid}-menu">${opts}</div>`+
+  `</div>`;
+}
+let _fddOpen=null;
+function closeAllFontDD(){document.querySelectorAll('.font-dd-menu.open').forEach(m=>m.classList.remove('open'));_fddOpen=null;}
+function toggleFontDD(e,fid){
+  e.stopPropagation();
+  const menu=document.getElementById(fid+'-menu');if(!menu)return;
+  const wasOpen=menu.classList.contains('open');
+  closeAllFontDD();
+  if(wasOpen)return;
+  FONTS.forEach(ensureFont);   // make sure every preview actually renders in its real font, not the fallback
+  const r=e.currentTarget.getBoundingClientRect();
+  menu.style.left=Math.min(r.left,window.innerWidth-160)+'px';
+  menu.style.top=(r.bottom+4)+'px';
+  menu.classList.add('open');_fddOpen=fid;
+}
+document.addEventListener('click',e=>{if(_fddOpen&&!e.target.closest('.font-dd'))closeAllFontDD();});
+function syncFontDDLabel(sel){
+  const f=fontName(sel.value),box=sel.parentElement;if(!box)return;
+  const lbl=box.querySelector('.font-dd-label');if(lbl){lbl.textContent=f;lbl.style.fontFamily=`'${f}',system-ui,sans-serif`;}
+  const menu=box.querySelector('.font-dd-menu');if(menu)menu.querySelectorAll('.font-dd-option').forEach(o=>o.classList.toggle('active',o.dataset.value===f));
+  ensureFont(f);
+}
+function selectFontDD(fid,f){
+  const sel=document.getElementById(fid);if(!sel)return;
+  sel.value=f;sel.dispatchEvent(new Event('change'));syncFontDDLabel(sel);closeAllFontDD();
+}
 // Style and size. Every field has an explicit style; the starting one depends on the kind of field.
 const FSTYLES={normal:'Normal',bold:'Bold',italic:'Italic',bolditalic:'Bold Italic'};
 const FSTYLE_DEF={cat:'bold',link:'normal',clock:'bold',cdate:'normal',weather:'normal'};   // categories & clock bold, links & date normal
@@ -680,12 +734,13 @@ const kindOfKey=k=>/^clockDate/.test(k)?'cdate':/^clock/.test(k)?'clock':/^weath
 // kind = which field it belongs to (decides the default style); idp = id prefix for the static ones.
 function fontFieldHTML(kind,idp,vals,onchange,fontOnly){
   const id=k=>idp?` id="${idp}-${k}"`:'';
-  return `<select${id('font')} data-k="font" title="Font" onchange="${onchange('font')}">${fontOpts(vals.font)}</select>`+
+  const fid=idp?`${idp}-font`:`fdd-${++_fddSeq}`;
+  return fontDDHTML(fid,vals.font,onchange('font'))+
     (fontOnly?'':`<select${id('fstyle')} data-k="style" title="Style" onchange="${onchange('fontStyle')}">${fstyleOpts(vals.fontStyle,kind)}</select>`+
     `<select${id('fsize')} data-k="size" title="Size" onchange="${onchange('fontSize')}">${fsizeOpts(vals.fontSize)}</select>`)+
     `<button class="btn-icon font-all-btn" onclick="applyFontEverywhere(this.parentElement)" title="Use this font in every field of this profile: all categories, all links, clock, date, search and weather (style and size are not changed)"><i class="fa-solid fa-clone"></i> All</button>`;
 }
-function syncFontField(idp,font,st,sz){const g=k=>document.getElementById(idp+'-'+k);if(g('font'))g('font').value=fontName(font);if(g('fstyle'))g('fstyle').value=fstyleName(st,idp);if(g('fsize'))g('fsize').value=fsizeName(sz);}
+function syncFontField(idp,font,st,sz){const g=k=>document.getElementById(idp+'-'+k);const gf=g('font');if(gf){gf.value=fontName(font);syncFontDDLabel(gf);}if(g('fstyle'))g('fstyle').value=fstyleName(st,idp);if(g('fsize'))g('fsize').value=fsizeName(sz);}
 // the date now has its own size and color; existing setups start with the clock's
 // Date sizes: Small is the date's usual look, then Normal and Big. Old saved values (s/m/l shared the clock's scale) are converted.
 const DATE_SIZES={small:['Small','0.6rem'],normal:['Normal','0.8rem'],big:['Big','1.05rem']};
@@ -704,7 +759,7 @@ function migrateFonts(p){
 const _cap=k=>k[0].toUpperCase()+k.slice(1);
 [['cat',k=>`updateCatFont('${k}',this.value)`],['clock',k=>`updateSimpleFont('clock${_cap(k)}',this.value)`],['cdate',k=>`updateSimpleFont('clockDate${_cap(k)}',this.value)`],['search',k=>`updateSimpleFont('search${_cap(k)}',this.value)`,true],['weather',k=>`updateSimpleFont('weather${_cap(k)}',this.value)`]]
   .forEach(([idp,oc,fo])=>{const e=document.getElementById('ff-'+idp);if(e)e.innerHTML=fontFieldHTML(idp,idp,{},oc,fo);});
-{const g=document.getElementById('ff-global');if(g)g.innerHTML=fontOpts('Inter');}
+{const g=document.getElementById('ff-global-holder');if(g)g.innerHTML=fontDDHTML('ff-global','Inter',"applyGlobalFont(this.value)");}
 function applyGlobalFont(v){const f=fontName(v),p=cur();p.categories.forEach(c=>{c.font=f;c.links.forEach(l=>{l.font=f;});});p.clockFont=p.clockDateFont=p.searchFont=p.weatherFont=f;saveAndRender();tickClock();renderSettings();}
 const UNSPLASH_KEY='j4U9kk58zkrYs3pTo9GWn-peKYzEriWcOnbNJPRUHjM';
 // Each entry: [query, collections/topics hint]
