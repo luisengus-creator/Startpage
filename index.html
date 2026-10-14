@@ -29,8 +29,9 @@ body.page-ready{opacity:1}
 #main-content{flex-grow:1;display:flex;align-items:center;justify-content:center;width:100%;overflow:hidden;padding:1vh}
 #grid{display:grid;grid-auto-flow:column;grid-auto-columns:auto;gap:calc(1.2rem * var(--scale) * var(--density-mod));justify-content:center;align-items:center;width:fit-content;max-width:100%;opacity:0;transition:none}
 .scaling-finished #grid{opacity:1;transition:opacity 0.15s ease}
-.column{--card-on:min(1,calc(var(--card-opacity,0.1) * 1000));background-color:rgba(var(--card-rgb),calc(var(--card-opacity,0.1) * var(--card-solid,1)));background-image:var(--card-img,none);background-origin:border-box;background-repeat:no-repeat;border-radius:var(--widget-radius);padding:calc(1.2rem * var(--scale) * var(--density-mod));position:relative;border:none;backdrop-filter:blur(calc(12px * var(--card-on)));text-align:center;width:auto;min-width:calc(160px * var(--scale) * var(--density-mod));overflow:hidden;transition:background 0.2s,box-shadow 0.2s}
-.column:hover{box-shadow:inset 0 0 0 100vmax rgba(255,255,255,calc(0.09 * var(--card-opacity,0.5)))}
+.column{--card-on:min(1,calc(var(--card-opacity,0.1) * 1000));background-color:rgba(var(--card-rgb),calc(var(--card-opacity,0.1) * var(--card-solid,1)));background-image:var(--card-img,none);background-origin:border-box;background-repeat:no-repeat;border-radius:var(--widget-radius);padding:calc(1.2rem * var(--scale) * var(--density-mod));position:relative;border:none;box-shadow:0 8px 24px rgba(0,0,0,calc(0.18 * var(--card-on)));backdrop-filter:blur(calc(12px * var(--card-on)));text-align:center;width:auto;min-width:calc(160px * var(--scale) * var(--density-mod));overflow:hidden;transition:background 0.2s,box-shadow 0.3s,transform 0.3s cubic-bezier(.2,.7,.2,1)}
+.column:hover{transform:translateY(-2px);box-shadow:inset 0 0 0 100vmax rgba(255,255,255,calc(0.09 * var(--card-opacity,0.5))),0 14px 32px rgba(0,0,0,calc(0.26 * var(--card-on)))}
+.edit-mode .column:hover{transform:none}
 .edit-mode .column{overflow:visible}
 .edit-overlay{display:none;position:absolute;inset:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(2px);z-index:10;align-items:center;justify-content:center;border-radius:4px}
 .edit-mode .edit-overlay{display:flex}
@@ -39,13 +40,38 @@ body.page-ready{opacity:1}
 .chrome-overlay{display:none;position:absolute;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(2px);z-index:20;align-items:center;justify-content:center;border-radius:var(--widget-radius)}
 .edit-mode .chrome-overlay{display:flex}
 .cat-del-btn,.col-edit-overlay,.link-edit-overlay,.col-del-btn,.link-del-btn,.del-btn{display:none!important}
-.cat-title-row{margin:0 0 calc(1rem * var(--scale) * var(--density-mod)) 0}
+.cat-title-row{margin:0 0 calc(1.2rem * var(--scale) * var(--density-mod)) 0}
 @keyframes accent-shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
-.cat-title{border-bottom:2px solid rgba(255,255,255,0.1);background-size:200% auto;transition:border-color 0.3s;margin:0;font-size:calc(1.3rem * var(--scale) * var(--density-mod) * var(--fsz,1));font-weight:700;padding-bottom:calc(10px * var(--scale) * var(--density-mod));white-space:nowrap;cursor:pointer;text-decoration:none;display:block}
-.column:hover .cat-title{border-bottom:2px solid transparent;border-image:linear-gradient(90deg,transparent,var(--cat-accent,#00d4ff),transparent) 1;animation:accent-shimmer 2s linear infinite}
+.cat-title{position:relative;margin:0;font-size:calc(1.3rem * var(--scale) * var(--density-mod) * var(--fsz,1));font-weight:700;padding-bottom:calc(10px * var(--scale) * var(--density-mod));white-space:nowrap;cursor:pointer;text-decoration:none;display:block;text-align:center}
+.cat-title::after{content:'';position:absolute;left:0;right:0;bottom:0;height:var(--line,3px);border-radius:3px;background:linear-gradient(90deg,var(--cat-accent,#00d4ff),var(--cat-accent2,var(--cat-accent,#00d4ff)))}
+.al-group{display:flex;gap:4px;background:#111;padding:4px;border-radius:8px;border:1px solid #222}
+.al-btn{flex:1;height:30px;border-radius:5px;border:none;background:transparent;color:#555;cursor:pointer;transition:0.2s;font-size:0.8rem}
+.al-btn.active{background:var(--modal-accent,#00d4ff);color:var(--accent-text,#000)}
+.link-al-group{display:flex;gap:2px;align-items:center}
+.link-al-group .icon-size-btn{height:26px;padding:0 7px;display:inline-flex;align-items:center;justify-content:center}
+.line-ico{display:block;width:12px;background:currentColor;border-radius:1px}
+.row-end{width:28px;height:28px;flex:none;padding:0;display:flex;align-items:center;justify-content:center}
+.editor-link-row{position:relative}
+.editor-link-row>.drag-handle{position:absolute;left:-14px;top:17px;padding:0 2px}
+.font-revert-btn{height:28px}
+.font-revert-btn[disabled]{opacity:0.3;cursor:default;pointer-events:none}
+.link-font-row{flex-wrap:wrap}
+.link-font-row .font-field{flex:1;min-width:0;justify-content:flex-start}
+.link-font-row .font-revert-btn{margin-left:auto}
+.eye-toggle{display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:6px;background:#111;border:1px solid #222;color:#666;cursor:pointer;font-size:0.8rem;margin:0;flex-shrink:0;transition:0.2s}
+.eye-toggle:hover{color:#bbb}
+.eye-toggle input{display:none}
+.eye-toggle .fa-eye-slash{display:none}
+.eye-toggle input:not(:checked)~.fa-eye{display:none}
+.eye-toggle input:not(:checked)~.fa-eye-slash{display:inline-block}
+.eye-toggle:has(input:checked){color:var(--modal-accent,#00d4ff);border-color:var(--modal-accent-border,#00d4ff44)}
+#panel-categories .size-group,#panel-categories .al-group{padding:2px;gap:2px;border-radius:6px;margin:0;width:auto;flex:none}
+#panel-categories .size-btn,#panel-categories .al-btn{flex:none;min-width:34px;height:24px;padding:0 8px;border-radius:4px;font-size:0.7rem}
+#panel-categories .bd-style-row .size-group{width:auto}
 .cat-title.hidden-header{display:none}
+.cat-title.no-line::after{display:none}
 .column.dragging{opacity:0.4}
-.column.drag-over{outline:2px dashed var(--modal-accent,#00d4ff);outline-offset:2px}
+.column.drag-over{outline:2px dashed var(--cat-accent,var(--modal-accent,#00d4ff));outline-offset:2px}
 .drag-handle{cursor:grab;opacity:0.35;font-size:0.65rem;padding:0 4px;flex-shrink:0}
 .drag-handle:hover{opacity:0.8}
 .drag-handle:active{cursor:grabbing}
@@ -53,8 +79,15 @@ body.page-ready{opacity:1}
 .editor-link-row.drag-over{border-top:2px solid var(--modal-accent,#00d4ff)}
 .city-item.drag-over{border-top:2px solid var(--modal-accent,#00d4ff)}
 .link-row{display:grid;grid-template-columns:1fr auto;align-items:center;white-space:nowrap;position:relative}
-.link-row a{text-decoration:none;transition:0.2s;font-size:calc(1rem * var(--scale) * var(--density-mod) * var(--fsz,1));padding:calc(0.5rem * var(--scale) * var(--density-mod)) calc(0.8rem * var(--scale) * var(--density-mod));text-align:center}
-.link-row a:hover{opacity:0.65}
+.link-row a{text-decoration:none;transition:0.2s;font-size:calc(1rem * var(--scale) * var(--density-mod) * var(--fsz,1) * var(--lm,1));padding:calc(0.42rem * var(--scale) * var(--density-mod) * var(--lm,1)) calc(0.8rem * var(--scale) * var(--density-mod) * var(--lm,1));text-align:center;border-radius:calc(var(--widget-radius) * 0.5);transition:transform 0.2s ease,background 0.2s ease,opacity 0.2s}
+.link-row a:hover{background:color-mix(in srgb,var(--cat-accent,#fff) 12%,transparent);transform:translateX(4px)}
+.link-row a[data-al="right"]:hover{transform:translateX(-4px)}
+.link-row a[data-al="center"]:hover{transform:scale(1.04)}
+.link-row a:focus-visible{outline:2px solid var(--cat-accent,#fff);outline-offset:2px}
+.column ::selection{background:color-mix(in srgb,var(--cat-accent,#00d4ff) 40%,transparent)}
+@keyframes col-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+#grid.intro .column{animation:col-in 0.55s cubic-bezier(.2,.7,.2,1) backwards;animation-delay:calc(var(--i,0) * 70ms)}
+@media (prefers-reduced-motion:reduce){#grid.intro .column{animation:none}.column:hover,.link-row a:hover{transform:none!important}}
 .link-icon{object-fit:contain;border-radius:3px;flex-shrink:0;margin-right:0.35rem;vertical-align:middle;display:inline-block;position:relative;top:-0.05em}
 .link-row a.icon-only .link-icon{margin-right:0}
 .link-row a.icon-only .link-label{display:none}
@@ -201,7 +234,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 .link-font-row>span{font-size:0.72rem;color:#888}
 .link-font-row .font-field select{height:26px!important;line-height:24px!important;font-size:0.72rem!important}
 .link-font-row .font-field select[data-k="style"]{width:82px!important}.link-font-row .font-field select[data-k="size"]{width:70px!important}
-.link-font-row .font-all-btn{height:26px}
+.link-font-row .font-all-btn,.link-font-row .font-revert-btn{height:26px}
 #search-input::placeholder{color:rgba(255,255,255,0.25)}
 .se-dropdown{position:relative;flex-shrink:0}
 .se-current{display:flex;align-items:center;gap:4px;height:28px;padding:0 6px;border-radius:var(--search-radius);border:none;background:transparent;color:rgba(255,255,255,0.6);cursor:pointer;font-size:0.72rem;white-space:nowrap;transition:border-color 0.15s}
@@ -410,17 +443,14 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
         <input type="hidden" id="cat-sel" value="">
         <div id="cat-pane">
         <div class="s-card" style="margin-top:14px;"><div class="s-title">Category</div>
-        <div class="flex-row" style="margin-bottom:8px;align-items:center;">
-          <input type="text" id="cat-title" oninput="updateCat('text')" onblur="saveAndRender()" placeholder="Title">
+        <div class="flex-row" style="margin-bottom:8px;align-items:center;gap:6px;">
+          <label class="eye-toggle" title="Show / hide the category header"><input type="checkbox" id="header-vis-check" onchange="updateCatHeader()"><i class="fa-solid fa-eye"></i><i class="fa-solid fa-eye-slash"></i></label>
+          <input type="text" id="cat-title" oninput="updateCat('text')" onblur="saveAndRender()" placeholder="Title" style="flex:1;min-width:0;">
+          <input type="text" id="cat-url" oninput="updateCat('text')" onblur="saveAndRender()" placeholder="Header URL (optional)" style="flex:1.3;min-width:0;">
           <div class="color-field"><input type="color" id="cat-color" oninput="updateCat()" style="display:none"><div class="cp-swatch" onclick="cpOpen('cat-color')"></div><button class="btn-icon" onclick="resetCatColor()"><i class="fa-solid fa-rotate-left"></i></button></div>
+          <div class="color-field" title="Second color (makes the header a gradient)"><input type="color" id="cat-color2" oninput="updateCatColor2(this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('cat-color2')"></div><button class="btn-icon" onclick="clearCatColor2()" title="Remove gradient"><i class="fa-solid fa-xmark"></i></button></div><span class="row-end"></span>
         </div>
-        <input type="text" id="cat-url" oninput="updateCat('text')" onblur="saveAndRender()" placeholder="Header URL (optional)" style="margin-bottom:10px;">
-        <label class="label-inline"><input type="checkbox" id="header-vis-check" onchange="updateCatHeader()"> Show category header</label>
-        <div class="inl-row" style="margin-top:4px;"><div class="inl"><span>Font</span><div class="font-field" id="ff-cat"></div></div></div>
-        <div class="s-field"><div class="s-lab">Size</div>
-        <div class="size-group" id="cat-size-group">
-          <button class="size-btn" id="size-s" onclick="updateCatDensity('s')">Small</button><button class="size-btn" id="size-m" onclick="updateCatDensity('m')">Medium</button><button class="size-btn" id="size-l" onclick="updateCatDensity('l')">Large</button><button class="size-btn" id="size-xl" onclick="updateCatDensity('xl')">X-Large</button>
-        </div></div>
+        <div class="link-font-row" style="margin-bottom:4px;"><span>Font</span><div class="font-field" id="ff-cat"></div></div>
         </div>
         <div class="s-card"><div class="s-title">Card Background</div>
         <div class="color-row" style="margin-bottom:4px;"><span>Opacity</span><span id="card-opacity-val" style="font-size:0.72rem;color:#888;">0%</span></div>
@@ -739,13 +769,20 @@ const cleanFontProp=(k,v,kind)=>/fontstyle$/i.test(k)?fstyleName(v,kind):/fontsi
 const kindOfKey=k=>/^clockDate/.test(k)?'cdate':/^clock/.test(k)?'clock':/^weather/.test(k)?'weather':'search';
 // One control used everywhere: [font][style][size][All]  (fontOnly: [font][All], used by the search bar).
 // kind = which field it belongs to (decides the default style); idp = id prefix for the static ones.
-function fontFieldHTML(kind,idp,vals,onchange,fontOnly){
+const _allUndo={};   // "All" undo: scope -> {pi: profile, items: [[object,{key:[hadKey,oldValue]}]]}
+function fontFieldHTML(kind,idp,vals,onchange,fontOnly,extra,allArgs){
   const id=k=>idp?` id="${idp}-${k}"`:'';
   const fid=idp?`${idp}-font`:`fdd-${++_fddSeq}`;
+  const scope=kind==='cat'?'cat':kind==='link'?'link':'global';
+  const allCall=scope==='cat'?"applyAll('cat')":scope==='link'?`applyAll('link',${allArgs})`:"applyAll('global',this.parentElement)";
+  const allTitle=scope==='cat'?'Copy this font, style, size, card size, alignment and line to every category':scope==='link'?'Copy this font, style, size and alignment to every link':'Use this font in every field of this profile: all categories, all links, clock, date, search and weather (style and size are not changed)';
+  const can=_allUndo[scope]&&_allUndo[scope].pi===state.profile;
   return fontDDHTML(fid,vals.font,onchange('font'))+
     (fontOnly?'':`<select${id('fstyle')} data-k="style" title="Style" onchange="${onchange('fontStyle')}">${fstyleOpts(vals.fontStyle,kind)}</select>`+
     `<select${id('fsize')} data-k="size" title="Size" onchange="${onchange('fontSize')}">${fsizeOpts(vals.fontSize)}</select>`)+
-    `<button class="btn-icon font-all-btn" onclick="applyFontEverywhere(this.parentElement)" title="Use this font in every field of this profile: all categories, all links, clock, date, search and weather (style and size are not changed)"><i class="fa-solid fa-clone"></i> All</button>`;
+    (extra||'')+
+    `<button class="btn-icon font-revert-btn" data-scope="${scope}" onclick="revertAll('${scope}')" title="Undo the last All"${can?'':' disabled'}><i class="fa-solid fa-rotate-left"></i></button>`+
+    `<button class="btn-icon font-all-btn" onclick="${allCall}" title="${allTitle}"><i class="fa-solid fa-clone"></i> All</button>`;
 }
 function syncFontField(idp,font,st,sz){const g=k=>document.getElementById(idp+'-'+k);const gf=g('font');if(gf){gf.value=fontName(font);syncFontDDLabel(gf);}if(g('fstyle'))g('fstyle').value=fstyleName(st,idp);if(g('fsize'))g('fsize').value=fsizeName(sz);}
 // the date now has its own size and color; existing setups start with the clock's
@@ -763,9 +800,13 @@ function migrateFonts(p){
   delete p.searchFontStyle;delete p.searchFontSize;delete p.gridFont;
 }
 // static font fields (Categories, Clock, Date, Search, Weather)
+// Categories: card size (S / M / XL) + header alignment sit on the same line as the font controls, styled like the links' alignment buttons
+const LINE_PX={s:1,m:2,l:3};   // thin / normal / thick (thick = the original look)
+const lineName=v=>v==='off'||LINE_PX[v]?v:'l';
+const CAT_EXTRA=`<div class="link-al-group" id="cat-size-group">${[['s','Small'],['m','Medium'],['xl','X-Large']].map(([d,t])=>`<button class="icon-size-btn" data-d="${d}" title="Size: ${t}" onclick="updateCatDensity('${d}')">${d.toUpperCase()}</button>`).join('')}</div><div class="link-al-group" id="cat-align-group">${['left','center','right'].map(a=>`<button class="icon-size-btn" data-al="${a}" title="Header ${a}" onclick="updateCatAlign('${a}')"><i class="fa-solid fa-align-${a}"></i></button>`).join('')}</div><div class="link-al-group" id="cat-line-group">${[['off','No line'],['s','Thin line'],['m','Normal line'],['l','Thick line']].map(([d,t])=>`<button class="icon-size-btn" data-line="${d}" title="${t}" onclick="updateCatLine('${d}')">${d==='off'?'<i class="fa-solid fa-ban" style="font-size:0.62rem"></i>':`<span class="line-ico" style="height:${LINE_PX[d]}px"></span>`}</button>`).join('')}</div>`;
 const _cap=k=>k[0].toUpperCase()+k.slice(1);
-[['cat',k=>`updateCatFont('${k}',this.value)`],['clock',k=>`updateSimpleFont('clock${_cap(k)}',this.value)`],['cdate',k=>`updateSimpleFont('clockDate${_cap(k)}',this.value)`],['search',k=>`updateSimpleFont('search${_cap(k)}',this.value)`,true],['weather',k=>`updateSimpleFont('weather${_cap(k)}',this.value)`]]
-  .forEach(([idp,oc,fo])=>{const e=document.getElementById('ff-'+idp);if(e)e.innerHTML=fontFieldHTML(idp,idp,{},oc,fo);});
+[['cat',k=>`updateCatFont('${k}',this.value)`,false,CAT_EXTRA],['clock',k=>`updateSimpleFont('clock${_cap(k)}',this.value)`],['cdate',k=>`updateSimpleFont('clockDate${_cap(k)}',this.value)`],['search',k=>`updateSimpleFont('search${_cap(k)}',this.value)`,true],['weather',k=>`updateSimpleFont('weather${_cap(k)}',this.value)`]]
+  .forEach(([idp,oc,fo,ex])=>{const e=document.getElementById('ff-'+idp);if(e)e.innerHTML=fontFieldHTML(idp,idp,{},oc,fo,ex);});
 {const g=document.getElementById('ff-global-holder');if(g)g.innerHTML=fontDDHTML('ff-global','Inter',"applyGlobalFont(this.value)");}
 function setCornerStyle(v){cur().cornerStyle=v;saveAndRender();renderSettings();}
 function applyGlobalFont(v){const f=fontName(v),p=cur();p.categories.forEach(c=>{c.font=f;c.links.forEach(l=>{l.font=f;});});p.clockFont=p.clockDateFont=p.searchFont=p.weatherFont=f;saveAndRender();tickClock();renderSettings();}
@@ -1169,13 +1210,26 @@ function resetCatColor(){const idx=document.getElementById('cat-sel').value,inp=
 function resetBgColor(){const inp=document.getElementById('bg-color');if(inp){inp.value='#1C1B22';cpSync('bg-color');}cur().bgColor='#1C1B22';saveAndRender();}
 // ── Per-category settings: size, header, card opacity (nothing shared between categories) ──
 const DENS={s:0.6,m:0.73,l:0.86,xl:1.0};
+// per-link size (S / M / XL): multiplier on top of the category size; M = the normal look
+const LSZ={s:0.82,m:1,xl:1.22};
+const lszName=v=>LSZ[v]?v:'m';
+const lszMult=v=>LSZ[lszName(v)];
+const alignOf=o=>o&&(o.align==='left'||o.align==='right')?o.align:'center';
 function catCfg(c,p){p=p||cur();return{density:DENS[c.density]?c.density:(DENS[p.density]?p.density:'xl'),showHeader:c.showHeader!==undefined?!!c.showHeader:p.showHeaders!==false,opacity:c.bgOpacity!==undefined?c.bgOpacity:(p.cardOpacity??0.1)};}
 function catStyle(c,p){const g=catCfg(c,p);return `${bdInline(c)};--density-mod:${DENS[g.density]};--card-opacity:${g.opacity}`;}
 function newCat(title){const p=cur(),last=p.categories[p.categories.length-1],fnt=fontName(last&&last.font),fst=fstyleName(last&&last.fontStyle,'cat'),fsz=fsizeName(last&&last.fontSize),g=last?catCfg(last,p):{density:DENS[p.density]?p.density:'xl',showHeader:p.showHeaders!==false,opacity:p.cardOpacity??0.1};return{title:title||'New Category',color:'#00d4ff',url:'',links:[],font:fnt,fontStyle:fst,fontSize:fsz,density:g.density,showHeader:g.showHeader,bgOpacity:g.opacity};}
 // a new link copies the font settings of the last link in its category (or the category's font if it is empty)
-function newLinkFont(c){const l=c.links[c.links.length-1];return l?{font:fontName(l.font),fontStyle:fstyleName(l.fontStyle,'link'),fontSize:fsizeName(l.fontSize)}:{font:fontName(c.font)};}
+function newLinkFont(c){const l=c.links[c.links.length-1];return l?{font:fontName(l.font),fontStyle:fstyleName(l.fontStyle,'link'),fontSize:fsizeName(l.fontSize),size:lszName(l.size)}:{font:fontName(c.font)};}
 function curCat(){const i=document.getElementById('cat-sel');return i?(cur().categories[i.value]||null):null;}
 function updateCatDensity(s){const c=curCat();if(!c)return;c.density=s;saveAndRender(true);}
+function updateCatColor2(v){const c=curCat();if(!c)return;c.color2=v;const i=document.getElementById('cat-color2');if(i&&i.nextElementSibling)i.nextElementSibling.style.opacity=1;saveAndRender();}
+function clearCatColor2(){const c=curCat();if(!c)return;c.color2='';syncCatEditor();saveAndRender();}
+function updateCatLine(v){const c=curCat();if(!c)return;c.line=v;saveAndRender(true);}
+function updateCatAlign(v){const c=curCat();if(!c)return;c.align=v;saveAndRender(true);}
+function updateLinkAlign(ci,li,v){cur().categories[ci].links[li].align=v;saveAndRender();syncCatEditor();}
+function updateLinkSize(ci,li,v){cur().categories[ci].links[li].size=v;saveAndRender();syncCatEditor();}
+function updateLinkColor2(ci,li,v){cur().categories[ci].links[li].color2=v;const i=document.getElementById('lc2-'+ci+'-'+li);if(i&&i.nextElementSibling)i.nextElementSibling.style.opacity=1;saveAndRender();}
+function clearLinkColor2(ci,li){cur().categories[ci].links[li].color2='';saveAndRender();syncCatEditor();}
 function updateCatHeader(){const c=curCat();if(!c)return;c.showHeader=document.getElementById('header-vis-check').checked;saveAndRender(true);}
 function catEsc(s){return String(s).replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));}
 function renderCatTabs(){
@@ -1187,7 +1241,7 @@ function renderCatTabs(){
 function selectCatTab(i){document.getElementById('cat-sel').value=i;syncCatEditor();}
 function syncCatTab(c){const t=document.querySelector('#cat-tabs .cat-tab.active');if(!t)return;const n=t.querySelector('.cat-tab-name'),d=t.querySelector('.cat-tab-dot');if(n)n.textContent=c.title||'Untitled';if(d)d.style.background=c.color;t.title=c.title||'Untitled';}
 
-function getLayoutKey(p){return[p.categories.map(c=>{const g=catCfg(c,p);return g.density+(g.showHeader?1:0);}).join(','),p.showWeather,p.showSearch,p.categories.length,p.categories.map(c=>c.links.length).join(','),p.categories.map(c=>c.title).join('|'),p.categories.map(c=>c.links.map(l=>l.name).join('~')).join('|'),p.categories.map(c=>[fontName(c.font),fstyleName(c.fontStyle,'cat'),fsizeName(c.fontSize)].join('/')+'>'+c.links.map(l=>[fontName(l.font),fstyleName(l.fontStyle,'link'),fsizeName(l.fontSize)].join('/')).join(',')).join('|'),document.body.classList.contains('edit-mode')].join(':');}
+function getLayoutKey(p){return[p.categories.map(c=>{const g=catCfg(c,p);return g.density+(g.showHeader?1:0);}).join(','),p.showWeather,p.showSearch,p.categories.length,p.categories.map(c=>c.links.length).join(','),p.categories.map(c=>c.title).join('|'),p.categories.map(c=>c.links.map(l=>l.name+(l.hidden?'!':'')+'/'+lszName(l.size)).join('~')).join('|'),p.categories.map(c=>[fontName(c.font),fstyleName(c.fontStyle,'cat'),fsizeName(c.fontSize)].join('/')+'>'+c.links.map(l=>[fontName(l.font),fstyleName(l.fontStyle,'link'),fsizeName(l.fontSize)].join('/')).join(',')).join('|'),document.body.classList.contains('edit-mode')].join(':');}
 let _lastKey=null;
 function applyScaling(force){
   const p=cur();const grid=document.getElementById('grid');if(!grid)return;if(!p.categories.length){document.documentElement.classList.add('scaling-finished');return;}
@@ -1197,14 +1251,14 @@ function applyScaling(force){
   const mod=mods.reduce((a,b)=>a+b,0)/mods.length; // average: used for the gap between cards and the "+" strip
   const avH=window.innerHeight-56-(p.showSearch!==false?52:0)-(p.showWeather?148:0)-Math.round(window.innerHeight*0.04)-16;
   const avW=window.innerWidth*0.94;
-  let natH=0;p.categories.forEach((c,i)=>{const m=mods[i];const rows=c.links.length?c.links.reduce((a,l)=>a+45*m+(fsizeMult(l.fontSize)-1)*20*m,0):45*m;natH=Math.max(natH,rows+((cfgs[i].showHeader?60+(fsizeMult(c.fontSize)-1)*26:10)*m)+(ed?45*m:0));});
+  let natH=0;p.categories.forEach((c,i)=>{const m=mods[i];const vl=c.links.filter(l=>!l.hidden);const rows=vl.length?vl.reduce((a,l)=>a+(45*m+(fsizeMult(l.fontSize)-1)*20*m)*lszMult(l.size),0):45*m;natH=Math.max(natH,rows+((cfgs[i].showHeader?60+(fsizeMult(c.fontSize)-1)*26:10)*m)+(ed?45*m:0));});
   const colGap=1.2*16*mod;
   const tmp=document.createElement('canvas'),ctx=tmp.getContext('2d');
   let natW=0,maxW=0;
-  p.categories.forEach((c,i)=>{const m=mods[i],colPad=1.2*16*m*2;const cf=(o,kind,px)=>{const q=fstyleParts(o.fontStyle,kind);return `${q.i?'italic ':''}${q.w} ${px*fsizeMult(o.fontSize)}px ${fontStack(o.font)}`;};ctx.font=cf(c,'cat',1.3*16*m);let mx=ctx.measureText(c.title).width;c.links.forEach(l=>{ctx.font=cf(l,'link',1.0*16*m);mx=Math.max(mx,ctx.measureText(l.name).width);});maxW=Math.max(maxW,mx+colPad,160*m);});
+  p.categories.forEach((c,i)=>{const m=mods[i],colPad=1.2*16*m*2;const cf=(o,kind,px)=>{const q=fstyleParts(o.fontStyle,kind);return `${q.i?'italic ':''}${q.w} ${px*fsizeMult(o.fontSize)}px ${fontStack(o.font)}`;};ctx.font=cf(c,'cat',1.3*16*m);let mx=ctx.measureText(c.title).width;c.links.filter(l=>!l.hidden).forEach(l=>{ctx.font=cf(l,'link',1.0*16*m*lszMult(l.size));mx=Math.max(mx,ctx.measureText(l.name).width);});maxW=Math.max(maxW,mx+colPad,160*m);});
   natW=maxW*p.categories.length+colGap*(p.categories.length-1);   // every card gets the width of the widest oneif(ed)natW+=colGap+42*mod;
   let scale=Math.min(avH/natH,avW/natW);scale=Math.max(Math.min(scale,1.6),0.5);
-  document.documentElement.style.setProperty('--density-mod',mod);document.documentElement.style.setProperty('--scale',scale);document.documentElement.classList.add('scaling-finished');
+  document.documentElement.style.setProperty('--density-mod',mod);document.documentElement.style.setProperty('--scale',scale);document.documentElement.classList.add('scaling-finished');if(!window._introDone){window._introDone=true;grid.classList.add('intro');setTimeout(()=>grid.classList.remove('intro'),1500);}
 }
 window.addEventListener('resize',()=>applyScaling(true));
 new MutationObserver(()=>applyScaling()).observe(document.body,{attributes:true,attributeFilter:['class']});
@@ -1232,13 +1286,34 @@ function applyFonts(p){
 }
 function updateCatFont(k,v){const c=curCat();if(!c)return;c[k]=cleanFontProp(k,v,'cat');saveAndRender();}
 function updateSimpleFont(k,v){cur()[k]=cleanFontProp(k,v,kindOfKey(k));saveAndRender();tickClock();}
-// "All" button: the same font in every field of the current profile (styles and sizes are left alone)
-function applyFontEverywhere(box){
-  const f=fontName(box.querySelector('[data-k="font"]').value),p=cur();
-  p.categories.forEach(c=>{c.font=f;c.links.forEach(l=>{l.font=f;});});
-  p.clockFont=p.clockDateFont=p.searchFont=p.weatherFont=f;
+// "All" button: copies this row's settings to every sibling of the same kind (all categories / all links / every font field).
+// The previous values are remembered so the revert button next to it can put them back.
+function applyAll(scope,a,b){
+  const p=cur(),t=[];   // [object, {key:newValue}]
+  if(scope==='cat'){
+    const sc=curCat();if(!sc)return;
+    const v={font:fontName(sc.font),fontStyle:fstyleName(sc.fontStyle,'cat'),fontSize:fsizeName(sc.fontSize),density:catCfg(sc,p).density,align:alignOf(sc),line:lineName(sc.line)};
+    p.categories.forEach(c=>t.push([c,v]));
+  }else if(scope==='link'){
+    const sl=p.categories[a]&&p.categories[a].links[b];if(!sl)return;
+    const v={font:fontName(sl.font),fontStyle:fstyleName(sl.fontStyle,'link'),fontSize:fsizeName(sl.fontSize),size:lszName(sl.size),align:alignOf(sl)};
+    p.categories.forEach(c=>c.links.forEach(l=>t.push([l,v])));
+  }else{
+    const f=fontName(a.querySelector('[data-k="font"]').value);
+    p.categories.forEach(c=>{t.push([c,{font:f}]);c.links.forEach(l=>t.push([l,{font:f}]));});
+    t.push([p,{clockFont:f,clockDateFont:f,searchFont:f,weatherFont:f}]);
+  }
+  _allUndo[scope]={pi:state.profile,items:t.map(([o,v])=>[o,Object.fromEntries(Object.keys(v).map(k=>[k,[Object.prototype.hasOwnProperty.call(o,k),o[k]]]))])};
+  t.forEach(([o,v])=>Object.assign(o,v));
   saveAndRender();tickClock();renderSettings();
 }
+function revertAll(scope){
+  const u=_allUndo[scope];if(!u||u.pi!==state.profile)return;
+  u.items.forEach(([o,vals])=>{for(const k in vals){const [had,v]=vals[k];if(had)o[k]=v;else delete o[k];}});
+  delete _allUndo[scope];
+  saveAndRender();tickClock();renderSettings();
+}
+function syncRevertBtns(){document.querySelectorAll('.font-revert-btn').forEach(b=>{const u=_allUndo[b.dataset.scope];b.disabled=!(u&&u.pi===state.profile);});}
 // Settings colour: global preference (state.uiAccent), drives the whole settings window + popups
 function contrastText(hex){const [r,g,b]=hexToRgbStr(hex).split(',').map(Number).map(v=>{v/=255;return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4);});const L=0.2126*r+0.7152*g+0.0722*b;return (L+0.05)/0.05>=1.05/(L+0.05)?'#000':'#fff';}
 function updateModalAccent(){const a=/^#[0-9a-f]{6}$/i.test(state.uiAccent||'')?state.uiAccent:'#00d4ff',s=document.documentElement.style;s.setProperty('--modal-accent',a);s.setProperty('--modal-accent-border',a+'44');s.setProperty('--accent-rgb',hexToRgbStr(a));s.setProperty('--accent-text',contrastText(a));}
@@ -1301,7 +1376,7 @@ function saveAndRender(refreshModal=false){
   // QL
   document.getElementById('ql-nav').innerHTML=p.ql.filter(l=>l.vis).map(l=>{const ic=l.color||p.iconColor||'#ffffff';const lic=l.linkIcon||{type:'none',src:''};let ico='';if(lic.type==='favicon'&&l.url){try{const d=new URL(l.url).hostname;ico=`<img class="ql-img-icon" src="https://www.google.com/s2/favicons?domain=${d}&sz=64" alt="" onerror="this.style.display='none';this.nextSibling.style.display='flex'"><i class="${l.name}" style="color:${ic};display:none;font-size:1.05rem;"></i>`;}catch(e){ico=`<i class="${l.name}" style="color:${ic};font-size:1.05rem;"></i>`;}}else if(lic.type==='url'&&lic.src){ico=`<img class="ql-img-icon" src="${lic.src}" alt="" onerror="this.style.display='none';this.nextSibling.style.display='flex'"><i class="${l.name}" style="color:${ic};display:none;font-size:1.05rem;"></i>`;}else{ico=`<i class="${l.name}" style="color:${ic};font-size:1.05rem;"></i>`;}const title=l.url?new URL(l.url.startsWith('http')?l.url:'https://'+l.url).hostname:'';return`<a href="${l.url}" class="nav-link" target="${state.target}" title="${title}">${ico}</a>`;}).join('');
   // Grid
-  document.getElementById('grid').style.gridTemplateColumns=p.categories.length?`repeat(${p.categories.length},1fr)`:'';document.getElementById('grid').innerHTML=p.categories.map((c,ci)=>`<div class="column" draggable="true" ondragstart="colDS(event,${ci})" ondragover="colDO(event,${ci})" ondrop="colDrop(event,${ci})" ondragleave="colDL(event)" style="--cat-accent:${c.color};${catStyle(c,p)}"><div class="cat-title-row" style="position:relative;"><div class="cat-title ${catCfg(c,p).showHeader?'':'hidden-header'}" style="color:${c.color};${fontCss(c,'cat')}"><a href="${c.url||'#'}" target="${state.target}" style="color:inherit;text-decoration:none;">${c.title}</a></div><div class="edit-overlay"><button class="edit-del-btn" onclick="delCat(${ci})">Delete</button></div></div>${c.links.map((l,li)=>{const lic=l.linkIcon||{type:'none',src:'',size:'m'};const io=lic.type!=='none'&&lic.iconOnly;const sz=lic.size==='s'?'calc(0.75rem * var(--scale) * var(--density-mod))':lic.size==='l'?'calc(1.5rem * var(--scale) * var(--density-mod))':lic.size==='xl'?'calc(2rem * var(--scale) * var(--density-mod))':'calc(1rem * var(--scale) * var(--density-mod))';const fid='fb-'+ci+'-'+li;let ih='';if(lic.type==='favicon'&&l.url){try{const d=new URL(l.url).hostname;const fb=l.name?l.name.charAt(0).toUpperCase():'?';const fbBg=l.color||state.linkColor||'#888';ih=`<img class="link-icon" style="width:${sz};height:${sz}" src="https://www.google.com/s2/favicons?domain=${d}&sz=32" alt="" onerror="this.style.display='none';document.getElementById('${fid}').style.display='inline-flex'"><span id="${fid}" class="link-icon-fallback" style="width:${sz};height:${sz};background:${fbBg}22;color:${fbBg}">${fb}</span>`;}catch(e){}}else if(lic.type==='url'&&lic.src){const fb=l.name?l.name.charAt(0).toUpperCase():'?';const fbBg=l.color||state.linkColor||'#888';ih=`<img class="link-icon" style="width:${sz};height:${sz}" src="${lic.src}" alt="" onerror="this.style.display='none';document.getElementById('${fid}').style.display='inline-flex'"><span id="${fid}" class="link-icon-fallback" style="width:${sz};height:${sz};background:${fbBg}22;color:${fbBg}">${fb}</span>`;}return`<div class="link-row"><a href="${l.url||'#'}" target="${state.target}" style="color:${l.color||state.linkColor};${fontCss(l,'link')}" class="${io?'icon-only':''}" ${io?`data-label="${l.name}"`:''}>${ih}<span class="link-label">${l.name}</span></a><div class="edit-overlay"><button class="edit-del-btn" onclick="delLink(${ci},${li})">Delete</button></div></div>`;}).join('')}<button class="edit-add-btn add-link-btn" onclick="addLinkTo(${ci})" title="Add link"><i class="fa-solid fa-plus"></i></button></div>`).join('')+`<button class="edit-add-btn add-cat-btn" onclick="addCatFromGrid()" title="Add category"><i class="fa-solid fa-plus"></i></button>`;
+  document.getElementById('grid').style.gridTemplateColumns=p.categories.length?`repeat(${p.categories.length},1fr)`:'';document.getElementById('grid').innerHTML=p.categories.map((c,ci)=>`<div class="column" draggable="true" ondragstart="colDS(event,${ci})" ondragover="colDO(event,${ci})" ondrop="colDrop(event,${ci})" ondragleave="colDL(event)" style="--cat-accent:${c.color};--cat-accent2:${c.color2||c.color};--i:${ci};${catStyle(c,p)}"><div class="cat-title-row" style="position:relative;"><div class="cat-title ta-${alignOf(c)} ${catCfg(c,p).showHeader?'':'hidden-header'}${lineName(c.line)==='off'?' no-line':''}" style="color:${c.color};text-align:${alignOf(c)};${fontCss(c,'cat')}--line:${LINE_PX[lineName(c.line)]||3}px;"><a href="${c.url||'#'}" target="${state.target}" style="${c.color2?`color:transparent;background:linear-gradient(90deg,${c.color},${c.color2});-webkit-background-clip:text;background-clip:text;display:inline-block;`:'color:inherit;'}text-decoration:none;">${c.title}</a></div><div class="edit-overlay"><button class="edit-del-btn" onclick="delCat(${ci})">Delete</button></div></div>${c.links.map((l,li)=>{if(l.hidden)return'';const lic=l.linkIcon||{type:'none',src:'',size:'m'};const io=lic.type!=='none'&&lic.iconOnly;const sz=lic.size==='s'?'calc(0.75rem * var(--scale) * var(--density-mod) * var(--lm,1))':lic.size==='l'?'calc(1.5rem * var(--scale) * var(--density-mod) * var(--lm,1))':lic.size==='xl'?'calc(2rem * var(--scale) * var(--density-mod) * var(--lm,1))':'calc(1rem * var(--scale) * var(--density-mod) * var(--lm,1))';const fid='fb-'+ci+'-'+li;let ih='';if(lic.type==='favicon'&&l.url){try{const d=new URL(l.url).hostname;const fb=l.name?l.name.charAt(0).toUpperCase():'?';const fbBg=l.color||state.linkColor||'#888';ih=`<img class="link-icon" style="width:${sz};height:${sz}" src="https://www.google.com/s2/favicons?domain=${d}&sz=32" alt="" onerror="this.style.display='none';document.getElementById('${fid}').style.display='inline-flex'"><span id="${fid}" class="link-icon-fallback" style="width:${sz};height:${sz};background:${fbBg}22;color:${fbBg}">${fb}</span>`;}catch(e){}}else if(lic.type==='url'&&lic.src){const fb=l.name?l.name.charAt(0).toUpperCase():'?';const fbBg=l.color||state.linkColor||'#888';ih=`<img class="link-icon" style="width:${sz};height:${sz}" src="${lic.src}" alt="" onerror="this.style.display='none';document.getElementById('${fid}').style.display='inline-flex'"><span id="${fid}" class="link-icon-fallback" style="width:${sz};height:${sz};background:${fbBg}22;color:${fbBg}">${fb}</span>`;}return`<div class="link-row"><a href="${l.url||'#'}" target="${state.target}" style="color:${l.color||state.linkColor};text-align:${alignOf(l)};${fontCss(l,'link')}--lm:${lszMult(l.size)};" class="${io?'icon-only':''}" data-al="${alignOf(l)}" ${io?`data-label="${l.name}"`:''}>${ih}<span class="link-label"${l.color2?` style="color:transparent;background:linear-gradient(90deg,${l.color||state.linkColor},${l.color2});-webkit-background-clip:text;background-clip:text;display:inline-block;"`:''}>${l.name}</span></a><div class="edit-overlay"><button class="edit-del-btn" onclick="delLink(${ci},${li})">Delete</button></div></div>`;}).join('')}<button class="edit-add-btn add-link-btn" onclick="addLinkTo(${ci})" title="Add link"><i class="fa-solid fa-plus"></i></button></div>`).join('')+`<button class="edit-add-btn add-cat-btn" onclick="addCatFromGrid()" title="Add category"><i class="fa-solid fa-plus"></i></button>`;
   document.getElementById('weather-area').classList.toggle('weather-hidden',!p.showWeather);
   if(!p.showWeather)document.getElementById('weather-area').classList.remove('weather-loaded');
   applyScaling();
@@ -1534,15 +1609,17 @@ function showPanel(id,nav){document.querySelectorAll('.settings-panel').forEach(
 function syncCatEditor(){
   const p=cur(),sel=document.getElementById('cat-sel');
   if(!p.categories[sel.value])sel.value=p.categories.length?0:'';
-  renderCatTabs();
+  renderCatTabs();syncRevertBtns();
   const idx=sel.value,c=p.categories[idx],pane=document.getElementById('cat-pane');
   if(pane)pane.style.display=c?'':'none';
   if(!c)return;
   const g=catCfg(c,p);
-  document.querySelectorAll('#cat-size-group .size-btn').forEach(b=>b.classList.toggle('active',b.id==='size-'+g.density));
+  document.querySelectorAll('#cat-size-group .icon-size-btn').forEach(b=>b.classList.toggle('active',b.dataset.d===g.density));
   document.getElementById('header-vis-check').checked=g.showHeader;
+  document.querySelectorAll('#cat-line-group .icon-size-btn').forEach(b=>b.classList.toggle('active',b.dataset.line===lineName(c.line)));
+  document.querySelectorAll('#cat-align-group .icon-size-btn').forEach(b=>b.classList.toggle('active',b.dataset.al===alignOf(c)));
   const cs=document.getElementById('card-opacity-slider'),cv=document.getElementById('card-opacity-val');if(cs)cs.value=g.opacity;if(cv)cv.textContent=Math.round(g.opacity*100)+'%';
-  syncFontField('cat',c.font,c.fontStyle,c.fontSize);document.getElementById('cat-title').value=c.title;document.getElementById('cat-color').value=c.color;cpSync('cat-color');document.getElementById('cat-url').value=c.url||'';bdSyncUI('card');
+  syncFontField('cat',c.font,c.fontStyle,c.fontSize);document.getElementById('cat-title').value=c.title;document.getElementById('cat-color').value=c.color;cpSync('cat-color');{const i2=document.getElementById('cat-color2');if(i2){i2.value=c.color2||c.color;cpSync('cat-color2');if(i2.nextElementSibling)i2.nextElementSibling.style.opacity=c.color2?1:0.35;}}document.getElementById('cat-url').value=c.url||'';bdSyncUI('card');
   document.getElementById('link-list-editor').innerHTML=c.links.map((l,li)=>{
     const lc=l.color||state.linkColor||'#cccccc';const lic=l.linkIcon||{type:'none',src:''};
     const nC=lic.type==='none'?'checked':'',fC=lic.type==='favicon'?'checked':'',uC=lic.type==='url'?'checked':'';
@@ -1550,7 +1627,11 @@ function syncCatEditor(){
     const uIn=lic.type==='url'?`<input type="text" class="link-icon-url-input" placeholder="Image URL..." value="${lic.src||''}" oninput="updateLinkIcon(${idx},${li},'url',this.value,${io},'${sz}')">`:'';
     const ioBox=lic.type!=='none'?`<label style="margin-left:4px;"><input type="checkbox" ${lic.iconOnly?'checked':''} onchange="updateLinkIcon(${idx},${li},'${lic.type}','${lic.src||''}',this.checked,'${sz}')"> Icon only</label>`:'';
     const szB=lic.type!=='none'?`<div class="icon-size-group">${['s','m','l','xl'].map(s=>`<button class="icon-size-btn${sz===s?' active':''}" onclick="updateLinkIcon(${idx},${li},'${lic.type}','${lic.src||''}',${io},'${s}')">${s.toUpperCase()}</button>`).join('')}</div>`:'';
-    return`<div class="editor-link-row" draggable="true" onmousedown="if(event.target.tagName==='INPUT'||event.target.tagName==='TEXTAREA'){this.draggable=false;}" onmouseup="this.draggable=true;" onmouseleave="this.draggable=true;" ondragstart="lDS(event,${idx},${li})" ondragover="lDO(event,${idx},${li})" ondrop="lDrop(event,${idx},${li})" ondragleave="lDL(event)"><i class="fa-solid fa-grip-vertical drag-handle"></i><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;"><div style="display:flex;gap:4px;align-items:center;"><input type="text" value="${l.name}" oninput="updateLink(${idx},${li},'name',this.value)" onblur="saveAndRender()" style="flex:1;"><input type="text" value="${l.url}" placeholder="URL" oninput="updateLink(${idx},${li},'url',this.value)" onblur="saveAndRender()" style="flex:1;"></div><div class="link-icon-row"><label><input type="radio" name="li${idx}-${li}" value="none" ${nC} onchange="updateLinkIcon(${idx},${li},'none','',false,'m')"> None</label><label><input type="radio" name="li${idx}-${li}" value="favicon" ${fC} onchange="updateLinkIcon(${idx},${li},'favicon','',${io},'${sz}')"> Favicon</label><label><input type="radio" name="li${idx}-${li}" value="url" ${uC} onchange="updateLinkIcon(${idx},${li},'url','',${io},'${sz}')"> URL</label>${uIn}${ioBox}${szB}</div><div class="link-font-row"><span>Font</span><div class="font-field">${fontFieldHTML('link','',l,k=>`updateLink(${idx},${li},'${k}',this.value)`)}</div></div></div><div class="color-field" style="flex-shrink:0;"><input type="color" id="lc-${idx}-${li}" value="${lc}" oninput="updateLink(${idx},${li},'color',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('lc-${idx}-${li}')" style="background:${lc}"></div><button class="btn-icon" onclick="updateLink(${idx},${li},'color','');syncCatEditor();"><i class="fa-solid fa-rotate-left"></i></button></div><button class="btn-icon" style="color:#f44;" onclick="delLink(${idx},${li});syncCatEditor();"><i class="fa-solid fa-trash-can"></i></button></div>`;
+    const eye=`<label class="eye-toggle" title="Show / hide this link"><input type="checkbox" ${l.hidden?'':'checked'} onchange="updateLink(${idx},${li},'hidden',!this.checked)"><i class="fa-solid fa-eye"></i><i class="fa-solid fa-eye-slash"></i></label>`;
+    const lc2=l.color2||lc,lsz=lszName(l.size);
+    const colors=`<div class="color-field" style="flex-shrink:0;"><input type="color" id="lc-${idx}-${li}" value="${lc}" oninput="updateLink(${idx},${li},'color',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('lc-${idx}-${li}')" style="background:${lc}"></div><button class="btn-icon" onclick="updateLink(${idx},${li},'color','');syncCatEditor();"><i class="fa-solid fa-rotate-left"></i></button></div><div class="color-field" style="flex-shrink:0;" title="Second color (makes the link a gradient)"><input type="color" id="lc2-${idx}-${li}" value="${lc2}" oninput="updateLinkColor2(${idx},${li},this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('lc2-${idx}-${li}')" style="background:${lc2};opacity:${l.color2?1:0.35}"></div><button class="btn-icon" onclick="clearLinkColor2(${idx},${li})" title="Remove gradient"><i class="fa-solid fa-xmark"></i></button></div>`;
+    const extra=`<div class="link-al-group" data-link-size="${lsz}">${[['s','Small'],['m','Medium'],['xl','X-Large']].map(([d,t])=>`<button class="icon-size-btn${lsz===d?' active':''}" title="Size: ${t}" onclick="updateLinkSize(${idx},${li},'${d}')">${d.toUpperCase()}</button>`).join('')}</div><div class="link-al-group" data-link-al="${alignOf(l)}">${['left','center','right'].map(a=>`<button class="icon-size-btn${alignOf(l)===a?' active':''}" title="Align ${a}" onclick="updateLinkAlign(${idx},${li},'${a}')"><i class="fa-solid fa-align-${a}"></i></button>`).join('')}</div>`;
+    return`<div class="editor-link-row" draggable="true" onmousedown="if(event.target.tagName==='INPUT'||event.target.tagName==='TEXTAREA'){this.draggable=false;}" onmouseup="this.draggable=true;" onmouseleave="this.draggable=true;" ondragstart="lDS(event,${idx},${li})" ondragover="lDO(event,${idx},${li})" ondrop="lDrop(event,${idx},${li})" ondragleave="lDL(event)"><i class="fa-solid fa-grip-vertical drag-handle" title="Drag to reorder"></i><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:5px;"><div style="display:flex;gap:6px;align-items:center;">${eye}<input type="text" value="${l.name}" oninput="updateLink(${idx},${li},'name',this.value)" onblur="saveAndRender()" placeholder="Name" style="flex:1;min-width:0;"><input type="text" value="${l.url}" placeholder="URL" oninput="updateLink(${idx},${li},'url',this.value)" onblur="saveAndRender()" style="flex:1.3;min-width:0;">${colors}<button class="btn-icon row-end" style="color:#f44;" title="Delete link" onclick="delLink(${idx},${li});syncCatEditor();"><i class="fa-solid fa-trash-can"></i></button></div><div class="link-icon-row"><label><input type="radio" name="li${idx}-${li}" value="none" ${nC} onchange="updateLinkIcon(${idx},${li},'none','',false,'m')"> None</label><label><input type="radio" name="li${idx}-${li}" value="favicon" ${fC} onchange="updateLinkIcon(${idx},${li},'favicon','',${io},'${sz}')"> Favicon</label><label><input type="radio" name="li${idx}-${li}" value="url" ${uC} onchange="updateLinkIcon(${idx},${li},'url','',${io},'${sz}')"> URL</label>${uIn}${ioBox}${szB}</div><div class="link-font-row"><span>Font</span><div class="font-field">${fontFieldHTML('link','',l,k=>`updateLink(${idx},${li},'${k}',this.value)`,false,extra,`${idx},${li}`)}</div></div></div></div>`;
   }).join('');
 }
 function updateCat(f){const idx=document.getElementById('cat-sel').value,c=cur().categories[idx];c.title=document.getElementById('cat-title').value;c.color=document.getElementById('cat-color').value;c.url=document.getElementById('cat-url').value;syncCatTab(c);if(f==='text')localStorage.setItem(KEY,JSON.stringify(state));else saveAndRender();}
