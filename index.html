@@ -319,6 +319,23 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 .bd-style-row{display:flex;align-items:center;gap:8px}
 .bd-style-row .size-group{width:150px;flex:none;margin:0}
 .bd-style-row select{flex:1;min-width:0}
+#profile-cards-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:2px}
+#profile-cards-list>div{margin-bottom:0!important;min-width:0}
+@media (max-width:560px){#profile-cards-list{grid-template-columns:1fr}}
+.photo-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:24px;align-items:stretch}
+.photo-two>.s-card{display:flex;flex-direction:column}
+.photo-prev{flex:1;min-height:90px;border:1px dashed #2a2a2a;border-radius:8px;background:#0d0d0d center/contain no-repeat;margin-bottom:12px}
+.photo-prev.has-img{border-style:solid}
+.fp-row{display:flex;gap:16px;align-items:stretch;flex:1;margin-bottom:12px}
+#photo-fit-group{flex-direction:column;flex:1;margin-bottom:0}
+#photo-fit-group .size-btn{flex:1;height:auto;min-height:28px}
+#photo-pos-grid{grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:6px;width:150px;flex:none}
+#photo-pos-grid .pos-btn{width:auto;height:auto}
+.photo-two>.s-card{margin-top:0}
+@media (max-width:760px){.photo-two{grid-template-columns:1fr}}
+.xi-rows{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 16px;padding:2px 0 8px}
+.xi-rows .label-inline{margin:0}
+@media (max-width:620px){.xi-rows{grid-template-columns:1fr 1fr}}
 .cf-grad{width:136px;gap:4px}
 .cf-grad>.btn-icon:last-child{margin-left:auto}
 .cf-c2{display:flex;align-items:center;gap:4px}
@@ -495,33 +512,31 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
             <div class="s-field"><div class="s-lab">Type</div><div class="size-group"><button class="size-btn" id="grad-auto" onclick="setGradType('auto')">Auto</button><button class="size-btn" id="grad-manual" onclick="setGradType('manual')">Manual</button></div></div>
             <div id="grad-manual-opts" style="display:none;">
               <div class="s-field"><div class="s-lab">Colors &amp; direction</div>
-                <div class="bd-style-row"><div class="bd-colors"><input type="color" id="grad-color-a" oninput="updateVis();paintGradDirs()" style="display:none"><div class="cp-swatch" onclick="cpOpen('grad-color-a')" title="First color"></div><input type="color" id="grad-color-b" oninput="updateVis();paintGradDirs()" style="display:none"><div class="cp-swatch" onclick="cpOpen('grad-color-b')" title="Second color"></div></div><div class="bd-dirs" id="grad-dirs"><button class="cp-dir" data-dir="ltr" title="Left to right" onclick="setGradDir('ltr')">→</button><button class="cp-dir" data-dir="rtl" title="Right to left" onclick="setGradDir('rtl')">←</button><button class="cp-dir" data-dir="ttb" title="Top to bottom" onclick="setGradDir('ttb')">↓</button><button class="cp-dir" data-dir="btt" title="Bottom to top" onclick="setGradDir('btt')">↑</button></div></div>
+                <div class="bd-style-row"><div class="bd-colors"><input type="color" id="grad-color-a" oninput="updateVis();paintGradDirs()" style="display:none"><div class="cp-swatch" onclick="cpOpen('grad-color-a')" title="First color"></div><input type="color" id="grad-color-b" oninput="updateVis();paintGradDirs()" style="display:none"><div class="cp-swatch" onclick="cpOpen('grad-color-b')" title="Second color"></div><button class="btn-icon" onclick="resetGradColors()" title="Reset both colors to default"><i class="fa-solid fa-rotate-left"></i></button></div><div class="bd-dirs" id="grad-dirs"><button class="cp-dir" data-dir="ltr" title="Left to right" onclick="setGradDir('ltr')">→</button><button class="cp-dir" data-dir="rtl" title="Right to left" onclick="setGradDir('rtl')">←</button><button class="cp-dir" data-dir="ttb" title="Top to bottom" onclick="setGradDir('ttb')">↓</button><button class="cp-dir" data-dir="btt" title="Bottom to top" onclick="setGradDir('btt')">↑</button></div></div>
               </div>
             </div>
-            <div class="inl-row"><div class="inl"><span>Background Color</span><div class="color-field"><input type="color" id="bg-color" oninput="updateVis()" style="display:none"><div class="cp-swatch" onclick="cpOpen('bg-color')"></div><button class="btn-icon" onclick="resetBgColor()"><i class="fa-solid fa-rotate-left"></i></button></div></div></div>
-            <div class="s-slide"><div class="color-row"><span>Intensity</span><span id="grad-intensity-val" class="s-val">10%</span></div><div class="bd-slide"><input type="range" id="grad-intensity" min="0" max="1" step="0.01" oninput="updateVis();document.getElementById('grad-intensity-val').textContent=Math.round(this.value*100)+'%'" ></div></div>
+            <div class="s-slide" id="grad-shade-row"><div class="color-row"><span>Darker &#8596; Lighter</span><span id="grad-shade-val" class="s-val">Original</span></div><div class="bd-slide"><input type="range" id="grad-shade" min="-1" max="1" step="0.01" oninput="updateVis()"></div></div>
           </div>
         </div>
         <div id="photo-opts" style="display:none;">
+          <div class="photo-two">
           <div class="s-card">
             <div class="s-title">Photo</div>
             <input type="text" id="bg-img-url" placeholder="Photo URL..." oninput="updateBgImg(this.value)" style="margin-bottom:10px;height:28px;font-size:0.78rem;">
-            <div class="flex-row" style="margin-bottom:12px;"><button onclick="document.getElementById('bg-file').click()">Upload Photo</button><button style="color:#f88;" onclick="updateBgImg('')">Remove</button></div>
+            <div class="flex-row" style="margin-bottom:10px;"><button onclick="document.getElementById('bg-file').click()">Upload Photo</button><button style="color:#f88;" onclick="updateBgImg('')">Remove</button></div>
+            <div id="photo-preview" class="photo-prev"></div>
             <input type="file" id="bg-file" style="display:none" accept="image/*" onchange="handleBgFile(this)">
           </div>
           <div class="s-card">
             <div class="s-title">Fit &amp; Position</div>
-            <div class="s-field"><div class="s-lab">Fit</div><div class="size-group" id="photo-fit-group"><button class="size-btn" data-fit="cover" onclick="setPhotoOpt('bgFit','cover')" title="Fill the screen (crops the edges if the shapes differ)">Fill</button><button class="size-btn" data-fit="contain" onclick="setPhotoOpt('bgFit','contain')" title="Show the whole photo (bars appear if the shapes differ)">Fit</button><button class="size-btn" data-fit="stretch" onclick="setPhotoOpt('bgFit','stretch')" title="Stretch to the screen (can distort)">Stretch</button><button class="size-btn" data-fit="center" onclick="setPhotoOpt('bgFit','center')" title="Original size, centered">Center</button><button class="size-btn" data-fit="tile" onclick="setPhotoOpt('bgFit','tile')" title="Repeat the photo">Tile</button></div></div>
+            <div class="fp-row"><div class="size-group" id="photo-fit-group"><button class="size-btn" data-fit="cover" onclick="setPhotoOpt('bgFit','cover')" title="Fill the screen (crops the edges if the shapes differ)">Fill</button><button class="size-btn" data-fit="contain" onclick="setPhotoOpt('bgFit','contain')" title="Show the whole photo (bars appear if the shapes differ)">Fit</button><button class="size-btn" data-fit="stretch" onclick="setPhotoOpt('bgFit','stretch')" title="Stretch to the screen (can distort)">Stretch</button><button class="size-btn" data-fit="center" onclick="setPhotoOpt('bgFit','center')" title="Original size, centered">Center</button><button class="size-btn" data-fit="tile" onclick="setPhotoOpt('bgFit','tile')" title="Repeat the photo">Tile</button></div><div class="pos-grid" id="photo-pos-grid"><button class="pos-btn" data-pos="tl" onclick="setPhotoOpt('bgPos','tl')" title="Focus point"></button><button class="pos-btn" data-pos="t" onclick="setPhotoOpt('bgPos','t')" title="Focus point"></button><button class="pos-btn" data-pos="tr" onclick="setPhotoOpt('bgPos','tr')" title="Focus point"></button><button class="pos-btn" data-pos="l" onclick="setPhotoOpt('bgPos','l')" title="Focus point"></button><button class="pos-btn" data-pos="c" onclick="setPhotoOpt('bgPos','c')" title="Focus point"></button><button class="pos-btn" data-pos="r" onclick="setPhotoOpt('bgPos','r')" title="Focus point"></button><button class="pos-btn" data-pos="bl" onclick="setPhotoOpt('bgPos','bl')" title="Focus point"></button><button class="pos-btn" data-pos="b" onclick="setPhotoOpt('bgPos','b')" title="Focus point"></button><button class="pos-btn" data-pos="br" onclick="setPhotoOpt('bgPos','br')" title="Focus point"></button></div></div>
             <div id="photo-bars-row" class="s-field" style="display:none;flex-direction:column;"><div class="s-lab">Bars</div><div class="bd-slide"><div class="size-group" id="photo-bars-group" style="flex:1;margin:0;"><button class="size-btn" data-bars="color" onclick="setPhotoOpt('bgBars','color')">Color</button><button class="size-btn" data-bars="blur" onclick="setPhotoOpt('bgBars','blur')">Blurred photo</button></div><div class="color-field"><input type="color" id="photo-bars-color" oninput="setPhotoOpt('photoBarsColor',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('photo-bars-color')" title="Bars color"></div></div></div></div>
-            <div class="color-row"><span>Position</span><div class="pos-grid" id="photo-pos-grid"><button class="pos-btn" data-pos="tl" onclick="setPhotoOpt('bgPos','tl')" title="Focus point"></button><button class="pos-btn" data-pos="t" onclick="setPhotoOpt('bgPos','t')" title="Focus point"></button><button class="pos-btn" data-pos="tr" onclick="setPhotoOpt('bgPos','tr')" title="Focus point"></button><button class="pos-btn" data-pos="l" onclick="setPhotoOpt('bgPos','l')" title="Focus point"></button><button class="pos-btn" data-pos="c" onclick="setPhotoOpt('bgPos','c')" title="Focus point"></button><button class="pos-btn" data-pos="r" onclick="setPhotoOpt('bgPos','r')" title="Focus point"></button><button class="pos-btn" data-pos="bl" onclick="setPhotoOpt('bgPos','bl')" title="Focus point"></button><button class="pos-btn" data-pos="b" onclick="setPhotoOpt('bgPos','b')" title="Focus point"></button><button class="pos-btn" data-pos="br" onclick="setPhotoOpt('bgPos','br')" title="Focus point"></button></div></div>
-            <div class="s-slide"><div class="color-row"><span>Zoom</span><span id="photo-zoom-val" class="s-val">0</span></div><div class="bd-slide"><input type="range" id="photo-zoom" min="1" max="3" step="0.05" oninput="photoSlider('bgZoom')" ></div></div>
+          </div>
           </div>
           <div class="s-card">
             <div class="s-title">Look</div>
             <div class="s-slide"><div class="color-row"><span>Dim</span><span id="photo-dim-val" class="s-val">0</span></div><div class="bd-slide"><input type="range" id="photo-dim" min="0" max="0.85" step="0.01" oninput="updatePhotoDim()" ><div class="color-field" style="flex:none;"><input type="color" id="photo-tint" oninput="setPhotoOpt('photoTint',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('photo-tint')" title="Overlay color"></div></div></div></div>
             <div class="s-slide"><div class="color-row"><span>Blur</span><span id="photo-blur-val" class="s-val">0</span></div><div class="bd-slide"><input type="range" id="photo-blur" min="0" max="30" step="1" oninput="updateVis()" ></div></div>
-            <div class="s-slide"><div class="color-row"><span>Vignette</span><span id="photo-vig-val" class="s-val">0</span></div><div class="bd-slide"><input type="range" id="photo-vig" min="0" max="1" step="0.01" oninput="photoSlider('photoVignette')" ></div></div>
-            <div class="s-slide"><div class="color-row"><span>Saturation</span><span id="photo-sat-val" class="s-val">0</span></div><div class="bd-slide"><input type="range" id="photo-sat" min="0" max="2" step="0.01" oninput="photoSlider('photoSat')" ></div></div>
             <button style="margin-bottom:12px;font-size:0.72rem;padding:5px 8px;" onclick="resetPhotoOpts()">Reset photo settings</button>
           </div>
         </div>
@@ -642,13 +657,13 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
           </div>
           <div class="s-card">
             <div class="s-title">Extra Info</div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;">
-            <label class="label-inline" style="margin-bottom:8px;"><input type="checkbox" id="w-humidity" onchange="updateVis()"> Humidity</label>
-            <label class="label-inline" style="margin-bottom:8px;"><input type="checkbox" id="w-uv" onchange="updateVis()"> UV Index</label>
-            <label class="label-inline" style="margin-bottom:8px;"><input type="checkbox" id="w-pressure" onchange="updateVis()"> Pressure</label>
-            <label class="label-inline" style="margin-bottom:8px;"><input type="checkbox" id="w-visibility" onchange="updateVis()"> Visibility</label>
-            <label class="label-inline" style="margin-bottom:8px;"><input type="checkbox" id="w-aqi" onchange="updateVis()"> Air Quality</label>
-            <label class="label-inline" style="margin-bottom:8px;"><input type="checkbox" id="w-sunrise" onchange="updateVis()"> Sunrise/Sunset</label>
+<div class="xi-rows">
+<label class="label-inline"><input type="checkbox" id="w-humidity" onchange="updateVis()"> Humidity</label>
+<label class="label-inline"><input type="checkbox" id="w-pressure" onchange="updateVis()"> Pressure</label>
+<label class="label-inline"><input type="checkbox" id="w-aqi" onchange="updateVis()"> Air Quality</label>
+<label class="label-inline"><input type="checkbox" id="w-uv" onchange="updateVis()"> UV Index</label>
+<label class="label-inline"><input type="checkbox" id="w-visibility" onchange="updateVis()"> Visibility</label>
+<label class="label-inline"><input type="checkbox" id="w-sunrise" onchange="updateVis()"> Sunrise/Sunset</label>
           </div>
           </div>
           <div class="s-card">
@@ -962,6 +977,7 @@ state.profiles.forEach(p=>{
   if(!p.gradColorA)p.gradColorA='#1C1B22';
   if(!p.gradColorB)p.gradColorB='#00d4ff';
   if(p.opGradient===undefined)p.opGradient=0.1;
+  if(p.gradShade===undefined)p.gradShade=0;
   if(p.fuzzy===undefined)p.fuzzy=0;
   if(p.photoDim===undefined)p.photoDim=0.1;
   if(p.weatherBackdrop===undefined)p.weatherBackdrop=0.1;
@@ -1222,6 +1238,7 @@ document.addEventListener('click',e=>{const pal=document.getElementById('cp-pale
 function updateSectionStates(){const p=cur();const cs=document.getElementById('clock-sub'),ws=document.getElementById('weather-sub'),ss=document.getElementById('search-sub');if(cs)cs.className=p.showClock?'sub-enabled':'sub-disabled';const sr=document.getElementById('search-rest');if(sr)sr.className=(p.showSearch!==false)?'sub-enabled':'sub-disabled';const wr=document.getElementById('weather-rest');if(wr)wr.className=p.showWeather?'sub-enabled':'sub-disabled';const cr=document.getElementById('clock-rest');if(cr)cr.className=p.showClock?'sub-enabled':'sub-disabled';const ds=document.getElementById('clock-date-sub');if(ds)ds.className=(p.clockShowDate!==false)?'sub-enabled':'sub-disabled';if(ws)ws.className=p.showWeather?'sub-enabled':'sub-disabled';if(ss)ss.className=(p.showSearch!==false)?'sub-enabled':'sub-disabled';}
 function resetField(pid,dv,sk){const inp=document.getElementById(pid);if(inp){inp.value=dv;cpSync(pid);}cur()[sk]=dv;saveAndRender();tickClock();}
 function resetCatColor(){const idx=document.getElementById('cat-sel').value,inp=document.getElementById('cat-color');if(inp){inp.value='#00d4ff';cpSync('cat-color');}cur().categories[idx].color='#00d4ff';syncCatTab(cur().categories[idx]);saveAndRender();}
+function resetGradColors(){const p=cur();p.gradColorA='#1C1B22';p.gradColorB='#00d4ff';[['grad-color-a',p.gradColorA],['grad-color-b',p.gradColorB]].forEach(([id,v])=>{const i=document.getElementById(id);if(i){i.value=v;cpSync(id);}});paintGradDirs();saveAndRender();}
 function resetBgColor(){const inp=document.getElementById('bg-color');if(inp){inp.value='#1C1B22';cpSync('bg-color');}cur().bgColor='#1C1B22';saveAndRender();}
 // ── Per-category settings: size, header, card opacity (nothing shared between categories) ──
 const DENS={s:0.6,m:0.73,l:0.86,xl:1.0};
@@ -1278,6 +1295,7 @@ function applyScaling(force){
   natW=maxW*p.categories.length+colGap*(p.categories.length-1);   // every card gets the width of the widest oneif(ed)natW+=colGap+42*mod;
   let scale=Math.min(avH/natH,avW/natW);scale=Math.max(Math.min(scale,1.6),0.5);
   document.documentElement.style.setProperty('--density-mod',mod);document.documentElement.style.setProperty('--scale',scale);document.documentElement.classList.add('scaling-finished');if(!window._introDone){window._introDone=true;grid.classList.add('intro');setTimeout(()=>grid.classList.remove('intro'),1500);}
+  if(typeof paintAutoGlow==='function')paintAutoGlow();
 }
 window.addEventListener('resize',()=>applyScaling(true));
 new MutationObserver(()=>applyScaling()).observe(document.body,{attributes:true,attributeFilter:['class']});
@@ -1347,6 +1365,21 @@ function setSearchEngine(k){cur().searchEngine=k;_seOpen=false;document.getEleme
 function doSearch(e){e.preventDefault();const q=document.getElementById('search-input').value.trim();if(!q)return;const eng=cur().searchEngine||'startpage';window.open(SE[eng].url+encodeURIComponent(q),state.target||'_self');document.getElementById('search-input').value='';}
 
 // ── Main render ──
+// Auto gradient: a soft, tall glow of each category's colour behind its own card (ambience, not a hard gradient)
+function autoGlowCss(p){
+  const cols=[...document.querySelectorAll('#grid .column')],layers=[],vh=window.innerHeight;
+  cols.forEach((el,i)=>{
+    const cat=p.categories[i];if(!cat||!cat.color)return;
+    const r=el.getBoundingClientRect();if(!r.width||!r.height)return;
+    let rgb;try{rgb=hexToRgbStr(cat.color);}catch(e){return;}
+    const cx=Math.round(r.left+r.width/2),cy=Math.round(r.top+r.height*0.45),rx=Math.round(r.width*0.95),ry=Math.round(Math.max(r.height*1.6,vh*0.6));
+    layers.push(`radial-gradient(ellipse ${rx}px ${ry}px at ${cx}px ${cy}px,rgba(${rgb},0.30) 0%,rgba(${rgb},0.17) 35%,rgba(${rgb},0.06) 70%,rgba(${rgb},0) 100%)`);
+  });
+  const sh=Math.max(-1,Math.min(1,p.gradShade||0));
+  if(sh!==0){const c=sh>0?'255,255,255':'0,0,0',al=Math.abs(sh);layers.unshift(`linear-gradient(rgba(${c},${al}),rgba(${c},${al}))`);}
+  return layers.length?layers.join(','):'none';
+}
+function paintAutoGlow(){const p=cur();if(!p||p.bgImg||(p.bgMode||'gradient')!=='gradient'||p.gradType==='manual')return;const bgA=document.getElementById('full-bg-a');if(bgA)bgA.style.background=autoGlowCss(p);}
 function saveAndRender(refreshModal=false){
   localStorage.setItem(KEY,JSON.stringify(state));
   const p=cur();if(!p)return;
@@ -1382,10 +1415,10 @@ function saveAndRender(refreshModal=false){
       // gradient
       let g;
       if(p.gradType==='manual'){const dirs={ltr:'90deg',rtl:'270deg',ttb:'180deg',btt:'0deg'};g=`linear-gradient(${dirs[p.gradDir||'ltr']},${p.gradColorA||'#1C1B22'},${p.gradColorB||'#00d4ff'})`;}
-      else{const cols=p.categories.map(x=>x.color);g=cols.length>1?`linear-gradient(135deg,${cols.join(',')})`:cols[0]||p.bgColor;}
+      else{g=autoGlowCss(p);}
       bgA.style.background=g;bgB.style.background='none';
       // Suppress the opacity transition flash on gradient mode
-      bgA.style.transition='none';bgA.style.opacity=p.opGradient??0.1;bgB.style.opacity=0;requestAnimationFrame(()=>{bgA.style.transition='';});
+      bgA.style.transition='none';bgA.style.opacity=1;bgB.style.opacity=0;requestAnimationFrame(()=>{bgA.style.transition='';});
     }
   }
 
@@ -1422,7 +1455,7 @@ function renderSettings(){
   const ga=document.getElementById('grad-color-a'),gb=document.getElementById('grad-color-b');
   if(ga){ga.value=p.gradColorA||'#1C1B22';cpSync('grad-color-a');}if(gb){gb.value=p.gradColorB||'#00d4ff';cpSync('grad-color-b');}
   // grad intensity
-  const gi=document.getElementById('grad-intensity'),giv=document.getElementById('grad-intensity-val');if(gi)gi.value=p.opGradient??0.1;if(giv)giv.textContent=Math.round((p.opGradient??0.1)*100)+'%';
+  syncGradShade(p);
   // bg color
   const bc=document.getElementById('bg-color');if(bc){bc.value=p.bgColor||'#1C1B22';cpSync('bg-color');}
   // photo
@@ -1494,7 +1527,7 @@ function updateVis(){
   p.wAqi=document.getElementById('w-aqi').checked;p.wUv=document.getElementById('w-uv').checked;p.wPressure=document.getElementById('w-pressure').checked;p.wHumidity=document.getElementById('w-humidity').checked;p.wVisibility=document.getElementById('w-visibility').checked;p.wSunrise=document.getElementById('w-sunrise').checked;
   // BG mode-specific
   const mode=p.bgMode||'gradient';
-  if(mode==='gradient'){const gi=document.getElementById('grad-intensity');if(gi){p.opGradient=parseFloat(gi.value);const giv=document.getElementById('grad-intensity-val');if(giv)giv.textContent=Math.round(p.opGradient*100)+'%';}p.bgColor=document.getElementById('bg-color')?.value||p.bgColor;const ga=document.getElementById('grad-color-a'),gb=document.getElementById('grad-color-b');if(ga)p.gradColorA=ga.value;if(gb)p.gradColorB=gb.value;}
+  if(mode==='gradient'){const gs=document.getElementById('grad-shade');if(gs){p.gradShade=parseFloat(gs.value);syncGradShade(p);}const ga=document.getElementById('grad-color-a'),gb=document.getElementById('grad-color-b');if(ga)p.gradColorA=ga.value;if(gb)p.gradColorB=gb.value;}
   else if(mode==='photo'){const pb=document.getElementById('photo-blur');if(pb){p.fuzzy=parseFloat(pb.value);const pbv=document.getElementById('photo-blur-val');if(pbv)pbv.textContent=Math.round(p.fuzzy)+'px';}}
   else if(mode==='unsplash'){const ub=document.getElementById('unsplash-blur');if(ub){p.unsplashBlur=parseFloat(ub.value);const ubv=document.getElementById('unsplash-blur-val');if(ubv)ubv.textContent=Math.round(p.unsplashBlur)+'px';}}
   saveAndRender();updateWeather();tickClock();updateSectionStates();
@@ -1509,12 +1542,12 @@ const HEX6=/^#[0-9a-f]{6}$/i;
 function photoCfg(p){return{
   fit:['cover','contain','stretch','center','tile'].includes(p.bgFit)?p.bgFit:'cover',
   pos:BG_POS[p.bgPos]?p.bgPos:'c',
-  zoom:p.bgZoom>=1?Math.min(p.bgZoom,3):1,
+  zoom:1,
   bars:p.bgBars==='blur'?'blur':'color',
   barsColor:HEX6.test(p.photoBarsColor||'')?p.photoBarsColor:(HEX6.test(p.bgColor||'')?p.bgColor:'#000000'),
   tint:HEX6.test(p.photoTint||'')?p.photoTint:'#000000',
-  vig:p.photoVignette>0?Math.min(p.photoVignette,1):0,
-  sat:(p.photoSat>=0&&p.photoSat<=2)?p.photoSat:1};}
+  vig:0,
+  sat:1};}
 // Re-applying the whole background (profile switch, mode change...) must jump to the new dim level, never animate from the old one.
 // The smooth fade is kept for the Dim slider only. Re-enabled two frames later, i.e. after the change has been rendered.
 // The dim layer has NO css transition by default (see #dim-el.dim-smooth). Only the slider handlers opt in, via dimSmooth(),
@@ -1551,9 +1584,9 @@ function syncPhotoOpts(){
   document.querySelectorAll('#photo-pos-grid .pos-btn').forEach(b=>b.classList.toggle('active',b.dataset.pos===c.pos));
   $('photo-bars-row').style.display=(c.fit==='contain'||c.fit==='center')?'flex':'none';
   const bc=$('photo-bars-color');if(bc){bc.value=c.barsColor;cpSync('photo-bars-color');const sw=bc.nextElementSibling;if(sw)sw.style.display=c.bars==='color'?'':'none';}
+  const pv=$('photo-preview');if(pv){const u=p.bgImg||'';pv.style.backgroundImage=u?`url("${u.replace(/"/g,'%22')}")`:'none';pv.classList.toggle('has-img',!!u);}
   const tn=$('photo-tint');if(tn){tn.value=c.tint;cpSync('photo-tint');}
   const setS=(id,vid,v)=>{const s=$(id);if(s&&document.activeElement!==s)s.value=v;const l=$(vid);if(l)l.textContent=Math.round(v*100)+'%';};
-  setS('photo-zoom','photo-zoom-val',c.zoom);setS('photo-vig','photo-vig-val',c.vig);setS('photo-sat','photo-sat-val',c.sat);
 }
 function resetPhotoOpts(){const p=cur();['bgFit','bgPos','bgZoom','bgBars','photoBarsColor','photoTint','photoVignette','photoSat'].forEach(k=>delete p[k]);p.photoDim=0.1;p.fuzzy=0;if(p.bgMode==='photo'&&p.bgImg)applyPhotoBg(p);localStorage.setItem(KEY,JSON.stringify(state));renderSettings();}
 function updatePhotoDim(){dimSmooth();const p=cur();const v=parseFloat(document.getElementById('photo-dim').value);p.photoDim=v;document.getElementById('photo-dim-val').textContent=Math.round(v*100)+'%';if(p.bgMode==='photo'||p.bgImg)applyPhotoOverlay(p);localStorage.setItem(KEY,JSON.stringify(state));}
@@ -1807,7 +1840,8 @@ function setBgMode(mode){
   if(mode!=='time')stopBgCanvas();
   saveAndRender();renderSettings();renderCityManager();
 }
-function setGradType(t){const p=cur();p.gradType=t;document.getElementById('grad-manual-opts').style.display=t==='manual'?'block':'none';['auto','manual'].forEach(x=>{const b=document.getElementById('grad-'+x);if(b)b.classList.toggle('active',x===t);});saveAndRender();}
+function syncGradShade(p){const row=document.getElementById('grad-shade-row'),gs=document.getElementById('grad-shade'),gv=document.getElementById('grad-shade-val');if(row)row.style.display=(p.gradType==='manual')?'none':'';const v=p.gradShade||0;if(gs&&document.activeElement!==gs)gs.value=v;if(gv)gv.textContent=v===0?'Original':(v<0?'Darker ':'Lighter ')+Math.round(Math.abs(v)*100)+'%';}
+function setGradType(t){const p=cur();p.gradType=t;syncGradShade(p);document.getElementById('grad-manual-opts').style.display=t==='manual'?'block':'none';['auto','manual'].forEach(x=>{const b=document.getElementById('grad-'+x);if(b)b.classList.toggle('active',x===t);});saveAndRender();}
 function paintGradDirs(){const p=cur(),a=p.gradColorA||'#1C1B22',b=p.gradColorB||'#00d4ff',m={ltr:'90deg',rtl:'270deg',ttb:'180deg',btt:'0deg'};document.querySelectorAll('#grad-dirs .cp-dir').forEach(el=>{const d=el.dataset.dir;el.style.background=`linear-gradient(${m[d]},${a},${b})`;el.classList.toggle('active',(p.gradDir||'ltr')===d);});}
 function setGradDir(d){const p=cur();p.gradDir=d;paintGradDirs();saveAndRender();}
 function updateBgImg(v){const p=cur();p.bgImg=v;if(v)p.bgMode='photo';saveAndRender();renderSettings();}
