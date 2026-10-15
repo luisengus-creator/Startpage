@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Startpage</title>
-<style>body{opacity:0}</style>
+<style>body{visibility:hidden}</style>
 <link id="favicon-link" rel="icon" type="image/x-icon" href="">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,8 +11,8 @@
 <style>
 :root{--bg:#1C1B22;--scale:1;--density-mod:1;--fs-unit:calc(1rem * var(--scale) * var(--density-mod));--fade-speed:0.5s;--widget-radius:0px;--search-radius:0px;--clock-backdrop:0.1;--search-backdrop:0.1;--card-rgb:0,0,0;--clock-rgb:0,0,0;--search-rgb:0,0,0;--weather-rgb:0,0,0;--card-on:min(1,calc(var(--card-opacity,0.1) * 1000));--weather-on:min(1,calc(var(--weather-backdrop,0.1) * 1000));--search-on:min(1,calc(var(--search-backdrop,0.1) * 1000))}
 *{box-sizing:border-box}
-body{margin:0;padding:0;font-family:'Inter',system-ui,sans-serif;background-color:var(--bg);color:white;height:100vh;display:flex;flex-direction:column;overflow:hidden;font-size:var(--fs-unit);opacity:0;transition:opacity 0.18s ease}
-body.page-ready{opacity:1}
+body{margin:0;padding:0;font-family:'Inter',system-ui,sans-serif;background-color:var(--bg);color:white;height:100vh;display:flex;flex-direction:column;overflow:hidden;font-size:var(--fs-unit);visibility:hidden}
+body.page-ready{visibility:visible}
 .full-bg-layer{position:fixed;inset:0;z-index:-1;pointer-events:none;background-size:cover;background-position:center;background-repeat:no-repeat;transition:none}
 .ready .full-bg-layer{transition:opacity 1.2s ease,filter var(--fade-speed) ease}
 #dim-el{transition:none}
@@ -27,8 +27,8 @@ body.page-ready{opacity:1}
 #profile-nav-btn{overflow:hidden}
 #profile-nav-btn img{width:1.45rem!important;height:1.45rem!important;border-radius:50%;object-fit:cover;border:1px solid rgba(255,255,255,0.2)}
 #main-content{flex-grow:1;display:flex;align-items:center;justify-content:center;width:100%;overflow:hidden;padding:1vh}
-#grid{display:grid;grid-auto-flow:column;grid-auto-columns:auto;gap:calc(1.2rem * var(--scale) * var(--density-mod));justify-content:center;align-items:center;width:fit-content;max-width:100%;opacity:0;transition:none}
-.scaling-finished #grid{opacity:1;transition:opacity 0.15s ease}
+#grid{display:grid;grid-auto-flow:column;grid-auto-columns:auto;gap:calc(1.2rem * var(--scale) * var(--density-mod));justify-content:center;align-items:center;width:fit-content;max-width:100%;visibility:hidden}
+.scaling-finished #grid{visibility:visible}
 .column{--card-on:min(1,calc(var(--card-opacity,0.1) * 1000));background-color:rgba(var(--card-rgb),calc(var(--card-opacity,0.1) * var(--card-solid,1)));background-image:var(--card-img,none);background-origin:border-box;background-repeat:no-repeat;border-radius:var(--widget-radius);padding:calc(1.2rem * var(--scale) * var(--density-mod));position:relative;border:none;box-shadow:0 8px 24px rgba(0,0,0,calc(0.18 * var(--card-on)));backdrop-filter:blur(calc(12px * var(--card-on)));text-align:center;width:auto;min-width:0;overflow:hidden;transition:background 0.2s,box-shadow 0.3s,transform 0.3s cubic-bezier(.2,.7,.2,1)}
 .edit-mode .column:hover{transform:none}
 .edit-mode .column{overflow:visible}
@@ -89,7 +89,7 @@ body.page-ready{opacity:1}
 .cat-title.ta-right::after{left:calc(-0.5rem * var(--scale) * var(--density-mod))}
 .link-row a{margin-left:calc(-0.8rem * var(--scale) * var(--density-mod));margin-right:calc(-0.8rem * var(--scale) * var(--density-mod))}
 .column ::selection{background:color-mix(in srgb,var(--cat-accent,#00d4ff) 40%,transparent)}
-@keyframes col-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes col-in{from{opacity:0}to{opacity:1}}
 #grid.intro .column{animation:col-in 0.55s cubic-bezier(.2,.7,.2,1) backwards;animation-delay:calc(var(--i,0) * 70ms)}
 @media (prefers-reduced-motion:reduce){#grid.intro .column{animation:none}.column:hover,.link-row a:hover{transform:none!important}}
 .link-icon{object-fit:contain;border-radius:3px;flex-shrink:0;margin-right:0.35rem;vertical-align:middle;display:inline-block;position:relative;top:-0.05em}
@@ -1294,7 +1294,7 @@ function applyScaling(force){
   p.categories.forEach((c,i)=>{const m=mods[i],colPad=1.2*16*m*2;const cf=(o,kind,px)=>{const q=fstyleParts(o.fontStyle,kind);return `${q.i?'italic ':''}${q.w} ${px*fsizeMult(o.fontSize)}px ${fontStack(o.font)}`;};ctx.font=cf(c,'cat',1.3*16*m);let mx=ctx.measureText(c.title).width+2*0.8*16*m;c.links.filter(l=>!l.hidden).forEach(l=>{ctx.font=cf(l,'link',1.0*16*m*lszMult(l.size));mx=Math.max(mx,ctx.measureText(l.name).width);});maxW=Math.max(maxW,mx+colPad,160*m);});
   natW=maxW*p.categories.length+colGap*(p.categories.length-1);   // every card gets the width of the widest oneif(ed)natW+=colGap+42*mod;
   let scale=Math.min(avH/natH,avW/natW);scale=Math.max(Math.min(scale,1.6),0.5);
-  document.documentElement.style.setProperty('--density-mod',mod);document.documentElement.style.setProperty('--scale',scale);document.documentElement.classList.add('scaling-finished');if(!window._introDone){window._introDone=true;grid.classList.add('intro');setTimeout(()=>grid.classList.remove('intro'),1500);}
+  document.documentElement.style.setProperty('--density-mod',mod);document.documentElement.style.setProperty('--scale',scale);if(window._fontsOk){document.documentElement.classList.add('scaling-finished');if(!window._introDone){window._introDone=true;grid.classList.add('intro');setTimeout(()=>grid.classList.remove('intro'),1500);}}
   if(typeof paintAutoGlow==='function')paintAutoGlow();
 }
 window.addEventListener('resize',()=>applyScaling(true));
@@ -1304,13 +1304,16 @@ function switchProfile(idx){state.profile='p'+idx;_lastKey=null;_instantBg=true;
 function toggleProfile(){switchProfile((curIdx()+1)%state.profiles.length);}
 
 // Loads each Google font once, the first time any field uses it; re-measures the grid when it arrives.
-const _fontLinks=new Set();
+const _fontLinks=new Set(),_fontWait=[];
 function ensureFont(f){
   f=fontName(f);if(SYS_FONTS.includes(f)||_fontLinks.has(f))return;_fontLinks.add(f);
   const w=FONT_WGHT[f]!==undefined?FONT_WGHT[f]:':wght@400;700';
   const l=document.createElement('link');l.rel='stylesheet';
   l.href=`https://fonts.googleapis.com/css2?family=${f.replace(/ /g,'+')}${w}&display=swap`;
-  l.onload=()=>{if(document.fonts&&document.fonts.load)Promise.all([document.fonts.load(`400 16px "${f}"`),document.fonts.load(`700 16px "${f}"`)]).then(()=>applyScaling(true)).catch(()=>{});};
+  _fontWait.push(new Promise(res=>{
+    l.onload=()=>{if(document.fonts&&document.fonts.load)Promise.all([document.fonts.load(`400 16px "${f}"`),document.fonts.load(`700 16px "${f}"`)]).then(()=>{applyScaling(true);res();}).catch(res);else res();};
+    l.onerror=res;
+  }));
   document.head.appendChild(l);
 }
 function applyFonts(p){
@@ -1882,7 +1885,7 @@ function applyTabMeta(){document.title=state.tabTitle||'Startpage';const fav=doc
 function editDisable(key){cur()[key]=false;saveAndRender();updateWeather();tickClock();if(document.getElementById('settings-modal').style.display==='flex')renderSettings();}
 document.addEventListener('click',e=>{if(!document.body.classList.contains('edit-mode'))return;if(e.target.closest('.column')||e.target.closest('[onclick*="edit-mode"]')||e.target.closest('.modal')||e.target.closest('#overlay')||e.target.closest('.edit-del-btn')||e.target.closest('.edit-add-btn'))return;document.body.classList.remove('edit-mode');});
 window.onload=()=>{saveAndRender();applyTabMeta();tickClock();setInterval(tickClock,1000);updateWeather();setInterval(()=>{updateWeather();if(cur().bgMode==='unsplash')fetchUnsplashPhoto(true);},30*60*1000);// Wait two frames so the gradient transition suppression completes before revealing
-requestAnimationFrame(()=>requestAnimationFrame(()=>{document.documentElement.classList.add('ready');document.body.classList.add('page-ready');}));
+Promise.race([Promise.all(_fontWait),new Promise(r=>setTimeout(r,1500))]).then(()=>{window._fontsOk=true;applyScaling(true);requestAnimationFrame(()=>requestAnimationFrame(()=>{document.documentElement.classList.add('ready');document.body.classList.add('page-ready');}));});
 };
 </script>
 </body>
