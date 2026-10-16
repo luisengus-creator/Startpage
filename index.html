@@ -16,6 +16,7 @@ body.page-ready{visibility:visible}
 .full-bg-layer{position:fixed;inset:0;z-index:-1;pointer-events:none;background-size:cover;background-position:center;background-repeat:no-repeat;transition:none}
 .ready .full-bg-layer{transition:opacity 1.2s ease,filter var(--fade-speed) ease}
 #dim-el{transition:none}
+#fx-glow{position:fixed;left:0;top:0;z-index:-1;pointer-events:none;border-radius:50%;opacity:0;transition:opacity .35s ease;will-change:transform}
 #dim-el.dim-smooth{transition:background 0.4s ease}
 .container{width:100%;height:100%;margin:0 auto;padding:2vh 2vw;display:flex;flex-direction:column}
 .top-bar{display:flex;justify-content:space-between;align-items:center;z-index:10;flex-shrink:0;margin-bottom:2vh;position:relative}
@@ -353,6 +354,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 <div id="full-bg-b" class="full-bg-layer"></div>
 <canvas id="bg-canvas" style="position:fixed;inset:0;z-index:-1;pointer-events:none;width:100%;height:100%;"></canvas>
 <div id="dim-el" style="position:fixed;inset:0;z-index:-1;background:rgba(0,0,0,0);pointer-events:none;"></div>
+<div id="fx-glow"></div>
 <a id="unsplash-credit" href="#" target="_blank" rel="noopener"></a>
 <div id="overlay" onclick="closeModals()"></div>
 <div class="container">
@@ -510,6 +512,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
           <div class="s-card">
             <div class="s-title">Gradient</div>
             <div class="s-field"><div class="s-lab">Type</div><div class="size-group"><button class="size-btn" id="grad-auto" onclick="setGradType('auto')">Auto</button><button class="size-btn" id="grad-manual" onclick="setGradType('manual')">Manual</button></div></div>
+            <div class="s-field" id="grad-glow-row"><div class="s-lab">Glow direction</div><div class="size-group" id="grad-glow-group" style="flex-wrap:wrap;"><button class="size-btn" data-glow="ud" title="Up and down" onclick="setGlowDir('ud')">&#8597; Up &amp; down</button><button class="size-btn" data-glow="down" title="Down only" onclick="setGlowDir('down')">&#8595; Down</button><button class="size-btn" data-glow="up" title="Up only" onclick="setGlowDir('up')">&#8593; Up</button><button class="size-btn" data-glow="lr" title="Left and right" onclick="setGlowDir('lr')">&#8596; Left &amp; right</button><button class="size-btn" data-glow="left" title="Left only" onclick="setGlowDir('left')">&#8592; Left</button><button class="size-btn" data-glow="right" title="Right only" onclick="setGlowDir('right')">&#8594; Right</button><button class="size-btn" data-glow="all" title="All directions" onclick="setGlowDir('all')">&#10021; All</button></div></div>
             <div id="grad-manual-opts" style="display:none;">
               <div class="s-field"><div class="s-lab">Colors &amp; direction</div>
                 <div class="bd-style-row"><div class="bd-colors"><input type="color" id="grad-color-a" oninput="updateVis();paintGradDirs()" style="display:none"><div class="cp-swatch" onclick="cpOpen('grad-color-a')" title="First color"></div><input type="color" id="grad-color-b" oninput="updateVis();paintGradDirs()" style="display:none"><div class="cp-swatch" onclick="cpOpen('grad-color-b')" title="Second color"></div><button class="btn-icon" onclick="resetGradColors()" title="Reset both colors to default"><i class="fa-solid fa-rotate-left"></i></button></div><div class="bd-dirs" id="grad-dirs"><button class="cp-dir" data-dir="ltr" title="Left to right" onclick="setGradDir('ltr')">→</button><button class="cp-dir" data-dir="rtl" title="Right to left" onclick="setGradDir('rtl')">←</button><button class="cp-dir" data-dir="ttb" title="Top to bottom" onclick="setGradDir('ttb')">↓</button><button class="cp-dir" data-dir="btt" title="Bottom to top" onclick="setGradDir('btt')">↑</button></div></div>
@@ -557,6 +560,10 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
             <div class="s-note">Animated live scene driven by your current <strong style="color:#ccc;">weather &amp; time of day</strong>. Updates automatically.</div>
             <div class="s-slide"><div class="color-row"><span>Intensity</span><span id="time-intensity-val" class="s-val">100%</span></div><div class="bd-slide"><input type="range" id="time-intensity" min="0" max="1" step="0.01" oninput="updateTimeIntensity()" ></div></div>
           </div>
+        </div>
+        <div class="s-card"><div class="s-title">Effects</div>
+          <div class="s-field"><label class="label-inline"><input type="checkbox" id="fx-glow-check" onchange="setFx('cursorGlow',this.checked)"> Glow follows cursor</label></div>
+          <div class="s-slide" id="fx-glow-row"><div class="color-row"><span>Glow strength</span><span id="fx-glow-val" class="s-val"></span></div><div class="bd-slide"><input type="range" id="fx-glow-amt" min="0.05" max="1" step="0.01" oninput="setFx('cursorGlowAmt',parseFloat(this.value))"></div></div>
         </div>
       </div>
     </div>
@@ -974,10 +981,13 @@ state.profiles.forEach(p=>{
   if(p.cardOpacity===undefined)p.cardOpacity=0.1;
   if(!p.gradType)p.gradType='auto';
   if(!p.gradDir)p.gradDir='ltr';
+  if(!p.glowDir)p.glowDir='ud';
+  if(p.cursorGlow===undefined)p.cursorGlow=false;
+  if(p.cursorGlowAmt===undefined)p.cursorGlowAmt=0.5;
   if(!p.gradColorA)p.gradColorA='#1C1B22';
   if(!p.gradColorB)p.gradColorB='#00d4ff';
   if(p.opGradient===undefined)p.opGradient=0.1;
-  if(p.gradShade===undefined)p.gradShade=0;
+  if(p.gradShade===undefined)p.gradShade=-0.5;
   if(p.fuzzy===undefined)p.fuzzy=0;
   if(p.photoDim===undefined)p.photoDim=0.1;
   if(p.weatherBackdrop===undefined)p.weatherBackdrop=0.1;
@@ -1370,19 +1380,89 @@ function doSearch(e){e.preventDefault();const q=document.getElementById('search-
 // ── Main render ──
 // Auto gradient: a soft, tall glow of each category's colour behind its own card (ambience, not a hard gradient)
 function autoGlowCss(p){
-  const cols=[...document.querySelectorAll('#grid .column')],layers=[],vh=window.innerHeight;
+  const cols=[...document.querySelectorAll('#grid .column')],layers=[],vh=window.innerHeight,vw=window.innerWidth,mode=p.glowDir||'ud';
+  const stops=rgb=>`rgba(${rgb},0.30) 0%,rgba(${rgb},0.17) 35%,rgba(${rgb},0.06) 70%,rgba(${rgb},0) 100%`;
+  // full ellipse
+  const full=(rgb,cx,cy,rx,ry)=>`radial-gradient(ellipse ${rx}px ${ry}px at ${cx}px ${cy}px,${stops(rgb)})`;
+  // one half of an ellipse, clipped to its own rectangle; two halves with different radii meet at the same peak intensity, so there is no visible seam
+  const half=(rgb,cx,cy,rx,ry,side)=>{
+    let x,y,w,h,lx,ly;
+    if(side==='d'){x=cx-rx;y=cy;w=2*rx;h=ry;lx=rx;ly=0;}
+    else if(side==='u'){x=cx-rx;y=cy-ry;w=2*rx;h=ry;lx=rx;ly=ry;}
+    else if(side==='r'){x=cx;y=cy-ry;w=rx;h=2*ry;lx=0;ly=ry;}
+    else{x=cx-rx;y=cy-ry;w=rx;h=2*ry;lx=rx;ly=ry;}
+    return `radial-gradient(ellipse ${rx}px ${ry}px at ${lx}px ${ly}px,${stops(rgb)}) ${x}px ${y}px / ${w}px ${h}px no-repeat`;
+  };
   cols.forEach((el,i)=>{
     const cat=p.categories[i];if(!cat||!cat.color)return;
     const r=el.getBoundingClientRect();if(!r.width||!r.height)return;
     let rgb;try{rgb=hexToRgbStr(cat.color);}catch(e){return;}
-    const cx=Math.round(r.left+r.width/2),cy=Math.round(r.top+r.height*0.45),rx=Math.round(r.width*0.95),ry=Math.round(Math.max(r.height*1.6,vh*0.6));
-    layers.push(`radial-gradient(ellipse ${rx}px ${ry}px at ${cx}px ${cy}px,rgba(${rgb},0.30) 0%,rgba(${rgb},0.17) 35%,rgba(${rgb},0.06) 70%,rgba(${rgb},0) 100%)`);
+    const L=r.left,T=r.top,W=r.width,H=r.height;
+    const cx=Math.round(L+W/2);
+    const narrowX=Math.round(W*0.95),tallY=Math.round(Math.max(H*1.6,vh*0.6));      // classic up & down proportions
+    const wideX=Math.round(Math.max(W*2.2,vw*0.28)),flatY=Math.round(Math.max(H*0.95,vh*0.22)); // sideways proportions
+    const cyMid=Math.round(T+H*0.45),cxMid=cx;
+    if(mode==='down'){const cy=Math.round(T+H*0.3);layers.push(half(rgb,cx,cy,narrowX,Math.round(Math.max(H*1.8,vh*0.65)),'d'),half(rgb,cx,cy,narrowX,Math.max(1,Math.round(H*0.3)),'u'));}
+    else if(mode==='up'){const cy=Math.round(T+H*0.7);layers.push(half(rgb,cx,cy,narrowX,Math.round(Math.max(H*1.8,vh*0.65)),'u'),half(rgb,cx,cy,narrowX,Math.max(1,Math.round(H*0.3)),'d'));}
+    else if(mode==='lr'){layers.push(full(rgb,cx,cyMid,wideX,flatY));}
+    else if(mode==='left'){const x0=Math.round(L+W*0.7);layers.push(half(rgb,x0,cyMid,wideX,flatY,'l'),half(rgb,x0,cyMid,Math.max(1,Math.round(W*0.7)),flatY,'r'));}
+    else if(mode==='right'){const x0=Math.round(L+W*0.3);layers.push(half(rgb,x0,cyMid,wideX,flatY,'r'),half(rgb,x0,cyMid,Math.max(1,Math.round(W*0.3)),flatY,'l'));}
+    else if(mode==='all'){layers.push(full(rgb,cxMid,cyMid,Math.round(Math.max(W*1.6,vw*0.3)),tallY));}
+    else{layers.push(full(rgb,cx,cyMid,narrowX,tallY));}
   });
   const sh=Math.max(-1,Math.min(1,p.gradShade||0));
   if(sh!==0){const c=sh>0?'255,255,255':'0,0,0',al=Math.abs(sh);layers.unshift(`linear-gradient(rgba(${c},${al}),rgba(${c},${al}))`);}
   return layers.length?layers.join(','):'none';
 }
 function paintAutoGlow(){const p=cur();if(!p||p.bgImg||(p.bgMode||'gradient')!=='gradient'||p.gradType==='manual')return;const bgA=document.getElementById('full-bg-a');if(bgA)bgA.style.background=autoGlowCss(p);}
+// ── Effects: cursor glow (works on top of every background mode) ──
+const FX={x:0,y:0,tx:0,ty:0,rgb:[255,255,255],trgb:[255,255,255],raf:0,seen:false,on:false,amt:0.5,R:300};
+function fxNearestColor(x,y){
+  const p=cur(),cols=document.querySelectorAll('#grid .column');let best=-1,bd=Infinity;
+  cols.forEach((el,i)=>{const r=el.getBoundingClientRect(),dx=x<r.left?r.left-x:(x>r.right?x-r.right:0),dy=y<r.top?r.top-y:(y>r.bottom?y-r.bottom:0),d=dx*dx+dy*dy;if(d<bd){bd=d;best=i;}});
+  const c=p&&p.categories[best];if(!c||!c.color)return null;
+  try{return hexToRgbStr(c.color).split(',').map(Number);}catch(e){return null;}
+}
+function fxPaint(){
+  const el=document.getElementById('fx-glow');if(!el)return;
+  const a=0.5*FX.amt,c=FX.rgb.map(Math.round).join(',');
+  el.style.transform=`translate3d(${Math.round(FX.x-FX.R)}px,${Math.round(FX.y-FX.R)}px,0)`;
+  el.style.background=`radial-gradient(circle closest-side,rgba(${c},${a}) 0%,rgba(${c},${a*0.55}) 35%,rgba(${c},${a*0.15}) 70%,rgba(${c},0) 100%)`;
+}
+function fxTick(){
+  FX.raf=0;
+  FX.x+=(FX.tx-FX.x)*0.2;FX.y+=(FX.ty-FX.y)*0.2;
+  let moving=Math.abs(FX.tx-FX.x)>0.4||Math.abs(FX.ty-FX.y)>0.4;
+  for(let i=0;i<3;i++){const d=FX.trgb[i]-FX.rgb[i];if(Math.abs(d)>0.5){FX.rgb[i]+=d*0.12;moving=true;}else FX.rgb[i]=FX.trgb[i];}
+  fxPaint();
+  if(moving)FX.raf=requestAnimationFrame(fxTick);
+}
+document.addEventListener('pointermove',e=>{
+  if(!FX.on||e.pointerType==='touch')return;
+  const el=document.getElementById('fx-glow');
+  FX.tx=e.clientX;FX.ty=e.clientY;
+  const c=fxNearestColor(e.clientX,e.clientY);if(c)FX.trgb=c;
+  if(!FX.seen){FX.seen=true;FX.x=FX.tx;FX.y=FX.ty;FX.rgb=FX.trgb.slice();}
+  el.style.opacity=1;
+  if(!FX.raf)FX.raf=requestAnimationFrame(fxTick);
+});
+document.documentElement.addEventListener('mouseleave',()=>{const el=document.getElementById('fx-glow');if(el)el.style.opacity=0;});
+function applyFx(p){
+  if(!p)return;
+  const g=document.getElementById('fx-glow');if(!g)return;
+  FX.on=!!p.cursorGlow;FX.amt=p.cursorGlowAmt??0.5;FX.R=Math.round(Math.max(260,window.innerWidth*0.17));
+  g.style.width=g.style.height=(FX.R*2)+'px';
+  if(!FX.on){g.style.opacity=0;}else if(FX.seen){fxPaint();}
+}
+function setFx(k,v){const p=cur();p[k]=v;try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}applyFx(p);syncFx(p);}
+function syncFx(p){
+  const set=(id,fn)=>{const el=document.getElementById(id);if(el)fn(el);};
+  set('fx-glow-check',el=>el.checked=!!p.cursorGlow);
+  set('fx-glow-row',el=>el.style.display=p.cursorGlow?'':'none');
+  set('fx-glow-amt',el=>{if(document.activeElement!==el)el.value=p.cursorGlowAmt??0.5;});
+  set('fx-glow-val',el=>el.textContent=Math.round((p.cursorGlowAmt??0.5)*100)+'%');
+}
+window.addEventListener('resize',()=>applyFx(cur()));
 function saveAndRender(refreshModal=false){
   localStorage.setItem(KEY,JSON.stringify(state));
   const p=cur();if(!p)return;
@@ -1394,7 +1474,7 @@ function saveAndRender(refreshModal=false){
   document.documentElement.style.setProperty('--widget-radius',p.cornerStyle==='round'?'14px':'0px');
   document.documentElement.style.setProperty('--search-radius',p.cornerStyle==='round'?'24px':'0px');
   updateModalAccent();renderSearch();
-  applyBackdropColors(p);
+  applyBackdropColors(p);applyFx(p);
   const bgA=document.getElementById('full-bg-a'),bgB=document.getElementById('full-bg-b'),dimEl=document.getElementById('dim-el'),credit=document.getElementById('unsplash-credit');
   dimInstant();
   if(_instantBg){_instantBg=false;const tok=++_atomicTok;[bgA,bgB].forEach(bg=>bg.style.transition='none');requestAnimationFrame(()=>requestAnimationFrame(()=>{if(tok===_atomicTok)[bgA,bgB].forEach(bg=>bg.style.transition='');}));}
@@ -1458,7 +1538,7 @@ function renderSettings(){
   const ga=document.getElementById('grad-color-a'),gb=document.getElementById('grad-color-b');
   if(ga){ga.value=p.gradColorA||'#1C1B22';cpSync('grad-color-a');}if(gb){gb.value=p.gradColorB||'#00d4ff';cpSync('grad-color-b');}
   // grad intensity
-  syncGradShade(p);
+  syncGradShade(p);syncFx(p);
   // bg color
   const bc=document.getElementById('bg-color');if(bc){bc.value=p.bgColor||'#1C1B22';cpSync('bg-color');}
   // photo
@@ -1843,7 +1923,8 @@ function setBgMode(mode){
   if(mode!=='time')stopBgCanvas();
   saveAndRender();renderSettings();renderCityManager();
 }
-function syncGradShade(p){const row=document.getElementById('grad-shade-row'),gs=document.getElementById('grad-shade'),gv=document.getElementById('grad-shade-val');if(row)row.style.display=(p.gradType==='manual')?'none':'';const v=p.gradShade||0;if(gs&&document.activeElement!==gs)gs.value=v;if(gv)gv.textContent=v===0?'Original':(v<0?'Darker ':'Lighter ')+Math.round(Math.abs(v)*100)+'%';}
+function setGlowDir(d){const p=cur();p.glowDir=d;syncGradShade(p);saveAndRender();}
+function syncGradShade(p){const grow=document.getElementById('grad-glow-row');if(grow){grow.style.display=(p.gradType==='manual')?'none':'';document.querySelectorAll('#grad-glow-group .size-btn').forEach(b=>b.classList.toggle('active',b.dataset.glow===(p.glowDir||'ud')));}const row=document.getElementById('grad-shade-row'),gs=document.getElementById('grad-shade'),gv=document.getElementById('grad-shade-val');if(row)row.style.display=(p.gradType==='manual')?'none':'';const v=p.gradShade||0;if(gs&&document.activeElement!==gs)gs.value=v;if(gv)gv.textContent=v===0?'Original':(v<0?'Darker ':'Lighter ')+Math.round(Math.abs(v)*100)+'%';}
 function setGradType(t){const p=cur();p.gradType=t;syncGradShade(p);document.getElementById('grad-manual-opts').style.display=t==='manual'?'block':'none';['auto','manual'].forEach(x=>{const b=document.getElementById('grad-'+x);if(b)b.classList.toggle('active',x===t);});saveAndRender();}
 function paintGradDirs(){const p=cur(),a=p.gradColorA||'#1C1B22',b=p.gradColorB||'#00d4ff',m={ltr:'90deg',rtl:'270deg',ttb:'180deg',btt:'0deg'};document.querySelectorAll('#grad-dirs .cp-dir').forEach(el=>{const d=el.dataset.dir;el.style.background=`linear-gradient(${m[d]},${a},${b})`;el.classList.toggle('active',(p.gradDir||'ltr')===d);});}
 function setGradDir(d){const p=cur();p.gradDir=d;paintGradDirs();saveAndRender();}
