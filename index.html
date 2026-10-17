@@ -161,8 +161,10 @@ body.page-ready{visibility:visible}
 .wx-compact{display:flex;align-items:center;gap:0.75rem;padding:0.35rem 1rem;border-radius:999px;position:relative;background:rgba(255,255,255,calc(0.04 * var(--weather-on,1)))}
 .wx-cnow{font-weight:300;line-height:1}
 .wx-ccond{opacity:0.6}
-.wx-pop{position:absolute;bottom:100%;left:50%;padding-bottom:10px;transform:translateX(-50%) translateY(6px);opacity:0;pointer-events:none;transition:opacity 0.2s ease,transform 0.2s ease;z-index:20}
-.wx-compact:hover .wx-pop{opacity:1;transform:translateX(-50%);pointer-events:auto}
+.wx-ctrig{display:flex;align-items:center;gap:0.75rem;position:relative}
+.wx-pop{position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%) translateY(6px);opacity:0;pointer-events:none;transition:opacity 0.2s ease,transform 0.2s ease;z-index:20}
+.wx-ctrig:hover .wx-pop{opacity:1;transform:translateX(-50%)}
+.wx-pop,.wx-pop *{pointer-events:none !important}
 .wx-pop-in{display:flex;gap:0.25rem;padding:0.5rem;background:rgba(14,14,14,0.9);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,0.1);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,0.5)}
 #weather-area::before{content:'';position:absolute;left:-14%;right:-14%;top:0;bottom:-12px;background:radial-gradient(ellipse 60% 75% at 50% 85%,rgba(var(--wx-tint,150,160,185),0.28),rgba(var(--wx-tint,150,160,185),0) 100%);pointer-events:none;z-index:-1;opacity:0;transition:opacity 0.8s ease}
 #weather-area.wx-tinted::before{opacity:1}
@@ -1833,7 +1835,7 @@ function renderWxGrid(){
   }else if(style==='range'){
     html=`<div class="wx-strip">${rangeCols()}</div>`;
   }else if(style==='compact'){
-    html=`<div class="wx-compact" style="color:${col}"><i class="fa-solid ${nowInfo.icon} ${an(nowInfo)}" style="color:${icc(nowInfo)};font-size:${F(1.5)}"></i><span class="wx-cnow" style="font-size:${F(1.9)}">${curT}°</span><span class="wx-ccond" style="font-size:${F(0.8)}">${nowInfo.label}</span><div class="wx-pop"><div class="wx-pop-in">${rangeCols()}</div></div></div>`;
+    html=`<div class="wx-compact" style="color:${col}"><div class="wx-ctrig"><i class="fa-solid ${nowInfo.icon} ${an(nowInfo)}" style="color:${icc(nowInfo)};font-size:${F(1.5)}"></i><span class="wx-cnow" style="font-size:${F(1.9)}">${curT}°</span><div class="wx-pop"><div class="wx-pop-in">${rangeCols()}</div></div></div><span class="wx-ccond" style="font-size:${F(0.8)}">${nowInfo.label}</span></div>`;
   }else{
     const dfs=(0.62*cs).toFixed(2)+'rem',ifs=(1.10*cs).toFixed(2)+'rem',tfs=(0.88*cs).toFixed(2)+'rem',tms=(0.72*cs).toFixed(2)+'rem';
     const cp=sz==='s'?'0.35rem 0.5rem':sz==='l'?'0.65rem 0.9rem':'0.5rem 0.7rem',mw=sz==='s'?'4.2rem':sz==='l'?'7.2rem':'6.0rem';
