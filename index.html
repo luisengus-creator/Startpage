@@ -121,6 +121,7 @@ body.page-ready{visibility:visible}
 .spin-anim{animation:spin-once 0.55s cubic-bezier(0.4,0,0.2,1) forwards}
 #weather-area.weather-hidden{opacity:0!important;visibility:hidden!important;pointer-events:none;height:0!important;padding:0!important;margin:0!important;overflow:hidden}
 #weather-area .weather-bg-wrap{background-color:rgba(var(--weather-rgb),calc(var(--weather-backdrop,0) * var(--weather-solid,1)));background-image:var(--weather-img,none);background-origin:border-box;background-repeat:no-repeat;border-radius:var(--widget-radius);padding:6px 18px;display:flex;flex-direction:column;align-items:center;gap:0.5rem;transition:background 0.3s}
+#weather-area,#city-name{-webkit-user-select:none;user-select:none}
 #city-name{font-size:calc(0.75rem * var(--weather-fsz,1));opacity:0.5;letter-spacing:3px;cursor:pointer;text-transform:uppercase}
 #weather-grid{display:flex;gap:0.6rem;align-items:center;cursor:pointer}
 .weather-card{background:rgba(255,255,255,calc(0.03 * var(--weather-on)));padding:0.5rem 0.7rem;border-radius:var(--widget-radius);border:none;text-align:center;min-width:5.5rem}
@@ -1752,7 +1753,7 @@ function cDrop(e,i){e.preventDefault();document.querySelectorAll('.city-item').f
 async function searchCity(q){if(q.length<3){document.getElementById('search-results').innerHTML='';return;}const r=await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${q}&count=5&language=en&format=json`);const d=await r.json();document.getElementById('search-results').innerHTML=(d.results||[]).map(c=>`<div class="search-result-item" onclick="addCity('${c.name}',${c.latitude},${c.longitude})">${c.name}, ${c.admin1||''} (${c.country_code})</div>`).join('');}
 function addCity(name,lat,lon){state.cities.push({name,lat,lon,photoMode:'generic'});document.getElementById('search-results').innerHTML='';document.getElementById('city-search-input').value='';renderCityManager();saveAndRender();updateWeather();}
 function removeCity(i){if(state.cities.length>1){state.cities.splice(i,1);cityIdx=0;renderCityManager();saveAndRender();updateWeather();}}
-function cycleCity(){cityIdx=(cityIdx+1)%state.cities.length;updateWeather();}
+function cycleCity(){cityIdx=(cityIdx+1)%state.cities.length;try{window.getSelection().removeAllRanges();}catch(e){}updateWeather();}
 
 const WX_H={classic:148,hero:212,range:196,compact:106};
 function wxAreaH(p){const sz=p.weatherSize||'m';return Math.round((WX_H[p.weatherStyle||'hero']||148)*(sz==='s'?0.92:sz==='l'?1.1:1));}
