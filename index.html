@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <style>
-:root{--bg:#1C1B22;--scale:1;--density-mod:1;--fs-unit:calc(1rem * var(--scale) * var(--density-mod));--fade-speed:0.5s;--widget-radius:0px;--search-radius:0px;--clock-backdrop:0.1;--search-backdrop:0.1;--card-rgb:0,0,0;--clock-rgb:0,0,0;--search-rgb:0,0,0;--weather-rgb:0,0,0;--card-on:min(1,calc(var(--card-opacity,0.1) * 1000));--weather-on:min(1,calc(var(--weather-backdrop,0.1) * 1000));--search-on:min(1,calc(var(--search-backdrop,0.1) * 1000))}
+:root{--bg:#1C1B22;--wx-k:0.52;--scale:1;--density-mod:1;--fs-unit:calc(1rem * var(--scale) * var(--density-mod));--fade-speed:0.5s;--widget-radius:0px;--search-radius:0px;--clock-backdrop:0.1;--search-backdrop:0.1;--card-rgb:0,0,0;--clock-rgb:0,0,0;--search-rgb:0,0,0;--weather-rgb:0,0,0;--card-on:min(1,calc(var(--card-opacity,0.1) * 1000));--weather-on:min(1,calc(var(--weather-backdrop,0.1) * 1000));--search-on:min(1,calc(var(--search-backdrop,0.1) * 1000))}
 *{box-sizing:border-box}
 body{margin:0;padding:0;font-family:'Inter',system-ui,sans-serif;background-color:var(--bg);color:white;height:100vh;display:flex;flex-direction:column;overflow:hidden;font-size:var(--fs-unit);visibility:hidden}
 body.page-ready{visibility:visible}
@@ -52,7 +52,7 @@ body.page-ready{visibility:visible}
 .line-ico{display:block;width:12px;background:currentColor;border-radius:1px}
 .row-end{width:28px;height:28px;flex:none;padding:0;display:flex;align-items:center;justify-content:center}
 .editor-link-row{position:relative}
-.editor-link-row>.drag-handle{position:absolute;left:-14px;top:17px;padding:0 2px}
+.editor-link-row>.drag-handle{position:absolute;left:-14px;top:25px;padding:0 2px}
 .font-revert-btn{height:28px}
 .font-revert-btn[disabled]{opacity:0.3;cursor:default;pointer-events:none}
 .link-font-row{flex-wrap:wrap}
@@ -122,9 +122,24 @@ body.page-ready{visibility:visible}
 #weather-area.weather-hidden{opacity:0!important;visibility:hidden!important;pointer-events:none;height:0!important;padding:0!important;margin:0!important;overflow:hidden}
 #weather-area .weather-bg-wrap{background-color:rgba(var(--weather-rgb),calc(var(--weather-backdrop,0) * var(--weather-solid,1)));background-image:var(--weather-img,none);background-origin:border-box;background-repeat:no-repeat;border-radius:var(--widget-radius);padding:6px 18px;display:flex;flex-direction:column;align-items:center;gap:0.5rem;transition:background 0.3s}
 #weather-area,#city-name{-webkit-user-select:none;user-select:none}
-#city-name{font-size:calc(0.75rem * var(--weather-fsz,1));opacity:0.5;letter-spacing:3px;cursor:pointer;text-transform:uppercase}
-#weather-grid{display:flex;gap:0.6rem;align-items:center;cursor:pointer}
+#city-name{font-family:var(--tx-wx-city-ff,inherit);font-weight:var(--tx-wx-city-fw,400);font-style:var(--tx-wx-city-fi,normal);font-size:calc(0.9rem * var(--tx-wx-city-z,1));padding-left:3px;letter-spacing:3px;cursor:pointer;text-transform:uppercase}
+#weather-grid{display:flex;gap:calc(0.6rem * var(--wx-k,1));align-items:center;cursor:pointer}
 .weather-card{background:rgba(255,255,255,calc(0.03 * var(--weather-on)));padding:0.5rem 0.7rem;border-radius:var(--widget-radius);border:none;text-align:center;min-width:5.5rem}
+.tx-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 16px;margin:2px 0 4px}
+.tx-head{font-size:0.8rem;color:#bbb;margin:6px 0 8px}
+#settings-modal{font-family:var(--ui-ff,'Inter',system-ui,sans-serif);font-style:var(--ui-fi,normal)}
+#settings-modal input,#settings-modal select,#settings-modal button,#settings-modal textarea{font-family:inherit}
+#settings-modal .label-inline,#settings-modal .inl>span,#settings-modal .s-lab,#settings-modal .s-note,#settings-modal .tx-head,#settings-modal .tx-lab{font-weight:var(--ui-fw,400);font-style:var(--ui-fi,normal)}
+#settings-modal.ui-colored .label-inline,#settings-modal.ui-colored .inl>span,#settings-modal.ui-colored .s-lab,#settings-modal.ui-colored .s-note,#settings-modal.ui-colored .tx-head,#settings-modal.ui-colored .tx-lab,#settings-modal.ui-colored .settings-nav-item:not(.active),#settings-modal.ui-colored input,#settings-modal.ui-colored select{color:var(--ui-c)}
+.tx-cell{display:flex;flex-direction:column;gap:5px;min-width:0}
+.tx-lab{font-size:0.72rem;color:#999}
+.tx-ctl{display:flex;align-items:center;gap:4px;min-width:0}
+.tx-cell .font-dd{flex:1;min-width:0}.tx-cell .font-dd-btn{width:100%}
+.tx-cell select[data-k]{flex:1;min-width:0;width:auto;height:30px;line-height:28px;font-size:0.76rem;padding:0 4px}
+.tx-cell select:disabled{opacity:0.4;cursor:not-allowed}
+.tx-fdd{flex:1.5 1 0;min-width:0}.tx-fdd.dis{opacity:0.4;pointer-events:none}.tx-fdd .font-dd{width:100%}
+.tx-cell .btn-icon{flex-shrink:0}
+
 .wx-dl{display:flex;gap:4px;align-items:baseline;justify-content:center;opacity:0.6;text-transform:uppercase;font-weight:700;white-space:nowrap}
 .wx-hero{display:flex;flex-direction:column;align-items:center;gap:0.55rem}
 .wx-now{display:flex;align-items:center;gap:1rem}
@@ -159,16 +174,16 @@ body.page-ready{visibility:visible}
 .wx-rain i{color:#5fb4ff}
 .wx-dot{position:absolute;left:50%;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px rgba(0,0,0,0.55),0 0 8px rgba(255,255,255,0.6);font-style:normal}
 .wx-lo{opacity:0.45}
-.wx-compact{display:flex;align-items:center;gap:0.75rem;padding:0.35rem 1rem;border-radius:999px;position:relative;background:rgba(255,255,255,calc(0.04 * var(--weather-on,1)))}
-.wx-cnow{font-weight:300;line-height:1}
-.wx-ccond{opacity:0.6}
-.wx-ctrig{display:flex;align-items:center;gap:0.75rem;position:static}
+.wx-compact{display:flex;align-items:center;gap:calc(0.75rem * var(--wx-k,1));padding:calc(0.35rem * var(--wx-k,1)) calc(1rem * var(--wx-k,1));border-radius:999px;position:relative;background:rgba(255,255,255,calc(0.04 * var(--weather-on,1)))}
+.wx-cnow{line-height:1}
+.wx-ccond{}
+.wx-ctrig{display:flex;align-items:center;gap:calc(0.75rem * var(--wx-k,1));position:static}
 .wx-pop{position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%) translateY(6px);opacity:0;pointer-events:none;transition:opacity 0.2s ease,transform 0.2s ease;z-index:20}
 .wx-ctrig:hover .wx-pop{opacity:1;transform:translateX(-50%)}
 .wx-pop,.wx-pop *{pointer-events:none !important}
 .wx-pop-in{display:flex;gap:0.25rem;padding:0.5rem;background:rgba(14,14,14,0.9);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,0.1);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,0.5)}
-#weather-area::before{content:'';position:absolute;left:-14%;right:-14%;top:0;bottom:-12px;background:radial-gradient(ellipse 60% 75% at 50% 85%,rgba(var(--wx-tint,150,160,185),0.28),rgba(var(--wx-tint,150,160,185),0) 100%);pointer-events:none;z-index:-1;opacity:0;transition:opacity 0.8s ease}
-#weather-area.wx-tinted::before{opacity:1}
+#weather-area .weather-bg-wrap{position:relative}
+/* weather glow now lives in #bottom-dock (see #glow-wx) */
 @keyframes wxSpin{to{transform:rotate(360deg)}}
 @keyframes wxDrift{0%,100%{transform:translateX(-2px)}50%{transform:translateX(2px)}}
 @keyframes wxBob{0%,100%{transform:translateY(-1.5px)}50%{transform:translateY(1.5px)}}
@@ -182,7 +197,7 @@ body.page-ready{visibility:visible}
 .wxa-flicker{animation:wxFlicker 4s linear infinite}
 @media (prefers-reduced-motion:reduce){.wxa-spin,.wxa-spin2,.wxa-drift,.wxa-bob,.wxa-glow,.wxa-flicker{animation:none}}
 #wx-style-group .size-btn{white-space:nowrap;padding:0 6px}
-.weather-temp{font-weight:bold;font-size:calc(0.82rem * var(--weather-fsz,1))}
+.weather-temp{font-weight:bold;font-size:0.82rem}
 .modal{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#0a0a0a;border-radius:16px;z-index:2000;width:min(1040px,96vw);height:min(88vh,680px);border:1px solid var(--modal-accent-border,#00d4ff33);overflow:hidden;padding:0}
 #settings-sidebar{width:148px;flex-shrink:0;background:#060606;border-right:1px solid rgba(255,255,255,0.05);display:flex;flex-direction:column;padding:1.2rem 0;overflow-y:auto;height:100%;box-sizing:border-box}
 .settings-nav-item{padding:0.5rem 1.0rem;font-size:0.70rem;font-weight:600;color:#555;cursor:pointer;transition:0.15s;border-left:2px solid transparent;letter-spacing:0.3px;white-space:nowrap;text-transform:uppercase;user-select:none;display:flex;align-items:center;gap:7px}
@@ -207,6 +222,9 @@ input:focus,select:focus{outline:none;border-color:var(--modal-accent,#00d4ff)}
 .size-group{display:flex;gap:4px;background:#111;padding:4px;border-radius:8px;border:1px solid #222;margin-bottom:14px}
 .size-btn{flex:1;height:30px;border-radius:5px;border:none;background:transparent;color:#555;cursor:pointer;transition:0.2s;font-weight:700;font-size:0.78rem}
 .size-btn.active{background:var(--modal-accent,#00d4ff);color:var(--accent-text,#000)}
+.size-btn,.al-btn,.bg-mode-btn{display:flex;align-items:center;justify-content:center;text-align:center;line-height:1;padding:0 10px;font-weight:700;font-size:0.78rem;box-sizing:border-box}
+.pmt-btn{display:inline-flex;align-items:center;justify-content:center;line-height:1}
+.size-btn.active,.al-btn.active,.bg-mode-btn.active,.pmt-btn.pmt-active{color:var(--accent-text,#000)!important}
 button{cursor:pointer;background:#1a1a1a;border:1px solid #2a2a2a;padding:9px 12px;border-radius:6px;width:100%;font-weight:600;font-size:0.82rem;color:#ccc;transition:0.15s}
 button:hover{background:#242424;border-color:#333;color:white}
 input[type="checkbox"]{width:14px!important;height:14px!important;margin:0;cursor:pointer;flex-shrink:0;accent-color:var(--modal-accent,#00d4ff)}
@@ -223,10 +241,10 @@ input[type="color"]{width:34px!important;height:26px!important;padding:2px 3px!i
 .btn-icon:hover{border-color:#444;color:#ccc;background:#1a1a1a}
 .select-inline{width:148px!important;height:30px!important;line-height:28px!important;font-size:0.78rem!important;padding:0 6px!important;flex-shrink:0}
 .flex-row input,div[style*="display:flex"]>input{width:auto!important}
-.ql-row{display:flex;gap:5px;align-items:center;margin-bottom:0;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,0.25)}
+.ql-row{display:flex;gap:5px;align-items:center;margin-bottom:0;padding:16px 0;border-bottom:2px solid color-mix(in srgb,var(--modal-accent,#00d4ff) 60%,transparent)}
 .ql-row:last-child{border-bottom:none}
 .ql-row input[type="text"]{flex:1;height:28px;font-size:0.75rem;user-select:text;-webkit-user-select:text;pointer-events:auto;position:relative;z-index:1}
-.editor-link-row{display:flex;gap:5px;margin-bottom:0;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,0.25);align-items:center;width:100%}
+.editor-link-row{display:flex;gap:5px;margin-bottom:0;padding:16px 0;border-bottom:2px solid color-mix(in srgb,var(--modal-accent,#00d4ff) 60%,transparent);align-items:center;width:100%}
 .editor-link-row:last-child{border-bottom:none}
 .editor-link-row input[type="text"]{flex:1;height:28px;font-size:0.75rem;user-select:text;-webkit-user-select:text;pointer-events:auto;position:relative;z-index:1}
 .editor-link-row input[type="color"]{width:34px!important;height:26px!important}
@@ -241,13 +259,13 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 .pmt-btn{background:transparent;border:none;border-radius:3px;color:#555;cursor:pointer;font-size:0.62rem;font-weight:700;padding:2px 6px;transition:0.15s;width:auto}
 .pmt-btn:hover{color:#aaa}
 .pmt-btn.pmt-active{background:var(--modal-accent,#00d4ff);color:var(--accent-text,#000)}
-#search-bar-wrap{flex-shrink:0;display:flex;justify-content:center;align-items:center;padding:0 2vw 1.4vh;height:52px}
+#search-bar-wrap{flex-shrink:0;display:flex;justify-content:center;align-items:center;padding:0 2vw 1.4vh;height:calc(52px + 38px * (var(--search-fz,1) - 1))}
 #search-bar-wrap.search-hidden{opacity:0;visibility:hidden;pointer-events:none;height:0!important;overflow:hidden;margin:0!important;padding:0!important}
-#search-form{display:flex;align-items:center;width:min(480px,90%);background-color:rgba(var(--search-rgb),calc(var(--search-backdrop) * var(--search-solid,1)));background-image:var(--search-img,none);background-origin:border-box;background-repeat:no-repeat;border:none;border-radius:var(--search-radius);padding:0 6px 0 16px;transition:background 0.2s,border-color 0.2s,box-shadow 0.2s;gap:4px}
+#search-form{display:flex;align-items:center;width:min(calc(480px * var(--search-fz,1)),90%);background-color:rgba(var(--search-rgb),calc(var(--search-backdrop) * var(--search-solid,1)));background-image:var(--search-img,none);background-origin:border-box;background-repeat:no-repeat;border:none;border-radius:var(--search-radius);padding:0 6px 0 16px;transition:background 0.2s,border-color 0.2s,box-shadow 0.2s;gap:4px}
 #search-form:focus-within{border-color:rgba(255,255,255,0.18);box-shadow:0 0 0 2px var(--modal-accent-border,rgba(var(--accent-rgb,0,212,255),0.15))}
-#search-input{flex:1;background:transparent;border:none;outline:none;color:white;font-size:0.88rem;height:38px;padding:0;font-family:inherit}
-#search-form{font-family:var(--search-font,'Inter',system-ui,sans-serif)}
-#search-form .se-current,#search-form .se-option,#search-form #search-submit{font-family:inherit}
+#search-input{flex:1;background:transparent;border:none;outline:none;color:var(--search-color,white);font-size:calc(1rem * var(--search-fz,1));height:calc(38px * var(--search-fz,1));padding:0;font-family:inherit;font-weight:inherit;font-style:inherit}
+#search-form{font-family:var(--search-font,'Inter',system-ui,sans-serif);font-weight:var(--search-fw,400);font-style:var(--search-fi,normal)}
+#search-form .se-current,#search-form .se-option,#search-form #search-submit{font-family:inherit;font-weight:inherit;font-style:inherit}
 #weather-area{font-family:var(--weather-font,'Inter',system-ui,sans-serif)}
 /* font pickers (same control everywhere) */
 .font-field{display:flex;align-items:center;gap:4px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end}
@@ -286,6 +304,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 .bd-slide input[type=range]{flex:1;min-width:0;margin:0}
 .s-note{font-size:0.68rem;color:#888;margin-bottom:12px;line-height:1.5}
 .s-title{font-size:0.62rem;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--modal-accent,#00d4ff);margin-bottom:12px}
+.inl-row.nw{flex-wrap:nowrap;justify-content:space-between;gap:10px 14px}.inl-row.nw>*{flex-shrink:1;min-width:0;white-space:nowrap}
 .inl-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px 26px;margin-bottom:12px}
 .inl{display:flex;align-items:center;gap:8px}
 .inl>span{font-size:0.8rem;color:#bbb;white-space:nowrap}
@@ -298,9 +317,9 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 .link-font-row .font-field select{height:26px!important;line-height:24px!important;font-size:0.72rem!important}
 .link-font-row .font-field select[data-k="style"]{width:82px!important}.link-font-row .font-field select[data-k="size"]{width:70px!important}
 .link-font-row .font-all-btn,.link-font-row .font-revert-btn{height:26px}
-#search-input::placeholder{color:rgba(255,255,255,0.25)}
+#search-input::placeholder{color:var(--search-color,white);opacity:0.4}
 .se-dropdown{position:relative;flex-shrink:0}
-.se-current{display:flex;align-items:center;gap:4px;height:28px;padding:0 6px;border-radius:var(--search-radius);border:none;background:transparent;color:rgba(255,255,255,0.6);cursor:pointer;font-size:0.72rem;white-space:nowrap;transition:border-color 0.15s}
+.se-current{display:flex;align-items:center;gap:4px;height:28px;padding:0 6px;border-radius:var(--search-radius);border:none;background:transparent;color:var(--search-color,white);cursor:pointer;font-size:calc(1rem * var(--search-fz,1));white-space:nowrap;transition:border-color 0.15s}
 .se-current #se-current-name{display:none}
 .se-current img{width:14px;height:14px;border-radius:2px;flex-shrink:0}
 .se-current i{font-size:0.65rem;opacity:0.5}
@@ -315,16 +334,16 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 .search-result-item{padding:6px 10px;border-bottom:1px solid #161616;cursor:pointer;font-size:0.75rem;color:#999;transition:background 0.12s,color 0.12s}
 .search-result-item:hover{background:rgba(255,255,255,0.06);color:var(--modal-accent,#00d4ff)}
 #clock-display{position:absolute;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;line-height:1.2;pointer-events:auto;cursor:pointer;isolation:isolate;background-color:rgba(var(--clock-rgb),calc(var(--clock-backdrop) * var(--clock-solid,1)));background-image:var(--clock-img,none);background-origin:border-box;background-repeat:no-repeat;border-radius:var(--widget-radius);padding:4px 12px;transition:background 0.3s}
-#clock-time{font-size:1.05rem;font-weight:600;letter-spacing:2px;opacity:0.9}
-#clock-date{font-size:0.6rem;opacity:0.4;letter-spacing:1.5px;text-transform:uppercase}
+#clock-time{font-size:1rem;letter-spacing:1px}
+#clock-date{font-size:1rem;letter-spacing:1px}
 .sub-disabled{opacity:0.3;pointer-events:none;transition:opacity 0.2s}
 .sub-enabled{opacity:1;pointer-events:auto;transition:opacity 0.2s}
 .bg-mode-group{display:flex;gap:4px;margin-bottom:12px}
-.bg-mode-btn{flex:1;height:30px;border-radius:5px;border:1px solid #2a2a2a;background:#1a1a1a;color:#555;cursor:pointer;transition:0.2s;font-weight:600;font-size:0.76rem}
+.bg-mode-btn{flex:1;height:30px;border-radius:5px;border:1px solid #2a2a2a;background:#1a1a1a;color:#555;cursor:pointer;transition:0.2s}
 .bg-mode-btn:hover{border-color:#444;color:#ccc}
 .bg-mode-btn.active{background:var(--modal-accent,#00d4ff);border-color:var(--modal-accent,#00d4ff);color:var(--accent-text,#000)}
-#weather-stats{display:flex;gap:1.2rem;align-items:center;justify-content:center;flex-wrap:wrap;position:relative}
-.wstat{display:flex;align-items:center;gap:0.3rem;font-size:calc(0.65rem * var(--weather-fsz,1));opacity:0.6;white-space:nowrap;cursor:pointer;transition:opacity 0.15s}
+#weather-stats{display:flex;gap:calc(1rem * var(--wx-k,1));align-items:center;justify-content:center;flex-wrap:wrap;position:relative}
+.wstat{display:flex;align-items:center;gap:calc(0.3rem * var(--wx-k,1));font-family:var(--tx-wx-stats-ff,inherit);font-weight:var(--tx-wx-stats-fw,400);font-style:var(--tx-wx-stats-fi,normal);font-size:calc(0.9rem * var(--tx-wx-stats-z,1));white-space:nowrap;cursor:pointer;transition:opacity 0.15s}
 .wstat:hover{opacity:1}
 .cp-swatch{width:34px;height:26px;border-radius:5px;border:1px solid #333;cursor:pointer;flex-shrink:0;transition:border-color 0.15s}
 .cp-swatch:hover{border-color:#555}
@@ -383,19 +402,22 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 @media (max-width:560px){#profile-cards-list{grid-template-columns:1fr}}
 .photo-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:24px;align-items:stretch}
 .photo-two>.s-card{display:flex;flex-direction:column}
-.photo-prev{flex:1;min-height:90px;border:1px dashed #2a2a2a;border-radius:8px;background:#0d0d0d center/contain no-repeat;margin-bottom:12px}
+.photo-prev{position:relative;flex:none;width:100%;aspect-ratio:16/9;overflow:hidden;border:1px dashed #2a2a2a;border-radius:8px;background:var(--bg,#0d0d0d);margin-bottom:0}
 .photo-prev.has-img{border-style:solid}
-.fp-row{display:flex;gap:16px;align-items:stretch;flex:1;margin-bottom:12px}
-#photo-fit-group{flex-direction:column;flex:1;margin-bottom:0}
+.pp-layer{position:absolute;inset:0;background-repeat:no-repeat;pointer-events:none}
+.fp-row{display:flex;flex-direction:column;align-items:stretch;gap:10px;flex:none;margin-bottom:14px}
+#photo-fit-group{flex-direction:row;flex:none;width:100%;margin-bottom:0;padding:3px;gap:3px}
 #grad-glow-group .size-btn{white-space:nowrap;padding:0 4px}
-#photo-fit-group .size-btn{flex:1;height:auto;min-height:28px}
-#photo-pos-grid{grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:6px;width:150px;flex:none}
+#photo-fit-group .size-btn{flex:1 1 0;height:30px;min-height:0;min-width:0;padding:0 4px}
+#photo-pos-grid{grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:6px;width:156px;height:156px;flex:none;align-self:center}
 #photo-pos-grid .pos-btn{width:auto;height:auto}
-.photo-two>.s-card{margin-top:0}
+.photo-two>.s-card{margin-top:0;margin-bottom:0;padding-bottom:14px}
+.photo-two .fp-row{margin-bottom:0}
+.photo-two .fp-row+#photo-bars-row{margin-top:14px}
 @media (max-width:760px){.photo-two{grid-template-columns:1fr}}
-.xi-rows{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 16px;padding:2px 0 8px}
+.xi-rows{display:flex;flex-wrap:nowrap;justify-content:space-between;gap:12px;padding:2px 0 12px}.xi-rows .label-inline{white-space:nowrap}
 .xi-rows .label-inline{margin:0}
-@media (max-width:620px){.xi-rows{grid-template-columns:1fr 1fr}}
+
 .cf-grad{width:136px;gap:4px}
 .cf-grad>.btn-icon:last-child{margin-left:auto}
 .cf-c2{display:flex;align-items:center;gap:4px}
@@ -407,6 +429,53 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 .cp-dir i{font-size:0.78rem;line-height:1;display:block;width:1em;text-align:center;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.75))}
 .cp-dir:hover{opacity:0.9;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.5)}
 .cp-dir.active{opacity:1;box-shadow:0 0 0 2px #0b0b0b,0 0 0 4px #fff}
+
+/* ── Bottom dock: weather + Now Playing share one row (left / center / right) ── */
+#bottom-dock{--glow-a:0.3;--glow-h:min(52vh,460px);--glow-w:38%;position:relative;z-index:10;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:end;flex-shrink:0;width:100%}
+#bottom-dock #weather-area.weather-hidden{display:none}
+#weather-area.wx-pos-left{align-items:flex-start;padding-left:1.5vw}
+#weather-area.wx-pos-right{align-items:flex-end;padding-right:1.5vw}
+/* ambient glow: one broad layer per slot, anchored to the screen corner (left/right) or bottom-center, fading to 0 on every side */
+.dock-glow{position:absolute;bottom:-2vh;height:var(--glow-h);pointer-events:none;z-index:-1;opacity:0;transition:opacity 0.8s ease;--gc:0% 100%;--gr:100% 100%}
+.dock-glow.g-left{left:-2vw;width:calc(var(--glow-w) + 2vw);--gc:0% 100%;--gr:100% 100%}
+.dock-glow.g-right{right:-2vw;width:calc(var(--glow-w) + 2vw);--gc:100% 100%;--gr:100% 100%}
+.dock-glow.g-center{left:26%;width:48%;--gc:50% 100%;--gr:50% 100%}
+#glow-wx{background:radial-gradient(ellipse var(--gr) at var(--gc),rgba(var(--wx-tint,150,160,185),calc(var(--glow-a) * 1)) 0%,rgba(var(--wx-tint,150,160,185),calc(var(--glow-a) * 0.93)) 15%,rgba(var(--wx-tint,150,160,185),calc(var(--glow-a) * 0.75)) 30%,rgba(var(--wx-tint,150,160,185),calc(var(--glow-a) * 0.52)) 45%,rgba(var(--wx-tint,150,160,185),calc(var(--glow-a) * 0.31)) 60%,rgba(var(--wx-tint,150,160,185),calc(var(--glow-a) * 0.15)) 75%,rgba(var(--wx-tint,150,160,185),calc(var(--glow-a) * 0.04)) 90%,rgba(var(--wx-tint,150,160,185),calc(var(--glow-a) * 0)) 100%)}
+#bottom-dock.wx-tinted #glow-wx{opacity:1}
+#np-glow{object-fit:cover;filter:blur(30px) saturate(1.5);-webkit-mask-image:radial-gradient(ellipse var(--gr) at var(--gc),rgba(0,0,0,1) 0%,rgba(0,0,0,0.93) 15%,rgba(0,0,0,0.75) 30%,rgba(0,0,0,0.52) 45%,rgba(0,0,0,0.31) 60%,rgba(0,0,0,0.15) 75%,rgba(0,0,0,0.04) 90%,rgba(0,0,0,0) 100%);mask-image:radial-gradient(ellipse var(--gr) at var(--gc),rgba(0,0,0,1) 0%,rgba(0,0,0,0.93) 15%,rgba(0,0,0,0.75) 30%,rgba(0,0,0,0.52) 45%,rgba(0,0,0,0.31) 60%,rgba(0,0,0,0.15) 75%,rgba(0,0,0,0.04) 90%,rgba(0,0,0,0) 100%)}
+#np-glow.on{opacity:calc(var(--glow-a) * 1.6)}
+#np-area{position:relative;grid-row:1;display:flex;align-items:flex-end;padding:0 1.5vw 1.8vh;z-index:10;min-width:0;font-family:var(--weather-font,'Inter',system-ui,sans-serif);color:#fff;--np-cover:45px;--np-maxw:240px;--np-r:0}
+#np-area.np-hidden,#np-area.np-idle{display:none}
+#np-area.np-pos-left{justify-content:flex-start}
+#np-area.np-pos-center{justify-content:center}
+#np-area.np-pos-right{justify-content:flex-end}
+.np-box{display:flex;flex-direction:column;align-items:center;gap:0.35rem;min-width:0;max-width:100%;padding:6px 18px;box-sizing:border-box;border-radius:var(--widget-radius);background-color:rgba(var(--np-rgb,0,0,0),calc(var(--np-backdrop,0.1) * var(--np-solid,1)));background-image:var(--np-img,none);background-origin:border-box;background-repeat:no-repeat}
+/* same look as the weather city name */
+.np-label{color:var(--tx-np-label-c,inherit);display:flex;align-items:center;justify-content:center;font-family:var(--tx-np-label-ff,inherit);font-weight:var(--tx-np-label-fw,400);font-style:var(--tx-np-label-fi,normal);font-size:calc(0.9rem * var(--tx-np-label-z,1));letter-spacing:2px;text-transform:uppercase;white-space:nowrap;transition:opacity 0.7s ease;-webkit-user-select:none;user-select:none}
+#np-area:not(.np-ready) .np-label{opacity:0}
+.np-card{position:relative;isolation:isolate;display:flex;align-items:stretch;gap:clamp(10px,calc(var(--np-cover) * 0.16),20px);padding:0;border-radius:var(--widget-radius,14px);opacity:0;transform:translateY(6px);transition:opacity 0.7s ease,transform 0.7s ease;max-width:100%;min-width:0;height:auto;box-sizing:border-box}
+#np-area.np-ready .np-card{opacity:1;transform:none}
+.np-cover{position:relative;width:var(--np-cover);height:var(--np-cover);flex-shrink:0}
+#np-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:var(--np-r);display:none;z-index:1;box-shadow:0 6px 18px rgba(0,0,0,0.45)}
+.np-ph{position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;border-radius:var(--np-r);background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.35);font-size:calc(var(--np-cover) * 0.36)}
+.np-meta{--np-icw:calc(1.3rem * var(--tx-np-title-z,1));--np-icg:calc(0.5rem * var(--tx-np-title-z,1));display:flex;flex-direction:column;justify-content:center;gap:0.5em;align-self:stretch;min-width:0;max-width:var(--np-maxw);}
+.np-row{display:grid;grid-template-columns:var(--np-icw) minmax(0,1fr);column-gap:var(--np-icg);align-items:center;min-width:0;line-height:1.25}
+.np-row i{display:block;justify-self:center;line-height:1;font-size:0.85em}
+.np-row span{display:block;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#np-area.np-slim #np-album{display:none!important}
+.np-eq{display:inline-flex;gap:2px;align-items:flex-end;height:9px;margin-right:8px}
+.np-eq span{display:block;width:2px;height:25%;background:currentColor;border-radius:1px}
+#np-area.np-playing .np-eq span{animation:npEq 1s ease-in-out infinite}
+.np-eq span:nth-child(2){animation-delay:0.25s}.np-eq span:nth-child(3){animation-delay:0.5s}
+@keyframes npEq{0%,100%{height:25%}50%{height:100%}}
+.np-order{display:flex;flex-direction:column;gap:4px}
+.np-order-row{display:flex;align-items:center;gap:8px;background:#111;border:1px solid #222;border-radius:6px;padding:3px 6px 3px 10px;font-size:0.78rem;color:#bbb}
+.np-order-row span{flex:1}
+.np-order-row .btn-icon{width:26px;height:22px;justify-content:center;font-size:0.7rem;padding:0}
+.np-order-row .btn-icon:disabled{opacity:0.25;cursor:default}
+.np-title{color:var(--tx-np-title-c,inherit);font-family:var(--tx-np-title-ff,inherit);font-weight:var(--tx-np-title-fw,400);font-style:var(--tx-np-title-fi,normal);font-size:calc(0.9rem * var(--tx-np-title-z,1))}
+.np-artist{color:var(--tx-np-artist-c,inherit);font-family:var(--tx-np-artist-ff,inherit);font-weight:var(--tx-np-artist-fw,400);font-style:var(--tx-np-artist-fi,normal);font-size:calc(0.9rem * var(--tx-np-artist-z,1))}
+.np-album{color:var(--tx-np-album-c,inherit);font-family:var(--tx-np-album-ff,inherit);font-weight:var(--tx-np-album-fw,400);font-style:var(--tx-np-album-fi,normal);font-size:calc(0.9rem * var(--tx-np-album-z,1))}
 </style>
 </head>
 <body>
@@ -446,17 +515,37 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
     <div class="chrome-overlay"><button class="edit-del-btn" onclick="event.stopPropagation();editDisable('showSearch')">Delete</button></div>
   </div>
   <main id="main-content"><div id="grid"></div></main>
+  <div id="bottom-dock">
+  <div id="glow-wx" class="dock-glow g-center"></div>
+  <img id="np-glow" class="dock-glow g-left" alt="">
   <section id="weather-area" style="position:relative;">
     <div class="weather-bg-wrap">
-      <div style="display:flex;align-items:center;gap:0.5rem;">
-        <span id="city-name" onclick="cycleCity()">---</span>
-        <span id="weather-refresh-btn" onclick="refreshWeather()" title="Refresh weather &amp; photo" style="cursor:pointer;opacity:0.55;font-size:0.72rem;transition:opacity 0.3s,transform 0.5s cubic-bezier(0.4,0,0.2,1);display:inline-flex;align-items:center;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:4px 7px;font-weight:600;" onmouseover="this.style.opacity='1';this.style.background='rgba(255,255,255,0.13)'" onmouseout="this.style.opacity='0.55';this.style.background='rgba(255,255,255,0.07)'"><i class="fa-solid fa-rotate-right" style="font-size:0.65rem;"></i></span>
+      <div style="display:flex;justify-content:center;width:100%;">
+        <div style="position:relative;display:inline-block;">
+          <span id="city-name" onclick="cycleCity()">---</span>
+          <span id="weather-refresh-btn" onclick="refreshWeather()" title="Refresh weather &amp; photo" style="position:absolute;left:100%;top:50%;margin-left:0.5rem;transform:translateY(-50%);cursor:pointer;opacity:0.55;font-size:0.6rem;transition:opacity 0.3s;display:inline-flex;align-items:center;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:3px 5px;" onmouseover="this.style.opacity='1';this.style.background='rgba(255,255,255,0.13)'" onmouseout="this.style.opacity='0.55';this.style.background='rgba(255,255,255,0.07)'"><i class="fa-solid fa-rotate-right" style="font-size:0.55rem;"></i></span>
+        </div>
       </div>
       <div id="weather-grid" onclick="openWeatherPopover(this)"></div>
       <div id="weather-stats"></div>
     </div>
     <div class="chrome-overlay"><button class="edit-del-btn" onclick="event.stopPropagation();editDisable('showWeather')">Delete</button></div>
   </section>
+  <section id="np-area" class="np-hidden">
+    <div class="np-box">
+      <div class="np-label" id="np-status"><span class="np-eq"><span></span><span></span><span></span></span><span id="np-status-t">Now playing</span></div>
+      <div class="np-card">
+        <div class="np-cover"><img id="np-img" alt=""><div class="np-ph" id="np-ph"><i class="fa-solid fa-music"></i></div></div>
+        <div class="np-meta">
+          <div class="np-row np-title" id="np-title"><i class="fa-solid fa-music"></i><span id="np-title-t"></span></div>
+          <div class="np-row np-artist" id="np-artist"><i class="fa-solid fa-user"></i><span id="np-artist-t"></span></div>
+          <div class="np-row np-album" id="np-album"><i class="fa-solid fa-compact-disc"></i><span id="np-album-t"></span></div>
+        </div>
+        <div class="chrome-overlay"><button class="edit-del-btn" onclick="event.stopPropagation();editDisable('showNP')">Delete</button></div>
+      </div>
+    </div>
+  </section>
+  </div>
 </div>
 
 <div id="settings-modal" class="modal" style="display:none;flex-direction:row;">
@@ -469,6 +558,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
     <div class="settings-nav-item" onclick="showPanel('clock',this)"><i class="fa-solid fa-clock"></i>Clock</div>
     <div class="settings-nav-item" onclick="showPanel('search',this)"><i class="fa-solid fa-magnifying-glass"></i>Search</div>
     <div class="settings-nav-item" onclick="showPanel('weather',this)"><i class="fa-solid fa-cloud-sun"></i>Weather</div>
+    <div class="settings-nav-item" onclick="showPanel('nowplaying',this)"><i class="fa-solid fa-music"></i>Now Playing</div>
     <div id="settings-sidebar-footer">
       <button class="btn-backup" onclick="exportData()">Backup</button>
       <button class="btn-import" onclick="document.getElementById('file-input').click()">Import</button>
@@ -508,7 +598,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
         </div>
         <div class="s-card">
           <div class="s-title">Global Font</div>
-          <div class="inl-row"><div class="inl"><span>Font</span><div id="ff-global-holder"></div></div></div>
+          <div class="tx-grid"><div class="tx-cell" id="ff-global-holder"></div></div>
         </div>
         <div class="s-card">
           <div class="s-title">Links</div>
@@ -587,13 +677,13 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
             <div class="s-title">Photo</div>
             <input type="text" id="bg-img-url" placeholder="Photo URL..." oninput="updateBgImg(this.value)" style="margin-bottom:10px;height:28px;font-size:0.78rem;">
             <div class="flex-row" style="margin-bottom:10px;"><button onclick="document.getElementById('bg-file').click()">Upload Photo</button><button style="color:#f88;" onclick="updateBgImg('')">Remove</button></div>
-            <div id="photo-preview" class="photo-prev"></div>
+            <div id="photo-preview" class="photo-prev"><div class="pp-layer" id="pp-back"></div><div class="pp-layer" id="pp-main"></div><div class="pp-layer" id="pp-dim"></div></div>
             <input type="file" id="bg-file" style="display:none" accept="image/*" onchange="handleBgFile(this)">
           </div>
           <div class="s-card">
             <div class="s-title">Fit &amp; Position</div>
-            <div class="fp-row"><div class="size-group" id="photo-fit-group"><button class="size-btn" data-fit="cover" onclick="setPhotoOpt('bgFit','cover')" title="Fill the screen (crops the edges if the shapes differ)">Fill</button><button class="size-btn" data-fit="contain" onclick="setPhotoOpt('bgFit','contain')" title="Show the whole photo (bars appear if the shapes differ)">Fit</button><button class="size-btn" data-fit="stretch" onclick="setPhotoOpt('bgFit','stretch')" title="Stretch to the screen (can distort)">Stretch</button><button class="size-btn" data-fit="center" onclick="setPhotoOpt('bgFit','center')" title="Original size, centered">Center</button><button class="size-btn" data-fit="tile" onclick="setPhotoOpt('bgFit','tile')" title="Repeat the photo">Tile</button></div><div class="pos-grid" id="photo-pos-grid"><button class="pos-btn" data-pos="tl" onclick="setPhotoOpt('bgPos','tl')" title="Focus point"></button><button class="pos-btn" data-pos="t" onclick="setPhotoOpt('bgPos','t')" title="Focus point"></button><button class="pos-btn" data-pos="tr" onclick="setPhotoOpt('bgPos','tr')" title="Focus point"></button><button class="pos-btn" data-pos="l" onclick="setPhotoOpt('bgPos','l')" title="Focus point"></button><button class="pos-btn" data-pos="c" onclick="setPhotoOpt('bgPos','c')" title="Focus point"></button><button class="pos-btn" data-pos="r" onclick="setPhotoOpt('bgPos','r')" title="Focus point"></button><button class="pos-btn" data-pos="bl" onclick="setPhotoOpt('bgPos','bl')" title="Focus point"></button><button class="pos-btn" data-pos="b" onclick="setPhotoOpt('bgPos','b')" title="Focus point"></button><button class="pos-btn" data-pos="br" onclick="setPhotoOpt('bgPos','br')" title="Focus point"></button></div></div>
-            <div id="photo-bars-row" class="s-field" style="display:none;flex-direction:column;"><div class="s-lab">Bars</div><div class="bd-slide"><div class="size-group" id="photo-bars-group" style="flex:1;margin:0;"><button class="size-btn" data-bars="color" onclick="setPhotoOpt('bgBars','color')">Color</button><button class="size-btn" data-bars="blur" onclick="setPhotoOpt('bgBars','blur')">Blurred photo</button></div><div class="color-field"><input type="color" id="photo-bars-color" oninput="setPhotoOpt('photoBarsColor',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('photo-bars-color')" title="Bars color"></div></div></div></div>
+            <div class="s-lab">Fit</div><div class="fp-row"><div class="size-group" id="photo-fit-group"><button class="size-btn" data-fit="cover" onclick="setPhotoOpt('bgFit','cover')" title="Fill the screen (crops the edges if the shapes differ)">Fill</button><button class="size-btn" data-fit="contain" onclick="setPhotoOpt('bgFit','contain')" title="Show the whole photo (bars appear if the shapes differ)">Fit</button><button class="size-btn" data-fit="stretch" onclick="setPhotoOpt('bgFit','stretch')" title="Stretch to the screen (can distort)">Stretch</button><button class="size-btn" data-fit="center" onclick="setPhotoOpt('bgFit','center')" title="Original size, centered">Center</button><button class="size-btn" data-fit="tile" onclick="setPhotoOpt('bgFit','tile')" title="Repeat the photo">Tile</button></div><div class="s-lab" style="margin-bottom:-4px;">Position</div><div class="pos-grid" id="photo-pos-grid"><button class="pos-btn" data-pos="tl" onclick="setPhotoOpt('bgPos','tl')" title="Focus point"></button><button class="pos-btn" data-pos="t" onclick="setPhotoOpt('bgPos','t')" title="Focus point"></button><button class="pos-btn" data-pos="tr" onclick="setPhotoOpt('bgPos','tr')" title="Focus point"></button><button class="pos-btn" data-pos="l" onclick="setPhotoOpt('bgPos','l')" title="Focus point"></button><button class="pos-btn" data-pos="c" onclick="setPhotoOpt('bgPos','c')" title="Focus point"></button><button class="pos-btn" data-pos="r" onclick="setPhotoOpt('bgPos','r')" title="Focus point"></button><button class="pos-btn" data-pos="bl" onclick="setPhotoOpt('bgPos','bl')" title="Focus point"></button><button class="pos-btn" data-pos="b" onclick="setPhotoOpt('bgPos','b')" title="Focus point"></button><button class="pos-btn" data-pos="br" onclick="setPhotoOpt('bgPos','br')" title="Focus point"></button></div></div>
+            <div id="photo-bars-row" class="s-field" style="display:none;flex-direction:column;margin:0;"><div class="s-lab">Space around the photo</div><div class="bd-slide"><div class="size-group" id="photo-bars-group" style="flex:1;margin:0;"><button class="size-btn" data-bars="color" onclick="setPhotoOpt('bgBars','color')">Color</button><button class="size-btn" data-bars="blur" onclick="setPhotoOpt('bgBars','blur')">Blurred photo</button></div><div class="color-field"><input type="color" id="photo-bars-color" oninput="setPhotoOpt('photoBarsColor',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('photo-bars-color')" title="Bars color"></div></div></div></div>
           </div>
           </div>
           <div class="s-card">
@@ -635,13 +725,12 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
           <div class="s-title">Time</div>
           <label class="label-inline"><input type="checkbox" id="clock-check" onchange="updateVis()"> Show Clock</label>
           <div id="clock-sub">
-            <div class="inl-row">
+            <div class="inl-row nw">
               <div class="inl"><span>Format</span><select id="clock-format" onchange="updateVis()"><option value="24">24h</option><option value="12">12h AM/PM</option></select></div>
               <label class="label-inline inl"><input type="checkbox" id="clock-seconds" onchange="updateVis()"> Seconds</label>
-              <div class="inl"><span>Size</span><select id="clock-size" onchange="updateVis()"><option value="s">Small</option><option value="m">Medium</option><option value="l">Large</option></select></div>
-              <div class="inl"><span>Color</span><div class="color-field"><input type="color" id="clock-color" oninput="updateVis()" style="display:none"><div class="cp-swatch" onclick="cpOpen('clock-color')"></div><button class="btn-icon" onclick="resetField('clock-color','#ffffff','clockColor')"><i class="fa-solid fa-rotate-left"></i></button></div></div>
             </div>
-            <div class="inl-row"><div class="inl"><span>Font</span><div class="font-field" id="ff-clock"></div></div></div>
+            <div class="tx-head">Fonts</div>
+            <div class="tx-grid" id="ff-clock"></div>
           </div>
         </div>
         <div id="clock-rest">
@@ -649,16 +738,15 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
             <div class="s-title">Date</div>
             <label class="label-inline"><input type="checkbox" id="clock-date-check" onchange="updateVis()"> Show Date</label>
             <div id="clock-date-sub">
-              <div class="inl-row">
+              <div class="inl-row nw">
                 <div class="inl"><span>Date Format</span>
-                  <select id="clock-date-fmt" onchange="updateVis()" style="width:180px">
+                  <select id="clock-date-fmt" onchange="updateVis()" style="width:200px">
                     <option value="long">Monday, January 1</option><option value="long-year">Monday, January 1, 2026</option><option value="short">Mon, Jan 1</option><option value="medium">January 1, 2026</option><option value="dmy">DD-MM-YYYY</option><option value="mdy">MM-DD-YYYY</option><option value="iso">YYYY-MM-DD</option>
                   </select>
                 </div>
-                <div class="inl"><span>Size</span><select id="clock-date-size" onchange="updateVis()"><option value="small">Small</option><option value="normal">Medium</option><option value="big">Large</option></select></div>
-                <div class="inl"><span>Color</span><div class="color-field"><input type="color" id="clock-date-color" oninput="updateVis()" style="display:none"><div class="cp-swatch" onclick="cpOpen('clock-date-color')"></div><button class="btn-icon" onclick="resetField('clock-date-color','#ffffff','clockDateColor')"><i class="fa-solid fa-rotate-left"></i></button></div></div>
               </div>
-              <div class="inl-row"><div class="inl"><span>Font</span><div class="font-field" id="ff-cdate"></div></div></div>
+              <div class="tx-head">Fonts</div>
+              <div class="tx-grid" id="ff-cdate"></div>
             </div>
           </div>
           <div class="s-card">
@@ -678,10 +766,13 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
           <div class="s-title">Search</div>
           <label class="label-inline"><input type="checkbox" id="search-enable" onchange="updateVis()"> Show Search Bar</label>
           <div id="search-sub">
-            <div class="inl-row"><div class="inl"><span>Search Engine</span><select id="search-engine" onchange="updateVis()">
-              <option value="google">Google</option><option value="ddg">DuckDuckGo</option><option value="startpage">Startpage</option><option value="brave">Brave</option><option value="qwant">Qwant</option><option value="yandex">Yandex</option>
-            </select></div></div>
-            <div class="inl-row"><div class="inl"><span>Font</span><div class="font-field" id="ff-search"></div></div></div>
+            <div class="inl-row nw">
+              <div class="inl"><span>Search Engine</span><select id="search-engine" onchange="updateVis()">
+                <option value="google">Google</option><option value="ddg">DuckDuckGo</option><option value="startpage">Startpage</option><option value="brave">Brave</option><option value="qwant">Qwant</option><option value="yandex">Yandex</option>
+              </select></div>
+            </div>
+            <div class="tx-head">Fonts</div>
+            <div class="tx-grid" id="ff-search"></div>
           </div>
         </div>
         <div id="search-rest">
@@ -694,6 +785,40 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
         </div>
       </div>
     </div>
+    <!-- NOW PLAYING -->
+    <div class="settings-panel" id="panel-nowplaying">
+      <div class="setting-block">
+        <div class="section-h">Now Playing</div>
+        <div class="s-card">
+          <div class="s-title">Now Playing</div>
+          <label class="label-inline"><input type="checkbox" id="np-enable" onchange="npChange()"> Show Now Playing</label>
+          <div id="np-sub">
+            <div class="s-field"><div class="s-lab">ListenBrainz username</div><input type="text" id="np-user" placeholder="ListenBrainz username" autocomplete="off" spellcheck="false" onchange="npChange()"></div>
+            <div class="inl-row"><button onclick="npTest()" style="width:auto;padding:0 14px;">Test connection</button><span id="np-msg" class="s-note" style="margin:0;"></span></div>
+            <div class="s-field"><div class="s-lab">Position</div><div class="size-group" id="np-pos-group"><button class="size-btn" data-v="left" onclick="posSet('np','left')">Left</button><button class="size-btn" data-v="center" onclick="posSet('np','center')">Center</button><button class="size-btn" data-v="right" onclick="posSet('np','right')">Right</button></div></div>
+            <div class="inl-row nw">
+              <div class="inl"><span>Cover</span><select id="np-shape" onchange="npChange()"><option value="square">Square</option><option value="rounded">Rounded</option><option value="circle">Circle</option></select></div>
+              <div class="inl"><span>Cover source</span><select id="np-cover" onchange="npCoverChange()"><option value="auto">Automatic</option><option value="service">ListenBrainz</option><option value="mb">MusicBrainz / Cover Art Archive</option><option value="itunes">iTunes</option><option value="deezer">Deezer</option></select></div>
+            </div>
+            <div class="inl-row nw">
+              <label class="label-inline inl"><input type="checkbox" id="np-show-status" onchange="npChange()"> Status line</label>
+              <label class="label-inline inl"><input type="checkbox" id="np-autohide" onchange="npChange()"> Hide when nothing is playing</label>
+              <label class="label-inline inl"><input type="checkbox" id="np-show-album" onchange="npChange()"> Album name</label>
+              <label class="label-inline inl"><input type="checkbox" id="np-glow-on" onchange="npChange()"> Cover glow</label>
+            </div>
+            <div class="s-field"><div class="s-lab">Text order</div><div id="np-order" class="np-order"></div></div>
+            <div class="tx-head">Fonts</div>
+            <div class="tx-grid" id="tx-np"></div>
+          </div>
+        </div>
+        <div class="s-card">
+          <div class="s-title">Backdrop</div>
+          <div class="color-row" style="margin-bottom:4px;"><span>Opacity</span><span id="np-backdrop-val" style="font-size:0.72rem;color:#888;">10%</span></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><input type="range" id="np-backdrop" min="0" max="1" step="0.01" oninput="npChange()" style="flex:1;min-width:0;margin-top:0;"></div>
+          <div class="bd-style-row" style="margin-bottom:10px;"><div class="bd-colors"><input type="color" id="np-bd-color" oninput="bdSet('np','c1',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('np-bd-color')" title="Color"></div><button class="cp-add" id="np-bd-add" onclick="bdSet('np','mode','gradient')" title="Add a second color (gradient)">+</button><span class="cf-c2" id="np-bd-c2" style="display:none"><input type="color" id="np-bd-color2" oninput="bdSet('np','c2',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('np-bd-color2')" title="Second gradient color"></div><button class="btn-icon" onclick="bdSet('np','mode','solid')" title="Remove gradient"><i class="fa-solid fa-xmark"></i></button></span></div><div class="bd-dirs" id="np-bd-dirs" style="display:none"><button class="cp-dir" data-dir="v" title="Top to bottom" onclick="bdSet('np','dir','v')"><i class="fa-solid fa-arrow-down"></i></button><button class="cp-dir" data-dir="h" title="Left to right" onclick="bdSet('np','dir','h')"><i class="fa-solid fa-arrow-right"></i></button><button class="cp-dir" data-dir="d1" title="Diagonal down" onclick="bdSet('np','dir','d1')"><i class="fa-solid fa-arrow-down" style="transform:rotate(-45deg)"></i></button><button class="cp-dir" data-dir="d2" title="Diagonal up" onclick="bdSet('np','dir','d2')"><i class="fa-solid fa-arrow-up" style="transform:rotate(45deg)"></i></button><button class="cp-dir" data-dir="r" title="Radial (center out)" onclick="bdSet('np','dir','r')"><i class="fa-regular fa-circle-dot"></i></button></div><button class="btn-icon" onclick="bdReset('np')" title="Reset colors"><i class="fa-solid fa-rotate-left"></i></button></div>
+        </div>
+      </div>
+    </div>
     <!-- WEATHER -->
     <div class="settings-panel" id="panel-weather">
       <div class="setting-block">
@@ -702,43 +827,42 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
           <div class="s-title">Weather</div>
           <label class="label-inline"><input type="checkbox" id="w-enable" onchange="updateVis()"> Enable Weather</label>
           <div id="weather-sub">
-            <div class="s-field"><div class="s-lab">Style</div><div class="size-group" id="wx-style-group" style="flex-wrap:wrap;"><button class="size-btn" data-wxs="hero" onclick="setWxStyle('hero')">Hero</button><button class="size-btn" data-wxs="range" onclick="setWxStyle('range')">Chart</button><button class="size-btn" data-wxs="compact" onclick="setWxStyle('compact')">Compact</button><button class="size-btn" data-wxs="classic" onclick="setWxStyle('classic')">Classic</button></div></div>
-            <div class="inl-row">
+            <input type="color" id="weather-color" style="display:none">
+            <div class="s-field"><div class="s-lab">Style</div><div class="size-group" id="wx-style-group" style="flex-wrap:wrap;"><button class="size-btn" data-wxs="compact" onclick="setWxStyle('compact')">Compact</button><button class="size-btn" data-wxs="classic" onclick="setWxStyle('classic')">Classic</button></div></div>
+            <div class="s-field"><div class="s-lab">Position</div><div class="size-group" id="wx-pos-group"><button class="size-btn" data-v="left" onclick="posSet('wx','left')">Left</button><button class="size-btn" data-v="center" onclick="posSet('wx','center')">Center</button><button class="size-btn" data-v="right" onclick="posSet('wx','right')">Right</button></div></div>
+            <div class="inl-row nw">
               <label class="label-inline inl"><input type="checkbox" id="w-anim" onchange="wxFx()"> Animated icon</label>
               <label class="label-inline inl"><input type="checkbox" id="w-tint" onchange="wxFx()"> Condition glow</label>
-            </div>
-            <div class="inl-row">
-              <div class="inl"><span>Size</span><select id="weather-size" onchange="updateVis()"><option value="s">Small</option><option value="m">Medium</option><option value="l">Large</option></select></div>
-              <div class="inl"><span>Text Color</span><div class="color-field"><input type="color" id="weather-color" oninput="updateVis()" style="display:none"><div class="cp-swatch" onclick="cpOpen('weather-color')"></div><button class="btn-icon" onclick="resetField('weather-color','#ffffff','weatherColor')"><i class="fa-solid fa-rotate-left"></i></button></div></div>
-            </div>
-            <div class="inl-row"><div class="inl"><span>Font</span><div class="font-field" id="ff-weather"></div></div></div>
-            <div class="inl-row">
-              <label class="label-inline inl"><input type="checkbox" id="w-colored" onchange="toggleWxStyle('colored')"> Colored Icons</label>
-              <label class="label-inline inl"><input type="checkbox" id="w-solid" onchange="toggleWxStyle('solid')"> Solid Icons</label>
             </div>
           </div>
         </div>
         <div id="weather-rest">
           <div class="s-card">
             <div class="s-title">Forecast</div>
-            <div class="inl-row">
+            <div class="inl-row nw">
               <label class="label-inline inl"><input type="checkbox" id="w-day" onchange="updateVis()"> Show Day</label>
               <label class="label-inline inl"><input type="checkbox" id="w-date" onchange="updateVis()"> Show Date</label>
               <div class="inl"><span>Date Format</span><select id="w-date-fmt" onchange="updateVis()"><option value="dmy">DD/MM</option><option value="mdy">MM/DD</option></select></div>
+              <label class="label-inline inl"><input type="checkbox" id="w-colored" onchange="toggleWxStyle('colored')"> Colored Icons</label>
+              <label class="label-inline inl"><input type="checkbox" id="w-solid" onchange="toggleWxStyle('solid')"> Solid Icons</label>
             </div>
+            <div class="tx-head">Fonts</div>
+            <div class="tx-grid" id="tx-wx"></div>
           </div>
           <div class="s-card">
             <div class="s-title">Extra Info</div>
-<div class="xi-rows">
+            <div class="xi-rows">
 <label class="label-inline"><input type="checkbox" id="w-humidity" onchange="updateVis()"> Humidity</label>
 <label class="label-inline"><input type="checkbox" id="w-pressure" onchange="updateVis()"> Pressure</label>
 <label class="label-inline"><input type="checkbox" id="w-aqi" onchange="updateVis()"> Air Quality</label>
 <label class="label-inline"><input type="checkbox" id="w-uv" onchange="updateVis()"> UV Index</label>
 <label class="label-inline"><input type="checkbox" id="w-visibility" onchange="updateVis()"> Visibility</label>
 <label class="label-inline"><input type="checkbox" id="w-sunrise" onchange="updateVis()"> Sunrise/Sunset</label>
+            </div>
+            <div class="tx-head">Fonts</div>
+            <div class="tx-grid" id="tx-wx-x"></div>
           </div>
-          </div>
-          <div class="s-card">
+        <div class="s-card">
             <div class="s-title">Backdrop</div>
 <div class="color-row" style="margin-bottom:4px;"><span>Opacity</span><span id="weather-backdrop-val" style="font-size:0.72rem;color:#888;">0%</span></div>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><input type="range" id="weather-backdrop" min="0" max="1" step="0.01" oninput="updateVis()" style="flex:1;min-width:0;margin-top:0;"></div>
@@ -764,13 +888,11 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
     <label class="label-inline"><input type="checkbox" id="cpop-seconds" onchange="clockPopChange()"> Seconds</label>
     <label class="label-inline"><input type="checkbox" id="cpop-date" onchange="clockPopChange()"> Show Date</label>
     <div style="display:grid;grid-template-columns:auto 1fr;gap:6px 10px;align-items:center;margin-top:4px;">
-      <span style="font-size:0.75rem;color:#888;">Clock size</span><select id="cpop-size" onchange="clockPopChange()" style="height:28px;line-height:26px;font-size:0.75rem;padding:0 6px;"><option value="s">Small</option><option value="m">Medium</option><option value="l">Large</option></select>
       <span style="font-size:0.75rem;color:#888;">Format</span><select id="cpop-format" onchange="clockPopChange()" style="height:28px;line-height:26px;font-size:0.75rem;padding:0 6px;"><option value="24">24h</option><option value="12">12h AM/PM</option></select>
       <span id="cpop-datefmt-label" style="font-size:0.75rem;color:#888;">Date Fmt</span>
       <select id="cpop-datefmt" onchange="clockPopChange()" style="height:28px;line-height:26px;font-size:0.75rem;padding:0 6px;">
         <option value="long">Monday, January 1</option><option value="long-year">Monday, January 1, 2026</option><option value="short">Mon, Jan 1</option><option value="medium">January 1, 2026</option><option value="dmy">DD-MM-YYYY</option><option value="mdy">MM-DD-YYYY</option><option value="iso">YYYY-MM-DD</option>
       </select>
-      <span id="cpop-dsize-label" style="font-size:0.75rem;color:#888;">Date size</span><select id="cpop-dsize" onchange="clockPopChange()" style="height:28px;line-height:26px;font-size:0.75rem;padding:0 6px;"><option value="small">Small</option><option value="normal">Medium</option><option value="big">Large</option></select>
     </div>
   </div>
 </div>
@@ -792,7 +914,6 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
   <label class="label-inline"><input type="checkbox" id="wpop-day" onchange="wxPopChange()"> Show Day</label>
   <label class="label-inline"><input type="checkbox" id="wpop-date" onchange="wxPopChange()"> Show Date</label>
   <div style="display:grid;grid-template-columns:auto 1fr;gap:6px 10px;align-items:center;margin-top:4px;margin-bottom:10px;">
-    <span style="font-size:0.75rem;color:#888;">Size</span><select id="wpop-size" onchange="wxPopChange()" style="height:28px;line-height:26px;font-size:0.75rem;padding:0 6px;"><option value="s">Small</option><option value="m">Medium</option><option value="l">Large</option></select>
     <span style="font-size:0.75rem;color:#888;">Icons</span><select id="wpop-icons" onchange="wxPopChange()" style="height:28px;line-height:26px;font-size:0.75rem;padding:0 6px;"><option value="colored">Colored</option><option value="solid">Solid</option></select>
   </div>
   <div class="pop-title" style="margin-bottom:6px;">Locations</div>
@@ -834,8 +955,9 @@ function toggleFontDD(e,fid){
   if(wasOpen)return;
   FONTS.forEach(ensureFont);   // make sure every preview actually renders in its real font, not the fallback
   const r=e.currentTarget.getBoundingClientRect();
-  menu.style.left=Math.min(r.left,window.innerWidth-160)+'px';
-  menu.style.top=(r.bottom+4)+'px';
+  const zp=menu.closest('.settings-panel'),z=(zp&&parseFloat(zp.style.zoom))||1;   // the settings page can be scaled down; fixed coords inside it are scaled too
+  menu.style.left=Math.min(r.left,window.innerWidth-160*z)/z+'px';
+  menu.style.top=(r.bottom+4)/z+'px';
   menu.classList.add('open');_fddOpen=fid;
 }
 document.addEventListener('click',e=>{if(_fddOpen&&!e.target.closest('.font-dd'))closeAllFontDD();});
@@ -852,13 +974,15 @@ function selectFontDD(fid,f){
 // Style and size. Every field has an explicit style; the starting one depends on the kind of field.
 const FSTYLES={normal:'Normal',bold:'Bold',italic:'Italic',bolditalic:'Bold Italic'};
 const FSTYLE_DEF={cat:'bold',link:'normal',clock:'bold',cdate:'normal',weather:'normal'};   // categories & clock bold, links & date normal
-const FSIZES={s:'Smaller',m:'Normal',l:'Larger'};
-const FSIZE_MULT={s:0.88,m:1,l:1.15};
+const FSIZES={s:'Smaller',m:'Normal',l:'Larger',xl:'Extra Large'};   // xl is only offered to Clock, Date, Search, Weather and Now Playing
+const FSIZES3={s:'Smaller',m:'Normal',l:'Larger'};            // categories and links keep their 3 steps
+const FSIZES4={s:'Small',m:'Medium',l:'Large',xl:'Extra Large'};
+const FSIZE_MULT={s:0.7,m:1,l:1.45,xl:2};   // the ONE size scale: Smaller / Normal / Larger mean the same step everywhere
 const fstyleName=(v,kind)=>FSTYLES[v]?v:(FSTYLE_DEF[kind]||'normal');
 const fsizeName=v=>FSIZES[v]?v:'m';
 const fsizeMult=v=>FSIZE_MULT[fsizeName(v)];
 const fstyleOpts=(cur,kind)=>Object.entries(FSTYLES).map(([k,l])=>`<option value="${k}"${k===fstyleName(cur,kind)?' selected':''}>${l}</option>`).join('');
-const fsizeOpts=cur=>Object.entries(FSIZES).map(([k,l])=>`<option value="${k}"${k===fsizeName(cur)?' selected':''}>${l}</option>`).join('');
+const fsizeOpts=(cur,four)=>Object.entries(four?FSIZES4:FSIZES3).map(([k,l])=>`<option value="${k}"${k===fsizeName(cur)?' selected':''}>${l}</option>`).join('');
 function fstyleParts(v,kind){v=fstyleName(v,kind);return{w:(v==='bold'||v==='bolditalic')?'700':'400',i:v==='italic'||v==='bolditalic'};}
 const fstyleCss=(v,kind)=>{const q=fstyleParts(v,kind);return `font-weight:${q.w};font-style:${q.i?'italic':'normal'};`;};
 // inline css for one category title / link: font + style + size multiplier (read by --fsz in the stylesheet)
@@ -885,17 +1009,14 @@ function fontFieldHTML(kind,idp,vals,onchange,fontOnly,extra,allArgs){
 function syncFontField(idp,font,st,sz){const g=k=>document.getElementById(idp+'-'+k);const gf=g('font');if(gf){gf.value=fontName(font);syncFontDDLabel(gf);}if(g('fstyle'))g('fstyle').value=fstyleName(st,idp);if(g('fsize'))g('fsize').value=fsizeName(sz);}
 // the date now has its own size and color; existing setups start with the clock's
 // Date sizes: Small is the date's usual look, then Normal and Big. Old saved values (s/m/l shared the clock's scale) are converted.
-const DATE_SIZES={small:['Small','0.6rem'],normal:['Normal','0.8rem'],big:['Big','1.05rem']};
-function dateSizeKey(v,clockSize){if(DATE_SIZES[v])return v;const old=['s','m','l'].includes(v)?v:(clockSize||'m');return old==='l'?'normal':'small';}
-const dateSizeOpts=()=>Object.entries(DATE_SIZES).map(([k,d])=>`<option value="${k}">${d[0]}</option>`).join('');
-function migrateClock(p){p.clockDateSize=dateSizeKey(p.clockDateSize,p.clockSize);if(!p.clockDateColor)p.clockDateColor=p.clockColor||'#ffffff';}
+function migrateClock(p){delete p.clockSize;delete p.clockDateSize;if(!p.clockDateColor)p.clockDateColor='#cccccc';}
 // legacy: the old single "Grid Font" becomes the font of every category and link
 function migrateFonts(p){
   const g=FONTS.includes(p.gridFont)?p.gridFont:'Inter';
   (p.categories||[]).forEach(c=>{if(c.font===undefined)c.font=g;(c.links||[]).forEach(l=>{if(l.font===undefined)l.font=g;});});
   if(!p.searchFont)p.searchFont='Inter';if(!p.weatherFont)p.weatherFont='Inter';if(!p.clockFont)p.clockFont='Inter';
   if(!p.clockDateFont)p.clockDateFont=p.clockFont;   // the date used to follow the clock font
-  delete p.searchFontStyle;delete p.searchFontSize;delete p.gridFont;
+  delete p.gridFont;
 }
 // static font fields (Categories, Clock, Date, Search, Weather)
 // Categories: card size (S / M / XL) + header alignment sit on the same line as the font controls, styled like the links' alignment buttons
@@ -903,10 +1024,47 @@ const LINE_PX={s:1,m:2,l:3};   // thin / normal / thick (thick = the original lo
 const lineName=v=>v==='off'||LINE_PX[v]?v:'l';
 const CAT_EXTRA=`<div class="link-al-group" id="cat-size-group">${[['s','Small'],['m','Medium'],['xl','X-Large']].map(([d,t])=>`<button class="icon-size-btn" data-d="${d}" title="Size: ${t}" onclick="updateCatDensity('${d}')">${d.toUpperCase()}</button>`).join('')}</div><div class="link-al-group" id="cat-align-group">${['left','center','right'].map(a=>`<button class="icon-size-btn" data-al="${a}" title="Header ${a}" onclick="updateCatAlign('${a}')"><i class="fa-solid fa-align-${a}"></i></button>`).join('')}</div><div class="link-al-group" id="cat-line-group">${[['off','No line'],['s','Thin line'],['m','Normal line'],['l','Thick line']].map(([d,t])=>`<button class="icon-size-btn" data-line="${d}" title="${t}" onclick="updateCatLine('${d}')">${d==='off'?'<i class="fa-solid fa-ban" style="font-size:0.62rem"></i>':`<span class="line-ico" style="height:${LINE_PX[d]}px"></span>`}</button>`).join('')}</div>`;
 const _cap=k=>k[0].toUpperCase()+k.slice(1);
-[['cat',k=>`updateCatFont('${k}',this.value)`,false,CAT_EXTRA],['clock',k=>`updateSimpleFont('clock${_cap(k)}',this.value)`],['cdate',k=>`updateSimpleFont('clockDate${_cap(k)}',this.value)`],['search',k=>`updateSimpleFont('search${_cap(k)}',this.value)`,true],['weather',k=>`updateSimpleFont('weather${_cap(k)}',this.value)`]]
+[['cat',k=>`updateCatFont('${k}',this.value)`,false,CAT_EXTRA]]
   .forEach(([idp,oc,fo,ex])=>{const e=document.getElementById('ff-'+idp);if(e)e.innerHTML=fontFieldHTML(idp,idp,{},oc,fo,ex);});
-{const g=document.getElementById('ff-global-holder');if(g)g.innerHTML=fontDDHTML('ff-global','Inter',"applyGlobalFont(this.value)");}
+
+// One uniform text line: [font][style][size][color][reset]. Used by Time, Date and Search; the weather and Now Playing use txCell.
+const FL={
+  clock:{label:'Time',pre:'clock',colorId:'clock-color',oninput:'updateVis()',colorKey:'clockColor',kind:'clock'},
+  cdate:{label:'Date',pre:'clockDate',colorId:'clock-date-color',oninput:'updateVis()',colorKey:'clockDateColor',kind:'cdate'},
+  search:{label:'Search text',pre:'search',colorId:'search-color',oninput:"simpleColor('searchColor',this.value)",colorKey:'searchColor',kind:'search'}
+};
+function fontLineHTML(idp){
+  const f=FL[idp],oc=k=>`updateSimpleFont('${f.pre}${k[0].toUpperCase()+k.slice(1)}',this.value)`;
+  return `<div class="tx-cell"><div class="tx-lab">${f.label}</div><div class="tx-ctl"><div class="tx-fdd">${fontDDHTML(idp+'-font','Inter',oc('font'))}</div>`+
+    `<select id="${idp}-fstyle" data-k="style" title="Style" onchange="${oc('fontStyle')}">${fstyleOpts(undefined,f.kind)}</select>`+
+    `<select id="${idp}-fsize" data-k="size" title="Font size" onchange="${oc('fontSize')}">${fsizeOpts('m',true)}</select>`+
+    `<div class="color-field"><input type="color" id="${f.colorId}" oninput="${f.oninput}" style="display:none"><div class="cp-swatch" title="Color" onclick="cpOpen('${f.colorId}')"></div></div>`+
+    `<button class="btn-icon" title="Back to the default look" onclick="flReset('${idp}')"><i class="fa-solid fa-rotate-left"></i></button></div></div>`;
+}
+function flReset(idp){const f=FL[idp],p=cur();p[f.pre+'Font']='Inter';delete p[f.pre+'FontStyle'];delete p[f.pre+'FontSize'];p[f.colorKey]=(f.colorKey==='clockDateColor')?'#cccccc':'#ffffff';saveAndRender();tickClock();renderSettings();}
+function simpleColor(k,v){const p=cur();p[k]=v;saveAndRender();}
+["clock","cdate","search"].forEach(id=>{const e=document.getElementById('ff-'+id);if(e)e.innerHTML=fontLineHTML(id);});
 function setCornerStyle(v){cur().cornerStyle=v;saveAndRender();renderSettings();}
+// ── Settings text: Global Font controls how the settings window itself looks (font, style, size, color) ──
+function uiGet(){const u=state.ui||{};return{font:fontName(u.font),fontStyle:fstyleName(u.fontStyle,'weather'),fontSize:u.fontSize==='s'?'s':'m',color:u.color||''};}
+function applyUi(){
+  const v=uiGet(),q=fstyleParts(v.fontStyle,'weather'),r=document.documentElement.style,m=document.getElementById('settings-modal');
+  ensureFont(v.font);r.setProperty('--ui-ff',fontStack(v.font));r.setProperty('--ui-fw',q.w);r.setProperty('--ui-fi',q.i?'italic':'normal');
+  if(v.color)r.setProperty('--ui-c',v.color);else r.removeProperty('--ui-c');
+  if(m)m.classList.toggle('ui-colored',!!v.color);
+}
+function renderUiFont(){
+  const h=document.getElementById('ff-global-holder');if(!h)return;
+  const v=uiGet(),col=v.color||'#ffffff';
+  h.innerHTML=`<div class="tx-lab">Text of the settings window</div><div class="tx-ctl"><div class="tx-fdd">${fontDDHTML('ff-global',v.font,"uiSet('font',this.value)")}</div>`+
+    `<select data-k="style" title="Style" onchange="uiSet('fontStyle',this.value)">${fstyleOpts(v.fontStyle,'weather')}</select>`+
+    `<select data-k="size" title="Size" onchange="uiSet('fontSize',this.value)"><option value="s"${v.fontSize==='s'?' selected':''}>Smaller</option><option value="m"${v.fontSize==='m'?' selected':''}>Normal</option></select>`+
+    `<div class="color-field"><input type="color" id="ui-color" value="${col}" oninput="uiSet('color',this.value)" style="display:none"><div class="cp-swatch" style="background:${col}" title="Color" onclick="cpOpen('ui-color')"></div></div>`+
+    `<button class="btn-icon" title="Back to the default look" onclick="uiReset()"><i class="fa-solid fa-rotate-left"></i></button></div>`;
+}
+function searchSync(){const p=cur();const c=document.getElementById('search-color');if(p&&c){c.value=p.searchColor||'#ffffff';cpSync('search-color');}}
+function uiSet(k,v){state.ui=state.ui||{};state.ui[k]=(k==='color')?v:cleanFontProp(k,v,'weather');applyUi();localStorage.setItem(KEY,JSON.stringify(state));fitSettings();}
+function uiReset(){state.ui={};applyUi();localStorage.setItem(KEY,JSON.stringify(state));renderUiFont();fitSettings();}
 function applyGlobalFont(v){const f=fontName(v),p=cur();p.categories.forEach(c=>{c.font=f;c.links.forEach(l=>{l.font=f;});});p.clockFont=p.clockDateFont=p.searchFont=p.weatherFont=f;saveAndRender();tickClock();renderSettings();}
 const UNSPLASH_KEY='j4U9kk58zkrYs3pTo9GWn-peKYzEriWcOnbNJPRUHjM';
 // Each entry: [query, collections/topics hint]
@@ -1021,7 +1179,7 @@ const SE={google:{name:'Google',url:'https://www.google.com/search?q=',fav:'http
 
 function mkLinks(n){const l=[];for(let i=1;i<=n;i++)l.push({name:`Link ${i}`,url:'',color:'',linkIcon:{type:'none',src:''}});return l;}
 function mkCats(n,pfx){const c=[];for(let i=1;i<=n;i++)c.push({title:`${pfx} ${i}`,color:pfx==='Work'?'#ff8800':'#00d4ff',url:'',links:mkLinks(5)});return c;}
-function mkProf(cats,density){return{ql:[{name:'fa-solid fa-server',url:'',vis:false,color:'',linkIcon:{type:'none',src:''}},{name:'fa-solid fa-sliders',url:'',vis:false,color:'',linkIcon:{type:'none',src:''}},{name:'fa-brands fa-spotify',url:'',vis:false,color:'',linkIcon:{type:'none',src:''}},{name:'fa-solid fa-star',url:'',vis:false,color:'',linkIcon:{type:'none',src:''}}],categories:cats,showWeather:true,showHeaders:true,showClock:true,clockFormat:'24',clockSeconds:true,clockShowDate:true,clockDateFmt:'long',clockSize:'m',clockColor:'#ffffff',clockFont:'Inter',iconColor:'#ffffff',bgColor:'#1C1B22',bgImg:'',bgMode:'gradient',gradType:'auto',gradDir:'ltr',gradColorA:'#1C1B22',gradColorB:'#00d4ff',opGradient:0.1,fuzzy:0,photoDim:0.1,weatherColor:'#ffffff',weatherFont:'Inter',weatherSize:'m',weatherBackdrop:0.1,wShowDay:true,wShowDate:true,wDateFmt:'dmy',wColored:true,wAqi:true,wUv:true,wPressure:true,wHumidity:true,wVisibility:true,wSunrise:true,density,searchFont:'Inter',showSearch:true,searchEngine:'startpage',profileIcon:'fa-solid fa-user',profilePhoto:'',profileIconColor:'#ffffff',cardOpacity:0.1,unsplashKey:UNSPLASH_KEY,unsplashDim:0.1,unsplashBlur:0,opTime:1.0};}
+function mkProf(cats,density){return{ql:[{name:'fa-solid fa-server',url:'',vis:false,color:'',linkIcon:{type:'none',src:''}},{name:'fa-solid fa-sliders',url:'',vis:false,color:'',linkIcon:{type:'none',src:''}},{name:'fa-brands fa-spotify',url:'',vis:false,color:'',linkIcon:{type:'none',src:''}},{name:'fa-solid fa-star',url:'',vis:false,color:'',linkIcon:{type:'none',src:''}}],categories:cats,showWeather:true,showHeaders:true,showClock:true,clockFormat:'24',clockSeconds:true,clockShowDate:true,clockDateFmt:'long',clockColor:'#ffffff',clockFont:'Inter',iconColor:'#ffffff',bgColor:'#1C1B22',bgImg:'',bgMode:'gradient',gradType:'auto',gradDir:'ltr',gradColorA:'#1C1B22',gradColorB:'#00d4ff',opGradient:0.1,fuzzy:0,photoDim:0.1,weatherColor:'#ffffff',weatherFont:'Inter',weatherBackdrop:0.1,wShowDay:true,wShowDate:true,wDateFmt:'dmy',wColored:true,wAqi:true,wUv:true,wPressure:true,wHumidity:true,wVisibility:true,wSunrise:true,density,searchFont:'Inter',showSearch:true,searchEngine:'startpage',profileIcon:'fa-solid fa-user',profilePhoto:'',profileIconColor:'#ffffff',cardOpacity:0.1,unsplashKey:UNSPLASH_KEY,unsplashDim:0.1,unsplashBlur:0,opTime:1.0};}
 function getDefaults(){return{profile:'p0',target:'_self',linkColor:'#cccccc',tabTitle:'Startpage',tabFavicon:'',tabFaviconEmoji:'⭐',cities:[{name:'Lisboa',lat:38.71,lon:-9.13}],profileNames:['Profile 1','Profile 2'],profiles:[mkProf(mkCats(5,'Category'),'m'),mkProf(mkCats(3,'Work'),'m')]};}
 
 let state=JSON.parse(localStorage.getItem(KEY))||getDefaults();
@@ -1039,8 +1197,8 @@ state.profiles.forEach(p=>{
   if(!p.profileIcon)p.profileIcon='fa-solid fa-user';
   if(p.profilePhoto===undefined)p.profilePhoto='';
   if(!p.profileIconColor)p.profileIconColor='#ffffff';
-  if(!p.weatherSize)p.weatherSize='m';
-  if(!p.weatherStyle)p.weatherStyle='hero';
+  delete p.weatherSize;delete p.weatherFontSize;delete p.clockSize;delete p.searchSize;delete p.npSize;
+  if(p.weatherStyle!=='compact')p.weatherStyle='classic';
   if(p.wAnim===undefined)p.wAnim=true;
   if(p.wTint===undefined)p.wTint=true;
   if(p.wShowDay===undefined)p.wShowDay=true;
@@ -1248,14 +1406,14 @@ function openWstatPopover(anchor){const pop=document.getElementById('wstat-popov
 function closeWstatPop(){document.getElementById('wstat-popover').classList.remove('open');_wstatOpen=false;}
 document.addEventListener('click',e=>{if(_wstatOpen&&!document.getElementById('wstat-popover').contains(e.target)&&!e.target.closest('[onclick*="openWstatPopover"]'))closeWstatPop();});
 
-function syncWxPop(){const p=cur();document.getElementById('wpop-day').checked=(p.wShowDay!==false);document.getElementById('wpop-date').checked=(p.wShowDate!==false);document.getElementById('wpop-size').value=p.weatherSize||'m';document.getElementById('wpop-icons').value=p.wColored?'colored':'solid';}
-function wxPopChange(){const p=cur();p.wShowDay=document.getElementById('wpop-day').checked;p.wShowDate=document.getElementById('wpop-date').checked;p.weatherSize=document.getElementById('wpop-size').value;p.wColored=document.getElementById('wpop-icons').value==='colored';saveAndRender();updateWeather();}
+function syncWxPop(){const p=cur();document.getElementById('wpop-day').checked=(p.wShowDay!==false);document.getElementById('wpop-date').checked=(p.wShowDate!==false);document.getElementById('wpop-icons').value=p.wColored?'colored':'solid';}
+function wxPopChange(){const p=cur();p.wShowDay=document.getElementById('wpop-day').checked;p.wShowDate=document.getElementById('wpop-date').checked;p.wColored=document.getElementById('wpop-icons').value==='colored';saveAndRender();updateWeather();}
 function openWeatherPopover(anchor){const pop=document.getElementById('weather-modal');if(_wxPopOpen){pop.classList.remove('open');_wxPopOpen=false;return;}closeClockPop();closeWstatPop();syncWxPop();renderCityManager();pop.classList.add('open');_wxPopOpen=true;const r=anchor.getBoundingClientRect();const pw=340,ph=pop.offsetHeight||320;let left=r.left+r.width/2-pw/2;if(left+pw>window.innerWidth-10)left=window.innerWidth-pw-10;if(left<10)left=10;pop.style.left=left+'px';pop.style.top=(r.top-ph-10)+'px';}
 function closeWxPop(){document.getElementById('weather-modal').classList.remove('open');document.getElementById('city-search-input').value='';document.getElementById('search-results').innerHTML='';_wxPopOpen=false;}
 document.addEventListener('click',e=>{if(_wxPopOpen&&!document.getElementById('weather-modal').contains(e.target)&&!e.target.closest('#weather-grid'))closeWxPop();});
 
-function syncClockPop(){const p=cur();const sc=p.showClock!==false,sd=p.clockShowDate!==false;document.getElementById('cpop-show').checked=sc;document.getElementById('cpop-seconds').checked=(p.clockSeconds!==false);document.getElementById('cpop-date').checked=sd;document.getElementById('cpop-format').value=p.clockFormat||'24';document.getElementById('cpop-datefmt').value=p.clockDateFmt||'long';document.getElementById('cpop-size').value=p.clockSize||'m';document.getElementById('cpop-dsize').value=dateSizeKey(p.clockDateSize,p.clockSize);const sub=document.getElementById('cpop-sub');if(sub)sub.className=sc?'sub-enabled':'sub-disabled';['cpop-datefmt-label','cpop-datefmt','cpop-dsize-label','cpop-dsize'].map(i=>document.getElementById(i)).forEach(el=>{if(el)el.className=(sc&&sd)?'sub-enabled':'sub-disabled';});}
-function clockPopChange(){const p=cur();const sc=document.getElementById('cpop-show').checked,sd=document.getElementById('cpop-date').checked;p.showClock=sc;p.clockSeconds=document.getElementById('cpop-seconds').checked;p.clockShowDate=sd;p.clockFormat=document.getElementById('cpop-format').value;p.clockDateFmt=document.getElementById('cpop-datefmt').value;p.clockSize=document.getElementById('cpop-size').value;p.clockDateSize=document.getElementById('cpop-dsize').value;const sub=document.getElementById('cpop-sub');if(sub)sub.className=sc?'sub-enabled':'sub-disabled';['cpop-datefmt-label','cpop-datefmt','cpop-dsize-label','cpop-dsize'].map(i=>document.getElementById(i)).forEach(el=>{if(el)el.className=(sc&&sd)?'sub-enabled':'sub-disabled';});saveAndRender();tickClock();if(document.getElementById('settings-modal').style.display==='flex')renderSettings();}
+function syncClockPop(){const p=cur();const sc=p.showClock!==false,sd=p.clockShowDate!==false;document.getElementById('cpop-show').checked=sc;document.getElementById('cpop-seconds').checked=(p.clockSeconds!==false);document.getElementById('cpop-date').checked=sd;document.getElementById('cpop-format').value=p.clockFormat||'24';document.getElementById('cpop-datefmt').value=p.clockDateFmt||'long';const sub=document.getElementById('cpop-sub');if(sub)sub.className=sc?'sub-enabled':'sub-disabled';['cpop-datefmt-label','cpop-datefmt'].map(i=>document.getElementById(i)).forEach(el=>{if(el)el.className=(sc&&sd)?'sub-enabled':'sub-disabled';});}
+function clockPopChange(){const p=cur();const sc=document.getElementById('cpop-show').checked,sd=document.getElementById('cpop-date').checked;p.showClock=sc;p.clockSeconds=document.getElementById('cpop-seconds').checked;p.clockShowDate=sd;p.clockFormat=document.getElementById('cpop-format').value;p.clockDateFmt=document.getElementById('cpop-datefmt').value;const sub=document.getElementById('cpop-sub');if(sub)sub.className=sc?'sub-enabled':'sub-disabled';['cpop-datefmt-label','cpop-datefmt'].map(i=>document.getElementById(i)).forEach(el=>{if(el)el.className=(sc&&sd)?'sub-enabled':'sub-disabled';});saveAndRender();tickClock();if(document.getElementById('settings-modal').style.display==='flex')renderSettings();}
 function openClockPopover(anchor){if(document.body.classList.contains('edit-mode'))return;const pop=document.getElementById('clock-popover');if(_clockPopOpen){pop.classList.remove('open');_clockPopOpen=false;return;}closeWstatPop();syncClockPop();pop.classList.add('open');_clockPopOpen=true;const r=anchor.getBoundingClientRect();const pw=240,ph=pop.offsetHeight||200;let left=r.left+r.width/2-pw/2;if(left+pw>window.innerWidth-10)left=window.innerWidth-pw-10;if(left<10)left=10;pop.style.left=left+'px';pop.style.top=(r.bottom+8)+'px';}
 function closeClockPop(){document.getElementById('clock-popover').classList.remove('open');_clockPopOpen=false;}
 document.addEventListener('click',e=>{if(_clockPopOpen&&!document.getElementById('clock-popover').contains(e.target)&&!e.target.closest('#clock-display'))closeClockPop();});
@@ -1267,7 +1425,8 @@ const BD={
   card:{id:'cat-bg',pre:'card',opa:'--card-opacity',fb:'0.5',c1:'bgColor',c2:'bgColor2',mode:'bgMode',dir:'bgDir'},
   clock:{id:'clock-bd',pre:'clock',opa:'--clock-backdrop',fb:'0.1',c1:'clockBackdropColor',c2:'clockBackdropColor2',mode:'clockBackdropMode',dir:'clockBackdropDir'},
   search:{id:'search-bd',pre:'search',opa:'--search-backdrop',fb:'0.1',c1:'searchBackdropColor',c2:'searchBackdropColor2',mode:'searchBackdropMode',dir:'searchBackdropDir'},
-  weather:{id:'weather-bd',pre:'weather',opa:'--weather-backdrop',fb:'0.1',c1:'weatherBackdropColor',c2:'weatherBackdropColor2',mode:'weatherBackdropMode',dir:'weatherBackdropDir'}
+  weather:{id:'weather-bd',pre:'weather',opa:'--weather-backdrop',fb:'0.1',c1:'weatherBackdropColor',c2:'weatherBackdropColor2',mode:'weatherBackdropMode',dir:'weatherBackdropDir'},
+  np:{id:'np-bd',pre:'np',opa:'--np-backdrop',fb:'0.1',c1:'npBackdropColor',c2:'npBackdropColor2',mode:'npBackdropMode',dir:'npBackdropDir'}
 };
 function hexToRgbStr(h){h=String(h||'').replace('#','');if(h.length===3)h=h.split('').map(c=>c+c).join('');const n=parseInt(h,16);return(h.length===6&&!isNaN(n))?`${(n>>16)&255},${(n>>8)&255},${n&255}`:'0,0,0';}
 function bdCfg(o,k){const K=BD[k];return{mode:o[K.mode]==='gradient'?'gradient':'solid',c1:o[K.c1]||'#000000',c2:o[K.c2]||BD_DEF2,dir:BD_DIRS[o[K.dir]]?o[K.dir]:'v'};}
@@ -1279,7 +1438,7 @@ function bdVars(o,k){
   return{[`--${K.pre}-rgb`]:hexToRgbStr(c.c1),[`--${K.pre}-solid`]:g?'0':'1',[`--${K.pre}-img`]:img};
 }
 function bdInline(c){return Object.entries(bdVars(c,'card')).map(([n,v])=>n+':'+v).join(';');}
-function applyBackdropColors(p){['clock','search','weather'].forEach(k=>{for(const[n,v]of Object.entries(bdVars(p,k)))document.documentElement.style.setProperty(n,v);});}
+function applyBackdropColors(p){['clock','search','weather','np'].forEach(k=>{for(const[n,v]of Object.entries(bdVars(p,k)))document.documentElement.style.setProperty(n,v);});}
 function bdObj(k){const p=cur();if(k==='card'){const i=document.getElementById('cat-sel');return i?(p.categories[i.value]||null):null;}return p;}
 function bdRefresh(k){
   const o=bdObj(k);if(!o)return;
@@ -1301,7 +1460,7 @@ function bdSyncUI(k){
 }
 function bdSet(k,field,val){const o=bdObj(k);if(!o)return;o[BD[k][field]]=val;bdRefresh(k);if(field==='mode'||field==='dir')bdSyncUI(k);else if(field==='c1'||field==='c2')bdPaintDirs(k);}
 function bdReset(k){const o=bdObj(k);if(!o)return;o[BD[k].c1]='#000000';o[BD[k].c2]=BD_DEF2;bdRefresh(k);bdSyncUI(k);}
-function syncBackdropColorInputs(){['clock','search','weather'].forEach(bdSyncUI);}
+function syncBackdropColorInputs(){['clock','search','weather','np'].forEach(bdSyncUI);}
 
 // ── Color picker ──
 let _cpId=null;
@@ -1355,7 +1514,7 @@ function renderCatTabs(){
 function selectCatTab(i){document.getElementById('cat-sel').value=i;syncCatEditor();}
 function syncCatTab(c){const t=document.querySelector('#cat-tabs .cat-tab.active');if(!t)return;const n=t.querySelector('.cat-tab-name'),d=t.querySelector('.cat-tab-dot');if(n)n.textContent=c.title||'Untitled';if(d)d.style.background=c.color;t.title=c.title||'Untitled';}
 
-function getLayoutKey(p){return[p.categories.map(c=>{const g=catCfg(c,p);return g.density+(g.showHeader?1:0);}).join(','),p.showWeather,p.showSearch,p.categories.length,p.categories.map(c=>c.links.length).join(','),p.categories.map(c=>c.title).join('|'),p.categories.map(c=>c.links.map(l=>l.name+(l.hidden?'!':'')+'/'+lszName(l.size)).join('~')).join('|'),p.categories.map(c=>[fontName(c.font),fstyleName(c.fontStyle,'cat'),fsizeName(c.fontSize)].join('/')+'>'+c.links.map(l=>[fontName(l.font),fstyleName(l.fontStyle,'link'),fsizeName(l.fontSize)].join('/')).join(',')).join('|'),document.body.classList.contains('edit-mode')].join(':');}
+function getLayoutKey(p){return[p.categories.map(c=>{const g=catCfg(c,p);return g.density+(g.showHeader?1:0);}).join(','),p.showWeather,p.showSearch,fsizeName(p.searchFontSize),p.categories.length,p.categories.map(c=>c.links.length).join(','),p.categories.map(c=>c.title).join('|'),p.categories.map(c=>c.links.map(l=>l.name+(l.hidden?'!':'')+'/'+lszName(l.size)).join('~')).join('|'),p.categories.map(c=>[fontName(c.font),fstyleName(c.fontStyle,'cat'),fsizeName(c.fontSize)].join('/')+'>'+c.links.map(l=>[fontName(l.font),fstyleName(l.fontStyle,'link'),fsizeName(l.fontSize)].join('/')).join(',')).join('|'),document.body.classList.contains('edit-mode')].join(':');}
 let _lastKey=null;
 function applyScaling(force){
   const p=cur();const grid=document.getElementById('grid');if(!grid)return;if(!p.categories.length){document.documentElement.classList.add('scaling-finished');return;}
@@ -1363,7 +1522,7 @@ function applyScaling(force){
   const key=getLayoutKey(p);if(!force&&key===_lastKey)return;_lastKey=key;
   const cfgs=p.categories.map(c=>catCfg(c,p)),mods=cfgs.map(g=>DENS[g.density]);
   const mod=mods.reduce((a,b)=>a+b,0)/mods.length; // average: used for the gap between cards and the "+" strip
-  const avH=window.innerHeight-56-(p.showSearch!==false?52:0)-(p.showWeather?wxAreaH(p):0)-Math.round(window.innerHeight*0.04)-16;
+  const avH=window.innerHeight-56-(p.showSearch!==false?Math.round(52+38*(fsizeMult(p.searchFontSize)-1)):0)-dockH(p)-Math.round(window.innerHeight*0.04)-16;
   const avW=window.innerWidth*0.94;
   let natH=0;p.categories.forEach((c,i)=>{const m=mods[i];const vl=c.links.filter(l=>!l.hidden);const rows=vl.length?vl.reduce((a,l)=>a+(45*m+(fsizeMult(l.fontSize)-1)*20*m)*lszMult(l.size),0):45*m;natH=Math.max(natH,rows+((cfgs[i].showHeader?60+(fsizeMult(c.fontSize)-1)*26:10)*m)+(ed?45*m:0));});
   const colGap=1.2*16*mod;
@@ -1394,16 +1553,62 @@ function ensureFont(f){
   }));
   document.head.appendChild(l);
 }
+// ── Per-section text: each piece of the weather / Now Playing widgets has its own font, style and size.
+// Unset values follow the main Weather font. Applied as CSS variables (--tx-<key>-ff / -fw / -fi / -z).
+const TX_KEYS=['wx-city','wx-days','wx-temp','wx-cond','wx-stats','np-label','np-title','np-artist','np-album'];
+const TX_LABELS={'wx-city':'City name','wx-days':'Days & dates','wx-temp':'Temperatures','wx-cond':'Condition','wx-stats':'Extra info','np-label':'“Now Playing” label','np-title':'Song name','np-artist':'Artist','np-album':'Album'};
+// while the weather is on, Now Playing copies the matching weather section (font, style and size are locked to it)
+const TX_LOCK={'np-label':'wx-city','np-title':'wx-temp','np-artist':'wx-days','np-album':'wx-stats'};
+const TX_DEFAULT={'wx-city':{fontStyle:'bold',fontSize:'m',color:'#999999'},'wx-days':{fontSize:'m'},'wx-temp':{fontSize:'l'},'wx-cond':{fontSize:'m'},'wx-stats':{fontSize:'s',color:'#999999'},
+  'np-label':{fontSize:'s',color:'#ff4444'},'np-title':{fontStyle:'bold',fontSize:'m'},'np-artist':{fontSize:'m'},'np-album':{fontSize:'m'}};   // the starting look of each text; the font size picked for each text is the ONLY thing that sizes it
+const TX_DEFAULT_CLASSIC={'wx-city':{fontSize:'s'},'wx-days':{fontSize:'s'},'wx-temp':{fontSize:'s'}};   // the Classic weather starts smaller than Compact
+function txDef(p,k){const d=TX_DEFAULT[k]||{};return(p&&p.weatherStyle==='compact')?d:Object.assign({},d,TX_DEFAULT_CLASSIC[k]||{});}
+function txColorOf(p,k){return(p.tx&&p.tx[k]&&p.tx[k].color)||txDef(p,k).color||'';}
+function txGet(p,k){const o=(p.tx&&p.tx[k])||{},d=txDef(p,k);return{font:fontName(o.font||p.weatherFont),fontStyle:fstyleName(o.fontStyle||d.fontStyle||p.weatherFontStyle,'weather'),fontSize:fsizeName(o.fontSize||d.fontSize)};}
+const txVars=k=>`font-family:var(--tx-${k}-ff);font-weight:var(--tx-${k}-fw);font-style:var(--tx-${k}-fi);`;
+const txZ=k=>`var(--tx-${k}-z,1)`;
+function applyTx(p){
+  const r=document.documentElement.style;
+  TX_KEYS.forEach(k=>{const v=txGet(p,k),q=fstyleParts(v.fontStyle,'weather');ensureFont(v.font);
+    r.setProperty(`--tx-${k}-ff`,fontStack(v.font));r.setProperty(`--tx-${k}-fw`,q.w);r.setProperty(`--tx-${k}-fi`,q.i?'italic':'normal');r.setProperty(`--tx-${k}-z`,fsizeMult(v.fontSize));
+    {const c=txColorOf(p,k);if(c)r.setProperty(`--tx-${k}-c`,c);else r.removeProperty(`--tx-${k}-c`);}});
+  r.setProperty('--wx-cz',Math.max(fsizeMult(txGet(p,'wx-days').fontSize),fsizeMult(txGet(p,'wx-temp').fontSize)));   // forecast cards grow with their text
+}
+function txCell(k,p){
+  const np=k.startsWith('np-'),locked=false,v=txGet(p,k),fid='tx-'+k,o=(p.tx&&p.tx[k])||{};
+  const col=txColorOf(p,k)||(np?'#ffffff':(p.weatherColor||'#ffffff')),dis=locked?' disabled':'',tip=locked?'Follows the weather':'';
+  const dd=`<div class="tx-fdd${locked?' dis':''}">${fontDDHTML(fid,v.font,`txSet('${k}','font',this.value)`)}</div>`;
+  const sty=`<select data-k="style" title="${tip||'Style'}"${dis} onchange="txSet('${k}','fontStyle',this.value)">${fstyleOpts(v.fontStyle,'weather')}</select>`;
+  const siz=`<select data-k="size" title="${tip||'Font size'}"${dis} onchange="txSet('${k}','fontSize',this.value)">${fsizeOpts(v.fontSize,true)}</select>`;
+  const rst=`<button class="btn-icon" title="Reset font, style and size"${dis} onclick="txReset('${k}')"><i class="fa-solid fa-rotate-left"></i></button>`;
+  const clr=`<div class="color-field"><input type="color" id="tx-${k}-color" value="${col}" oninput="txColor('${k}',this.value)" style="display:none"><div class="cp-swatch" style="background:${col}" title="Color" onclick="cpOpen('tx-${k}-color')"></div><button class="btn-icon" title="Back to the default color" onclick="txColorReset('${k}')"><i class="fa-solid fa-rotate-left"></i></button></div>`;
+  return `<div class="tx-cell"><div class="tx-lab">${TX_LABELS[k]}</div><div class="tx-ctl">${dd}${sty}${siz}${rst}${clr}</div></div>`;
+}
+const NP_TEXTS={title:'Song name',artist:'Artist',album:'Album'};
+function npOrderOf(p){const d=Object.keys(NP_TEXTS),o=[];((p&&Array.isArray(p.npOrder))?p.npOrder:[]).forEach(k=>{if(d.includes(k)&&!o.includes(k))o.push(k);});d.forEach(k=>{if(!o.includes(k))o.push(k);});return o;}
+function npMove(k,dir){const p=cur(),o=npOrderOf(p),i=o.indexOf(k),j=i+dir;if(i<0||j<0||j>=o.length)return;[o[i],o[j]]=[o[j],o[i]];p.npOrder=o;saveAndRender();npSync();renderTx();requestAnimationFrame(()=>{try{npAlign();}catch(e){}});}
+function renderNpOrder(){const e=document.getElementById('np-order'),p=cur();if(!e||!p)return;const o=npOrderOf(p);
+  e.innerHTML=o.map((k,i)=>`<div class="np-order-row"><span>${NP_TEXTS[k]}</span><button class="btn-icon" title="Move up"${i===0?' disabled':''} onclick="npMove('${k}',-1)"><i class="fa-solid fa-chevron-up"></i></button><button class="btn-icon" title="Move down"${i===o.length-1?' disabled':''} onclick="npMove('${k}',1)"><i class="fa-solid fa-chevron-down"></i></button></div>`).join('');}
+function renderTx(){
+  const p=cur();if(!p)return;
+  const f=(id,keys)=>{const e=document.getElementById(id);if(e)e.innerHTML=keys.map(k=>txCell(k,p)).join('');};
+  f('tx-wx',['wx-city','wx-days','wx-temp'].concat(wxSty(p)==='compact'?['wx-cond']:[]));   /* condition text only exists in Compact */
+  f('tx-wx-x',['wx-stats']);f('tx-np',['np-label'].concat(npOrderOf(p).map(k=>'np-'+k)));
+}
+function txSet(k,prop,v){const p=cur();p.tx=p.tx||{};const o=p.tx[k]=p.tx[k]||{};o[prop]=cleanFontProp(prop,v,'weather');saveAndRender();requestAnimationFrame(()=>{try{npAlign();}catch(e){}});}
+function txReset(k){const p=cur();if(p.tx&&p.tx[k]){delete p.tx[k].font;delete p.tx[k].fontStyle;delete p.tx[k].fontSize;}saveAndRender();renderTx();}
+function txColor(k,v){const p=cur();p.tx=p.tx||{};(p.tx[k]=p.tx[k]||{}).color=v;saveAndRender();}
+function txColorReset(k){const p=cur();if(p.tx&&p.tx[k])delete p.tx[k].color;saveAndRender();renderTx();}
 function applyFonts(p){
   const used=new Set([p.clockFont,p.clockDateFont,p.searchFont,p.weatherFont]);
   p.categories.forEach(c=>{used.add(c.font);c.links.forEach(l=>used.add(l.font));});
   used.forEach(ensureFont);
-  const r=document.documentElement.style;r.setProperty('--search-font',fontStack(p.searchFont));r.setProperty('--weather-font',fontStack(p.weatherFont));
-  r.setProperty('--weather-fsz',fsizeMult(p.weatherFontSize));
-  const wa=document.getElementById('weather-area');if(wa)wa.setAttribute('data-fstyle',fstyleName(p.weatherFontStyle,'weather'));
+  const r=document.documentElement.style;r.setProperty('--search-font',fontStack(p.searchFont));r.setProperty('--search-color',p.searchColor||'#ffffff');{const q=fstyleParts(p.searchFontStyle,'search');r.setProperty('--search-fw',q.w);r.setProperty('--search-fi',q.i?'italic':'normal');r.setProperty('--search-fz',fsizeMult(p.searchFontSize));}r.setProperty('--weather-font',fontStack(p.weatherFont));
+  {const wa=document.getElementById('weather-area'),na=document.getElementById('np-area');if(wa)wa.removeAttribute('data-fstyle');if(na)na.removeAttribute('data-fstyle');}
+  applyTx(p);applyUi();
 }
 function updateCatFont(k,v){const c=curCat();if(!c)return;c[k]=cleanFontProp(k,v,'cat');saveAndRender();}
-function updateSimpleFont(k,v){cur()[k]=cleanFontProp(k,v,kindOfKey(k));saveAndRender();tickClock();}
+function updateSimpleFont(k,v){cur()[k]=cleanFontProp(k,v,kindOfKey(k));saveAndRender();tickClock();if(/^weather/.test(k))renderTx();}
 // "All" button: copies this row's settings to every sibling of the same kind (all categories / all links / every font field).
 // The previous values are remembered so the revert button next to it can put them back.
 function applyAll(scope,a,b){
@@ -1546,7 +1751,7 @@ function saveAndRender(refreshModal=false){
   const bgA=document.getElementById('full-bg-a'),bgB=document.getElementById('full-bg-b'),dimEl=document.getElementById('dim-el'),credit=document.getElementById('unsplash-credit');
   dimInstant();
   if(_instantBg){_instantBg=false;const tok=++_atomicTok;[bgA,bgB].forEach(bg=>bg.style.transition='none');requestAnimationFrame(()=>requestAnimationFrame(()=>{if(tok===_atomicTok)[bgA,bgB].forEach(bg=>bg.style.transition='');}));}
-  [bgA,bgB].forEach(bg=>{bg.style.backgroundImage='none';bg.style.background='none';bg.style.filter='none';bg.style.opacity=0;bg.style.transform='none';bg.style.transformOrigin='';});_bgActiveLayer='a';
+  [bgA,bgB].forEach(bg=>{bg.style.backgroundImage='none';bg.style.background='none';bg.style.filter='none';bg.style.opacity=0;bg.style.transform='none';bg.style.transformOrigin='';bg.style.zIndex='';});_bgActiveLayer='a';
 
   if(p.bgMode==='unsplash'&&!p.bgImg){
     stopBgCanvas();
@@ -1635,15 +1840,15 @@ function renderSettings(){
   document.getElementById('clock-date-check').checked=(p.clockShowDate!==false);
   document.getElementById('clock-format').value=p.clockFormat||'24';
   document.getElementById('clock-date-fmt').value=p.clockDateFmt||'long';
-  document.getElementById('clock-size').value=p.clockSize||'m';document.getElementById('clock-date-size').value=dateSizeKey(p.clockDateSize,p.clockSize);
-  syncFontField('clock',p.clockFont,p.clockFontStyle,p.clockFontSize);syncFontField('cdate',p.clockDateFont,p.clockDateFontStyle,p.clockDateFontSize);syncFontField('search',p.searchFont);syncFontField('weather',p.weatherFont,p.weatherFontStyle,p.weatherFontSize);
-  document.getElementById('clock-color').value=p.clockColor||'#ffffff';cpSync('clock-color');document.getElementById('clock-date-color').value=p.clockDateColor||p.clockColor||'#ffffff';cpSync('clock-date-color');
+  
+  syncFontField('clock',p.clockFont,p.clockFontStyle,p.clockFontSize);syncFontField('cdate',p.clockDateFont,p.clockDateFontStyle,p.clockDateFontSize);syncFontField('search',p.searchFont,p.searchFontStyle,p.searchFontSize);syncFontField('weather',p.weatherFont,p.weatherFontStyle);
+  document.getElementById('clock-color').value=p.clockColor||'#ffffff';cpSync('clock-color');document.getElementById('clock-date-color').value=p.clockDateColor||'#cccccc';cpSync('clock-date-color');
   const cbk=document.getElementById('clock-backdrop-slider'),cbkv=document.getElementById('clock-backdrop-val');if(cbk)cbk.value=p.clockBackdrop??0.1;if(cbkv)cbkv.textContent=Math.round((p.clockBackdrop??0.1)*100)+'%';
   const sbk=document.getElementById('search-backdrop-slider'),sbkv=document.getElementById('search-backdrop-val');if(sbk)sbk.value=p.searchBackdrop??0.1;if(sbkv)sbkv.textContent=Math.round((p.searchBackdrop??0.1)*100)+'%';
   // weather
   document.getElementById('w-enable').checked=p.showWeather;
   document.getElementById('w-colored').checked=p.wColored;document.getElementById('w-solid').checked=!p.wColored;
-  document.getElementById('weather-size').value=p.weatherSize||'m';syncWxStyle(p);
+  syncWxStyle(p);
   document.getElementById('w-day').checked=(p.wShowDay!==false);document.getElementById('w-date').checked=(p.wShowDate!==false);
   document.getElementById('w-date-fmt').value=p.wDateFmt||'dmy';
   document.getElementById('weather-color').value=p.weatherColor||'#ffffff';cpSync('weather-color');
@@ -1665,12 +1870,10 @@ function updateVis(){
   p.clockShowDate=document.getElementById('clock-date-check').checked;
   p.clockFormat=document.getElementById('clock-format').value;
   p.clockDateFmt=document.getElementById('clock-date-fmt').value;
-  p.clockSize=document.getElementById('clock-size').value;p.clockDateSize=document.getElementById('clock-date-size').value;
   p.clockColor=document.getElementById('clock-color').value;p.clockDateColor=document.getElementById('clock-date-color').value;
   p.clockFont=fontName(document.getElementById('clock-font').value);
   p.showWeather=document.getElementById('w-enable').checked;
   p.weatherColor=document.getElementById('weather-color').value;
-  p.weatherSize=document.getElementById('weather-size').value;
   p.wShowDay=document.getElementById('w-day').checked;
   p.wShowDate=document.getElementById('w-date').checked;
   p.wDateFmt=document.getElementById('w-date-fmt').value;
@@ -1713,34 +1916,61 @@ function applyPhotoBg(p){
   const c=photoCfg(p),img=`url(${p.bgImg})`,pos=BG_POS[c.pos];
   const size={cover:'cover',contain:'contain',stretch:'100% 100%',center:'auto',tile:'auto'}[c.fit];
   const bars=(c.fit==='contain'||c.fit==='center');          // leftover space around the photo
-  const main=bars?bgB:bgA,back=bars?bgA:bgB;                // main = the photo, back = what shows in the bars
+  const main=bgA,back=bgB;                                  // main = the photo (same layer as Fill), back = blurred copy under it when bars are blurred
+  const blurBars=bars&&c.bars==='blur';
   const sat=c.sat===1?'':` saturate(${c.sat})`;
-  if(bars){
-    back.style.background='none';
-    if(c.bars==='blur'){back.style.backgroundImage=img;back.style.backgroundSize='cover';back.style.backgroundPosition='center';back.style.backgroundRepeat='no-repeat';back.style.filter=`blur(40px)${sat} brightness(0.8)`;back.style.transform='scale(1.15)';}
-    else{back.style.backgroundColor=c.barsColor;back.style.filter='none';back.style.transform='none';}
-    back.style.opacity=1;
+  main.style.zIndex=-1;back.style.zIndex=blurBars?-2:-1;
+  if(blurBars){
+    back.style.background='none';back.style.backgroundImage=img;back.style.backgroundSize='cover';back.style.backgroundPosition='center';back.style.backgroundRepeat='no-repeat';back.style.filter=`blur(40px)${sat} brightness(0.8)`;back.style.transform='scale(1.15)';back.style.opacity=1;
   }else{back.style.opacity=0;back.style.transform='none';back.style.filter='none';}
   main.style.background='none';
   main.style.backgroundImage=img;main.style.backgroundSize=size;main.style.backgroundPosition=pos;main.style.backgroundRepeat=c.fit==='tile'?'repeat':'no-repeat';
+  if(bars&&!blurBars)main.style.backgroundColor=c.barsColor;   // colored bars are simply the photo layer's own background color
   main.style.filter=`blur(${p.fuzzy||0}px)${sat}`;main.style.transformOrigin=pos;main.style.transform=c.zoom>1?`scale(${c.zoom})`:'none';main.style.opacity=1;
   applyPhotoOverlay(p);
 }
 function setPhotoOpt(k,v){dimSmooth();const p=cur();p[k]=v;if(p.bgMode==='photo'&&p.bgImg)applyPhotoBg(p);localStorage.setItem(KEY,JSON.stringify(state));syncPhotoOpts();}
 function photoSlider(k){const ids={bgZoom:'photo-zoom',photoVignette:'photo-vig',photoSat:'photo-sat'};setPhotoOpt(k,parseFloat(document.getElementById(ids[k]).value));}
+// Miniature of the real background: same screen shape as this window, same fit / position / bars / blur / dim rules, scaled down.
+const _ppImg={};
+function renderPhotoPreview(){
+  const $=id=>document.getElementById(id),pv=$('photo-preview');if(!pv)return;
+  const p=cur(),u=p.bgImg||'',back=$('pp-back'),main=$('pp-main'),dim=$('pp-dim');
+  const W=Math.max(1,window.innerWidth),H=Math.max(1,window.innerHeight);
+  pv.style.aspectRatio=W+' / '+H;pv.classList.toggle('has-img',!!u);
+  if(!u){[back,main,dim].forEach(e=>{e.style.cssText='';e.style.display='none';});return;}
+  [back,main,dim].forEach(e=>{e.style.cssText='';});
+  const k=(pv.clientWidth||W*0.3)/W;                                  // preview px per real screen px
+  const c=photoCfg(p),img=`url("${u.replace(/"/g,'%22')}")`,pos=BG_POS[c.pos];
+  // 'center' and 'tile' use the photo's own pixel size, so the preview needs it to scale it down the same way
+  let nat=_ppImg[u];
+  if(!nat&&(c.fit==='center'||c.fit==='tile')){const im=new Image();im.onload=()=>{_ppImg[u]={w:im.naturalWidth,h:im.naturalHeight};renderPhotoPreview();};im.src=u;_ppImg[u]=null;}
+  const autoSize=nat?`${nat.w*k}px ${nat.h*k}px`:'auto';
+  const size={cover:'cover',contain:'contain',stretch:'100% 100%',center:autoSize,tile:autoSize}[c.fit];
+  const bars=(c.fit==='contain'||c.fit==='center');
+  const sat=c.sat===1?'':` saturate(${c.sat})`;
+  if(bars){
+    if(c.bars==='blur'){back.style.backgroundImage=img;back.style.backgroundSize='cover';back.style.backgroundPosition='center';back.style.filter=`blur(${40*k}px)${sat} brightness(0.8)`;back.style.transform='scale(1.15)';}
+    else{back.style.backgroundColor=c.barsColor;}
+  }else back.style.display='none';
+  main.style.backgroundImage=img;main.style.backgroundSize=size;main.style.backgroundPosition=pos;main.style.backgroundRepeat=c.fit==='tile'?'repeat':'no-repeat';
+  main.style.filter=`blur(${(p.fuzzy||0)*k}px)${sat}`;
+  const t=hexToRgbStr(c.tint);dim.style.background=(c.vig>0?`radial-gradient(ellipse at center,rgba(${t},0) 40%,rgba(${t},${c.vig}) 100%),`:'')+`rgba(${t},${p.photoDim??0.1})`;
+}
+window.addEventListener('resize',()=>{try{renderPhotoPreview();}catch(e){}});
 function syncPhotoOpts(){
   const p=cur(),c=photoCfg(p),$=id=>document.getElementById(id);if(!$('photo-fit-group'))return;
   document.querySelectorAll('#photo-fit-group .size-btn').forEach(b=>b.classList.toggle('active',b.dataset.fit===c.fit));
   document.querySelectorAll('#photo-bars-group .size-btn').forEach(b=>b.classList.toggle('active',b.dataset.bars===c.bars));
   document.querySelectorAll('#photo-pos-grid .pos-btn').forEach(b=>b.classList.toggle('active',b.dataset.pos===c.pos));
-  $('photo-bars-row').style.display=(c.fit==='contain'||c.fit==='center')?'flex':'none';
+  $('photo-bars-row').style.display=(c.fit==='contain'||c.fit==='center')?'flex':'none';   // only takes space when it is needed
   const bc=$('photo-bars-color');if(bc){bc.value=c.barsColor;cpSync('photo-bars-color');const sw=bc.nextElementSibling;if(sw)sw.style.display=c.bars==='color'?'':'none';}
-  const pv=$('photo-preview');if(pv){const u=p.bgImg||'';pv.style.backgroundImage=u?`url("${u.replace(/"/g,'%22')}")`:'none';pv.classList.toggle('has-img',!!u);}
+  renderPhotoPreview();
   const tn=$('photo-tint');if(tn){tn.value=c.tint;cpSync('photo-tint');}
   const setS=(id,vid,v)=>{const s=$(id);if(s&&document.activeElement!==s)s.value=v;const l=$(vid);if(l)l.textContent=Math.round(v*100)+'%';};
 }
 function resetPhotoOpts(){const p=cur();['bgFit','bgPos','bgZoom','bgBars','photoBarsColor','photoTint','photoVignette','photoSat'].forEach(k=>delete p[k]);p.photoDim=0.1;p.fuzzy=0;if(p.bgMode==='photo'&&p.bgImg)applyPhotoBg(p);localStorage.setItem(KEY,JSON.stringify(state));renderSettings();}
-function updatePhotoDim(){dimSmooth();const p=cur();const v=parseFloat(document.getElementById('photo-dim').value);p.photoDim=v;document.getElementById('photo-dim-val').textContent=Math.round(v*100)+'%';if(p.bgMode==='photo'||p.bgImg)applyPhotoOverlay(p);localStorage.setItem(KEY,JSON.stringify(state));}
+function updatePhotoDim(){dimSmooth();const p=cur();setTimeout(renderPhotoPreview,0);const v=parseFloat(document.getElementById('photo-dim').value);p.photoDim=v;document.getElementById('photo-dim-val').textContent=Math.round(v*100)+'%';if(p.bgMode==='photo'||p.bgImg)applyPhotoOverlay(p);localStorage.setItem(KEY,JSON.stringify(state));}
 
 // ── City / Weather ──
 function renderCityManager(){const isUnsplash=cur().bgMode==='unsplash';document.getElementById('city-list-manager').innerHTML=state.cities.map((c,i)=>{const mode=c.photoMode||'generic';return`<div class="city-item" draggable="true" ondragstart="cDS(event,${i})" ondragover="cDO(event,${i})" ondrop="cDrop(event,${i})" ondragleave="cDL(event)"><i class="fa-solid fa-grip-vertical drag-handle" style="color:#555;"></i><span style="flex:1;">${c.name}</span>${isUnsplash?`<span class="photo-mode-toggle"><button class="pmt-btn${mode==='generic'?' pmt-active':''}" onclick="setCityPhotoMode(${i},'generic',event)">Generic</button><button class="pmt-btn${mode==='city'?' pmt-active':''}" onclick="setCityPhotoMode(${i},'city',event)">City</button></span>`:''}<i class="fa-solid fa-trash-can" onclick="removeCity(${i})"></i></div>`;}).join('');}
@@ -1755,13 +1985,15 @@ function addCity(name,lat,lon){state.cities.push({name,lat,lon,photoMode:'generi
 function removeCity(i){if(state.cities.length>1){state.cities.splice(i,1);cityIdx=0;renderCityManager();saveAndRender();updateWeather();}}
 function cycleCity(){cityIdx=(cityIdx+1)%state.cities.length;try{window.getSelection().removeAllRanges();}catch(e){}updateWeather();}
 
-const WX_H={classic:148,hero:212,range:196,compact:106};
-function wxAreaH(p){const sz=p.weatherSize||'m';return Math.round((WX_H[p.weatherStyle||'hero']||148)*(sz==='s'?0.92:sz==='l'?1.1:1));}
+const WX_H={classic:148,compact:106};
+const wxSty=p=>(p&&p.weatherStyle==='compact')?'compact':'classic';
+let _wxMeasured=0;
+function wxAreaH(p){if(_wxMeasured>0)return _wxMeasured;return Math.round((WX_H[wxSty(p)]||148)*0.7);}   // first guess only; the real height is measured
 function applyWxArea(p){
   const wa=document.getElementById('weather-area');if(!wa||!p)return;
   wa.style.height=wxAreaH(p)+'px';
-  ['classic','hero','range','compact'].forEach(k=>wa.classList.toggle('wx-s-'+k,(p.weatherStyle||'hero')===k));
-  wa.classList.toggle('wx-tinted',p.wTint!==false);
+  ['classic','compact'].forEach(k=>wa.classList.toggle('wx-s-'+k,wxSty(p)===k));
+  wa.classList.toggle('wx-tinted',p.wTint!==false);{const dk=document.getElementById('bottom-dock');if(dk)dk.classList.toggle('wx-tinted',p.wTint!==false&&!!p.showWeather);}
 }
 function wxInfo(c,night){
   let r;
@@ -1792,14 +2024,14 @@ function wxRerender(){if(_wxRaw)renderWxGrid();else updateWeather();}
 function setWxStyle(st){const p=cur();p.weatherStyle=st;syncWxStyle(p);saveAndRender();wxRerender();}
 function wxFx(){const p=cur();p.wAnim=document.getElementById('w-anim').checked;p.wTint=document.getElementById('w-tint').checked;saveAndRender();wxRerender();}
 function syncWxStyle(p){
-  document.querySelectorAll('#wx-style-group .size-btn').forEach(b=>b.classList.toggle('active',b.dataset.wxs===(p.weatherStyle||'hero')));
+  document.querySelectorAll('#wx-style-group .size-btn').forEach(b=>b.classList.toggle('active',b.dataset.wxs===wxSty(p)));
   const a=document.getElementById('w-anim'),t=document.getElementById('w-tint');if(a)a.checked=p.wAnim!==false;if(t)t.checked=p.wTint!==false;
 }
 function renderWxGrid(){
   const R=_wxRaw,p=cur();if(!R||!p)return;
   const {d,isNight,cc,wc}=R,grid=document.getElementById('weather-grid'),wa=document.getElementById('weather-area');if(!grid)return;
-  const style=p.weatherStyle||'hero',sz=p.weatherSize||'m',cs=sz==='s'?0.78:sz==='l'?1.22:1.0,col=p.weatherColor;
-  const F=n=>`calc(${(n*cs).toFixed(2)}rem * var(--weather-fsz,1))`;
+  const style=wxSty(p),col=p.weatherColor;
+  const F=(n,k)=>`calc(${n}rem * ${k?txZ(k):1})`;   // n = the size at Medium; k = which text's font size scales it
   const days=d.daily.time.slice(0,7);
   const dinfo=i=>wxInfo(d.daily.weathercode[i],i===0&&isNight);
   const nowInfo=wxInfo(isNight?cc:wc,isNight);
@@ -1812,39 +2044,24 @@ function renderWxGrid(){
   const seg=i=>{const h=Math.max(10,pos(hi[i])-pos(lo[i])),b=Math.min(pos(lo[i]),100-h);return{b,h,l:b,w:h};};
   const tc=t=>`hsl(${Math.round(Math.max(0,Math.min(215,215-(t+10)/45*210)))},85%,62%)`;
   const fmtD=ds=>{const dt=new Date(ds+'T12:00:00');return(p.wDateFmt==='mdy')?dt.toLocaleDateString('en-US',{month:'2-digit',day:'2-digit'}):dt.toLocaleDateString('en-GB',{day:'2-digit',month:'2-digit'});};
-  const head=(t,fs)=>{const dn=(p.wShowDay!==false)?new Date(t+'T12:00:00').toLocaleDateString('en',{weekday:'short'}):'',ds=(p.wShowDate!==false)?fmtD(t):'';return`<div class="wx-dl" style="font-size:${F(fs)}"><span>${dn}</span>${ds?`<span>${ds}</span>`:''}</div>`;};
+  const head=(t,fs)=>{const dn=(p.wShowDay!==false)?new Date(t+'T12:00:00').toLocaleDateString('en',{weekday:'short'}):'',ds=(p.wShowDate!==false)?fmtD(t):'';return`<div class="wx-dl" style="font-size:${F(fs,'wx-days')}"><span>${dn}</span>${ds?`<span>${ds}</span>`:''}</div>`;};
   const hbar=i=>{const g=seg(i);return`<div class="wx-hbar"><span style="left:${g.l}%;width:${g.w}%;background:linear-gradient(90deg,${tc(lo[i])},${tc(hi[i])})"></span></div>`;};
-  const rainRow=i=>{const v=d.daily.precipitation_probability_max?d.daily.precipitation_probability_max[i]:null;return v==null?'':`<div class="wx-rain" style="color:${col};font-size:${F(0.66)}" title="Chance of rain"><i class="fa-solid fa-droplet"></i>${Math.round(v)}%</div>`;};
-  const miniCols=()=>days.map((t,i)=>{if(i===0)return'';const w=dinfo(i);return`<div class="wx-mini" title="${w.label}" style="min-width:${(4.4*cs).toFixed(1)}rem">${head(t,0.6)}<i class="fa-solid ${w.icon}" style="color:${icc(w)};font-size:${F(1.05)}"></i><div class="wx-hl"><b style="color:${col};font-size:${F(0.82)}">${hi[i]}°</b><span style="color:${col};font-size:${F(0.68)}">${lo[i]}°</span></div>${rainRow(i)}</div>`;}).join('');
-  const rangeCols=()=>{
-    const n=days.length,cw=Math.round(68*cs),W=cw*n,H=Math.round(100*cs),pT=22,pB=22,ph=H-pT-pB,HC='#E8B03A',LC='#27A9E1';
-    const cx=i=>cw*i+cw/2,yv=v=>pT+(mx-v)/span*ph;
-    const hp=hi.map((v,i)=>[cx(i),yv(v)]),lp=lo.map((v,i)=>[cx(i),yv(v)]);
-    const pts=a=>a.map(q=>q[0].toFixed(1)+','+q[1].toFixed(1)).join(' ');
-    let segs='';
-    for(let i=0;i<n-1;i++)segs+=`<g class="wx-sg"><polygon class="wx-seg" points="${pts([hp[i],hp[i+1],lp[i+1],lp[i]])}" fill="url(#wxg)"/><rect x="${cx(i)}" y="0" width="${cw}" height="${H}" fill="transparent" style="pointer-events:all"/></g>`;
-    const dots=(a,c)=>a.map(q=>`<circle cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="3.6" fill="${c}" stroke="rgba(255,255,255,0.85)" stroke-width="1.5"/>`).join('');
-    const svg=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><defs><linearGradient id="wxg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${HC}" stop-opacity="0.55"/><stop offset="1" stop-color="${LC}" stop-opacity="0.12"/></linearGradient></defs>${segs}<polyline points="${pts(hp)}" fill="none" stroke="${HC}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" style="pointer-events:none"/><polyline points="${pts(lp)}" fill="none" stroke="${LC}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" style="pointer-events:none"/><g style="pointer-events:none">${dots(hp,HC)}${dots(lp,LC)}</g></svg>`;
-    const fs=F(0.85);
-    const labels=days.map((_,i)=>`<div class="wx-pl" style="left:${cx(i)}px;top:${(hp[i][1]-20).toFixed(1)}px;color:${col};font-size:${fs}">${hi[i]}°</div><div class="wx-pl" style="left:${cx(i)}px;top:${(lp[i][1]+8).toFixed(1)}px;color:${col};font-size:${fs}">${lo[i]}°</div>`).join('');
-    const head_=days.map((t,i)=>{const w=dinfo(i),rp=(d.daily.precipitation_probability_max&&d.daily.precipitation_probability_max[i]!=null)?' · '+Math.round(d.daily.precipitation_probability_max[i])+'% rain':'';return`<div class="wx-chd${i===0?' wx-today':''}" title="${w.label}${rp}" style="width:${cw}px">${head(t,0.6)}<i class="fa-solid ${w.icon} ${i===0?an(w):''}" style="color:${icc(w)};font-size:${F(1.15)}"></i></div>`;}).join('');
-    return`<div class="wx-rc"><div class="wx-chh">${head_}</div><div class="wx-chart" style="width:${W}px;height:${H}px">${svg}${labels}</div></div>`;
+  const rainRow=i=>{const v=d.daily.precipitation_probability_max?d.daily.precipitation_probability_max[i]:null;return v==null?'':`<div class="wx-rain" style="color:${col};font-size:${F(0.66,'wx-days')}" title="Chance of rain"><i class="fa-solid fa-droplet"></i>${Math.round(v)}%</div>`;};
+  const cardCols=()=>{
+    const dfs='0.9rem',ifs=F(1.5,'wx-temp'),tfs='0.9rem',tms='0.9rem';
+    const cp='calc(0.4rem * var(--wx-cz,1)) calc(0.6rem * var(--wx-cz,1))',mw='calc(4.2rem * var(--wx-cz,1))';
+    const dS=`${txVars('wx-days')}color:var(--tx-wx-days-c,inherit);font-size:calc(${dfs} * ${txZ('wx-days')});`,tS=`${txVars('wx-temp')}`;
+    return days.map((t,i)=>{const wx=dinfo(i);const dn=(p.wShowDay!==false)?new Date(t+'T12:00:00').toLocaleDateString('en',{weekday:'short'}):'';const ds2=(p.wShowDate!==false)?fmtD(t):'';return`<div class="weather-card" title="${wx.label}" style="padding:${cp};min-width:${mw};"><div style="display:flex;align-items:baseline;justify-content:center;gap:4px;margin-bottom:0.2rem;white-space:nowrap;"><span style="${dS}text-transform:uppercase;">${dn}</span>${ds2?`<span style="${dS}">${ds2}</span>`:''}</div><i class="fa-solid ${wx.icon} ${i===0?an(wx):''}" style="color:${icc(wx)};font-size:${ifs};margin:0.25rem 0;display:block;"></i><div style="display:flex;align-items:baseline;justify-content:center;gap:5px;"><span style="${tS}color:var(--tx-wx-temp-c,${col});font-size:calc(${tfs} * ${txZ('wx-temp')});">${hi[i]}°</span><span style="${tS}color:var(--tx-wx-temp-c,${col});font-size:calc(${tms} * ${txZ('wx-temp')});">${lo[i]}°</span></div></div>`;}).join('');
   };
   let html='';
-  if(style==='hero'){
-    html=`<div class="wx-hero"><div class="wx-now"><i class="fa-solid ${nowInfo.icon} ${an(nowInfo)}" style="color:${icc(nowInfo)};font-size:${F(2.6)}"></i><div class="wx-now-temp" style="color:${col};font-size:${F(3.1)}">${curT}°</div><div class="wx-now-meta" style="color:${col}"><div class="wx-cond" style="font-size:${F(0.95)}">${nowInfo.label}</div><div class="wx-sub" style="font-size:${F(0.68)}">Feels like ${feels}° · ${hi[0]}° / ${lo[0]}°</div></div></div><div class="wx-strip">${miniCols()}</div></div>`;
-  }else if(style==='range'){
-    html=`<div class="wx-strip">${rangeCols()}</div>`;
-  }else if(style==='compact'){
-    html=`<div class="wx-compact" style="color:${col}"><div class="wx-ctrig"><i class="fa-solid ${nowInfo.icon} ${an(nowInfo)}" style="color:${icc(nowInfo)};font-size:${F(1.5)}"></i><span class="wx-cnow" style="font-size:${F(1.9)}">${curT}°</span><div class="wx-pop"><div class="wx-pop-in">${rangeCols()}</div></div></div><span class="wx-ccond" style="font-size:${F(0.8)}">${nowInfo.label}</span></div>`;
+  if(style==='compact'){
+    html=`<div class="wx-compact" style="color:${col}"><div class="wx-ctrig"><i class="fa-solid ${nowInfo.icon} ${an(nowInfo)}" style="color:${icc(nowInfo)};font-size:${F(1.6,'wx-temp')}"></i><span class="wx-cnow" style="${txVars('wx-temp')}color:var(--tx-wx-temp-c,inherit);font-size:${F(0.9,'wx-temp')}">${curT}°</span><div class="wx-pop"><div class="wx-pop-in">${cardCols()}</div></div></div><span class="wx-ccond" style="${txVars('wx-cond')}color:var(--tx-wx-cond-c,inherit);font-size:${F(0.9,'wx-cond')}">${nowInfo.label}</span></div>`;
   }else{
-    const dfs=(0.62*cs).toFixed(2)+'rem',ifs=(1.10*cs).toFixed(2)+'rem',tfs=(0.88*cs).toFixed(2)+'rem',tms=(0.72*cs).toFixed(2)+'rem';
-    const cp=sz==='s'?'0.35rem 0.5rem':sz==='l'?'0.65rem 0.9rem':'0.5rem 0.7rem',mw=sz==='s'?'4.2rem':sz==='l'?'7.2rem':'6.0rem';
-    html=days.map((t,i)=>{const wx=dinfo(i);const dn=(p.wShowDay!==false)?new Date(t+'T12:00:00').toLocaleDateString('en',{weekday:'short'}):'';const ds2=(p.wShowDate!==false)?fmtD(t):'';return`<div class="weather-card" style="padding:${cp};min-width:${mw};"><div style="display:flex;align-items:baseline;justify-content:center;gap:4px;margin-bottom:0.2rem;"><span style="font-size:calc(${dfs} * var(--weather-fsz,1));opacity:0.6;text-transform:uppercase;font-weight:700;">${dn}</span>${ds2?`<span style="font-size:calc(${dfs} * var(--weather-fsz,1));opacity:0.6;font-weight:700;">${ds2}</span>`:''}</div><i class="fa-solid ${wx.icon} ${i===0?an(wx):''}" style="color:${icc(wx)};font-size:${ifs};margin:0.25rem 0;display:block;"></i><div style="display:flex;align-items:baseline;justify-content:center;gap:5px;"><span style="color:${col};font-size:calc(${tfs} * var(--weather-fsz,1));font-weight:700;">${hi[i]}°</span><span style="color:${col};font-size:calc(${tms} * var(--weather-fsz,1));opacity:0.45;">${lo[i]}°</span></div></div>`;}).join('');
+    html=cardCols();
   }
   grid.innerHTML=html;
   applyWxArea(p);
-  if(wa)wa.style.setProperty('--wx-tint',nowInfo.tint);
+  if(wa)wa.style.setProperty('--wx-tint',nowInfo.tint);{const dk=document.getElementById('bottom-dock');if(dk)dk.style.setProperty('--wx-tint',nowInfo.tint);}
 }
 function wxUrl(city){return `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_probability_max&current=temperature_2m,relative_humidity_2m,surface_pressure,visibility,uv_index,weathercode,is_day,apparent_temperature&timezone=auto`;}
 let _wxPre=null;
@@ -1858,7 +2075,7 @@ function wxCacheGet(city){try{const c=JSON.parse(localStorage.getItem('STARTPAGE
 function wxCachePut(city,d){try{localStorage.setItem('STARTPAGE_WX',JSON.stringify({k:city.lat+','+city.lon,t:Date.now(),d}));}catch(e){}}
 async function updateWeather(){
   const p=cur(),city=state.cities[cityIdx];if(!city||!p.showWeather)return;
-  document.getElementById('city-name').textContent=city.name;document.getElementById('city-name').style.color=p.weatherColor;
+  document.getElementById('city-name').textContent=city.name;document.getElementById('city-name').style.color='var(--tx-wx-city-c,'+p.weatherColor+')';
   try{
     if(!_wxRaw){const cd=wxCacheGet(city);if(cd)await wxApply(cd,p,city);}
     const d=await wxFetch(city);if(!d||!d.daily)throw new Error('bad weather response');
@@ -1892,19 +2109,30 @@ async function wxApply(d,p,city){
     else if(p.bgMode==='time'&&(iChg||dChg)){startTimeBg(_wxCache,p.categories.map(x=>x.color),p.opTime??1.0);}
     _wxRaw={d,isNight,cc,wc};renderWxGrid();
     const c=d.current||{},stats=[];
-    if(p.wHumidity&&c.relative_humidity_2m!=null)stats.push(`<div class="wstat" onclick="openWstatPopover(this)" style="color:${p.weatherColor}"><i class="fa-solid fa-droplet"></i> ${c.relative_humidity_2m}%</div>`);
-    if(p.wUv&&c.uv_index!=null)stats.push(`<div class="wstat" onclick="openWstatPopover(this)" style="color:${p.weatherColor}"><i class="fa-solid fa-sun"></i> UV ${c.uv_index.toFixed(1)}</div>`);
-    if(p.wPressure&&c.surface_pressure!=null)stats.push(`<div class="wstat" onclick="openWstatPopover(this)" style="color:${p.weatherColor}"><i class="fa-solid fa-gauge"></i> ${Math.round(c.surface_pressure)} hPa</div>`);
-    if(p.wVisibility&&c.visibility!=null)stats.push(`<div class="wstat" onclick="openWstatPopover(this)" style="color:${p.weatherColor}"><i class="fa-solid fa-eye"></i> ${(c.visibility/1000).toFixed(1)} km</div>`);
-    if(p.wSunrise&&d.daily?.sunrise&&d.daily?.sunset){const u12=(p.clockFormat||'24')==='12';const fmt=t=>new Date(t).toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit',hour12:u12});stats.push(`<div class="wstat" onclick="openWstatPopover(this)" style="color:${p.weatherColor}"><i class="fa-solid fa-sun"></i> ${fmt(d.daily.sunrise[0])} <i class="fa-solid fa-moon" style="margin-left:6px;"></i> ${fmt(d.daily.sunset[0])}</div>`);}
+    if(p.wHumidity&&c.relative_humidity_2m!=null)stats.push(`<div class="wstat" onclick="openWstatPopover(this)" style="color:var(--tx-wx-stats-c,${p.weatherColor})"><i class="fa-solid fa-droplet"></i> ${c.relative_humidity_2m}%</div>`);
+    if(p.wUv&&c.uv_index!=null)stats.push(`<div class="wstat" onclick="openWstatPopover(this)" style="color:var(--tx-wx-stats-c,${p.weatherColor})"><i class="fa-solid fa-sun"></i> UV ${c.uv_index.toFixed(1)}</div>`);
+    if(p.wPressure&&c.surface_pressure!=null)stats.push(`<div class="wstat" onclick="openWstatPopover(this)" style="color:var(--tx-wx-stats-c,${p.weatherColor})"><i class="fa-solid fa-gauge"></i> ${Math.round(c.surface_pressure)} hPa</div>`);
+    if(p.wVisibility&&c.visibility!=null)stats.push(`<div class="wstat" onclick="openWstatPopover(this)" style="color:var(--tx-wx-stats-c,${p.weatherColor})"><i class="fa-solid fa-eye"></i> ${(c.visibility/1000).toFixed(1)} km</div>`);
+    if(p.wSunrise&&d.daily?.sunrise&&d.daily?.sunset){const u12=(p.clockFormat||'24')==='12';const fmt=t=>new Date(t).toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit',hour12:u12});stats.push(`<div class="wstat" onclick="openWstatPopover(this)" style="color:var(--tx-wx-stats-c,${p.weatherColor})"><i class="fa-solid fa-sun"></i> ${fmt(d.daily.sunrise[0])} <i class="fa-solid fa-moon" style="margin-left:6px;"></i> ${fmt(d.daily.sunset[0])}</div>`);}
     const se=document.getElementById('weather-stats');
     se.innerHTML=stats.join('');se.style.display=stats.length?'flex':'none';
     const wa=document.getElementById('weather-area');if(wa&&!wa.classList.contains('weather-hidden'))setTimeout(()=>wa.classList.add('weather-loaded'),80);
-    if(p.wAqi){fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${city.lat}&longitude=${city.lon}&current=european_aqi`).then(r=>r.json()).then(ad=>{const aqi=ad.current?.european_aqi!=null?Math.round(ad.current.european_aqi):null;if(aqi==null)return;const al=aqi<=20?'Good':aqi<=40?'Fair':aqi<=60?'Moderate':aqi<=80?'Poor':'Very Poor';se.querySelectorAll('.wstat-aqi').forEach(e=>e.remove());se.insertAdjacentHTML('beforeend',`<div class="wstat wstat-aqi" onclick="openWstatPopover(this)" style="color:${p.weatherColor}"><i class="fa-solid fa-wind"></i> AQI ${aqi} — ${al}</div>`);se.style.display='flex';}).catch(()=>{});}
+    if(p.wAqi){fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${city.lat}&longitude=${city.lon}&current=european_aqi`).then(r=>r.json()).then(ad=>{const aqi=ad.current?.european_aqi!=null?Math.round(ad.current.european_aqi):null;if(aqi==null)return;const al=aqi<=20?'Good':aqi<=40?'Fair':aqi<=60?'Moderate':aqi<=80?'Poor':'Very Poor';se.querySelectorAll('.wstat-aqi').forEach(e=>e.remove());se.insertAdjacentHTML('beforeend',`<div class="wstat wstat-aqi" onclick="openWstatPopover(this)" style="color:var(--tx-wx-stats-c,${p.weatherColor})"><i class="fa-solid fa-wind"></i> AQI ${aqi} — ${al}</div>`);se.style.display='flex';}).catch(()=>{});}
 }
 function toggleWxStyle(t){const p=cur();if(t==='colored'){p.wColored=true;document.getElementById('w-solid').checked=false;}else{p.wColored=false;document.getElementById('w-colored').checked=false;}updateVis();}
 function openModal(id){const el=document.getElementById(id);el.style.display=id==='settings-modal'?'flex':'block';document.getElementById('overlay').style.display='block';if(id==='settings-modal'){FONTS.forEach(ensureFont);renderSettings();}}
 function closeModals(){hideCatUndo();document.querySelectorAll('.modal').forEach(m=>m.style.display='none');document.getElementById('overlay').style.display='none';}
+// Elastic settings: the layout is designed for SET_DW px of content. On a narrower window nothing re-wraps, the whole page just scales down.
+const SET_DW=940;
+function fitSettings(){
+  const c=document.getElementById('settings-content');if(!c)return;
+  const cs=getComputedStyle(c),avail=c.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight);
+  if(!(avail>0))return;
+  const mu=(state.ui||{}).fontSize==='s'?0.88:1,z=Math.max(0.45,Math.min(mu,avail/SET_DW));
+  document.querySelectorAll('.settings-panel').forEach(p=>{p.style.zoom=z!==1?z:'';p.style.width=z!==1?(avail/z)+'px':'';});
+}
+window.addEventListener('resize',fitSettings);
+try{const _c=document.getElementById('settings-content');if(_c&&window.ResizeObserver)new ResizeObserver(fitSettings).observe(_c);}catch(e){}
 function showPanel(id,nav){document.querySelectorAll('.settings-panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.settings-nav-item').forEach(n=>n.classList.remove('active'));const panel=document.getElementById('panel-'+id);if(panel)panel.classList.add('active');if(nav)nav.classList.add('active');const c=document.getElementById('settings-content');if(c)c.scrollTop=0;}
 
 function syncCatEditor(){
@@ -2100,8 +2328,8 @@ function updateBgImg(v){const p=cur();p.bgImg=v;if(v)p.bgMode='photo';saveAndRen
 function tickClock(){
   const p=cur();const el=document.getElementById('clock-display');if(!el)return;
   const show=p.showClock!==false;el.style.display=show?'flex':'none';if(!show)return;
-  const now=new Date();const use12=(p.clockFormat||'24')==='12';const color=p.clockColor||'#ffffff',dcolor=p.clockDateColor||color;
-  const sz=p.clockSize||'m';const spx=sz==='s'?'0.75rem':sz==='l'?'1.4rem':'1.05rem';const dpx=DATE_SIZES[dateSizeKey(p.clockDateSize,p.clockSize)][1];
+  const now=new Date();const use12=(p.clockFormat||'24')==='12';const color=p.clockColor||'#ffffff',dcolor=p.clockDateColor||'#cccccc';
+  const spx='1rem',dpx='1rem';   // Medium size of the time / date; the font size picked for each one is the only thing that changes it
   let hh=now.getHours();let ap='';if(use12){ap=hh>=12?' PM':' AM';hh=hh%12||12;}
   const ts=(p.clockSeconds!==false)?`${String(hh).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}${ap}`:`${String(hh).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}${ap}`;
   const te=document.getElementById('clock-time'),de=document.getElementById('clock-date');
@@ -2131,6 +2359,255 @@ function applyTabMeta(){document.title=state.tabTitle||'Startpage';const fav=doc
 
 function editDisable(key){cur()[key]=false;saveAndRender();updateWeather();tickClock();if(document.getElementById('settings-modal').style.display==='flex')renderSettings();}
 document.addEventListener('click',e=>{if(!document.body.classList.contains('edit-mode'))return;if(e.target.closest('.column')||e.target.closest('[onclick*="edit-mode"]')||e.target.closest('.modal')||e.target.closest('#overlay')||e.target.closest('.edit-del-btn')||e.target.closest('.edit-add-btn'))return;document.body.classList.remove('edit-mode');});
+// ── Now Playing (ListenBrainz) ──
+let _npMeasured=0;   // Now Playing's real height, measured from its content (its text sizes decide it)
+const NP_SHAPE={rounded:'8px',square:'0',circle:'50%'};
+const NP_CK='STARTPAGE_NP_LAST',NP_CV='STARTPAGE_NP_COVERS';
+let _npKey=null,_npLast=0,_npSeq=0,_npShown=null,_npDock=null,_npTimerOn=false;
+const npIdent=p=>p?(p.npUser||'').trim():'';
+const npOn=p=>!!(p&&p.showNP&&npIdent(p));
+function npH(p){const b=document.querySelector('#np-area .np-box');if(b&&b.offsetHeight>20)_npMeasured=b.offsetHeight;return Math.round((_npMeasured||96)+12+window.innerHeight*0.018);}
+function dockH(p){return Math.max(p.showWeather?wxAreaH(p):0,npOn(p)?npH(p):0);}
+function npCoverStore(){try{return JSON.parse(localStorage.getItem(NP_CV))||{};}catch(e){return{};}}
+function npCoverSave(k,v){const c=npCoverStore();c[k]=v;const ks=Object.keys(c);if(ks.length>60)ks.slice(0,ks.length-60).forEach(x=>delete c[x]);try{localStorage.setItem(NP_CV,JSON.stringify(c));}catch(e){}}
+function npCands(t){
+  const mm=t.mbid_mapping||{},ai=t.additional_info||{},o=[];
+  const rel=mm.release_mbid||ai.release_mbid,crel=mm.caa_release_mbid,cid=mm.caa_id,rg=ai.release_group_mbid||mm.release_group_mbid;
+  if(cid&&crel)o.push(`https://coverartarchive.org/release/${crel}/${cid}-500.jpg`);
+  if(rel)o.push(`https://coverartarchive.org/release/${rel}/front-500`);
+  if(rg)o.push(`https://coverartarchive.org/release-group/${rg}/front-500`);
+  return o;
+}
+// ── Cover lookup. Every source must match the ARTIST and the ALBUM (or track title) exactly, so a same-named
+//    artist's other album (e.g. "Lost Paradise" vs "Paradise Lost") can never be picked by accident.
+const _npNorm=x=>String(x||'').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/&/g,' and ').replace(/[^a-z0-9]+/g,' ').trim();
+const _npBase=x=>_npNorm(String(x||'').replace(/\(.*?\)|\[.*?\]/g,' ').replace(/\s[-–—:]\s.*(deluxe|remaster|edition|version|anniversary|expanded|bonus).*$/i,' ').replace(/\b(deluxe|remastered|remaster|expanded|anniversary|special|limited|bonus|edition|version)\b/gi,' '));
+const _npSameName=(a,b)=>{a=_npBase(a);b=_npBase(b);return !!a&&!!b&&a===b;};
+const _npSameArtist=(a,b)=>{a=_npNorm(a);b=_npNorm(b);return !!a&&!!b&&(a===b||a.includes(b)||b.includes(a));};
+async function npMbCover(artist,album,title){
+  const key='v3|'+(artist+'|'+(album||title)).toLowerCase(),st=npCoverStore();
+  if(st[key]&&st[key].length)return st[key];
+  const q=v=>String(v).replace(/(["\\])/g,'\\$1');
+  const url=album?`https://musicbrainz.org/ws/2/release/?query=${encodeURIComponent(`release:"${q(album)}" AND artist:"${q(artist)}"`)}&fmt=json&limit=10`:`https://musicbrainz.org/ws/2/recording/?query=${encodeURIComponent(`recording:"${q(title)}" AND artist:"${q(artist)}"`)}&fmt=json&limit=10`;
+  const r=await fetch(url);if(!r.ok)return[];
+  const j=await r.json(),out=[];
+  const acOk=x=>((x['artist-credit']||[]).map(c=>(c.name||'')+(c.artist?' '+(c.artist.name||''):'')).join(' ')),artOk=x=>_npSameArtist(artist,acOk(x))||(x['artist-credit']||[]).some(c=>_npSameArtist(artist,c.name)||_npSameArtist(artist,(c.artist||{}).name));
+  let rels=[];
+  if(album)rels=(j.releases||[]).filter(x=>_npSameName(album,x.title)&&artOk(x));
+  else rels=(j.recordings||[]).filter(x=>_npSameName(title,x.title)&&artOk(x)).flatMap(x=>x.releases||[]).slice(0,4);
+  rels.slice(0,4).forEach(x=>{out.push(`https://coverartarchive.org/release/${x.id}/front-500`);});
+  rels.slice(0,2).forEach(x=>{if(x['release-group']&&x['release-group'].id)out.push(`https://coverartarchive.org/release-group/${x['release-group'].id}/front-500`);});
+  if(out.length)npCoverSave(key,out);return out;
+}
+// Fallback chain when the listen carries no usable art: ListenBrainz's own mapping -> iTunes -> Deezer -> MusicBrainz search
+const _npFbDone=new Set();
+function npJsonp(url,ms){return new Promise((res,rej)=>{const cb='_npjp'+Math.random().toString(36).slice(2),sc=document.createElement('script');const end=()=>{delete window[cb];sc.remove();};const t=setTimeout(()=>{end();rej(new Error('timeout'));},ms||6000);window[cb]=d=>{clearTimeout(t);end();res(d);};sc.onerror=()=>{clearTimeout(t);end();rej(new Error('jsonp'));};sc.src=url+(url.includes('?')?'&':'?')+'output=jsonp&callback='+cb;document.head.appendChild(sc);});}
+// Cover source setting: p.npCover = auto | service | mb | itunes | deezer, p.npCoverOnly = use only that one
+function npCoverPlan(p){
+  const pref=(p&&p.npCover)||'auto';
+  const GROUP={service:['lbmap'],mb:['mbsearch'],itunes:['itunes'],deezer:['deezer']};
+  const order=pref==='auto'?['lbmap','itunes','deezer','mbsearch']:(GROUP[pref]||[]);
+  return{pref,order,serviceFirst:pref==='auto'||pref==='service'};
+}
+async function npFindCovers(artist,album,title,order){
+  const plan=npCoverPlan(cur());order=order||plan.order;
+  const key='v3|'+order.join(',')+'|'+(artist+'|'+(album||title)).toLowerCase(),st=npCoverStore();
+  if(st[key]&&st[key].length)return st[key];
+  const out=[],add=u=>{if(u&&!out.includes(u))out.push(u);};
+  const big=u=>String(u||'').replace(/\/\d+x\d+(bb)?\./,'/600x600bb.');
+  const SRC={
+    // ListenBrainz metadata lookup: the same mapping the ListenBrainz site uses to show its cover
+    async lbmap(){
+      const r=await fetch(`https://api.listenbrainz.org/1/metadata/lookup/?artist_name=${encodeURIComponent(artist)}&recording_name=${encodeURIComponent(title)}${album?'&release_name='+encodeURIComponent(album):''}&metadata=true&inc=release`);
+      if(!r.ok)return;const j=await r.json(),rel=((j.metadata||{}).release)||{},cid=rel.caa_id||j.caa_id,crel=rel.caa_release_mbid||j.caa_release_mbid,rm=j.release_mbid;
+      if(cid&&crel)add(`https://coverartarchive.org/release/${crel}/${cid}-500.jpg`);
+      if(rm)add(`https://coverartarchive.org/release/${rm}/front-500`);
+    },
+    async itunes(){
+      if(album){
+        const r=await fetch('https://itunes.apple.com/search?media=music&limit=25&entity=album&term='+encodeURIComponent(artist+' '+album));
+        if(r.ok){const j=await r.json();const m=(j.results||[]).find(x=>x.artworkUrl100&&_npSameArtist(artist,x.artistName)&&_npSameName(album,x.collectionName));if(m)add(big(m.artworkUrl100));}
+      }
+      if(!out.length){
+        const r=await fetch('https://itunes.apple.com/search?media=music&limit=25&entity=song&term='+encodeURIComponent(artist+' '+title));
+        if(r.ok){const j=await r.json();const m=(j.results||[]).find(x=>x.artworkUrl100&&_npSameArtist(artist,x.artistName)&&_npSameName(title,x.trackName)&&(!album||_npSameName(album,x.collectionName)));if(m)add(big(m.artworkUrl100));}
+      }
+    },
+    async deezer(){
+      if(album){
+        const j=await npJsonp('https://api.deezer.com/search/album?limit=25&q='+encodeURIComponent(`artist:"${artist}" album:"${album}"`));
+        const m=((j&&j.data)||[]).find(x=>(x.cover_xl||x.cover_big)&&_npSameArtist(artist,(x.artist||{}).name)&&_npSameName(album,x.title));if(m)add(m.cover_xl||m.cover_big);
+      }
+      if(!out.length){
+        const j=await npJsonp('https://api.deezer.com/search/track?limit=25&q='+encodeURIComponent(`artist:"${artist}" track:"${title}"`));
+        const m=((j&&j.data)||[]).find(x=>x.album&&(x.album.cover_xl||x.album.cover_big)&&_npSameArtist(artist,(x.artist||{}).name)&&_npSameName(title,x.title)&&(!album||_npSameName(album,x.album.title)));if(m)add(m.album.cover_xl||m.album.cover_big);
+      }
+    },
+    async mbsearch(){(await npMbCover(artist,album,title)).forEach(add);}
+  };
+  for(const id of order){if(out.length)break;try{await SRC[id]();}catch(e){}}
+  if(out.length)npCoverSave(key,out);
+  return out;
+}
+function npGlowState(){
+  const p=cur(),gl=document.getElementById('np-glow'),ar=document.getElementById('np-area');if(!gl||!ar||!p)return;
+  gl.classList.toggle('on',!!(npOn(p)&&p.npGlow!==false&&ar.classList.contains('np-ready')&&!ar.classList.contains('np-idle')&&gl.getAttribute('src')&&gl.dataset.ok==='1'));
+}
+function npSetCover(urls,o,key,pl){
+  const img=document.getElementById('np-img'),glow=document.getElementById('np-glow'),ph=document.getElementById('np-ph');
+  let i=0;
+  const fail=()=>{img.style.display='none';ph.style.display='flex';glow.removeAttribute('src');glow.dataset.ok='0';npGlowState();
+    if(o&&o.artist&&key&&!_npFbDone.has(key)&&npCoverPlan(cur()).order.length){_npFbDone.add(key);npFindCovers(o.artist,o.album,o.title).then(u=>{if(u.length&&_npShown===key)npSetCover(u,o,key);}).catch(()=>{});}};
+  const next=()=>{if(i>=urls.length){fail();return;}img.src=urls[i];glow.src=urls[i];i++;};
+  img.onerror=next;
+  img.onload=()=>{img.style.display='block';ph.style.display='none';};
+  glow.onload=()=>{glow.dataset.ok='1';npGlowState();};
+  glow.dataset.ok='0';img.style.display='none';ph.style.display='flex';npGlowState();
+  if(urls.length)next();else fail();
+}
+function npAgo(ts){if(!ts)return'';const m=Math.max(0,Math.round((Date.now()/1000-ts)/60));if(m<1)return'just now';if(m<60)return m+' min ago';const h=Math.round(m/60);if(h<24)return h+' h ago';return Math.round(h/24)+' d ago';}
+function npRender(o){
+  const p=cur(),area=document.getElementById('np-area');if(!o||!npOn(p))return;
+  const key=o.artist+'|'+o.title+'|'+o.album;
+  const idle=!o.playing&&p.npAutoHide!==false,was=area.classList.contains('np-idle');
+  area.classList.toggle('np-idle',idle);
+  if(idle){npGlowState();return;}
+  if(was){requestAnimationFrame(()=>{npAlign();requestAnimationFrame(npAlign);});}
+  document.getElementById('np-title-t').textContent=o.title;document.getElementById('np-title').title=o.title;
+  document.getElementById('np-artist-t').textContent=o.artist;
+  document.getElementById('np-album-t').textContent=o.album||'';
+  document.getElementById('np-status-t').textContent=o.playing?'Now playing':('Last played · '+npAgo(o.at));
+  area.classList.toggle('np-playing',!!o.playing);
+  if(key!==_npShown){_npShown=key;{const pl=npCoverPlan(p);npSetCover(pl.serviceFirst?(o.urls||[]):[],o,key,pl);}}
+  area.classList.add('np-ready');npGlowState();
+}
+let _npSeen=null;
+async function npFetchLb(p){
+  const u=encodeURIComponent(p.npUser.trim()),api=`https://api.listenbrainz.org/1/user/${u}`;
+  let item=null,playing=false,status=0;
+  const r1=await fetch(api+'/playing-now');status=r1.status;
+  if(r1.ok){const j=await r1.json();item=((j.payload||{}).listens||[])[0]||null;playing=!!item;
+    if(item){const tm=item.track_metadata||{},ai=tm.additional_info||{},dur=(ai.duration_ms||(ai.duration?ai.duration*1000:0)||tm.duration_ms||0),k=(tm.artist_name||'')+'|'+(tm.track_name||'');
+      if(!_npSeen||_npSeen.k!==k)_npSeen={k,t:Date.now()};
+      if(dur>0&&Date.now()-_npSeen.t>dur+20000){item=null;playing=false;}}
+    else _npSeen=null;}
+  if(!item){const r2=await fetch(api+'/listens?count=1');status=r2.status;if(r2.ok){const j=await r2.json();item=((j.payload||{}).listens||[])[0]||null;}}
+  if(!item)return{err:status===404?'User not found':(status&&status!==200?'ListenBrainz error '+status:'No listens yet')};
+  const t=item.track_metadata||{};
+  return{o:{user:npIdent(p),title:t.track_name||'Unknown',artist:t.artist_name||'',album:t.release_name||'',playing,at:item.listened_at||0,urls:npCands(t)}};
+}
+async function npRefresh(force){
+  const p=cur();if(!npOn(p))return null;
+  const now=Date.now();if(!force&&now-_npLast<8000)return null;_npLast=now;
+  const seq=++_npSeq;
+  try{
+    const res=await npFetchLb(p);
+    if(seq!==_npSeq)return null;
+    if(res.err)return{err:res.err};
+    const o=res.o;
+    npRender(o);
+    try{localStorage.setItem(NP_CK,JSON.stringify(o));}catch(e){}
+    return{ok:o};
+  }catch(e){console.warn('NowPlaying:',e);return{err:'Could not reach ListenBrainz'};}
+}
+async function npTest(){
+  const m=document.getElementById('np-msg');m.textContent='Checking…';m.style.color='#888';
+  const r=await npRefresh(true);
+  if(!r){m.textContent='Enter a username first';return;}
+  if(r.ok){m.style.color='#4ade80';m.textContent='Connected — '+r.ok.artist+' · '+r.ok.title;}
+  else{m.style.color='#ff7070';m.textContent=r.err;}
+}
+function npApply(){
+  {const q=cur();if(q&&!q.npShapeV2){q.npShape='square';q.npShapeV2=true;}}
+  const p=cur(),area=document.getElementById('np-area'),wa=document.getElementById('weather-area');if(!p||!area||!wa)return;
+  const on=npOn(p);
+  const col={left:1,center:2,right:3},wpos=p.wxPos||'center';let pos=p.npPos||'left';
+  if(on&&p.showWeather&&pos===wpos){pos=['left','right','center'].find(x=>x!==wpos);p.npPos=pos;try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+  wa.style.gridColumn=String(col[wpos]||2);wa.style.gridRow='1';
+  ['left','center','right'].forEach(k=>wa.classList.toggle('wx-pos-'+k,wpos===k));
+  area.style.gridColumn=String(col[pos]||1);
+  area.classList.toggle('np-hidden',!on);
+  ['left','center','right'].forEach(k=>area.classList.toggle('np-pos-'+k,pos===k));
+  area.style.setProperty('--np-r',NP_SHAPE[p.npShape||'square']);document.documentElement.style.setProperty('--np-backdrop',p.npBackdrop??0.1);
+  document.getElementById('np-status').style.display=p.npStatus===false?'none':'flex';
+  document.getElementById('np-album').style.display=p.npAlbum===false?'none':'';
+  npOrderOf(p).forEach((k,i)=>{const el=document.getElementById('np-'+k);if(el)el.style.order=i;});
+  const gl=document.getElementById('np-glow'),gw=document.getElementById('glow-wx');
+  if(gl)['left','center','right'].forEach(k=>gl.classList.toggle('g-'+k,pos===k));
+  if(gw)['left','center','right'].forEach(k=>gw.classList.toggle('g-'+k,wpos===k));
+  if(!on){area.classList.remove('np-ready');_npShown=null;_npKey=null;}
+  else{
+    const k=npIdent(p);
+    if(k!==_npKey){
+      _npKey=k;_npShown=null;_npLast=0;area.classList.remove('np-ready');
+      try{const c=JSON.parse(localStorage.getItem(NP_CK));if(c&&c.user===npIdent(p))npRender(c);}catch(e){}
+      npRefresh(true);
+    }
+  }
+  npGlowState();
+  const h=dockH(p);if(h!==_npDock){_npDock=h;applyScaling(true);}
+  npWatch();npAlign();requestAnimationFrame(npAlign);
+  if(!_npTimerOn){_npTimerOn=true;setInterval(()=>{if(!document.hidden)npRefresh(false);},10000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)npRefresh(false);});}
+}
+function wxMeasure(){
+  const p=cur(),wa=document.getElementById('weather-area'),bw=document.querySelector('#weather-area .weather-bg-wrap');
+  if(!p||!p.showWeather||!wa||!bw||wa.classList.contains('weather-hidden'))return;
+  const h=Math.round(bw.offsetHeight+(parseFloat(getComputedStyle(wa).paddingBottom)||0));
+  if(h>20&&Math.abs(h-_wxMeasured)>1){_wxMeasured=h;wa.style.height=h+'px';_npDock=null;applyScaling(true);}
+}
+function npAlign(){
+  const area=document.getElementById('np-area'),box=area&&area.querySelector('.np-box'),p=cur();
+  if(!area||!box||!p)return;
+  box.style.transform='';
+  if(!npOn(p)){area.style.removeProperty('--np-card-h');return;}
+  // Nothing here sizes Now Playing except the font size of its own texts (label, song, artist, album).
+  // The cover simply takes the height of the text block next to it.
+  const meta=area.querySelector('.np-meta'),set=(k,v)=>{if(area.style.getPropertyValue(k)!==v)area.style.setProperty(k,v);};
+  const zt=fsizeMult(txGet(p,'np-title').fontSize),za=fsizeMult(txGet(p,'np-artist').fontSize),zb=fsizeMult(txGet(p,'np-album').fontSize);
+  area.classList.remove('np-slim');
+  set('--np-maxw',Math.round(240*Math.max(zt,za,p.npAlbum!==false?zb:0))+'px');
+  area.style.setProperty('--np-cover','0px');
+  const h=meta?Math.ceil(meta.scrollHeight):0,cover=Math.max(36,h);
+  set('--np-cover',cover+'px');
+  {const h2=dockH(p);if(h2!==_npDock){_npDock=h2;applyScaling(true);}}
+}
+let _npRO=null;
+function npWatch(){
+  if(_npRO||!window.ResizeObserver)return;
+  _npRO=new ResizeObserver(()=>{wxMeasure();npAlign();});
+  const a=document.querySelector('#weather-area .weather-bg-wrap'),b=document.querySelector('#np-area .np-box');
+  if(a)_npRO.observe(a);if(b)_npRO.observe(b);
+  window.addEventListener('resize',()=>{wxMeasure();npAlign();});
+}
+function posSet(who,v){
+  const p=cur(),oW=p.wxPos||'center',oN=p.npPos||'left';
+  if(who==='wx'){if(npOn(p)&&oN===v)p.npPos=oW;p.wxPos=v;}
+  else{if(p.showWeather&&oW===v)p.wxPos=oN;p.npPos=v;}
+  saveAndRender();npSync();
+}
+function npChange(){
+  const p=cur(),g=id=>document.getElementById(id);
+  p.showNP=g('np-enable').checked;p.npUser=g('np-user').value.trim();
+  p.npShape=g('np-shape').value;
+  p.npStatus=g('np-show-status').checked;p.npAlbum=g('np-show-album').checked;p.npGlow=g('np-glow-on').checked;p.npAutoHide=g('np-autohide').checked;
+  p.npBackdrop=parseFloat(g('np-backdrop').value);g('np-backdrop-val').textContent=Math.round(p.npBackdrop*100)+'%';
+  saveAndRender();
+}
+function npCoverChange(){const p=cur(),g=id=>document.getElementById(id);p.npCover=g('np-cover').value;_npShown=null;_npFbDone.clear();saveAndRender();npRefresh(true);}
+function npSync(){
+  const p=cur(),g=id=>document.getElementById(id);if(!p||!g('np-enable'))return;
+  renderNpOrder();
+  g('np-enable').checked=!!p.showNP;g('np-user').value=p.npUser||'';  g('np-shape').value=p.npShape||'square';
+  g('np-show-status').checked=p.npStatus!==false;g('np-show-album').checked=p.npAlbum!==false;g('np-glow-on').checked=p.npGlow!==false;g('np-autohide').checked=p.npAutoHide!==false;g('np-cover').value=p.npCover||'auto';
+  g('np-backdrop').value=p.npBackdrop??0.1;g('np-backdrop-val').textContent=Math.round((p.npBackdrop??0.1)*100)+'%';
+  document.querySelectorAll('#np-pos-group .size-btn').forEach(b=>b.classList.toggle('active',b.dataset.v===(p.npPos||'left')));
+  document.querySelectorAll('#wx-pos-group .size-btn').forEach(b=>b.classList.toggle('active',b.dataset.v===(p.wxPos||'center')));
+}
+{const _sar=saveAndRender;saveAndRender=function(){const r=_sar.apply(this,arguments);npApply();return r;};}
+{const _sw=setWxStyle;setWxStyle=function(){const r=_sw.apply(this,arguments);try{renderTx();}catch(e){}return r;};}
+{const _uv=updateVis;updateVis=function(){const r=_uv.apply(this,arguments);try{renderTx();npSync();renderPhotoPreview();}catch(e){}return r;};}
+{const _rs=renderSettings;renderSettings=function(){const r=_rs.apply(this,arguments);npSync();renderTx();renderUiFont();searchSync();renderPhotoPreview();return r;};}
+
 window.onload=()=>{saveAndRender();applyTabMeta();tickClock();setInterval(tickClock,1000);updateWeather();setInterval(()=>{updateWeather();if(cur().bgMode==='unsplash')fetchUnsplashPhoto(true);},30*60*1000);// Wait two frames so the gradient transition suppression completes before revealing
 Promise.race([Promise.all(_fontWait),new Promise(r=>setTimeout(r,1500))]).then(()=>{window._fontsOk=true;applyScaling(true);requestAnimationFrame(()=>requestAnimationFrame(()=>{document.documentElement.classList.add('ready');document.body.classList.add('page-ready');}));});
 };
