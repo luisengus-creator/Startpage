@@ -178,10 +178,10 @@ body.page-ready{visibility:visible}
 .wx-cnow{line-height:1}
 .wx-ccond{}
 .wx-ctrig{display:flex;align-items:center;gap:calc(0.75rem * var(--wx-k,1));position:static}
-.wx-pop{position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%) translateY(6px);opacity:0;pointer-events:none;transition:opacity 0.2s ease,transform 0.2s ease;z-index:20}
+.wx-pop{position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%) translateY(6px);margin-left:var(--wx-pop-shift,0px);opacity:0;pointer-events:none;transition:opacity 0.2s ease,transform 0.2s ease;z-index:20}
 .wx-ctrig:hover .wx-pop{opacity:1;transform:translateX(-50%)}
 .wx-pop,.wx-pop *{pointer-events:none !important}
-.wx-pop-in{display:flex;gap:0.25rem;padding:0.5rem;background:rgba(14,14,14,0.9);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,0.1);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,0.5)}
+.wx-pop-in{display:flex;gap:0.25rem;padding:0.5rem;background:var(--wxp-bg,rgba(14,14,14,0.9));-webkit-backdrop-filter:blur(var(--wxp-blur,14px));backdrop-filter:blur(var(--wxp-blur,14px));border:1px solid rgba(255,255,255,0.1);border-radius:var(--wxp-r,16px);box-shadow:0 10px 30px rgba(0,0,0,0.5)}
 #weather-area .weather-bg-wrap{position:relative}
 /* weather glow now lives in #bottom-dock (see #glow-wx) */
 @keyframes wxSpin{to{transform:rotate(360deg)}}
@@ -837,17 +837,33 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
           </div>
         </div>
         <div id="weather-rest">
-          <div class="s-card">
-            <div class="s-title">Forecast</div>
-            <div class="inl-row nw">
+          <div class="s-card" id="wx-card-main">
+            <div class="s-title" id="wx-main-title">Forecast</div>
+            <div id="wx-slot-days"><div class="inl-row nw" id="wx-row-days">
               <label class="label-inline inl"><input type="checkbox" id="w-day" onchange="updateVis()"> Show Day</label>
               <label class="label-inline inl"><input type="checkbox" id="w-date" onchange="updateVis()"> Show Date</label>
               <div class="inl"><span>Date Format</span><select id="w-date-fmt" onchange="updateVis()"><option value="dmy">DD/MM</option><option value="mdy">MM/DD</option></select></div>
+            </div></div>
+            <div class="inl-row nw" id="wx-row-icons">
               <label class="label-inline inl"><input type="checkbox" id="w-colored" onchange="toggleWxStyle('colored')"> Colored Icons</label>
               <label class="label-inline inl"><input type="checkbox" id="w-solid" onchange="toggleWxStyle('solid')"> Solid Icons</label>
             </div>
             <div class="tx-head">Fonts</div>
             <div class="tx-grid" id="tx-wx"></div>
+          </div>
+          <div class="s-card" id="wx-card-pop" style="display:none;">
+            <div class="s-title">Hover popup</div>
+            <div id="wx-slot-pop"></div>
+            <div class="s-field"><div class="s-lab">Background</div><div class="size-group" id="wxp-mode-group"><button class="size-btn" data-m="color" onclick="wxpSet('wpBgMode','color')">Color</button><button class="size-btn" data-m="blur" onclick="wxpSet('wpBgMode','blur')">Blur only</button></div></div>
+            <div id="wxp-color-row">
+              <div class="color-row" style="margin-bottom:4px;"><span>Color &amp; opacity</span><span id="wxp-op-val" style="font-size:0.72rem;color:#888;"></span></div>
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;"><input type="range" id="wxp-op" min="0" max="1" step="0.01" oninput="wxpSet('wpBgOpacity',parseFloat(this.value))" style="flex:1;min-width:0;margin-top:0;"><div class="color-field"><input type="color" id="wxp-color" oninput="wxpSet('wpBgColor',this.value)" style="display:none"><div class="cp-swatch" title="Background color" onclick="cpOpen('wxp-color')"></div></div></div>
+            </div>
+            <div class="color-row" style="margin-bottom:4px;"><span>Blur</span><span id="wxp-blur-val" style="font-size:0.72rem;color:#888;"></span></div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;"><input type="range" id="wxp-blur" min="0" max="40" step="1" oninput="wxpSet('wpBlur',parseFloat(this.value))" style="flex:1;min-width:0;margin-top:0;"></div>
+            <div class="s-field"><div class="s-lab">Corners</div><div class="size-group" id="wxp-corner-group"><button class="size-btn" data-c="round" onclick="wxpSet('wpCorners','round')">Round</button><button class="size-btn" data-c="square" onclick="wxpSet('wpCorners','square')">Square</button></div></div>
+            <div class="tx-head">Fonts</div>
+            <div class="tx-grid" id="tx-wx-pop"></div>
           </div>
           <div class="s-card">
             <div class="s-title">Extra Info</div>
@@ -1555,11 +1571,11 @@ function ensureFont(f){
 }
 // ── Per-section text: each piece of the weather / Now Playing widgets has its own font, style and size.
 // Unset values follow the main Weather font. Applied as CSS variables (--tx-<key>-ff / -fw / -fi / -z).
-const TX_KEYS=['wx-city','wx-days','wx-temp','wx-cond','wx-stats','np-label','np-title','np-artist','np-album'];
-const TX_LABELS={'wx-city':'City name','wx-days':'Days & dates','wx-temp':'Temperatures','wx-cond':'Condition','wx-stats':'Extra info','np-label':'“Now Playing” label','np-title':'Song name','np-artist':'Artist','np-album':'Album'};
+const TX_KEYS=['wx-city','wx-days','wx-temp','wx-cond','wx-pdays','wx-ptemp','wx-stats','np-label','np-title','np-artist','np-album'];
+const TX_LABELS={'wx-pdays':'Days & dates','wx-ptemp':'Temperatures','wx-city':'City name','wx-days':'Days & dates','wx-temp':'Temperatures','wx-cond':'Condition','wx-stats':'Extra info','np-label':'“Now Playing” label','np-title':'Song name','np-artist':'Artist','np-album':'Album'};
 // while the weather is on, Now Playing copies the matching weather section (font, style and size are locked to it)
 const TX_LOCK={'np-label':'wx-city','np-title':'wx-temp','np-artist':'wx-days','np-album':'wx-stats'};
-const TX_DEFAULT={'wx-city':{fontStyle:'bold',fontSize:'m',color:'#999999'},'wx-days':{fontSize:'m'},'wx-temp':{fontSize:'l'},'wx-cond':{fontSize:'m'},'wx-stats':{fontSize:'s',color:'#999999'},
+const TX_DEFAULT={'wx-city':{fontStyle:'bold',fontSize:'m',color:'#999999'},'wx-days':{fontSize:'m'},'wx-temp':{fontSize:'l'},'wx-pdays':{fontSize:'m'},'wx-ptemp':{fontSize:'l'},'wx-cond':{fontSize:'m'},'wx-stats':{fontSize:'s',color:'#999999'},
   'np-label':{fontSize:'s',color:'#ff4444'},'np-title':{fontStyle:'bold',fontSize:'m'},'np-artist':{fontSize:'m'},'np-album':{fontSize:'m'}};   // the starting look of each text; the font size picked for each text is the ONLY thing that sizes it
 const TX_DEFAULT_CLASSIC={'wx-city':{fontSize:'s'},'wx-days':{fontSize:'s'},'wx-temp':{fontSize:'s'}};   // the Classic weather starts smaller than Compact
 function txDef(p,k){const d=TX_DEFAULT[k]||{};return(p&&p.weatherStyle==='compact')?d:Object.assign({},d,TX_DEFAULT_CLASSIC[k]||{});}
@@ -1572,7 +1588,7 @@ function applyTx(p){
   TX_KEYS.forEach(k=>{const v=txGet(p,k),q=fstyleParts(v.fontStyle,'weather');ensureFont(v.font);
     r.setProperty(`--tx-${k}-ff`,fontStack(v.font));r.setProperty(`--tx-${k}-fw`,q.w);r.setProperty(`--tx-${k}-fi`,q.i?'italic':'normal');r.setProperty(`--tx-${k}-z`,fsizeMult(v.fontSize));
     {const c=txColorOf(p,k);if(c)r.setProperty(`--tx-${k}-c`,c);else r.removeProperty(`--tx-${k}-c`);}});
-  r.setProperty('--wx-cz',Math.max(fsizeMult(txGet(p,'wx-days').fontSize),fsizeMult(txGet(p,'wx-temp').fontSize)));   // forecast cards grow with their text
+  {const cp=p.weatherStyle==='compact';r.setProperty('--wx-cz',Math.max(fsizeMult(txGet(p,cp?'wx-pdays':'wx-days').fontSize),fsizeMult(txGet(p,cp?'wx-ptemp':'wx-temp').fontSize)));}   // forecast cards grow with their text
 }
 function txCell(k,p){
   const np=k.startsWith('np-'),locked=false,v=txGet(p,k),fid='tx-'+k,o=(p.tx&&p.tx[k])||{};
@@ -1592,7 +1608,8 @@ function renderNpOrder(){const e=document.getElementById('np-order'),p=cur();if(
 function renderTx(){
   const p=cur();if(!p)return;
   const f=(id,keys)=>{const e=document.getElementById(id);if(e)e.innerHTML=keys.map(k=>txCell(k,p)).join('');};
-  f('tx-wx',['wx-city','wx-days','wx-temp'].concat(wxSty(p)==='compact'?['wx-cond']:[]));   /* condition text only exists in Compact */
+  f('tx-wx',wxSty(p)==='compact'?['wx-city','wx-temp','wx-cond']:['wx-city','wx-days','wx-temp']);   /* Compact: the weather now (its popup has its own card); Classic: the forecast */
+  f('tx-wx-pop',['wx-pdays','wx-ptemp']);
   f('tx-wx-x',['wx-stats']);f('tx-np',['np-label'].concat(npOrderOf(p).map(k=>'np-'+k)));
 }
 function txSet(k,prop,v){const p=cur();p.tx=p.tx||{};const o=p.tx[k]=p.tx[k]||{};o[prop]=cleanFontProp(prop,v,'weather');saveAndRender();requestAnimationFrame(()=>{try{npAlign();}catch(e){}});}
@@ -1605,7 +1622,7 @@ function applyFonts(p){
   used.forEach(ensureFont);
   const r=document.documentElement.style;r.setProperty('--search-font',fontStack(p.searchFont));r.setProperty('--search-color',p.searchColor||'#ffffff');{const q=fstyleParts(p.searchFontStyle,'search');r.setProperty('--search-fw',q.w);r.setProperty('--search-fi',q.i?'italic':'normal');r.setProperty('--search-fz',fsizeMult(p.searchFontSize));}r.setProperty('--weather-font',fontStack(p.weatherFont));
   {const wa=document.getElementById('weather-area'),na=document.getElementById('np-area');if(wa)wa.removeAttribute('data-fstyle');if(na)na.removeAttribute('data-fstyle');}
-  applyTx(p);applyUi();
+  applyTx(p);applyWxPopStyle(p);applyUi();
 }
 function updateCatFont(k,v){const c=curCat();if(!c)return;c[k]=cleanFontProp(k,v,'cat');saveAndRender();}
 function updateSimpleFont(k,v){cur()[k]=cleanFontProp(k,v,kindOfKey(k));saveAndRender();tickClock();if(/^weather/.test(k))renderTx();}
@@ -2020,10 +2037,51 @@ function wxAnimCls(icon){
   return'wxa-drift';
 }
 let _wxRaw=null;
+// the hover popup is centred on the weather; when the weather sits at the left / right edge it is slid back inside the window
+var WXP_DEF={wpBgMode:'color',wpBgColor:'#0e0e0e',wpBgOpacity:0.9,wpBlur:14,wpCorners:'round'};
+function wxpGet(p,k){return(p&&p[k]!==undefined)?p[k]:WXP_DEF[k];}
+function wxpHex(h){h=String(h||'#0e0e0e').replace('#','');if(h.length===3)h=h.split('').map(c=>c+c).join('');const n=parseInt(h,16)||0;return[(n>>16)&255,(n>>8)&255,n&255];}
+function applyWxPopStyle(p){
+  const r=document.documentElement.style,blur=wxpGet(p,'wpBlur');
+  r.setProperty('--wxp-bg',wxpGet(p,'wpBgMode')==='blur'?'transparent':`rgba(${wxpHex(wxpGet(p,'wpBgColor')).join(',')},${wxpGet(p,'wpBgOpacity')})`);
+  r.setProperty('--wxp-blur',blur+'px');
+  r.setProperty('--wxp-r',wxpGet(p,'wpCorners')==='square'?'0px':'16px');
+}
+function wxpSet(k,v){const p=cur();p[k]=v;saveAndRender();wxpSync(p);try{wxPopFit();}catch(e){}}
+function wxpSync(p){
+  const g=id=>document.getElementById(id);if(!g('wxp-op'))return;
+  const mode=wxpGet(p,'wpBgMode');
+  document.querySelectorAll('#wxp-mode-group .size-btn').forEach(b=>b.classList.toggle('active',b.dataset.m===mode));
+  document.querySelectorAll('#wxp-corner-group .size-btn').forEach(b=>b.classList.toggle('active',b.dataset.c===wxpGet(p,'wpCorners')));
+  g('wxp-color-row').style.display=mode==='blur'?'none':'';
+  if(document.activeElement!==g('wxp-op'))g('wxp-op').value=wxpGet(p,'wpBgOpacity');
+  g('wxp-op-val').textContent=Math.round(wxpGet(p,'wpBgOpacity')*100)+'%';
+  g('wxp-color').value=wxpGet(p,'wpBgColor');cpSync('wxp-color');
+  if(document.activeElement!==g('wxp-blur'))g('wxp-blur').value=wxpGet(p,'wpBlur');
+  g('wxp-blur-val').textContent=wxpGet(p,'wpBlur')+'px';
+}
+function wxPopFit(){
+  const W=document.documentElement.clientWidth,m=8;
+  document.querySelectorAll('#weather-grid .wx-pop').forEach(pop=>{
+    const inn=pop.firstElementChild;
+    pop.style.setProperty('--wx-pop-shift','0px');if(inn)inn.style.zoom='';
+    let r=pop.getBoundingClientRect();
+    if(inn&&r.width>W-2*m){inn.style.zoom=((W-2*m)/r.width).toFixed(4);r=pop.getBoundingClientRect();}   // wider than the window: scale it down to fit
+    let sh=0;if(r.right>W-m)sh=W-m-r.right;if(r.left+sh<m)sh=m-r.left;
+    pop.style.setProperty('--wx-pop-shift',Math.round(sh)+'px');
+  });
+}
+document.addEventListener('mouseover',e=>{if(e.target.closest&&e.target.closest('.wx-ctrig'))wxPopFit();});
+window.addEventListener('resize',()=>{try{wxPopFit();}catch(e){}});
 function wxRerender(){if(_wxRaw)renderWxGrid();else updateWeather();}
 function setWxStyle(st){const p=cur();p.weatherStyle=st;syncWxStyle(p);saveAndRender();wxRerender();}
 function wxFx(){const p=cur();p.wAnim=document.getElementById('w-anim').checked;p.wTint=document.getElementById('w-tint').checked;saveAndRender();wxRerender();}
 function syncWxStyle(p){
+  {const comp=wxSty(p)==='compact',g=id=>document.getElementById(id),row=g('wx-row-days'),slot=g(comp?'wx-slot-pop':'wx-slot-days');
+   if(row&&slot&&row.parentNode!==slot)slot.appendChild(row);   // Show Day / Date / format belong to the popup in Compact, to the forecast in Classic
+   if(g('wx-card-pop'))g('wx-card-pop').style.display=comp?'':'none';
+   if(g('wx-main-title'))g('wx-main-title').textContent=comp?'Current weather':'Forecast';
+   wxpSync(p);}
   document.querySelectorAll('#wx-style-group .size-btn').forEach(b=>b.classList.toggle('active',b.dataset.wxs===wxSty(p)));
   const a=document.getElementById('w-anim'),t=document.getElementById('w-tint');if(a)a.checked=p.wAnim!==false;if(t)t.checked=p.wTint!==false;
 }
@@ -2047,19 +2105,20 @@ function renderWxGrid(){
   const head=(t,fs)=>{const dn=(p.wShowDay!==false)?new Date(t+'T12:00:00').toLocaleDateString('en',{weekday:'short'}):'',ds=(p.wShowDate!==false)?fmtD(t):'';return`<div class="wx-dl" style="font-size:${F(fs,'wx-days')}"><span>${dn}</span>${ds?`<span>${ds}</span>`:''}</div>`;};
   const hbar=i=>{const g=seg(i);return`<div class="wx-hbar"><span style="left:${g.l}%;width:${g.w}%;background:linear-gradient(90deg,${tc(lo[i])},${tc(hi[i])})"></span></div>`;};
   const rainRow=i=>{const v=d.daily.precipitation_probability_max?d.daily.precipitation_probability_max[i]:null;return v==null?'':`<div class="wx-rain" style="color:${col};font-size:${F(0.66,'wx-days')}" title="Chance of rain"><i class="fa-solid fa-droplet"></i>${Math.round(v)}%</div>`;};
-  const cardCols=()=>{
-    const dfs='0.9rem',ifs=F(1.5,'wx-temp'),tfs='0.9rem',tms='0.9rem';
+  const cardCols=(kd,kt)=>{   // which texts style the cards: the popup of the Compact weather has its own
+    const dfs='0.9rem',ifs=F(1.5,kt),tfs='0.9rem',tms='0.9rem';
     const cp='calc(0.4rem * var(--wx-cz,1)) calc(0.6rem * var(--wx-cz,1))',mw='calc(4.2rem * var(--wx-cz,1))';
-    const dS=`${txVars('wx-days')}color:var(--tx-wx-days-c,inherit);font-size:calc(${dfs} * ${txZ('wx-days')});`,tS=`${txVars('wx-temp')}`;
-    return days.map((t,i)=>{const wx=dinfo(i);const dn=(p.wShowDay!==false)?new Date(t+'T12:00:00').toLocaleDateString('en',{weekday:'short'}):'';const ds2=(p.wShowDate!==false)?fmtD(t):'';return`<div class="weather-card" title="${wx.label}" style="padding:${cp};min-width:${mw};"><div style="display:flex;align-items:baseline;justify-content:center;gap:4px;margin-bottom:0.2rem;white-space:nowrap;"><span style="${dS}text-transform:uppercase;">${dn}</span>${ds2?`<span style="${dS}">${ds2}</span>`:''}</div><i class="fa-solid ${wx.icon} ${i===0?an(wx):''}" style="color:${icc(wx)};font-size:${ifs};margin:0.25rem 0;display:block;"></i><div style="display:flex;align-items:baseline;justify-content:center;gap:5px;"><span style="${tS}color:var(--tx-wx-temp-c,${col});font-size:calc(${tfs} * ${txZ('wx-temp')});">${hi[i]}°</span><span style="${tS}color:var(--tx-wx-temp-c,${col});font-size:calc(${tms} * ${txZ('wx-temp')});">${lo[i]}°</span></div></div>`;}).join('');
+    const dS=`${txVars(kd)}color:var(--tx-${kd}-c,inherit);font-size:calc(${dfs} * ${txZ(kd)});`,tS=`${txVars(kt)}`;
+    return days.map((t,i)=>{const wx=dinfo(i);const dn=(p.wShowDay!==false)?new Date(t+'T12:00:00').toLocaleDateString('en',{weekday:'short'}):'';const ds2=(p.wShowDate!==false)?fmtD(t):'';return`<div class="weather-card" title="${wx.label}" style="padding:${cp};min-width:${mw};"><div style="display:flex;align-items:baseline;justify-content:center;gap:4px;margin-bottom:0.2rem;white-space:nowrap;"><span style="${dS}text-transform:uppercase;">${dn}</span>${ds2?`<span style="${dS}">${ds2}</span>`:''}</div><i class="fa-solid ${wx.icon} ${i===0?an(wx):''}" style="color:${icc(wx)};font-size:${ifs};margin:0.25rem 0;display:block;"></i><div style="display:flex;align-items:baseline;justify-content:center;gap:5px;"><span style="${tS}color:var(--tx-${kt}-c,${col});font-size:calc(${tfs} * ${txZ(kt)});">${hi[i]}°</span><span style="${tS}color:var(--tx-${kt}-c,${col});font-size:calc(${tms} * ${txZ(kt)});">${lo[i]}°</span></div></div>`;}).join('');
   };
   let html='';
   if(style==='compact'){
-    html=`<div class="wx-compact" style="color:${col}"><div class="wx-ctrig"><i class="fa-solid ${nowInfo.icon} ${an(nowInfo)}" style="color:${icc(nowInfo)};font-size:${F(1.6,'wx-temp')}"></i><span class="wx-cnow" style="${txVars('wx-temp')}color:var(--tx-wx-temp-c,inherit);font-size:${F(0.9,'wx-temp')}">${curT}°</span><div class="wx-pop"><div class="wx-pop-in">${cardCols()}</div></div></div><span class="wx-ccond" style="${txVars('wx-cond')}color:var(--tx-wx-cond-c,inherit);font-size:${F(0.9,'wx-cond')}">${nowInfo.label}</span></div>`;
+    html=`<div class="wx-compact" style="color:${col}"><div class="wx-ctrig"><i class="fa-solid ${nowInfo.icon} ${an(nowInfo)}" style="color:${icc(nowInfo)};font-size:${F(1.6,'wx-temp')}"></i><span class="wx-cnow" style="${txVars('wx-temp')}color:var(--tx-wx-temp-c,inherit);font-size:${F(0.9,'wx-temp')}">${curT}°</span><div class="wx-pop"><div class="wx-pop-in">${cardCols('wx-pdays','wx-ptemp')}</div></div></div><span class="wx-ccond" style="${txVars('wx-cond')}color:var(--tx-wx-cond-c,inherit);font-size:${F(0.9,'wx-cond')}">${nowInfo.label}</span></div>`;
   }else{
-    html=cardCols();
+    html=cardCols('wx-days','wx-temp');
   }
   grid.innerHTML=html;
+  try{wxPopFit();}catch(e){}
   applyWxArea(p);
   if(wa)wa.style.setProperty('--wx-tint',nowInfo.tint);{const dk=document.getElementById('bottom-dock');if(dk)dk.style.setProperty('--wx-tint',nowInfo.tint);}
 }
