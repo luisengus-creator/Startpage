@@ -2595,7 +2595,7 @@ async function npFetchLb(p){
 }
 async function npRefresh(force){
   const p=cur();if(!npOn(p))return null;
-  const now=Date.now();if(!force&&now-_npLast<25000)return null;_npLast=now;
+  const now=Date.now();if(!force&&now-_npLast<60000)return null;_npLast=now;
   const seq=++_npSeq;
   try{
     const res=await npFetchLb(p);
@@ -2608,7 +2608,7 @@ async function npRefresh(force){
   }catch(e){_npFails++;console.warn('NowPlaying:',e);return{err:'Could not reach ListenBrainz'};}
 }
 let _npFails=0,_npIdleSince=null,_npTimer=null,_npManualAt=0;
-function npDelay(){if(_npFails)return Math.min(300000,30000*Math.pow(2,_npFails));const idle=_npIdleSince?Date.now()-_npIdleSince:0;return _npIdleSince?(idle>10*60*1000?120000:60000):30000;}   // playing: 30 s, idle: 60 s, idle for a long time: 2 min, errors: back off up to 5 min
+function npDelay(){return 4*60*1000;}   // always 4 minutes: one check when the page opens, then every 4 minutes while it stays open; clicking the card checks right away
 function npTick(){clearTimeout(_npTimer);_npTimer=setTimeout(async()=>{try{if(!document.hidden&&npOn(cur()))await npRefresh(false);}catch(e){}npTick();},npDelay());}
 // clicking the Now Playing card checks again right away
 function npManual(e){const p=cur();if(!npOn(p)||document.body.classList.contains('edit-mode')||(e&&e.target.closest&&e.target.closest('.chrome-overlay')))return;const now=Date.now();if(now-_npManualAt<3000)return;_npManualAt=now;const box=document.querySelector('#np-area .np-box');if(box){box.classList.add('np-refreshing');setTimeout(()=>box.classList.remove('np-refreshing'),700);}npRefresh(true).then(r=>{if(r&&r.err)console.warn('NowPlaying:',r.err);});}
@@ -2669,7 +2669,7 @@ function npApply(){
   npGlowState();
   {const h=dockH(p)*1000+topStackH();if(h!==_npDock){_npDock=h;applyScaling(true);}}
   npWatch();npAlign();requestAnimationFrame(npAlign);
-  if(!_npTimerOn){_npTimerOn=true;npTick();document.addEventListener('visibilitychange',()=>{if(!document.hidden)npRefresh(false);});}
+  if(!_npTimerOn){_npTimerOn=true;npTick();}
 }
 function wxMeasure(){
   const p=cur(),wa=document.getElementById('weather-area'),bw=document.querySelector('#weather-area .weather-bg-wrap');
