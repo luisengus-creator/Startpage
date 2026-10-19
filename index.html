@@ -19,7 +19,8 @@ body.page-ready{visibility:visible}
 #fx-glow{position:fixed;left:0;top:0;z-index:-1;pointer-events:none;border-radius:50%;opacity:0;transition:opacity .35s ease;will-change:transform}
 #dim-el.dim-smooth{transition:background 0.4s ease}
 .container{width:100%;height:100%;margin:0 auto;padding:2vh 2vw;display:flex;flex-direction:column}
-.top-bar{display:flex;justify-content:space-between;align-items:center;z-index:10;flex-shrink:0;margin-bottom:2vh;position:relative}
+.top-bar{display:flex;justify-content:space-between;align-items:center;z-index:10;flex-shrink:0;margin-bottom:2vh;position:relative;pointer-events:none}
+.top-bar>.nav-group,.top-bar>#clock-display{pointer-events:auto}
 .nav-group{display:flex;gap:1.2rem;align-items:center}
 .nav-link{cursor:pointer;text-decoration:none;display:flex;align-items:center;justify-content:center;width:1.9rem;height:1.9rem;flex-shrink:0}
 .nav-link i{font-size:1.05rem;color:#fff;transition:0.3s;width:1.2rem;text-align:center}
@@ -338,6 +339,10 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 .search-result-item{padding:6px 10px;border-bottom:1px solid #161616;cursor:pointer;font-size:0.75rem;color:#999;transition:background 0.12s,color 0.12s}
 .search-result-item:hover{background:rgba(255,255,255,0.06);color:var(--modal-accent,#00d4ff)}
 #wx-line #wx-slot-days,#wx-line #wx-row-days,#wx-line #wx-row-icons{display:contents}
+#top-stack{pointer-events:none}
+#top-stack>*{pointer-events:auto}
+#search-bar-wrap{pointer-events:none}
+#search-bar-wrap>*{pointer-events:auto}
 #top-stack{display:flex;flex-direction:column;align-items:center;gap:0.3rem;flex-shrink:0;position:relative;z-index:10}
 #top-stack:empty{display:none}
 #top-stack>#np-area{justify-content:center;padding-bottom:0.6vh}
@@ -1425,13 +1430,14 @@ function uStatus(m){const el=document.getElementById('unsplash-status');if(el)el
 let _wstatOpen=false,_wxPopOpen=false,_clockPopOpen=false;
 function syncWstatPop(){const p=cur();['humidity','uv','pressure','visibility','aqi','sunrise'].forEach(k=>{const v=p['w'+k.charAt(0).toUpperCase()+k.slice(1)];document.getElementById('pop-'+k).checked=(v!==false);});}
 function wstatChange(){const p=cur();p.wHumidity=document.getElementById('pop-humidity').checked;p.wUv=document.getElementById('pop-uv').checked;p.wPressure=document.getElementById('pop-pressure').checked;p.wVisibility=document.getElementById('pop-visibility').checked;p.wAqi=document.getElementById('pop-aqi').checked;p.wSunrise=document.getElementById('pop-sunrise').checked;saveAndRender();updateWeather();}
-function openWstatPopover(anchor){const pop=document.getElementById('wstat-popover');if(_wstatOpen){pop.classList.remove('open');_wstatOpen=false;return;}syncWstatPop();pop.classList.add('open');_wstatOpen=true;const r=anchor.getBoundingClientRect();const pw=220,ph=pop.offsetHeight||160;let left=r.left+r.width/2-pw/2;if(left+pw>window.innerWidth-10)left=window.innerWidth-pw-10;if(left<10)left=10;pop.style.left=left+'px';pop.style.top=(r.top-ph-10)+'px';}
+function popTopFor(r,ph){let t=r.top-ph-10;if(t<8)t=r.bottom+10;if(t+ph>window.innerHeight-8)t=Math.max(8,window.innerHeight-ph-8);return t;}   // above the item; below it when there is no room above
+function openWstatPopover(anchor){const pop=document.getElementById('wstat-popover');if(_wstatOpen){pop.classList.remove('open');_wstatOpen=false;return;}syncWstatPop();pop.classList.add('open');_wstatOpen=true;const r=anchor.getBoundingClientRect();const pw=220,ph=pop.offsetHeight||160;let left=r.left+r.width/2-pw/2;if(left+pw>window.innerWidth-10)left=window.innerWidth-pw-10;if(left<10)left=10;pop.style.left=left+'px';pop.style.top=popTopFor(r,ph)+'px';}
 function closeWstatPop(){document.getElementById('wstat-popover').classList.remove('open');_wstatOpen=false;}
 document.addEventListener('click',e=>{if(_wstatOpen&&!document.getElementById('wstat-popover').contains(e.target)&&!e.target.closest('[onclick*="openWstatPopover"]'))closeWstatPop();});
 
 function syncWxPop(){const p=cur();document.getElementById('wpop-day').checked=(p.wShowDay!==false);document.getElementById('wpop-date').checked=(p.wShowDate!==false);document.getElementById('wpop-icons').value=p.wColored?'colored':'solid';}
 function wxPopChange(){const p=cur();p.wShowDay=document.getElementById('wpop-day').checked;p.wShowDate=document.getElementById('wpop-date').checked;p.wColored=document.getElementById('wpop-icons').value==='colored';saveAndRender();updateWeather();}
-function openWeatherPopover(anchor){const pop=document.getElementById('weather-modal');if(_wxPopOpen){pop.classList.remove('open');_wxPopOpen=false;return;}closeClockPop();closeWstatPop();syncWxPop();renderCityManager();pop.classList.add('open');_wxPopOpen=true;const r=anchor.getBoundingClientRect();const pw=340,ph=pop.offsetHeight||320;let left=r.left+r.width/2-pw/2;if(left+pw>window.innerWidth-10)left=window.innerWidth-pw-10;if(left<10)left=10;pop.style.left=left+'px';pop.style.top=(r.top-ph-10)+'px';}
+function openWeatherPopover(anchor){const pop=document.getElementById('weather-modal');if(_wxPopOpen){pop.classList.remove('open');_wxPopOpen=false;return;}closeClockPop();closeWstatPop();syncWxPop();renderCityManager();pop.classList.add('open');_wxPopOpen=true;const r=anchor.getBoundingClientRect();const pw=340,ph=pop.offsetHeight||320;let left=r.left+r.width/2-pw/2;if(left+pw>window.innerWidth-10)left=window.innerWidth-pw-10;if(left<10)left=10;pop.style.left=left+'px';pop.style.top=popTopFor(r,ph)+'px';}
 function closeWxPop(){document.getElementById('weather-modal').classList.remove('open');document.getElementById('city-search-input').value='';document.getElementById('search-results').innerHTML='';_wxPopOpen=false;}
 document.addEventListener('click',e=>{if(_wxPopOpen&&!document.getElementById('weather-modal').contains(e.target)&&!e.target.closest('#weather-grid'))closeWxPop();});
 
@@ -1539,13 +1545,30 @@ function syncCatTab(c){const t=document.querySelector('#cat-tabs .cat-tab.active
 
 function getLayoutKey(p){return[p.categories.map(c=>{const g=catCfg(c,p);return g.density+(g.showHeader?1:0);}).join(','),p.showWeather,p.showSearch,fsizeName(p.searchFontSize),p.categories.length,p.categories.map(c=>c.links.length).join(','),p.categories.map(c=>c.title).join('|'),p.categories.map(c=>c.links.map(l=>l.name+(l.hidden?'!':'')+'/'+lszName(l.size)).join('~')).join('|'),p.categories.map(c=>[fontName(c.font),fstyleName(c.fontStyle,'cat'),fsizeName(c.fontSize)].join('/')+'>'+c.links.map(l=>[fontName(l.font),fstyleName(l.fontStyle,'link'),fsizeName(l.fontSize)].join('/')).join(',')).join('|'),document.body.classList.contains('edit-mode')].join(':');}
 let _lastKey=null;
+// whatever sits first in the top middle (clock, search, weather or now playing) is pulled up so its first line is level with the icons of the top bar
+var _topPull=0;
+function topAlign(){
+  const p=cur(),hdr=document.querySelector('.top-bar'),sw=document.getElementById('search-bar-wrap'),st=document.getElementById('top-stack');
+  if(!p||!hdr||!sw||!st)return;
+  sw.style.marginTop='';st.style.marginTop='';sw.style.zIndex='';
+  let lead=null,row=null;
+  if(p.showClock!==false&&plGet(p,'clock')==='top'){lead=null;}   // the clock lives in the top bar and is already level with the icons
+  else if(p.showSearch!==false){lead=sw;row=document.getElementById('search-form');}
+  else{const first=[...st.children].find(c=>c.offsetHeight>0);
+    if(first){lead=st;const sel=first.id==='weather-area'?'#city-name':'.np-label,.np-row';row=[...first.querySelectorAll(sel)].find(e=>e.offsetHeight>0)||first;}}
+  let pull=0;
+  if(lead&&row){const h=hdr.getBoundingClientRect(),r=row.getBoundingClientRect();pull=Math.max(0,Math.round((r.top+r.height/2)-(h.top+h.height/2)));
+    if(pull){lead.style.marginTop=(-pull)+'px';if(lead===sw)sw.style.zIndex='11';}}
+  if(pull!==_topPull){_topPull=pull;_lastKey=null;}
+}
 function applyScaling(force){
+  try{topAlign();}catch(e){}
   const p=cur();const grid=document.getElementById('grid');if(!grid)return;if(!p.categories.length){document.documentElement.classList.add('scaling-finished');return;}
   const ed=document.body.classList.contains('edit-mode');
   const key=getLayoutKey(p);if(!force&&key===_lastKey)return;_lastKey=key;
   const cfgs=p.categories.map(c=>catCfg(c,p)),mods=cfgs.map(g=>DENS[g.density]);
   const mod=mods.reduce((a,b)=>a+b,0)/mods.length; // average: used for the gap between cards and the "+" strip
-  const avH=window.innerHeight-56-topStackH()-(p.showSearch!==false?Math.round(52+38*(fsizeMult(p.searchFontSize)-1)):0)-dockH(p)-Math.round(window.innerHeight*0.04)-16;
+  const avH=window.innerHeight-56+_topPull-topStackH()-(p.showSearch!==false?Math.round(52+38*(fsizeMult(p.searchFontSize)-1)):0)-dockH(p)-Math.round(window.innerHeight*0.04)-16;
   const avW=window.innerWidth*0.94;
   let natH=0;p.categories.forEach((c,i)=>{const m=mods[i];const vl=c.links.filter(l=>!l.hidden);const rows=vl.length?vl.reduce((a,l)=>a+(45*m+(fsizeMult(l.fontSize)-1)*20*m)*lszMult(l.size),0):45*m;natH=Math.max(natH,rows+((cfgs[i].showHeader?60+(fsizeMult(c.fontSize)-1)*26:10)*m)+(ed?45*m:0));});
   const colGap=1.2*16*mod;
@@ -2595,7 +2618,7 @@ async function npFetchLb(p){
 }
 async function npRefresh(force){
   const p=cur();if(!npOn(p))return null;
-  const now=Date.now();if(!force&&now-_npLast<60000)return null;_npLast=now;
+  const now=Date.now();if(!force&&now-_npLast<15000)return null;_npLast=now;
   const seq=++_npSeq;
   try{
     const res=await npFetchLb(p);
@@ -2608,7 +2631,7 @@ async function npRefresh(force){
   }catch(e){_npFails++;console.warn('NowPlaying:',e);return{err:'Could not reach ListenBrainz'};}
 }
 let _npFails=0,_npIdleSince=null,_npTimer=null,_npManualAt=0;
-function npDelay(){return 4*60*1000;}   // always 4 minutes: one check when the page opens, then every 4 minutes while it stays open; clicking the card checks right away
+function npDelay(){return 20000;}   // one check when the page opens, then every 20 seconds while it is open and visible; clicking the card checks right away
 function npTick(){clearTimeout(_npTimer);_npTimer=setTimeout(async()=>{try{if(!document.hidden&&npOn(cur()))await npRefresh(false);}catch(e){}npTick();},npDelay());}
 // clicking the Now Playing card checks again right away
 function npManual(e){const p=cur();if(!npOn(p)||document.body.classList.contains('edit-mode')||(e&&e.target.closest&&e.target.closest('.chrome-overlay')))return;const now=Date.now();if(now-_npManualAt<3000)return;_npManualAt=now;const box=document.querySelector('#np-area .np-box');if(box){box.classList.add('np-refreshing');setTimeout(()=>box.classList.remove('np-refreshing'),700);}npRefresh(true).then(r=>{if(r&&r.err)console.warn('NowPlaying:',r.err);});}
@@ -2669,7 +2692,7 @@ function npApply(){
   npGlowState();
   {const h=dockH(p)*1000+topStackH();if(h!==_npDock){_npDock=h;applyScaling(true);}}
   npWatch();npAlign();requestAnimationFrame(npAlign);
-  if(!_npTimerOn){_npTimerOn=true;npTick();}
+  if(!_npTimerOn){_npTimerOn=true;npTick();document.addEventListener('visibilitychange',()=>{if(!document.hidden)npRefresh(false);});}   // a hidden tab checks nothing; coming back checks once (at most every 15 s)
 }
 function wxMeasure(){
   const p=cur(),wa=document.getElementById('weather-area'),bw=document.querySelector('#weather-area .weather-bg-wrap');
@@ -2729,7 +2752,7 @@ function npSync(){
 {const _rs=renderSettings;renderSettings=function(){const r=_rs.apply(this,arguments);npSync();renderTx();renderUiFont();searchSync();renderPhotoPreview();return r;};}
 
 var _topH=-1;
-try{const _ts=document.getElementById('top-stack');if(_ts&&window.ResizeObserver)new ResizeObserver(()=>{const h=topStackH();if(h!==_topH){_topH=h;try{applyScaling(true);}catch(e){}}}).observe(_ts);}catch(e){}
+try{const _ts=document.getElementById('top-stack');if(_ts&&window.ResizeObserver)new ResizeObserver(()=>{const h=topStackH();if(h!==_topH){_topH=h;try{applyScaling(true);}catch(e){}}else{try{topAlign();if(_lastKey===null)applyScaling(true);}catch(e){}}}).observe(_ts);}catch(e){}
 var _wxLastFetch=Date.now();
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now()-_wxLastFetch>5*60*1000){_wxLastFetch=Date.now();try{updateWeather();}catch(e){}}});   // coming back to the tab after a while refreshes the weather
 window.onload=()=>{saveAndRender();applyTabMeta();tickClock();setInterval(tickClock,1000);updateWeather();setInterval(()=>{updateWeather();if(cur().bgMode==='unsplash')fetchUnsplashPhoto(true);},30*60*1000);// Wait two frames so the gradient transition suppression completes before revealing
