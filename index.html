@@ -116,7 +116,6 @@ body.page-ready{visibility:visible}
 .ip-cell:hover{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.15);color:white}
 #weather-area{padding:0 0 1.8vh 0;display:flex;flex-direction:column;align-items:center;gap:0.5rem;z-index:10;flex-shrink:0;height:148px;justify-content:flex-end;opacity:0;visibility:hidden;transition:opacity 0.8s ease,visibility 0.8s ease}
 #weather-area.weather-loaded{opacity:1;visibility:visible}
-#weather-area.weather-loaded #weather-refresh-btn{opacity:0.55}
 @keyframes spin-once{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
 .spin-anim{animation:spin-once 0.55s cubic-bezier(0.4,0,0.2,1) forwards}
 #weather-area.weather-hidden{opacity:0!important;visibility:hidden!important;pointer-events:none;height:0!important;padding:0!important;margin:0!important;overflow:hidden}
@@ -179,9 +178,14 @@ body.page-ready{visibility:visible}
 .wx-ccond{}
 .wx-ctrig{display:flex;align-items:center;gap:calc(0.75rem * var(--wx-k,1));position:static}
 .wx-pop{position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%) translateY(6px);margin-left:var(--wx-pop-shift,0px);opacity:0;pointer-events:none;transition:opacity 0.2s ease,transform 0.2s ease;z-index:20}
-.wx-ctrig:hover .wx-pop{opacity:1;transform:translateX(-50%)}
+.wx-compact{cursor:default}
+.wx-compact::before{content:'';position:absolute;left:0;right:0;bottom:100%;height:14px}   /* keeps the hover alive on the way up to the popup */
+.wx-compact:hover .wx-pop{opacity:1;transform:translateX(-50%)}
+#top-stack .wx-pop{bottom:auto;top:calc(100% + 12px);transform:translateX(-50%) translateY(-6px)}   /* weather at the top: the popup opens downwards */
+#top-stack .wx-compact:hover .wx-pop{transform:translateX(-50%)}
+#top-stack .wx-compact::before{bottom:auto;top:100%}
 .wx-pop,.wx-pop *{pointer-events:none !important}
-.wx-pop-in{display:flex;gap:0.25rem;padding:0.5rem;background:var(--wxp-bg,rgba(14,14,14,0.9));-webkit-backdrop-filter:blur(var(--wxp-blur,14px));backdrop-filter:blur(var(--wxp-blur,14px));border:1px solid rgba(255,255,255,0.1);border-radius:var(--wxp-r,16px);box-shadow:0 10px 30px rgba(0,0,0,0.5)}
+.wx-pop-in{display:flex;gap:0.25rem;padding:0.5rem;background:var(--wxp-bg,transparent);-webkit-backdrop-filter:blur(var(--wxp-blur,5px));backdrop-filter:blur(var(--wxp-blur,5px));border:1px solid rgba(255,255,255,0.1);border-radius:var(--wxp-r,0px);box-shadow:0 10px 30px rgba(0,0,0,0.5)}
 #weather-area .weather-bg-wrap{position:relative}
 /* weather glow now lives in #bottom-dock (see #glow-wx) */
 @keyframes wxSpin{to{transform:rotate(360deg)}}
@@ -333,6 +337,12 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 #search-submit:hover{color:white}
 .search-result-item{padding:6px 10px;border-bottom:1px solid #161616;cursor:pointer;font-size:0.75rem;color:#999;transition:background 0.12s,color 0.12s}
 .search-result-item:hover{background:rgba(255,255,255,0.06);color:var(--modal-accent,#00d4ff)}
+#wx-line #wx-slot-days,#wx-line #wx-row-days,#wx-line #wx-row-icons{display:contents}
+#top-stack{display:flex;flex-direction:column;align-items:center;gap:0.3rem;flex-shrink:0;position:relative;z-index:10}
+#top-stack:empty{display:none}
+#top-stack>#np-area{justify-content:center;padding-bottom:0.6vh}
+#clock-display.clock-docked{position:relative;left:auto;transform:none;align-self:end;margin:0 1.5vw 1.8vh;z-index:10}
+#clock-display.cd-left{justify-self:start}#clock-display.cd-center{justify-self:center}#clock-display.cd-right{justify-self:end}
 #clock-display{position:absolute;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;line-height:1.2;pointer-events:auto;cursor:pointer;isolation:isolate;background-color:rgba(var(--clock-rgb),calc(var(--clock-backdrop) * var(--clock-solid,1)));background-image:var(--clock-img,none);background-origin:border-box;background-repeat:no-repeat;border-radius:var(--widget-radius);padding:4px 12px;transition:background 0.3s}
 #clock-time{font-size:1rem;letter-spacing:1px}
 #clock-date{font-size:1rem;letter-spacing:1px}
@@ -468,11 +478,21 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 #np-area.np-playing .np-eq span{animation:npEq 1s ease-in-out infinite}
 .np-eq span:nth-child(2){animation-delay:0.25s}.np-eq span:nth-child(3){animation-delay:0.5s}
 @keyframes npEq{0%,100%{height:25%}50%{height:100%}}
-.np-order{display:flex;flex-direction:column;gap:4px}
-.np-order-row{display:flex;align-items:center;gap:8px;background:#111;border:1px solid #222;border-radius:6px;padding:3px 6px 3px 10px;font-size:0.78rem;color:#bbb}
+.np-order{display:flex;flex-direction:column;gap:5px}
+#np-area .np-card{cursor:pointer}
+#np-area .np-box.np-refreshing{opacity:0.55;transition:opacity 0.2s}
+.np-order-row{display:flex;align-items:center;gap:6px;background:#0d0d0d;border:1px solid #222;border-radius:8px;padding:6px 8px;font-size:0.78rem;color:#bbb}
+.np-order-row.off .np-ed-name,.np-order-row.off .tx-ctl{opacity:0.4}
+.np-ed-name{width:128px;flex-shrink:0;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.np-ed-name>span{overflow:hidden;text-overflow:ellipsis}
+.eq-toggle{width:28px;height:28px;font-size:0.72rem}
+.np-order-row .tx-ctl{flex:1}
+.np-order-row .font-dd{flex:1;min-width:0}.np-order-row .font-dd-btn{width:100%}
+.np-order-row select[data-k]{flex:1;min-width:0;width:auto;height:30px;line-height:28px;font-size:0.76rem;padding:0 4px}
+.np-order-row .btn-icon{flex-shrink:0}
+.np-order-row.dragging{opacity:0.4}
+.np-order-row.drag-over{border-top:2px solid var(--modal-accent,#00d4ff)}
 .np-order-row span{flex:1}
-.np-order-row .btn-icon{width:26px;height:22px;justify-content:center;font-size:0.7rem;padding:0}
-.np-order-row .btn-icon:disabled{opacity:0.25;cursor:default}
 .np-title{color:var(--tx-np-title-c,inherit);font-family:var(--tx-np-title-ff,inherit);font-weight:var(--tx-np-title-fw,400);font-style:var(--tx-np-title-fi,normal);font-size:calc(0.9rem * var(--tx-np-title-z,1))}
 .np-artist{color:var(--tx-np-artist-c,inherit);font-family:var(--tx-np-artist-ff,inherit);font-weight:var(--tx-np-artist-fw,400);font-style:var(--tx-np-artist-fi,normal);font-size:calc(0.9rem * var(--tx-np-artist-z,1))}
 .np-album{color:var(--tx-np-album-c,inherit);font-family:var(--tx-np-album-ff,inherit);font-weight:var(--tx-np-album-fw,400);font-style:var(--tx-np-album-fi,normal);font-size:calc(0.9rem * var(--tx-np-album-z,1))}
@@ -514,6 +534,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
     </form>
     <div class="chrome-overlay"><button class="edit-del-btn" onclick="event.stopPropagation();editDisable('showSearch')">Delete</button></div>
   </div>
+  <div id="top-stack"></div>
   <main id="main-content"><div id="grid"></div></main>
   <div id="bottom-dock">
   <div id="glow-wx" class="dock-glow g-center"></div>
@@ -523,7 +544,6 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
       <div style="display:flex;justify-content:center;width:100%;">
         <div style="position:relative;display:inline-block;">
           <span id="city-name" onclick="cycleCity()">---</span>
-          <span id="weather-refresh-btn" onclick="refreshWeather()" title="Refresh weather &amp; photo" style="position:absolute;left:100%;top:50%;margin-left:0.5rem;transform:translateY(-50%);cursor:pointer;opacity:0.55;font-size:0.6rem;transition:opacity 0.3s;display:inline-flex;align-items:center;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:3px 5px;" onmouseover="this.style.opacity='1';this.style.background='rgba(255,255,255,0.13)'" onmouseout="this.style.opacity='0.55';this.style.background='rgba(255,255,255,0.07)'"><i class="fa-solid fa-rotate-right" style="font-size:0.55rem;"></i></span>
         </div>
       </div>
       <div id="weather-grid" onclick="openWeatherPopover(this)"></div>
@@ -534,7 +554,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
   <section id="np-area" class="np-hidden">
     <div class="np-box">
       <div class="np-label" id="np-status"><span class="np-eq"><span></span><span></span><span></span></span><span id="np-status-t">Now playing</span></div>
-      <div class="np-card">
+      <div class="np-card" onclick="npManual(event)" title="Click to refresh">
         <div class="np-cover"><img id="np-img" alt=""><div class="np-ph" id="np-ph"><i class="fa-solid fa-music"></i></div></div>
         <div class="np-meta">
           <div class="np-row np-title" id="np-title"><i class="fa-solid fa-music"></i><span id="np-title-t"></span></div>
@@ -725,6 +745,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
           <div class="s-title">Time</div>
           <label class="label-inline"><input type="checkbox" id="clock-check" onchange="updateVis()"> Show Clock</label>
           <div id="clock-sub">
+            <div class="s-field"><div class="s-lab">Position</div><div class="size-group" id="clock-pos-group"><button class="size-btn" data-v="top" onclick="posSet('clock','top')">Top middle</button><button class="size-btn" data-v="left" onclick="posSet('clock','left')">Bottom left</button><button class="size-btn" data-v="center" onclick="posSet('clock','center')">Bottom center</button><button class="size-btn" data-v="right" onclick="posSet('clock','right')">Bottom right</button></div></div>
             <div class="inl-row nw">
               <div class="inl"><span>Format</span><select id="clock-format" onchange="updateVis()"><option value="24">24h</option><option value="12">12h AM/PM</option></select></div>
               <label class="label-inline inl"><input type="checkbox" id="clock-seconds" onchange="updateVis()"> Seconds</label>
@@ -795,20 +816,14 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
           <div id="np-sub">
             <div class="s-field"><div class="s-lab">ListenBrainz username</div><input type="text" id="np-user" placeholder="ListenBrainz username" autocomplete="off" spellcheck="false" onchange="npChange()"></div>
             <div class="inl-row"><button onclick="npTest()" style="width:auto;padding:0 14px;">Test connection</button><span id="np-msg" class="s-note" style="margin:0;"></span></div>
-            <div class="s-field"><div class="s-lab">Position</div><div class="size-group" id="np-pos-group"><button class="size-btn" data-v="left" onclick="posSet('np','left')">Left</button><button class="size-btn" data-v="center" onclick="posSet('np','center')">Center</button><button class="size-btn" data-v="right" onclick="posSet('np','right')">Right</button></div></div>
+            <div class="s-field"><div class="s-lab">Position</div><div class="size-group" id="np-pos-group"><button class="size-btn" data-v="top" onclick="posSet('np','top')">Top middle</button><button class="size-btn" data-v="left" onclick="posSet('np','left')">Bottom left</button><button class="size-btn" data-v="center" onclick="posSet('np','center')">Bottom center</button><button class="size-btn" data-v="right" onclick="posSet('np','right')">Bottom right</button></div></div>
             <div class="inl-row nw">
               <div class="inl"><span>Cover</span><select id="np-shape" onchange="npChange()"><option value="square">Square</option><option value="rounded">Rounded</option><option value="circle">Circle</option></select></div>
-              <div class="inl"><span>Cover source</span><select id="np-cover" onchange="npCoverChange()"><option value="auto">Automatic</option><option value="service">ListenBrainz</option><option value="mb">MusicBrainz / Cover Art Archive</option><option value="itunes">iTunes</option><option value="deezer">Deezer</option></select></div>
-            </div>
-            <div class="inl-row nw">
-              <label class="label-inline inl"><input type="checkbox" id="np-show-status" onchange="npChange()"> Status line</label>
-              <label class="label-inline inl"><input type="checkbox" id="np-autohide" onchange="npChange()"> Hide when nothing is playing</label>
-              <label class="label-inline inl"><input type="checkbox" id="np-show-album" onchange="npChange()"> Album name</label>
               <label class="label-inline inl"><input type="checkbox" id="np-glow-on" onchange="npChange()"> Cover glow</label>
+              <div class="inl"><span>Cover source</span><select id="np-cover" onchange="npCoverChange()"><option value="auto">Automatic</option><option value="service">ListenBrainz</option><option value="mb">MusicBrainz / Cover Art Archive</option><option value="itunes">iTunes</option><option value="deezer">Deezer</option></select></div>
+              <label class="label-inline inl"><input type="checkbox" id="np-autohide" onchange="npChange()"> Hide when nothing is playing</label>
             </div>
-            <div class="s-field"><div class="s-lab">Text order</div><div id="np-order" class="np-order"></div></div>
-            <div class="tx-head">Fonts</div>
-            <div class="tx-grid" id="tx-np"></div>
+            <div class="s-field"><div id="np-order" class="np-order"></div></div>
           </div>
         </div>
         <div class="s-card">
@@ -829,24 +844,24 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
           <div id="weather-sub">
             <input type="color" id="weather-color" style="display:none">
             <div class="s-field"><div class="s-lab">Style</div><div class="size-group" id="wx-style-group" style="flex-wrap:wrap;"><button class="size-btn" data-wxs="compact" onclick="setWxStyle('compact')">Compact</button><button class="size-btn" data-wxs="classic" onclick="setWxStyle('classic')">Classic</button></div></div>
-            <div class="s-field"><div class="s-lab">Position</div><div class="size-group" id="wx-pos-group"><button class="size-btn" data-v="left" onclick="posSet('wx','left')">Left</button><button class="size-btn" data-v="center" onclick="posSet('wx','center')">Center</button><button class="size-btn" data-v="right" onclick="posSet('wx','right')">Right</button></div></div>
-            <div class="inl-row nw">
-              <label class="label-inline inl"><input type="checkbox" id="w-anim" onchange="wxFx()"> Animated icon</label>
-              <label class="label-inline inl"><input type="checkbox" id="w-tint" onchange="wxFx()"> Condition glow</label>
-            </div>
+            <div class="s-field"><div class="s-lab">Position</div><div class="size-group" id="wx-pos-group"><button class="size-btn" data-v="top" onclick="posSet('wx','top')">Top middle</button><button class="size-btn" data-v="left" onclick="posSet('wx','left')">Bottom left</button><button class="size-btn" data-v="center" onclick="posSet('wx','center')">Bottom center</button><button class="size-btn" data-v="right" onclick="posSet('wx','right')">Bottom right</button></div></div>
           </div>
         </div>
         <div id="weather-rest">
           <div class="s-card" id="wx-card-main">
             <div class="s-title" id="wx-main-title">Forecast</div>
-            <div id="wx-slot-days"><div class="inl-row nw" id="wx-row-days">
+            <div class="inl-row nw" id="wx-line">
+              <div id="wx-slot-days"><div class="inl-row nw" id="wx-row-days">
               <label class="label-inline inl"><input type="checkbox" id="w-day" onchange="updateVis()"> Show Day</label>
               <label class="label-inline inl"><input type="checkbox" id="w-date" onchange="updateVis()"> Show Date</label>
               <div class="inl"><span>Date Format</span><select id="w-date-fmt" onchange="updateVis()"><option value="dmy">DD/MM</option><option value="mdy">MM/DD</option></select></div>
             </div></div>
-            <div class="inl-row nw" id="wx-row-icons">
+              <div class="inl-row nw" id="wx-row-icons">
               <label class="label-inline inl"><input type="checkbox" id="w-colored" onchange="toggleWxStyle('colored')"> Colored Icons</label>
               <label class="label-inline inl"><input type="checkbox" id="w-solid" onchange="toggleWxStyle('solid')"> Solid Icons</label>
+                          <label class="label-inline inl"><input type="checkbox" id="w-anim" onchange="wxFx()"> Animated icon</label>
+              <label class="label-inline inl"><input type="checkbox" id="w-tint" onchange="wxFx()"> Condition glow</label>
+            </div>
             </div>
             <div class="tx-head">Fonts</div>
             <div class="tx-grid" id="tx-wx"></div>
@@ -867,16 +882,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
           </div>
           <div class="s-card">
             <div class="s-title">Extra Info</div>
-            <div class="xi-rows">
-<label class="label-inline"><input type="checkbox" id="w-humidity" onchange="updateVis()"> Humidity</label>
-<label class="label-inline"><input type="checkbox" id="w-pressure" onchange="updateVis()"> Pressure</label>
-<label class="label-inline"><input type="checkbox" id="w-aqi" onchange="updateVis()"> Air Quality</label>
-<label class="label-inline"><input type="checkbox" id="w-uv" onchange="updateVis()"> UV Index</label>
-<label class="label-inline"><input type="checkbox" id="w-visibility" onchange="updateVis()"> Visibility</label>
-<label class="label-inline"><input type="checkbox" id="w-sunrise" onchange="updateVis()"> Sunrise/Sunset</label>
-            </div>
-            <div class="tx-head">Fonts</div>
-            <div class="tx-grid" id="tx-wx-x"></div>
+            <div id="wx-xi-list" class="np-order"></div>
           </div>
         <div class="s-card">
             <div class="s-title">Backdrop</div>
@@ -1213,6 +1219,7 @@ state.profiles.forEach(p=>{
   if(!p.profileIcon)p.profileIcon='fa-solid fa-user';
   if(p.profilePhoto===undefined)p.profilePhoto='';
   if(!p.profileIconColor)p.profileIconColor='#ffffff';
+  if(p.tx&&p.tx['wx-stats']){['humidity','pressure','aqi','uv','visibility','sunrise'].forEach(x=>{if(!p.tx['wx-x-'+x])p.tx['wx-x-'+x]=Object.assign({},p.tx['wx-stats']);});delete p.tx['wx-stats'];}
   delete p.weatherSize;delete p.weatherFontSize;delete p.clockSize;delete p.searchSize;delete p.npSize;
   if(p.weatherStyle!=='compact')p.weatherStyle='classic';
   if(p.wAnim===undefined)p.wAnim=true;
@@ -1538,7 +1545,7 @@ function applyScaling(force){
   const key=getLayoutKey(p);if(!force&&key===_lastKey)return;_lastKey=key;
   const cfgs=p.categories.map(c=>catCfg(c,p)),mods=cfgs.map(g=>DENS[g.density]);
   const mod=mods.reduce((a,b)=>a+b,0)/mods.length; // average: used for the gap between cards and the "+" strip
-  const avH=window.innerHeight-56-(p.showSearch!==false?Math.round(52+38*(fsizeMult(p.searchFontSize)-1)):0)-dockH(p)-Math.round(window.innerHeight*0.04)-16;
+  const avH=window.innerHeight-56-topStackH()-(p.showSearch!==false?Math.round(52+38*(fsizeMult(p.searchFontSize)-1)):0)-dockH(p)-Math.round(window.innerHeight*0.04)-16;
   const avW=window.innerWidth*0.94;
   let natH=0;p.categories.forEach((c,i)=>{const m=mods[i];const vl=c.links.filter(l=>!l.hidden);const rows=vl.length?vl.reduce((a,l)=>a+(45*m+(fsizeMult(l.fontSize)-1)*20*m)*lszMult(l.size),0):45*m;natH=Math.max(natH,rows+((cfgs[i].showHeader?60+(fsizeMult(c.fontSize)-1)*26:10)*m)+(ed?45*m:0));});
   const colGap=1.2*16*mod;
@@ -1571,11 +1578,11 @@ function ensureFont(f){
 }
 // ── Per-section text: each piece of the weather / Now Playing widgets has its own font, style and size.
 // Unset values follow the main Weather font. Applied as CSS variables (--tx-<key>-ff / -fw / -fi / -z).
-const TX_KEYS=['wx-city','wx-days','wx-temp','wx-cond','wx-pdays','wx-ptemp','wx-stats','np-label','np-title','np-artist','np-album'];
+const TX_KEYS=['wx-city','wx-days','wx-temp','wx-cond','wx-pdays','wx-ptemp','wx-stats','wx-x-humidity','wx-x-pressure','wx-x-aqi','wx-x-uv','wx-x-visibility','wx-x-sunrise','np-label','np-title','np-artist','np-album'];
 const TX_LABELS={'wx-pdays':'Days & dates','wx-ptemp':'Temperatures','wx-city':'City name','wx-days':'Days & dates','wx-temp':'Temperatures','wx-cond':'Condition','wx-stats':'Extra info','np-label':'“Now Playing” label','np-title':'Song name','np-artist':'Artist','np-album':'Album'};
 // while the weather is on, Now Playing copies the matching weather section (font, style and size are locked to it)
 const TX_LOCK={'np-label':'wx-city','np-title':'wx-temp','np-artist':'wx-days','np-album':'wx-stats'};
-const TX_DEFAULT={'wx-city':{fontStyle:'bold',fontSize:'m',color:'#999999'},'wx-days':{fontSize:'m'},'wx-temp':{fontSize:'l'},'wx-pdays':{fontSize:'m'},'wx-ptemp':{fontSize:'l'},'wx-cond':{fontSize:'m'},'wx-stats':{fontSize:'s',color:'#999999'},
+const TX_DEFAULT={'wx-city':{fontStyle:'bold',fontSize:'m',color:'#999999'},'wx-days':{fontSize:'m'},'wx-temp':{fontSize:'l'},'wx-pdays':{fontSize:'s'},'wx-ptemp':{fontSize:'m'},'wx-x-humidity':{fontSize:'s',color:'#999999'},'wx-x-pressure':{fontSize:'s',color:'#999999'},'wx-x-aqi':{fontSize:'s',color:'#999999'},'wx-x-uv':{fontSize:'s',color:'#999999'},'wx-x-visibility':{fontSize:'s',color:'#999999'},'wx-x-sunrise':{fontSize:'s',color:'#999999'},'wx-cond':{fontSize:'m'},'wx-stats':{fontSize:'s',color:'#999999'},
   'np-label':{fontSize:'s',color:'#ff4444'},'np-title':{fontStyle:'bold',fontSize:'m'},'np-artist':{fontSize:'m'},'np-album':{fontSize:'m'}};   // the starting look of each text; the font size picked for each text is the ONLY thing that sizes it
 const TX_DEFAULT_CLASSIC={'wx-city':{fontSize:'s'},'wx-days':{fontSize:'s'},'wx-temp':{fontSize:'s'}};   // the Classic weather starts smaller than Compact
 function txDef(p,k){const d=TX_DEFAULT[k]||{};return(p&&p.weatherStyle==='compact')?d:Object.assign({},d,TX_DEFAULT_CLASSIC[k]||{});}
@@ -1590,7 +1597,8 @@ function applyTx(p){
     {const c=txColorOf(p,k);if(c)r.setProperty(`--tx-${k}-c`,c);else r.removeProperty(`--tx-${k}-c`);}});
   {const cp=p.weatherStyle==='compact';r.setProperty('--wx-cz',Math.max(fsizeMult(txGet(p,cp?'wx-pdays':'wx-days').fontSize),fsizeMult(txGet(p,cp?'wx-ptemp':'wx-temp').fontSize)));}   // forecast cards grow with their text
 }
-function txCell(k,p){
+function txCell(k,p){return `<div class="tx-cell"><div class="tx-lab">${TX_LABELS[k]}</div><div class="tx-ctl">${txCtlHTML(k,p)}</div></div>`;}
+function txCtlHTML(k,p){
   const np=k.startsWith('np-'),locked=false,v=txGet(p,k),fid='tx-'+k,o=(p.tx&&p.tx[k])||{};
   const col=txColorOf(p,k)||(np?'#ffffff':(p.weatherColor||'#ffffff')),dis=locked?' disabled':'',tip=locked?'Follows the weather':'';
   const dd=`<div class="tx-fdd${locked?' dis':''}">${fontDDHTML(fid,v.font,`txSet('${k}','font',this.value)`)}</div>`;
@@ -1598,19 +1606,29 @@ function txCell(k,p){
   const siz=`<select data-k="size" title="${tip||'Font size'}"${dis} onchange="txSet('${k}','fontSize',this.value)">${fsizeOpts(v.fontSize,true)}</select>`;
   const rst=`<button class="btn-icon" title="Reset font, style and size"${dis} onclick="txReset('${k}')"><i class="fa-solid fa-rotate-left"></i></button>`;
   const clr=`<div class="color-field"><input type="color" id="tx-${k}-color" value="${col}" oninput="txColor('${k}',this.value)" style="display:none"><div class="cp-swatch" style="background:${col}" title="Color" onclick="cpOpen('tx-${k}-color')"></div><button class="btn-icon" title="Back to the default color" onclick="txColorReset('${k}')"><i class="fa-solid fa-rotate-left"></i></button></div>`;
-  return `<div class="tx-cell"><div class="tx-lab">${TX_LABELS[k]}</div><div class="tx-ctl">${dd}${sty}${siz}${rst}${clr}</div></div>`;
+  return `${dd}${sty}${siz}${rst}${clr}`;
 }
 const NP_TEXTS={title:'Song name',artist:'Artist',album:'Album'};
 function npOrderOf(p){const d=Object.keys(NP_TEXTS),o=[];((p&&Array.isArray(p.npOrder))?p.npOrder:[]).forEach(k=>{if(d.includes(k)&&!o.includes(k))o.push(k);});d.forEach(k=>{if(!o.includes(k))o.push(k);});return o;}
-function npMove(k,dir){const p=cur(),o=npOrderOf(p),i=o.indexOf(k),j=i+dir;if(i<0||j<0||j>=o.length)return;[o[i],o[j]]=[o[j],o[i]];p.npOrder=o;saveAndRender();npSync();renderTx();requestAnimationFrame(()=>{try{npAlign();}catch(e){}});}
-function renderNpOrder(){const e=document.getElementById('np-order'),p=cur();if(!e||!p)return;const o=npOrderOf(p);
-  e.innerHTML=o.map((k,i)=>`<div class="np-order-row"><span>${NP_TEXTS[k]}</span><button class="btn-icon" title="Move up"${i===0?' disabled':''} onclick="npMove('${k}',-1)"><i class="fa-solid fa-chevron-up"></i></button><button class="btn-icon" title="Move down"${i===o.length-1?' disabled':''} onclick="npMove('${k}',1)"><i class="fa-solid fa-chevron-down"></i></button></div>`).join('');}
+let _npoDrag=null;
+function npoDS(e,k){_npoDrag=k;e.dataTransfer.effectAllowed='move';try{e.dataTransfer.setData('text/plain',k);}catch(_){}e.currentTarget.classList.add('dragging');}
+function npoDO(e,k){if(!_npoDrag||_npoDrag===k)return;e.preventDefault();e.dataTransfer.dropEffect='move';document.querySelectorAll('.np-order-row').forEach(r=>r.classList.remove('drag-over'));e.currentTarget.classList.add('drag-over');}
+function npoDL(e){e.currentTarget.classList.remove('drag-over');}
+function npoEnd(){_npoDrag=null;document.querySelectorAll('.np-order-row').forEach(r=>r.classList.remove('dragging','drag-over'));}
+function npoDrop(e,k){e.preventDefault();const from=_npoDrag;npoEnd();if(!from||from===k)return;const p=cur(),o=npOrderOf(p),i=o.indexOf(from),j=o.indexOf(k);if(i<0||j<0)return;o.splice(j,0,o.splice(i,1)[0]);p.npOrder=o;saveAndRender();npSync();renderTx();requestAnimationFrame(()=>{try{npAlign();}catch(e){}});}
+const NP_ROW_NAMES={label:'Now Playing',title:'Song name',artist:'Artist',album:'Album'},NP_VIS_KEY={label:'npStatus',title:'npShowTitle',artist:'npShowArtist',album:'npAlbum'};
+function renderNpOrder(){const e=document.getElementById('np-order'),p=cur();if(!e||!p)return;
+  const eye=(k)=>`<label class="eye-toggle" title="Show / hide"><input type="checkbox" ${p[NP_VIS_KEY[k]]===false?'':'checked'} onchange="npVis('${k}',this.checked)"><i class="fa-solid fa-eye"></i><i class="fa-solid fa-eye-slash"></i></label>`;
+  const row=(k,drag)=>`<div class="np-order-row${p[NP_VIS_KEY[k]]===false?' off':''}"${drag?` draggable="true" ondragstart="npoDS(event,'${k}')" ondragover="npoDO(event,'${k}')" ondrop="npoDrop(event,'${k}')" ondragleave="npoDL(event)" ondragend="npoEnd()"`:''}>${drag?'<i class="fa-solid fa-grip-vertical drag-handle" title="Drag to reorder"></i>':'<i class="fa-solid fa-grip-vertical drag-handle" style="visibility:hidden"></i>'}${eye(k)}<span class="np-ed-name"><span>${NP_ROW_NAMES[k]}</span>${k==='label'?`<label class="eye-toggle eq-toggle" title="Equalizer on / off"><input type="checkbox" ${p.npEq===false?'':'checked'} onchange="npEqSet(this.checked)"><i class="fa-solid fa-chart-simple"></i></label>`:''}</span><div class="tx-ctl">${txCtlHTML('np-'+k,p)}</div></div>`;
+  e.innerHTML=row('label',false)+npOrderOf(p).map(k=>row(k,true)).join('');}
+function npEqSet(on){const p=cur();p.npEq=!!on;saveAndRender();}
+function npVis(k,on){const p=cur();p[NP_VIS_KEY[k]]=!!on;saveAndRender();renderNpOrder();requestAnimationFrame(()=>{try{npAlign();}catch(e){}});}
 function renderTx(){
   const p=cur();if(!p)return;
   const f=(id,keys)=>{const e=document.getElementById(id);if(e)e.innerHTML=keys.map(k=>txCell(k,p)).join('');};
   f('tx-wx',wxSty(p)==='compact'?['wx-city','wx-temp','wx-cond']:['wx-city','wx-days','wx-temp']);   /* Compact: the weather now (its popup has its own card); Classic: the forecast */
   f('tx-wx-pop',['wx-pdays','wx-ptemp']);
-  f('tx-wx-x',['wx-stats']);f('tx-np',['np-label'].concat(npOrderOf(p).map(k=>'np-'+k)));
+  renderXiList();renderNpOrder();
 }
 function txSet(k,prop,v){const p=cur();p.tx=p.tx||{};const o=p.tx[k]=p.tx[k]||{};o[prop]=cleanFontProp(prop,v,'weather');saveAndRender();requestAnimationFrame(()=>{try{npAlign();}catch(e){}});}
 function txReset(k){const p=cur();if(p.tx&&p.tx[k]){delete p.tx[k].font;delete p.tx[k].fontStyle;delete p.tx[k].fontSize;}saveAndRender();renderTx();}
@@ -1870,7 +1888,7 @@ function renderSettings(){
   document.getElementById('w-date-fmt').value=p.wDateFmt||'dmy';
   document.getElementById('weather-color').value=p.weatherColor||'#ffffff';cpSync('weather-color');
   const wb=document.getElementById('weather-backdrop'),wbv=document.getElementById('weather-backdrop-val');if(wb)wb.value=p.weatherBackdrop??0.1;if(wbv)wbv.textContent=Math.round((p.weatherBackdrop??0.1)*100)+'%';
-  document.getElementById('w-aqi').checked=!!p.wAqi;document.getElementById('w-uv').checked=(p.wUv!==false);document.getElementById('w-pressure').checked=(p.wPressure!==false);document.getElementById('w-humidity').checked=(p.wHumidity!==false);document.getElementById('w-visibility').checked=(p.wVisibility!==false);document.getElementById('w-sunrise').checked=(p.wSunrise!==false);
+  
   // tab
   const tt=document.getElementById('tab-title-input'),tf=document.getElementById('tab-favicon-input');if(tt)tt.value=state.tabTitle||'';if(tf)tf.value=state.tabFavicon||'';const fb=document.getElementById('favicon-emoji-btn');if(fb)fb.textContent=state.tabFaviconEmoji||'⭐';
   syncCatEditor();updateSectionStates();
@@ -1895,7 +1913,7 @@ function updateVis(){
   p.wShowDate=document.getElementById('w-date').checked;
   p.wDateFmt=document.getElementById('w-date-fmt').value;
   const wb=document.getElementById('weather-backdrop');if(wb){p.weatherBackdrop=parseFloat(wb.value);document.documentElement.style.setProperty('--weather-backdrop',p.weatherBackdrop);const wbv=document.getElementById('weather-backdrop-val');if(wbv)wbv.textContent=Math.round(p.weatherBackdrop*100)+'%';}
-  p.wAqi=document.getElementById('w-aqi').checked;p.wUv=document.getElementById('w-uv').checked;p.wPressure=document.getElementById('w-pressure').checked;p.wHumidity=document.getElementById('w-humidity').checked;p.wVisibility=document.getElementById('w-visibility').checked;p.wSunrise=document.getElementById('w-sunrise').checked;
+  
   // BG mode-specific
   const mode=p.bgMode||'gradient';
   if(mode==='gradient'){const gs=document.getElementById('grad-shade');if(gs){p.gradShade=parseFloat(gs.value);syncGradShade(p);}const ga=document.getElementById('grad-color-a'),gb=document.getElementById('grad-color-b');if(ga)p.gradColorA=ga.value;if(gb)p.gradColorB=gb.value;}
@@ -2038,7 +2056,7 @@ function wxAnimCls(icon){
 }
 let _wxRaw=null;
 // the hover popup is centred on the weather; when the weather sits at the left / right edge it is slid back inside the window
-var WXP_DEF={wpBgMode:'color',wpBgColor:'#0e0e0e',wpBgOpacity:0.9,wpBlur:14,wpCorners:'round'};
+var WXP_DEF={wpBgMode:'blur',wpBgColor:'#0e0e0e',wpBgOpacity:0.9,wpBlur:5,wpCorners:'square'};
 function wxpGet(p,k){return(p&&p[k]!==undefined)?p[k]:WXP_DEF[k];}
 function wxpHex(h){h=String(h||'#0e0e0e').replace('#','');if(h.length===3)h=h.split('').map(c=>c+c).join('');const n=parseInt(h,16)||0;return[(n>>16)&255,(n>>8)&255,n&255];}
 function applyWxPopStyle(p){
@@ -2071,7 +2089,7 @@ function wxPopFit(){
     pop.style.setProperty('--wx-pop-shift',Math.round(sh)+'px');
   });
 }
-document.addEventListener('mouseover',e=>{if(e.target.closest&&e.target.closest('.wx-ctrig'))wxPopFit();});
+document.addEventListener('mouseover',e=>{if(e.target.closest&&e.target.closest('.wx-compact'))wxPopFit();});
 window.addEventListener('resize',()=>{try{wxPopFit();}catch(e){}});
 function wxRerender(){if(_wxRaw)renderWxGrid();else updateWeather();}
 function setWxStyle(st){const p=cur();p.weatherStyle=st;syncWxStyle(p);saveAndRender();wxRerender();}
@@ -2113,7 +2131,7 @@ function renderWxGrid(){
   };
   let html='';
   if(style==='compact'){
-    html=`<div class="wx-compact" style="color:${col}"><div class="wx-ctrig"><i class="fa-solid ${nowInfo.icon} ${an(nowInfo)}" style="color:${icc(nowInfo)};font-size:${F(1.6,'wx-temp')}"></i><span class="wx-cnow" style="${txVars('wx-temp')}color:var(--tx-wx-temp-c,inherit);font-size:${F(0.9,'wx-temp')}">${curT}°</span><div class="wx-pop"><div class="wx-pop-in">${cardCols('wx-pdays','wx-ptemp')}</div></div></div><span class="wx-ccond" style="${txVars('wx-cond')}color:var(--tx-wx-cond-c,inherit);font-size:${F(0.9,'wx-cond')}">${nowInfo.label}</span></div>`;
+    html=`<div class="wx-compact" style="color:${col}"><div class="wx-ctrig"><i class="fa-solid ${nowInfo.icon} ${an(nowInfo)}" style="color:${icc(nowInfo)};font-size:${F(1.6,'wx-temp')}"></i><span class="wx-cnow" style="${txVars('wx-temp')}color:var(--tx-wx-temp-c,inherit);font-size:${F(0.9,'wx-temp')}">${curT}°</span></div><span class="wx-ccond" style="${txVars('wx-cond')}color:var(--tx-wx-cond-c,inherit);font-size:${F(0.9,'wx-cond')}">${nowInfo.label}</span><div class="wx-pop"><div class="wx-pop-in">${cardCols('wx-pdays','wx-ptemp')}</div></div></div>`;
   }else{
     html=cardCols('wx-days','wx-temp');
   }
@@ -2141,6 +2159,34 @@ async function updateWeather(){
     wxCachePut(city,d);await wxApply(d,p,city);
   }catch(e){console.warn('Weather:',e);}
 }
+const XI_ALL=['humidity','pressure','aqi','uv','visibility','sunrise'],XI_PROP={humidity:'wHumidity',pressure:'wPressure',aqi:'wAqi',uv:'wUv',visibility:'wVisibility',sunrise:'wSunrise'},XI_NAMES={humidity:'Humidity',pressure:'Pressure',aqi:'Air Quality',uv:'UV Index',visibility:'Visibility',sunrise:'Sunrise/Sunset'};
+let _wxAqiC=null;
+function wxXiOrder(p){const o=[];(Array.isArray(p.wxXiOrder)?p.wxXiOrder:[]).forEach(k=>{if(XI_ALL.includes(k)&&!o.includes(k))o.push(k);});XI_ALL.forEach(k=>{if(!o.includes(k))o.push(k);});return o;}
+function xiOn(p,k){return k==='aqi'?!!p.wAqi:p[XI_PROP[k]]!==false;}
+function wxStats(d,p,city){
+  const c=d.current||{},ord=wxXiOrder(p),stats=[],col=p.weatherColor;
+  const at=k=>`class="wstat${k==='aqi'?' wstat-aqi':''}" data-xi="${k}" onclick="openWstatPopover(this)" style="${txVars('wx-x-'+k)}font-size:calc(0.9rem * ${txZ('wx-x-'+k)});color:var(--tx-wx-x-${k}-c,${col});order:${ord.indexOf(k)}"`;
+  if(xiOn(p,'humidity')&&c.relative_humidity_2m!=null)stats.push(`<div ${at('humidity')}><i class="fa-solid fa-droplet"></i> ${c.relative_humidity_2m}%</div>`);
+  if(xiOn(p,'uv')&&c.uv_index!=null)stats.push(`<div ${at('uv')}><i class="fa-solid fa-sun"></i> UV ${c.uv_index.toFixed(1)}</div>`);
+  if(xiOn(p,'pressure')&&c.surface_pressure!=null)stats.push(`<div ${at('pressure')}><i class="fa-solid fa-gauge"></i> ${Math.round(c.surface_pressure)} hPa</div>`);
+  if(xiOn(p,'visibility')&&c.visibility!=null)stats.push(`<div ${at('visibility')}><i class="fa-solid fa-eye"></i> ${(c.visibility/1000).toFixed(1)} km</div>`);
+  if(xiOn(p,'sunrise')&&d.daily&&d.daily.sunrise&&d.daily.sunset){const u12=(p.clockFormat||'24')==='12';const fmt=t=>new Date(t).toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit',hour12:u12});stats.push(`<div ${at('sunrise')}><i class="fa-solid fa-sun"></i> ${fmt(d.daily.sunrise[0])} <i class="fa-solid fa-moon" style="margin-left:6px;"></i> ${fmt(d.daily.sunset[0])}</div>`);}
+  const se=document.getElementById('weather-stats');
+  const aqHtml=a=>{const al=a<=20?'Good':a<=40?'Fair':a<=60?'Moderate':a<=80?'Poor':'Very Poor';return `<div ${at('aqi')}><i class="fa-solid fa-wind"></i> AQI ${a} — ${al}</div>`;};
+  const key=city.lat+','+city.lon,hasAq=xiOn(p,'aqi')&&_wxAqiC&&_wxAqiC.k===key&&Date.now()-_wxAqiC.t<600000;
+  if(hasAq)stats.push(aqHtml(_wxAqiC.v));
+  se.innerHTML=stats.join('');se.style.display=stats.length?'flex':'none';
+  const wa=document.getElementById('weather-area');if(wa&&!wa.classList.contains('weather-hidden'))setTimeout(()=>wa.classList.add('weather-loaded'),80);
+  if(xiOn(p,'aqi')&&!hasAq){fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${city.lat}&longitude=${city.lon}&current=european_aqi`).then(r=>r.json()).then(ad=>{const aqi=ad.current&&ad.current.european_aqi!=null?Math.round(ad.current.european_aqi):null;if(aqi==null)return;_wxAqiC={k:key,v:aqi,t:Date.now()};if(!xiOn(cur(),'aqi'))return;se.querySelectorAll('.wstat-aqi').forEach(e=>e.remove());se.insertAdjacentHTML('beforeend',aqHtml(aqi));se.style.display='flex';}).catch(()=>{});}
+}
+function wxStatsRefresh(){const p=cur(),city=state.cities[cityIdx];if(_wxRaw&&p&&city)wxStats(_wxRaw.d,p,city);}
+function renderXiList(){const e=document.getElementById('wx-xi-list'),p=cur();if(!e||!p)return;
+  e.innerHTML=wxXiOrder(p).map(k=>{const on=xiOn(p,k);return `<div class="np-order-row${on?'':' off'}" draggable="true" ondragstart="xiDS(event,'${k}')" ondragover="xiDO(event,'${k}')" ondrop="xiDrop(event,'${k}')" ondragleave="npoDL(event)" ondragend="npoEnd()"><i class="fa-solid fa-grip-vertical drag-handle" title="Drag to reorder"></i><label class="eye-toggle" title="Show / hide"><input type="checkbox" ${on?'checked':''} onchange="xiVis('${k}',this.checked)"><i class="fa-solid fa-eye"></i><i class="fa-solid fa-eye-slash"></i></label><span class="np-ed-name"><span>${XI_NAMES[k]}</span></span><div class="tx-ctl">${txCtlHTML('wx-x-'+k,p)}</div></div>`;}).join('');}
+function xiVis(k,on){const p=cur();p[XI_PROP[k]]=!!on;saveAndRender();renderXiList();wxStatsRefresh();}
+let _xiDrag=null;
+function xiDS(e,k){_xiDrag=k;e.dataTransfer.effectAllowed='move';try{e.dataTransfer.setData('text/plain',k);}catch(_){}e.currentTarget.classList.add('dragging');}
+function xiDO(e,k){if(!_xiDrag||_xiDrag===k)return;e.preventDefault();e.dataTransfer.dropEffect='move';document.querySelectorAll('.np-order-row').forEach(r=>r.classList.remove('drag-over'));e.currentTarget.classList.add('drag-over');}
+function xiDrop(e,k){e.preventDefault();const from=_xiDrag;_xiDrag=null;npoEnd();if(!from||from===k)return;const p=cur(),o=wxXiOrder(p),i=o.indexOf(from),j=o.indexOf(k);if(i<0||j<0)return;o.splice(j,0,o.splice(i,1)[0]);p.wxXiOrder=o;saveAndRender();renderXiList();document.querySelectorAll('#weather-stats [data-xi]').forEach(el=>{el.style.order=o.indexOf(el.dataset.xi);});}
 async function wxApply(d,p,city){
     const now=new Date();const cc=(d.current&&d.current.weathercode!=null)?d.current.weathercode:0;const dc=d.daily.weathercode[0]||0;const wc=cc>dc?cc:dc;
     // Use API's is_day field (timezone=auto makes it city-local). Fallback uses city's own sunrise/sunset if available.
@@ -2167,16 +2213,7 @@ async function wxApply(d,p,city){
     if(p.bgMode==='unsplash'){const force=_forcePhotoRefresh;_forcePhotoRefresh=false;fetchUnsplashPhoto(force);}
     else if(p.bgMode==='time'&&(iChg||dChg)){startTimeBg(_wxCache,p.categories.map(x=>x.color),p.opTime??1.0);}
     _wxRaw={d,isNight,cc,wc};renderWxGrid();
-    const c=d.current||{},stats=[];
-    if(p.wHumidity&&c.relative_humidity_2m!=null)stats.push(`<div class="wstat" onclick="openWstatPopover(this)" style="color:var(--tx-wx-stats-c,${p.weatherColor})"><i class="fa-solid fa-droplet"></i> ${c.relative_humidity_2m}%</div>`);
-    if(p.wUv&&c.uv_index!=null)stats.push(`<div class="wstat" onclick="openWstatPopover(this)" style="color:var(--tx-wx-stats-c,${p.weatherColor})"><i class="fa-solid fa-sun"></i> UV ${c.uv_index.toFixed(1)}</div>`);
-    if(p.wPressure&&c.surface_pressure!=null)stats.push(`<div class="wstat" onclick="openWstatPopover(this)" style="color:var(--tx-wx-stats-c,${p.weatherColor})"><i class="fa-solid fa-gauge"></i> ${Math.round(c.surface_pressure)} hPa</div>`);
-    if(p.wVisibility&&c.visibility!=null)stats.push(`<div class="wstat" onclick="openWstatPopover(this)" style="color:var(--tx-wx-stats-c,${p.weatherColor})"><i class="fa-solid fa-eye"></i> ${(c.visibility/1000).toFixed(1)} km</div>`);
-    if(p.wSunrise&&d.daily?.sunrise&&d.daily?.sunset){const u12=(p.clockFormat||'24')==='12';const fmt=t=>new Date(t).toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit',hour12:u12});stats.push(`<div class="wstat" onclick="openWstatPopover(this)" style="color:var(--tx-wx-stats-c,${p.weatherColor})"><i class="fa-solid fa-sun"></i> ${fmt(d.daily.sunrise[0])} <i class="fa-solid fa-moon" style="margin-left:6px;"></i> ${fmt(d.daily.sunset[0])}</div>`);}
-    const se=document.getElementById('weather-stats');
-    se.innerHTML=stats.join('');se.style.display=stats.length?'flex':'none';
-    const wa=document.getElementById('weather-area');if(wa&&!wa.classList.contains('weather-hidden'))setTimeout(()=>wa.classList.add('weather-loaded'),80);
-    if(p.wAqi){fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${city.lat}&longitude=${city.lon}&current=european_aqi`).then(r=>r.json()).then(ad=>{const aqi=ad.current?.european_aqi!=null?Math.round(ad.current.european_aqi):null;if(aqi==null)return;const al=aqi<=20?'Good':aqi<=40?'Fair':aqi<=60?'Moderate':aqi<=80?'Poor':'Very Poor';se.querySelectorAll('.wstat-aqi').forEach(e=>e.remove());se.insertAdjacentHTML('beforeend',`<div class="wstat wstat-aqi" onclick="openWstatPopover(this)" style="color:var(--tx-wx-stats-c,${p.weatherColor})"><i class="fa-solid fa-wind"></i> AQI ${aqi} — ${al}</div>`);se.style.display='flex';}).catch(()=>{});}
+    wxStats(d,p,city);
 }
 function toggleWxStyle(t){const p=cur();if(t==='colored'){p.wColored=true;document.getElementById('w-solid').checked=false;}else{p.wColored=false;document.getElementById('w-colored').checked=false;}updateVis();}
 function openModal(id){const el=document.getElementById(id);el.style.display=id==='settings-modal'?'flex':'block';document.getElementById('overlay').style.display='block';if(id==='settings-modal'){FONTS.forEach(ensureFont);renderSettings();}}
@@ -2426,7 +2463,8 @@ let _npKey=null,_npLast=0,_npSeq=0,_npShown=null,_npDock=null,_npTimerOn=false;
 const npIdent=p=>p?(p.npUser||'').trim():'';
 const npOn=p=>!!(p&&p.showNP&&npIdent(p));
 function npH(p){const b=document.querySelector('#np-area .np-box');if(b&&b.offsetHeight>20)_npMeasured=b.offsetHeight;return Math.round((_npMeasured||96)+12+window.innerHeight*0.018);}
-function dockH(p){return Math.max(p.showWeather?wxAreaH(p):0,npOn(p)?npH(p):0);}
+function clockDockH(){const c=document.getElementById('clock-display');return(c&&c.offsetHeight>10?c.offsetHeight:46)+Math.round(window.innerHeight*0.018);}
+function dockH(p){const h=[0];if(p.showWeather&&plGet(p,'wx')!=='top')h.push(wxAreaH(p));if(npOn(p)&&plGet(p,'np')!=='top')h.push(npH(p));if(p.showClock!==false&&plGet(p,'clock')!=='top')h.push(clockDockH());return Math.max.apply(null,h);}
 function npCoverStore(){try{return JSON.parse(localStorage.getItem(NP_CV))||{};}catch(e){return{};}}
 function npCoverSave(k,v){const c=npCoverStore();c[k]=v;const ks=Object.keys(c);if(ks.length>60)ks.slice(0,ks.length-60).forEach(x=>delete c[x]);try{localStorage.setItem(NP_CV,JSON.stringify(c));}catch(e){}}
 function npCands(t){
@@ -2557,18 +2595,23 @@ async function npFetchLb(p){
 }
 async function npRefresh(force){
   const p=cur();if(!npOn(p))return null;
-  const now=Date.now();if(!force&&now-_npLast<8000)return null;_npLast=now;
+  const now=Date.now();if(!force&&now-_npLast<25000)return null;_npLast=now;
   const seq=++_npSeq;
   try{
     const res=await npFetchLb(p);
     if(seq!==_npSeq)return null;
-    if(res.err)return{err:res.err};
-    const o=res.o;
+    if(res.err){_npFails++;return{err:res.err};}
+    const o=res.o;_npFails=0;_npIdleSince=o.playing?null:(_npIdleSince||Date.now());
     npRender(o);
     try{localStorage.setItem(NP_CK,JSON.stringify(o));}catch(e){}
     return{ok:o};
-  }catch(e){console.warn('NowPlaying:',e);return{err:'Could not reach ListenBrainz'};}
+  }catch(e){_npFails++;console.warn('NowPlaying:',e);return{err:'Could not reach ListenBrainz'};}
 }
+let _npFails=0,_npIdleSince=null,_npTimer=null,_npManualAt=0;
+function npDelay(){if(_npFails)return Math.min(300000,30000*Math.pow(2,_npFails));const idle=_npIdleSince?Date.now()-_npIdleSince:0;return _npIdleSince?(idle>10*60*1000?120000:60000):30000;}   // playing: 30 s, idle: 60 s, idle for a long time: 2 min, errors: back off up to 5 min
+function npTick(){clearTimeout(_npTimer);_npTimer=setTimeout(async()=>{try{if(!document.hidden&&npOn(cur()))await npRefresh(false);}catch(e){}npTick();},npDelay());}
+// clicking the Now Playing card checks again right away
+function npManual(e){const p=cur();if(!npOn(p)||document.body.classList.contains('edit-mode')||(e&&e.target.closest&&e.target.closest('.chrome-overlay')))return;const now=Date.now();if(now-_npManualAt<3000)return;_npManualAt=now;const box=document.querySelector('#np-area .np-box');if(box){box.classList.add('np-refreshing');setTimeout(()=>box.classList.remove('np-refreshing'),700);}npRefresh(true).then(r=>{if(r&&r.err)console.warn('NowPlaying:',r.err);});}
 async function npTest(){
   const m=document.getElementById('np-msg');m.textContent='Checking…';m.style.color='#888';
   const r=await npRefresh(true);
@@ -2576,24 +2619,44 @@ async function npTest(){
   if(r.ok){m.style.color='#4ade80';m.textContent='Connected — '+r.ok.artist+' · '+r.ok.title;}
   else{m.style.color='#ff7070';m.textContent=r.err;}
 }
+const PL_KEYS={clock:'clockPos',wx:'wxPos',np:'npPos'},PL_DEF={clock:'top',wx:'center',np:'left'};
+function plGet(p,w){const v=p[PL_KEYS[w]];return['top','left','center','right'].includes(v)?v:PL_DEF[w];}
+function plOn(p,w){return w==='clock'?p.showClock!==false:w==='wx'?!!p.showWeather:npOn(p);}
+// top = the middle of the top (clock: in the top bar, weather / now playing: just under the search bar); left / center / right = the bottom row
+function placeApply(p){
+  const dock=document.getElementById('bottom-dock'),stack=document.getElementById('top-stack'),header=document.querySelector('.top-bar');
+  const el={clock:document.getElementById('clock-display'),wx:document.getElementById('weather-area'),np:document.getElementById('np-area')};
+  if(!dock||!stack||!header||!el.clock||!el.wx||!el.np)return{};
+  const col={left:1,center:2,right:3},used={},pos={};let changed=false;
+  ['wx','np','clock'].forEach(w=>{let v=plGet(p,w);if(plOn(p,w)&&v!=='top'){if(used[v]){v=['left','center','right'].find(x=>!used[x])||'top';changed=true;}if(v!=='top')used[v]=1;}if(p[PL_KEYS[w]]!==v&&(changed||p[PL_KEYS[w]]!==undefined)){p[PL_KEYS[w]]=v;}pos[w]=v;});
+  if(changed){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+  ['wx','np','clock'].forEach(w=>{
+    const v=pos[w],e=el[w];
+    if(v==='top'){const home=(w==='clock')?header:stack;if(e.parentNode!==home){if(w==='clock')header.insertBefore(e,header.lastElementChild);else stack.appendChild(e);}}
+    else{if(e.parentNode!==dock)dock.appendChild(e);e.style.gridColumn=String(col[v]);e.style.gridRow='1';}
+    e.classList.toggle('clock-docked',w==='clock'&&v!=='top');
+    ['left','center','right'].forEach(k=>{e.classList.toggle(({clock:'cd-',wx:'wx-pos-',np:'np-pos-'})[w]+k,v===k||(v==='top'&&k==='center'&&w!=='clock'));});
+  });
+  if(el.wx.parentNode===stack&&el.np.parentNode===stack&&(el.wx.compareDocumentPosition(el.np)&Node.DOCUMENT_POSITION_PRECEDING))stack.insertBefore(el.np,el.wx.nextSibling);
+  return pos;
+}
+function topStackH(){const s=document.getElementById('top-stack');if(!s||!s.children.length)return 0;const h=s.offsetHeight;return h?h+Math.round(window.innerHeight*0.01):0;}
 function npApply(){
   {const q=cur();if(q&&!q.npShapeV2){q.npShape='square';q.npShapeV2=true;}}
   const p=cur(),area=document.getElementById('np-area'),wa=document.getElementById('weather-area');if(!p||!area||!wa)return;
   const on=npOn(p);
-  const col={left:1,center:2,right:3},wpos=p.wxPos||'center';let pos=p.npPos||'left';
-  if(on&&p.showWeather&&pos===wpos){pos=['left','right','center'].find(x=>x!==wpos);p.npPos=pos;try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
-  wa.style.gridColumn=String(col[wpos]||2);wa.style.gridRow='1';
-  ['left','center','right'].forEach(k=>wa.classList.toggle('wx-pos-'+k,wpos===k));
-  area.style.gridColumn=String(col[pos]||1);
+  const placed=placeApply(p),wpos=placed.wx||'center',pos=placed.np||'left';
   area.classList.toggle('np-hidden',!on);
-  ['left','center','right'].forEach(k=>area.classList.toggle('np-pos-'+k,pos===k));
   area.style.setProperty('--np-r',NP_SHAPE[p.npShape||'square']);document.documentElement.style.setProperty('--np-backdrop',p.npBackdrop??0.1);
   document.getElementById('np-status').style.display=p.npStatus===false?'none':'flex';
   document.getElementById('np-album').style.display=p.npAlbum===false?'none':'';
+  {const eq=area.querySelector('.np-eq');if(eq)eq.style.display=p.npEq===false?'none':'';}
+  document.getElementById('np-title').style.display=p.npShowTitle===false?'none':'';
+  document.getElementById('np-artist').style.display=p.npShowArtist===false?'none':'';
   npOrderOf(p).forEach((k,i)=>{const el=document.getElementById('np-'+k);if(el)el.style.order=i;});
   const gl=document.getElementById('np-glow'),gw=document.getElementById('glow-wx');
-  if(gl)['left','center','right'].forEach(k=>gl.classList.toggle('g-'+k,pos===k));
-  if(gw)['left','center','right'].forEach(k=>gw.classList.toggle('g-'+k,wpos===k));
+  if(gl){['left','center','right'].forEach(k=>gl.classList.toggle('g-'+k,pos===k));gl.style.display=pos==='top'?'none':'';}
+  if(gw){['left','center','right'].forEach(k=>gw.classList.toggle('g-'+k,wpos===k));gw.style.display=wpos==='top'?'none':'';}
   if(!on){area.classList.remove('np-ready');_npShown=null;_npKey=null;}
   else{
     const k=npIdent(p);
@@ -2604,9 +2667,9 @@ function npApply(){
     }
   }
   npGlowState();
-  const h=dockH(p);if(h!==_npDock){_npDock=h;applyScaling(true);}
+  {const h=dockH(p)*1000+topStackH();if(h!==_npDock){_npDock=h;applyScaling(true);}}
   npWatch();npAlign();requestAnimationFrame(npAlign);
-  if(!_npTimerOn){_npTimerOn=true;setInterval(()=>{if(!document.hidden)npRefresh(false);},10000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)npRefresh(false);});}
+  if(!_npTimerOn){_npTimerOn=true;npTick();document.addEventListener('visibilitychange',()=>{if(!document.hidden)npRefresh(false);});}
 }
 function wxMeasure(){
   const p=cur(),wa=document.getElementById('weather-area'),bw=document.querySelector('#weather-area .weather-bg-wrap');
@@ -2628,7 +2691,7 @@ function npAlign(){
   area.style.setProperty('--np-cover','0px');
   const h=meta?Math.ceil(meta.scrollHeight):0,cover=Math.max(36,h);
   set('--np-cover',cover+'px');
-  {const h2=dockH(p);if(h2!==_npDock){_npDock=h2;applyScaling(true);}}
+  {const h2=dockH(p)*1000+topStackH();if(h2!==_npDock){_npDock=h2;applyScaling(true);}}
 }
 let _npRO=null;
 function npWatch(){
@@ -2639,16 +2702,15 @@ function npWatch(){
   window.addEventListener('resize',()=>{wxMeasure();npAlign();});
 }
 function posSet(who,v){
-  const p=cur(),oW=p.wxPos||'center',oN=p.npPos||'left';
-  if(who==='wx'){if(npOn(p)&&oN===v)p.npPos=oW;p.wxPos=v;}
-  else{if(p.showWeather&&oW===v)p.wxPos=oN;p.npPos=v;}
-  saveAndRender();npSync();
+  const p=cur(),old=plGet(p,who);
+  if(v!=='top')['clock','wx','np'].forEach(o=>{if(o!==who&&plOn(p,o)&&plGet(p,o)===v)p[PL_KEYS[o]]=old;});   // whoever sits in that spot swaps places with this one
+  p[PL_KEYS[who]]=v;saveAndRender();npSync();_lastKey=null;try{applyScaling(true);}catch(e){}
 }
 function npChange(){
   const p=cur(),g=id=>document.getElementById(id);
   p.showNP=g('np-enable').checked;p.npUser=g('np-user').value.trim();
   p.npShape=g('np-shape').value;
-  p.npStatus=g('np-show-status').checked;p.npAlbum=g('np-show-album').checked;p.npGlow=g('np-glow-on').checked;p.npAutoHide=g('np-autohide').checked;
+  p.npGlow=g('np-glow-on').checked;p.npAutoHide=g('np-autohide').checked;
   p.npBackdrop=parseFloat(g('np-backdrop').value);g('np-backdrop-val').textContent=Math.round(p.npBackdrop*100)+'%';
   saveAndRender();
 }
@@ -2657,16 +2719,19 @@ function npSync(){
   const p=cur(),g=id=>document.getElementById(id);if(!p||!g('np-enable'))return;
   renderNpOrder();
   g('np-enable').checked=!!p.showNP;g('np-user').value=p.npUser||'';  g('np-shape').value=p.npShape||'square';
-  g('np-show-status').checked=p.npStatus!==false;g('np-show-album').checked=p.npAlbum!==false;g('np-glow-on').checked=p.npGlow!==false;g('np-autohide').checked=p.npAutoHide!==false;g('np-cover').value=p.npCover||'auto';
+  g('np-glow-on').checked=p.npGlow!==false;g('np-autohide').checked=p.npAutoHide!==false;g('np-cover').value=p.npCover||'auto';
   g('np-backdrop').value=p.npBackdrop??0.1;g('np-backdrop-val').textContent=Math.round((p.npBackdrop??0.1)*100)+'%';
-  document.querySelectorAll('#np-pos-group .size-btn').forEach(b=>b.classList.toggle('active',b.dataset.v===(p.npPos||'left')));
-  document.querySelectorAll('#wx-pos-group .size-btn').forEach(b=>b.classList.toggle('active',b.dataset.v===(p.wxPos||'center')));
+  [['np','np-pos-group'],['wx','wx-pos-group'],['clock','clock-pos-group']].forEach(([w,id])=>document.querySelectorAll('#'+id+' .size-btn').forEach(b=>b.classList.toggle('active',b.dataset.v===plGet(p,w))));
 }
 {const _sar=saveAndRender;saveAndRender=function(){const r=_sar.apply(this,arguments);npApply();return r;};}
 {const _sw=setWxStyle;setWxStyle=function(){const r=_sw.apply(this,arguments);try{renderTx();}catch(e){}return r;};}
 {const _uv=updateVis;updateVis=function(){const r=_uv.apply(this,arguments);try{renderTx();npSync();renderPhotoPreview();}catch(e){}return r;};}
 {const _rs=renderSettings;renderSettings=function(){const r=_rs.apply(this,arguments);npSync();renderTx();renderUiFont();searchSync();renderPhotoPreview();return r;};}
 
+var _topH=-1;
+try{const _ts=document.getElementById('top-stack');if(_ts&&window.ResizeObserver)new ResizeObserver(()=>{const h=topStackH();if(h!==_topH){_topH=h;try{applyScaling(true);}catch(e){}}}).observe(_ts);}catch(e){}
+var _wxLastFetch=Date.now();
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now()-_wxLastFetch>5*60*1000){_wxLastFetch=Date.now();try{updateWeather();}catch(e){}}});   // coming back to the tab after a while refreshes the weather
 window.onload=()=>{saveAndRender();applyTabMeta();tickClock();setInterval(tickClock,1000);updateWeather();setInterval(()=>{updateWeather();if(cur().bgMode==='unsplash')fetchUnsplashPhoto(true);},30*60*1000);// Wait two frames so the gradient transition suppression completes before revealing
 Promise.race([Promise.all(_fontWait),new Promise(r=>setTimeout(r,1500))]).then(()=>{window._fontsOk=true;applyScaling(true);requestAnimationFrame(()=>requestAnimationFrame(()=>{document.documentElement.classList.add('ready');document.body.classList.add('page-ready');}));});
 };
