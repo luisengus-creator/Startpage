@@ -52,7 +52,16 @@ body.page-ready{visibility:visible}
 .link-al-group .icon-size-btn{height:26px;padding:0 7px;display:inline-flex;align-items:center;justify-content:center}
 .line-ico{display:block;width:12px;background:currentColor;border-radius:1px}
 .row-end{width:28px;height:28px;flex:none;padding:0;display:flex;align-items:center;justify-content:center}
-.editor-link-row{position:relative}
+.editor-link-row{position:relative;cursor:grab}
+.editor-link-row input[type=text],.editor-link-row select{cursor:text}
+.editor-link-row>.drag-handle{touch-action:none}
+.ll-active>*{transition:transform 0.16s ease}
+.ll-active>.ll-dragging{transition:none;position:relative;z-index:60;background:#0f0f0f;border-radius:10px;box-shadow:0 10px 28px rgba(0,0,0,0.55);cursor:grabbing}
+#link-list-editor.ll-active>.ll-dragging{border-bottom-color:transparent}
+.np-order-row[data-k]{position:relative;cursor:grab}
+.np-order-row[data-k] select{cursor:pointer}
+.np-order-row .drag-handle{touch-action:none}
+body.ll-noselect,body.ll-noselect *{user-select:none!important;-webkit-user-select:none!important;cursor:grabbing!important}
 .editor-link-row>.drag-handle{position:absolute;left:-14px;top:25px;padding:0 2px}
 .font-revert-btn{height:28px}
 .font-revert-btn[disabled]{opacity:0.3;cursor:default;pointer-events:none}
@@ -1642,7 +1651,7 @@ function npoDrop(e,k){e.preventDefault();const from=_npoDrag;npoEnd();if(!from||
 const NP_ROW_NAMES={label:'Now Playing',title:'Song name',artist:'Artist',album:'Album'},NP_VIS_KEY={label:'npStatus',title:'npShowTitle',artist:'npShowArtist',album:'npAlbum'};
 function renderNpOrder(){const e=document.getElementById('np-order'),p=cur();if(!e||!p)return;
   const eye=(k)=>`<label class="eye-toggle" title="Show / hide"><input type="checkbox" ${p[NP_VIS_KEY[k]]===false?'':'checked'} onchange="npVis('${k}',this.checked)"><i class="fa-solid fa-eye"></i><i class="fa-solid fa-eye-slash"></i></label>`;
-  const row=(k,drag)=>`<div class="np-order-row${p[NP_VIS_KEY[k]]===false?' off':''}"${drag?` draggable="true" ondragstart="npoDS(event,'${k}')" ondragover="npoDO(event,'${k}')" ondrop="npoDrop(event,'${k}')" ondragleave="npoDL(event)" ondragend="npoEnd()"`:''}>${drag?'<i class="fa-solid fa-grip-vertical drag-handle" title="Drag to reorder"></i>':'<i class="fa-solid fa-grip-vertical drag-handle" style="visibility:hidden"></i>'}${eye(k)}<span class="np-ed-name"><span>${NP_ROW_NAMES[k]}</span>${k==='label'?`<label class="eye-toggle eq-toggle" title="Equalizer on / off"><input type="checkbox" ${p.npEq===false?'':'checked'} onchange="npEqSet(this.checked)"><i class="fa-solid fa-chart-simple"></i></label>`:''}</span><div class="tx-ctl">${txCtlHTML('np-'+k,p)}</div></div>`;
+  const row=(k,drag)=>`<div class="np-order-row${p[NP_VIS_KEY[k]]===false?' off':''}"${drag?` data-k="${k}"`:''}>${drag?'<i class="fa-solid fa-grip-vertical drag-handle" title="Drag to reorder"></i>':'<i class="fa-solid fa-grip-vertical drag-handle" style="visibility:hidden"></i>'}${eye(k)}<span class="np-ed-name"><span>${NP_ROW_NAMES[k]}</span>${k==='label'?`<label class="eye-toggle eq-toggle" title="Equalizer on / off"><input type="checkbox" ${p.npEq===false?'':'checked'} onchange="npEqSet(this.checked)"><i class="fa-solid fa-chart-simple"></i></label>`:''}</span><div class="tx-ctl">${txCtlHTML('np-'+k,p)}</div></div>`;
   e.innerHTML=row('label',false)+npOrderOf(p).map(k=>row(k,true)).join('');}
 function npEqSet(on){const p=cur();p.npEq=!!on;saveAndRender();}
 function npVis(k,on){const p=cur();p[NP_VIS_KEY[k]]=!!on;saveAndRender();renderNpOrder();requestAnimationFrame(()=>{try{npAlign();}catch(e){}});}
@@ -2204,7 +2213,7 @@ function wxStats(d,p,city){
 }
 function wxStatsRefresh(){const p=cur(),city=state.cities[cityIdx];if(_wxRaw&&p&&city)wxStats(_wxRaw.d,p,city);}
 function renderXiList(){const e=document.getElementById('wx-xi-list'),p=cur();if(!e||!p)return;
-  e.innerHTML=wxXiOrder(p).map(k=>{const on=xiOn(p,k);return `<div class="np-order-row${on?'':' off'}" draggable="true" ondragstart="xiDS(event,'${k}')" ondragover="xiDO(event,'${k}')" ondrop="xiDrop(event,'${k}')" ondragleave="npoDL(event)" ondragend="npoEnd()"><i class="fa-solid fa-grip-vertical drag-handle" title="Drag to reorder"></i><label class="eye-toggle" title="Show / hide"><input type="checkbox" ${on?'checked':''} onchange="xiVis('${k}',this.checked)"><i class="fa-solid fa-eye"></i><i class="fa-solid fa-eye-slash"></i></label><span class="np-ed-name"><span>${XI_NAMES[k]}</span></span><div class="tx-ctl">${txCtlHTML('wx-x-'+k,p)}</div></div>`;}).join('');}
+  e.innerHTML=wxXiOrder(p).map(k=>{const on=xiOn(p,k);return `<div class="np-order-row${on?'':' off'}" data-k="${k}"><i class="fa-solid fa-grip-vertical drag-handle" title="Drag to reorder"></i><label class="eye-toggle" title="Show / hide"><input type="checkbox" ${on?'checked':''} onchange="xiVis('${k}',this.checked)"><i class="fa-solid fa-eye"></i><i class="fa-solid fa-eye-slash"></i></label><span class="np-ed-name"><span>${XI_NAMES[k]}</span></span><div class="tx-ctl">${txCtlHTML('wx-x-'+k,p)}</div></div>`;}).join('');}
 function xiVis(k,on){const p=cur();p[XI_PROP[k]]=!!on;saveAndRender();renderXiList();wxStatsRefresh();}
 let _xiDrag=null;
 function xiDS(e,k){_xiDrag=k;e.dataTransfer.effectAllowed='move';try{e.dataTransfer.setData('text/plain',k);}catch(_){}e.currentTarget.classList.add('dragging');}
@@ -2279,7 +2288,7 @@ function syncCatEditor(){
     const lc2=l.color2||lc,lsz=lszName(l.size);
     const lg=!!l.color2;const colors=`<div class="color-field cf-grad" style="flex-shrink:0;"><input type="color" id="lc-${idx}-${li}" value="${lc}" oninput="updateLink(${idx},${li},'color',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('lc-${idx}-${li}')" style="background:${lc}" title="Color"></div>${lg?`<span class="cf-c2"><input type="color" id="lc2-${idx}-${li}" value="${l.color2}" oninput="updateLinkColor2(${idx},${li},this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('lc2-${idx}-${li}')" style="background:${l.color2}" title="Second gradient color"></div><button class="btn-icon" onclick="setLinkColorMode(${idx},${li},'solid')" title="Remove gradient"><i class="fa-solid fa-xmark"></i></button></span>`:`<button class="cp-add" onclick="setLinkColorMode(${idx},${li},'gradient')" title="Add a second color (gradient)">+</button>`}<button class="btn-icon" onclick="updateLink(${idx},${li},'color','');syncCatEditor();" title="Reset color"><i class="fa-solid fa-rotate-left"></i></button></div>`;
     const extra=`<div class="link-al-group" data-link-size="${lsz}">${[['s','Small'],['m','Medium'],['xl','X-Large']].map(([d,t])=>`<button class="icon-size-btn${lsz===d?' active':''}" title="Size: ${t}" onclick="updateLinkSize(${idx},${li},'${d}')">${d.toUpperCase()}</button>`).join('')}</div><div class="link-al-group" data-link-al="${alignOf(l)}">${['left','center','right'].map(a=>`<button class="icon-size-btn${alignOf(l)===a?' active':''}" title="Align ${a}" onclick="updateLinkAlign(${idx},${li},'${a}')"><i class="fa-solid fa-align-${a}"></i></button>`).join('')}</div>`;
-    return`<div class="editor-link-row" draggable="true" onmousedown="if(event.target.tagName==='INPUT'||event.target.tagName==='TEXTAREA'){this.draggable=false;}" onmouseup="this.draggable=true;" onmouseleave="this.draggable=true;" ondragstart="lDS(event,${idx},${li})" ondragover="lDO(event,${idx},${li})" ondrop="lDrop(event,${idx},${li})" ondragleave="lDL(event)"><i class="fa-solid fa-grip-vertical drag-handle" title="Drag to reorder"></i><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:5px;"><div style="display:flex;gap:6px;align-items:center;">${eye}<input type="text" value="${l.name}" oninput="updateLink(${idx},${li},'name',this.value)" onblur="saveAndRender()" placeholder="Name" style="flex:1;min-width:0;"><input type="text" value="${l.url}" placeholder="URL" oninput="updateLink(${idx},${li},'url',this.value)" onblur="saveAndRender()" style="flex:1.3;min-width:0;">${colors}<button class="btn-icon row-end" style="color:#f44;" title="Delete link" onclick="delLink(${idx},${li});syncCatEditor();"><i class="fa-solid fa-trash-can"></i></button></div><div class="link-icon-row"><label><input type="radio" name="li${idx}-${li}" value="none" ${nC} onchange="updateLinkIcon(${idx},${li},'none','',false,'m')"> None</label><label><input type="radio" name="li${idx}-${li}" value="favicon" ${fC} onchange="updateLinkIcon(${idx},${li},'favicon','',${io},'${sz}')"> Favicon</label><label><input type="radio" name="li${idx}-${li}" value="url" ${uC} onchange="updateLinkIcon(${idx},${li},'url','',${io},'${sz}')"> URL</label>${uIn}${ioBox}${szB}</div><div class="link-font-row"><span>Font</span><div class="font-field">${fontFieldHTML('link','',l,k=>`updateLink(${idx},${li},'${k}',this.value)`,false,extra,`${idx},${li}`)}</div></div></div></div>`;
+    return`<div class="editor-link-row" data-ci="${idx}" data-li="${li}"><i class="fa-solid fa-grip-vertical drag-handle" title="Drag to reorder"></i><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:5px;"><div style="display:flex;gap:6px;align-items:center;">${eye}<input type="text" value="${l.name}" oninput="updateLink(${idx},${li},'name',this.value)" onblur="saveAndRender()" placeholder="Name" style="flex:1;min-width:0;"><input type="text" value="${l.url}" placeholder="URL" oninput="updateLink(${idx},${li},'url',this.value)" onblur="saveAndRender()" style="flex:1.3;min-width:0;">${colors}<button class="btn-icon row-end" style="color:#f44;" title="Delete link" onclick="delLink(${idx},${li});syncCatEditor();"><i class="fa-solid fa-trash-can"></i></button></div><div class="link-icon-row"><label><input type="radio" name="li${idx}-${li}" value="none" ${nC} onchange="updateLinkIcon(${idx},${li},'none','',false,'m')"> None</label><label><input type="radio" name="li${idx}-${li}" value="favicon" ${fC} onchange="updateLinkIcon(${idx},${li},'favicon','',${io},'${sz}')"> Favicon</label><label><input type="radio" name="li${idx}-${li}" value="url" ${uC} onchange="updateLinkIcon(${idx},${li},'url','',${io},'${sz}')"> URL</label>${uIn}${ioBox}${szB}</div><div class="link-font-row"><span>Font</span><div class="font-field">${fontFieldHTML('link','',l,k=>`updateLink(${idx},${li},'${k}',this.value)`,false,extra,`${idx},${li}`)}</div></div></div></div>`;
   }).join('');
 }
 function updateCat(f){const idx=document.getElementById('cat-sel').value,c=cur().categories[idx];c.title=document.getElementById('cat-title').value;c.color=document.getElementById('cat-color').value;c.url=document.getElementById('cat-url').value;syncCatTab(c);if(f==='text')localStorage.setItem(KEY,JSON.stringify(state));else saveAndRender();}
@@ -2293,6 +2302,64 @@ function colDS(e,i){_cDI=i;e.dataTransfer.effectAllowed='move';e.currentTarget.c
 function colDO(e,i){e.preventDefault();if(i!==_cDI)e.currentTarget.classList.add('drag-over');}
 function colDL(e){e.currentTarget.classList.remove('drag-over');}
 function colDrop(e,i){e.preventDefault();document.querySelectorAll('.column').forEach(el=>el.classList.remove('drag-over','dragging'));if(_cDI===null||_cDI===i)return;const cats=cur().categories;const m=cats.splice(_cDI,1)[0];cats.splice(i,0,m);_cDI=null;saveAndRender();renderSettings();}
+// Lists you can reorder: press anywhere on a row and drag it; the other rows slide out of the way while you move, and it lands where you let go
+function liveSort(cfg){
+  let st=null,raf=0;
+  const scroller=el=>{while(el&&el!==document.body){const o=getComputedStyle(el).overflowY;if((o==='auto'||o==='scroll')&&el.scrollHeight>el.clientHeight)return el;el=el.parentElement;}return document.scrollingElement||document.documentElement;};
+  function target(dy){const c=st.tops[st.i0]+st.h/2+dy;let t=0;st.rows.forEach((r,j)=>{if(j!==st.i0&&st.tops[j]+st.hs[j]/2<c)t++;});return t;}
+  function paint(){
+    if(!st||!st.active)return;
+    const dy=((st.cy-st.y0)+(st.sc.scrollTop-st.sc0)*st.ks)/st.k;st.t=target(dy);   // screen pixels -> the row's own units (the settings window can be zoomed)
+    st.rows.forEach((r,j)=>{if(j===st.i0){r.style.transform=`translateY(${dy}px)`;return;}
+      let sh=0;if(st.i0<st.t&&j>st.i0&&j<=st.t)sh=-st.h;else if(st.i0>st.t&&j<st.i0&&j>=st.t)sh=st.h;r.style.transform=sh?`translateY(${sh}px)`:'';});
+  }
+  function loop(){
+    if(!st||!st.active)return;
+    const r=(st.sc===document.scrollingElement||st.sc===document.documentElement)?{top:0,bottom:window.innerHeight}:st.sc.getBoundingClientRect();
+    if(st.cy<r.top+50)st.sc.scrollTop-=Math.min(18,(r.top+50-st.cy)/3+2);else if(st.cy>r.bottom-50)st.sc.scrollTop+=Math.min(18,(st.cy-(r.bottom-50))/3+2);
+    paint();raf=requestAnimationFrame(loop);
+  }
+  function finish(commit){
+    if(!st)return;const s0=st;st=null;cancelAnimationFrame(raf);
+    document.removeEventListener('pointermove',onMove,true);document.removeEventListener('pointerup',onUp,true);document.removeEventListener('pointercancel',onCancel,true);
+    if(!s0.active)return;
+    document.body.classList.remove('ll-noselect');s0.list.classList.remove('ll-active');
+    s0.rows.forEach(r=>{r.style.transform='';r.classList.remove('ll-dragging');});
+    const sup=ev=>{ev.stopPropagation();ev.preventDefault();};window.addEventListener('click',sup,true);setTimeout(()=>window.removeEventListener('click',sup,true),60);   // the click that ends a drag must not press anything
+    if(commit&&s0.t!==s0.i0)cfg.commit(s0.i0,s0.t,s0.row);
+  }
+  function onMove(e){
+    if(!st||e.pointerId!==st.pid)return;st.cx=e.clientX;st.cy=e.clientY;
+    if(!st.active){
+      const dx=e.clientX-st.x0,dy=e.clientY-st.y0;
+      if(Math.abs(dy)<7||Math.abs(dy)<Math.abs(dx))return;   // a plain click, or sideways movement (selecting text), is left alone
+      st.active=true;st.row.classList.add('ll-dragging');st.list.classList.add('ll-active');document.body.classList.add('ll-noselect');
+      try{window.getSelection().removeAllRanges();}catch(_){}
+      try{st.row.setPointerCapture(st.pid);}catch(_){}
+      raf=requestAnimationFrame(loop);
+    }
+    e.preventDefault();paint();
+  }
+  function onUp(e){if(st&&e.pointerId===st.pid)finish(true);}
+  function onCancel(e){if(st&&e.pointerId===st.pid)finish(false);}
+  document.addEventListener('pointerdown',e=>{
+    const list=e.target.closest&&e.target.closest(cfg.list);
+    if(!list||e.button!==0||st)return;
+    const row=e.target.closest(cfg.row);
+    if(!row||row.parentElement!==list)return;
+    if(e.target.closest(cfg.skip||'select,.cp-swatch'))return;   // dropdowns and colour pickers keep their own behaviour
+    if(e.pointerType==='touch'&&!e.target.closest('.drag-handle'))return;
+    const rows=[...list.querySelectorAll(':scope>'+cfg.row)];
+    st={pid:e.pointerId,row,list,rows,i0:rows.indexOf(row),x0:e.clientX,y0:e.clientY,cx:e.clientX,cy:e.clientY,active:false,t:rows.indexOf(row),
+        tops:rows.map(r=>r.offsetTop),hs:rows.map(r=>r.offsetHeight),h:row.offsetHeight,sc:scroller(list),sc0:0};
+    st.sc0=st.sc.scrollTop;st.k=(row.getBoundingClientRect().height/row.offsetHeight)||1;
+    {const sr=(st.sc===document.scrollingElement||st.sc===document.documentElement)?null:st.sc;st.ks=sr?((sr.getBoundingClientRect().height/sr.clientHeight)||1):1;}
+    document.addEventListener('pointermove',onMove,true);document.addEventListener('pointerup',onUp,true);document.addEventListener('pointercancel',onCancel,true);
+  });
+}
+liveSort({list:'#link-list-editor',row:'.editor-link-row',commit:(from,to,row)=>{const lks=cur().categories[+row.dataset.ci].links,m=lks.splice(from,1)[0];lks.splice(to,0,m);saveAndRender();syncCatEditor();}});
+liveSort({list:'#np-order',row:'.np-order-row[data-k]',skip:'select,.cp-swatch,.font-dd-menu,.font-dd-list',commit:(from,to)=>{const p=cur(),o=npOrderOf(p);o.splice(to,0,o.splice(from,1)[0]);p.npOrder=o;saveAndRender();npSync();renderTx();requestAnimationFrame(()=>{try{npAlign();}catch(e){}});}});
+liveSort({list:'#wx-xi-list',row:'.np-order-row[data-k]',skip:'select,.cp-swatch,.font-dd-menu,.font-dd-list',commit:(from,to)=>{const p=cur(),o=wxXiOrder(p);o.splice(to,0,o.splice(from,1)[0]);p.wxXiOrder=o;saveAndRender();renderXiList();document.querySelectorAll('#weather-stats [data-xi]').forEach(el=>{el.style.order=o.indexOf(el.dataset.xi);});}});
 let _lDI=null,_lDCI=null;
 function lDS(e,ci,li){if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.tagName==='SELECT'){e.preventDefault();return;}_lDI=li;_lDCI=ci;e.dataTransfer.effectAllowed='move';e.currentTarget.classList.add('dragging');}
 function lDO(e,ci,li){e.preventDefault();if(li!==_lDI)e.currentTarget.classList.add('drag-over');}
