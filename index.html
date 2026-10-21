@@ -2863,7 +2863,7 @@ async function npRefresh(force){
     if(res.err){_npFails++;return{err:res.err};}
     const o=res.o;_npFails=0;_npIdleSince=o.playing?null:(_npIdleSince||Date.now());
     npRender(o);
-    try{localStorage.setItem(NP_CK,JSON.stringify(o));}catch(e){}
+    try{localStorage.setItem(NP_CK,JSON.stringify(Object.assign({},o,{_t:Date.now()})));}catch(e){}
     return{ok:o};
   }catch(e){_npFails++;console.warn('NowPlaying:',e);return{err:'Could not reach ListenBrainz'};}
 }
@@ -2923,7 +2923,7 @@ function npApply(){
     const k=npIdent(p);
     if(k!==_npKey){
       _npKey=k;_npShown=null;_npLast=0;area.classList.remove('np-ready');
-      try{const c=JSON.parse(localStorage.getItem(NP_CK));if(c&&c.user===npIdent(p))npRender(c);}catch(e){}
+      try{const c=JSON.parse(localStorage.getItem(NP_CK));if(c&&c.user===npIdent(p)&&c.playing&&c._t&&Date.now()-c._t<45000)npRender(c);}catch(e){}   // only a quick reload while playing is restored; an older song is never shown, so the page opens clean
       npRefresh(true);
     }
   }
