@@ -368,6 +368,8 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 #top-stack>#np-area{justify-content:center;padding-bottom:0.6vh}
 #clock-display.clock-docked{position:relative;left:auto;transform:none;align-self:end;margin:0 1.5vw 1.8vh;z-index:10}
 #clock-display.cd-left{justify-self:start}#clock-display.cd-center{justify-self:center}#clock-display.cd-right{justify-self:end}
+#clock-display.clock-docked.cd-left{margin-left:-12px}
+#clock-display.clock-docked.cd-right{margin-right:calc(0.35rem - 12px)}
 #clock-display{position:absolute;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;line-height:1.2;pointer-events:auto;cursor:pointer;isolation:isolate;background-color:rgba(var(--clock-rgb),calc(var(--clock-backdrop) * var(--clock-solid,1)));background-image:var(--clock-img,none);background-origin:border-box;background-repeat:no-repeat;border-radius:var(--widget-radius);padding:4px 12px;transition:background 0.3s}
 #clock-time{font-size:1rem;letter-spacing:1px}
 #clock-date{font-size:1rem;letter-spacing:1px}
@@ -468,8 +470,10 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 /* ── Bottom dock: weather + Now Playing share one row (left / center / right) ── */
 #bottom-dock{--glow-a:0.3;--glow-h:min(52vh,460px);--glow-w:38%;position:relative;z-index:10;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:end;flex-shrink:0;width:100%}
 #bottom-dock #weather-area.weather-hidden{display:none}
-#weather-area.wx-pos-left{align-items:flex-start;padding-left:1.5vw}
-#weather-area.wx-pos-right{align-items:flex-end;padding-right:1.5vw}
+#weather-area.wx-pos-left{align-items:flex-start;padding-left:0}
+#weather-area.wx-pos-left .weather-bg-wrap{margin-left:-18px}
+#weather-area.wx-pos-right{align-items:flex-end;padding-right:0.35rem}
+#weather-area.wx-pos-right .weather-bg-wrap{margin-right:-18px}
 /* ambient glow: one broad layer per slot, anchored to the screen corner (left/right) or bottom-center, fading to 0 on every side */
 .dock-glow{position:absolute;bottom:-2vh;height:var(--glow-h);pointer-events:none;z-index:-1;opacity:0;transition:opacity 0.8s ease;--gc:0% 100%;--gr:100% 100%}
 .dock-glow.g-left{left:-2vw;width:calc(var(--glow-w) + 2vw);--gc:0% 100%;--gr:100% 100%}
@@ -484,6 +488,12 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 #np-area.np-pos-left{justify-content:flex-start}
 #np-area.np-pos-center{justify-content:center}
 #np-area.np-pos-right{justify-content:flex-end}
+/* Bottom-left / bottom-right: line the content up with the icons in the top bar (profile photo on the left, gear on the right).
+   The widget's own inner padding is cancelled with a negative margin, so the cover / text sits on the icon line and only the backdrop reaches past it. */
+#np-area.np-pos-left{padding-left:0}
+#np-area.np-pos-left .np-box{margin-left:-18px}
+#np-area.np-pos-right{padding-right:0.35rem}
+#np-area.np-pos-right .np-box{margin-right:-18px}
 .np-box{display:flex;flex-direction:column;align-items:flex-start;gap:0.35rem;min-width:0;max-width:100%;padding:6px 18px;box-sizing:border-box;border-radius:var(--widget-radius);background-color:rgba(var(--np-rgb,0,0,0),calc(var(--np-backdrop,0.1) * var(--np-solid,1)));background-image:var(--np-img,none);background-origin:border-box;background-repeat:no-repeat}
 /* same look as the weather city name */
 .np-label{color:var(--tx-np-label-c,inherit);display:flex;align-items:center;justify-content:flex-start;font-family:var(--tx-np-label-ff,inherit);font-weight:var(--tx-np-label-fw,400);font-style:var(--tx-np-label-fi,normal);font-size:calc(0.9rem * var(--tx-np-label-z,1));letter-spacing:2px;text-transform:uppercase;white-space:nowrap;transition:opacity 0.7s ease;-webkit-user-select:none;user-select:none}
