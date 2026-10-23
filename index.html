@@ -2811,7 +2811,7 @@ function npCands(t){
 // ── Cover lookup. Every source must match the ARTIST and the ALBUM (or track title) exactly, so a same-named
 //    artist's other album (e.g. "Lost Paradise" vs "Paradise Lost") can never be picked by accident.
 const _npNorm=x=>String(x||'').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/&/g,' and ').replace(/[^a-z0-9]+/g,' ').trim();
-const _npBase=x=>_npNorm(String(x||'').replace(/\(.*?\)|\[.*?\]/g,' ').replace(/\s[-–—:]\s.*(deluxe|remaster|edition|version|anniversary|expanded|bonus).*$/i,' ').replace(/\b(deluxe|remastered|remaster|expanded|anniversary|special|limited|bonus|edition|version)\b/gi,' '));
+const _npBase=x=>{const raw=String(x||''),ed=t=>t.replace(/\s[-–—:]\s.*(deluxe|remaster|edition|version|anniversary|expanded|bonus).*$/i,' ').replace(/\b(deluxe|remastered|remaster|expanded|anniversary|special|limited|bonus|edition|version)\b/gi,' ');const r=_npNorm(ed(raw.replace(/\(.*?\)|\[.*?\]/g,' ')));return r||_npNorm(ed(raw.replace(/[\[\]()]/g,' ')));};  /* title that is entirely in brackets, e.g. "[Led Zeppelin IV]", keeps its text */
 const _npSameName=(a,b)=>{a=_npBase(a);b=_npBase(b);return !!a&&!!b&&a===b;};
 const _npSameArtist=(a,b)=>{a=_npNorm(a);b=_npNorm(b);return !!a&&!!b&&(a===b||a.includes(b)||b.includes(a));};
 async function npMbCover(artist,album,title){
@@ -2887,12 +2887,14 @@ let _npLastO=null,_npArtKey=null,_npArtSeq=0;
 const NP_AV='STARTPAGE_NP_ARTISTS';
 function npArtStore(){try{return JSON.parse(localStorage.getItem(NP_AV))||{};}catch(e){return{};}}
 function npArtSave(k,u){const c=npArtStore();c[k]={u:u,t:Date.now()};const ks=Object.keys(c);if(ks.length>80)ks.sort((a,b)=>c[a].t-c[b].t).slice(0,ks.length-80).forEach(x=>delete c[x]);try{localStorage.setItem(NP_AV,JSON.stringify(c));}catch(e){}}
+/* Deezer's blank 'no photo' silhouette (empty-hash URL) and Discogs' spacer are never real artist photos */
+const npIsPh=u=>!u||/d41d8cd98f00b204e9800998ecf8427e|\/artist\/\/|spacer\.gif/i.test(String(u));
 function npImgOk(u,ms){return new Promise(res=>{const i=new Image();const t=setTimeout(()=>{i.onload=i.onerror=null;res(false);},ms||9000);i.onload=()=>{clearTimeout(t);res(i.naturalWidth>=300);};i.onerror=()=>{clearTimeout(t);res(false);};i.src=u;});}
 function npArtSources(artist,mbid){
   const enc=encodeURIComponent,N=_npNorm;
   return[
     // 1) Deezer: the artist picture
-    async()=>{const j=await npJsonp('https://api.deezer.com/search/artist?limit=10&q='+enc(artist));const m=((j&&j.data)||[]).find(x=>N(x.name)===N(artist));const u=m&&(m.picture_xl||m.picture_big);return u&&!u.includes('/artist//')?[u]:[];},
+    async()=>{const j=await npJsonp('https://api.deezer.com/search/artist?limit=25&q='+enc(artist));const PH='d41d8cd98f00b204e9800998ecf8427e';const ms=((j&&j.data)||[]).filter(x=>N(x.name)===N(artist)).map(x=>({u:x.picture_xl||x.picture_big,f:x.nb_fan||0})).filter(x=>x.u&&!x.u.includes('/artist//')&&!x.u.includes(PH)).sort((a,b)=>b.f-a.f);return ms.map(x=>x.u);},  /* skip Deezer's blank placeholder, prefer the most-followed artist with that name */
     // 2) Discogs: search the artist by name, then the images of the exact match (primary first)
     async()=>{
       const sr=await fetch('https://api.discogs.com/database/search?type=artist&per_page=5&q='+enc(artist));
@@ -2907,13 +2909,13 @@ function npArtSources(artist,mbid){
   ];
 }
 async function npFindArtistImage(artist,mbid){
-  const key='v4|'+(mbid||_npNorm(artist)),c=npArtStore()[key];
+  const key='v5|'+(mbid||_npNorm(artist)),c=npArtStore()[key];
   if(c&&c.u&&Date.now()-c.t<30*864e5)return c.u;                   // found before: instant
   const ps=npArtSources(artist,mbid).map(f=>f().then(l=>({l:l||[]}),()=>({l:[],err:true})));   // both start now ...
   let err=false;
   for(const p of ps){                                              // ... Deezer is judged first, Discogs only if Deezer has nothing
     const r=await p;if(r.err)err=true;
-    for(const u of r.l.slice(0,3)){
+    for(const u of r.l.filter(x=>!npIsPh(x)).slice(0,3)){
       if(await npImgOk(u,10000)){if(!err)npArtSave(key,u);return u;}
     }
   }
@@ -3234,17 +3236,17 @@ const NP_FV='STARTPAGE_NP_ARTFAV',NP_AL='STARTPAGE_NP_ARTLIST';
 function jget(k){try{return JSON.parse(localStorage.getItem(k))||{};}catch(e){return{};}}
 function jset(k,o){try{localStorage.setItem(k,JSON.stringify(o));}catch(e){}}
 function npArtKeyOf(o){return o?(o.artistMbid||_npNorm(o.artist)):'';}
-function npArtFavGet(k){return jget(NP_FV)[k]||'';}
+function npArtFavGet(k){const v=jget(NP_FV)[k]||'';return npIsPh(v)?'':v;}
 try{if(localStorage.getItem('STARTPAGE_ART_V10')!=='1'){[NP_AL,NP_FV,NP_AV].forEach(k=>localStorage.removeItem(k));localStorage.setItem('STARTPAGE_ART_V10','1');}}catch(e){}
 let _npArtList=[],_npArtListKey='';
 async function npArtistCandidates(o){
-  const k=npArtKeyOf(o),key='v4|'+k,store=jget(NP_AL),c=store[key],day=864e5;
-  if(c&&Array.isArray(c.l)&&c.l.length&&Date.now()-c.t<30*day)return c.l;
+  const k=npArtKeyOf(o),key='v5|'+k,store=jget(NP_AL),c=store[key],day=864e5;
+  if(c&&Array.isArray(c.l)&&c.l.length&&Date.now()-c.t<30*day){const cl=c.l.filter(u=>!npIsPh(u));if(cl.length)return cl;}
   const out=[];
   // all sources are asked at the same time; the list keeps their order (best first)
   let failed=false;
   const res=await Promise.all(npArtSources(o.artist,o.artistMbid).map(f=>f().catch(()=>{failed=true;return[];})));
-  res.forEach(urls=>(urls||[]).forEach(u=>{if(u&&!out.includes(u)&&out.length<40)out.push(u);}));
+  res.forEach(urls=>(urls||[]).forEach(u=>{if(u&&!npIsPh(u)&&!out.includes(u)&&out.length<40)out.push(u);}));
   if(out.length&&!failed){store[key]={l:out,t:Date.now()};const ks=Object.keys(store);if(ks.length>40)ks.sort((a,b)=>store[a].t-store[b].t).slice(0,ks.length-40).forEach(x=>delete store[x]);jset(NP_AL,store);}
   return out;
 }
