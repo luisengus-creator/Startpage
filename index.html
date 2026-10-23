@@ -198,7 +198,7 @@ body.ll-noselect,body.ll-noselect *{user-select:none!important;-webkit-user-sele
 .wx-cnow{line-height:1}
 .wx-ccond{}
 .wx-ctrig{display:flex;align-items:center;gap:calc(0.75rem * var(--wx-k,1));position:static}
-.wx-pop{position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%) translateY(6px);margin-left:var(--wx-pop-shift,0px);opacity:0;pointer-events:none;transition:opacity 0.2s ease,transform 0.2s ease;z-index:20}
+.wx-pop{position:absolute;bottom:calc(100% + var(--wx-pop-up,0px) + 12px);left:50%;transform:translateX(-50%) translateY(6px);margin-left:var(--wx-pop-shift,0px);opacity:0;pointer-events:none;transition:opacity 0.2s ease,transform 0.2s ease;z-index:20}
 .wx-compact{cursor:default}
 .wx-compact::before{content:'';position:absolute;left:0;right:0;bottom:100%;height:14px}   /* keeps the hover alive on the way up to the popup */
 .wx-compact:hover .wx-pop{opacity:1;transform:translateX(-50%)}
@@ -1589,7 +1589,7 @@ function syncWxPop(){const p=cur();document.getElementById('wpop-day').checked=(
 function wxPopChange(){const p=cur();p.wShowDay=document.getElementById('wpop-day').checked;p.wShowDate=document.getElementById('wpop-date').checked;p.wColored=document.getElementById('wpop-icons').value==='colored';saveAndRender();updateWeather();}
 function openWeatherPopover(anchor){const pop=document.getElementById('weather-modal');if(_wxPopOpen){pop.classList.remove('open');_wxPopOpen=false;return;}closeClockPop();closeWstatPop();syncWxPop();renderCityManager();pop.classList.add('open');_wxPopOpen=true;const r=anchor.getBoundingClientRect();const pw=340,ph=pop.offsetHeight||320;let left=r.left+r.width/2-pw/2;if(left+pw>window.innerWidth-10)left=window.innerWidth-pw-10;if(left<10)left=10;pop.style.left=left+'px';pop.style.top=popTopFor(r,ph)+'px';}
 function closeWxPop(){document.getElementById('weather-modal').classList.remove('open');document.getElementById('city-search-input').value='';document.getElementById('search-results').innerHTML='';_wxPopOpen=false;}
-document.addEventListener('click',e=>{if(_wxPopOpen&&!document.getElementById('weather-modal').contains(e.target)&&!e.target.closest('#weather-grid')&&!e.target.closest('#wx-addcity'))closeWxPop();});
+document.addEventListener('click',e=>{if(_wxPopOpen&&!e.composedPath().includes(document.getElementById('weather-modal'))&&!e.target.closest('#weather-grid')&&!e.target.closest('#wx-addcity'))closeWxPop();});
 
 function syncClockPop(){const p=cur();const sc=p.showClock!==false,sd=p.clockShowDate!==false;document.getElementById('cpop-show').checked=sc;document.getElementById('cpop-seconds').checked=(p.clockSeconds!==false);document.getElementById('cpop-date').checked=sd;document.getElementById('cpop-format').value=p.clockFormat||'24';document.getElementById('cpop-datefmt').value=p.clockDateFmt||'long';const sub=document.getElementById('cpop-sub');if(sub)sub.className=sc?'sub-enabled':'sub-disabled';['cpop-datefmt-label','cpop-datefmt'].map(i=>document.getElementById(i)).forEach(el=>{if(el)el.className=(sc&&sd)?'sub-enabled':'sub-disabled';});}
 function clockPopChange(){const p=cur();const sc=document.getElementById('cpop-show').checked,sd=document.getElementById('cpop-date').checked;p.showClock=sc;p.clockSeconds=document.getElementById('cpop-seconds').checked;p.clockShowDate=sd;p.clockFormat=document.getElementById('cpop-format').value;p.clockDateFmt=document.getElementById('cpop-datefmt').value;const sub=document.getElementById('cpop-sub');if(sub)sub.className=sc?'sub-enabled':'sub-disabled';['cpop-datefmt-label','cpop-datefmt'].map(i=>document.getElementById(i)).forEach(el=>{if(el)el.className=(sc&&sd)?'sub-enabled':'sub-disabled';});saveAndRender();tickClock();if(document.getElementById('settings-modal').style.display==='flex')renderSettings();}
@@ -2355,6 +2355,9 @@ function wxPopFit(){
   document.querySelectorAll('#weather-grid .wx-pop').forEach(pop=>{
     const inn=pop.firstElementChild;
     pop.style.setProperty('--wx-pop-shift','0px');if(inn)inn.style.zoom='';
+    {const cn=document.getElementById('city-name'),gr=document.getElementById('weather-grid');   // distance up to the top of the city name, so the preview sits above it
+     const up=(cn&&gr&&!pop.closest('#top-stack')&&cn.offsetHeight)?Math.max(0,Math.round(gr.getBoundingClientRect().top-cn.getBoundingClientRect().top)):0;
+     pop.style.setProperty('--wx-pop-up',up+'px');}
     let r=pop.getBoundingClientRect();
     if(inn&&r.width>W-2*m){inn.style.zoom=((W-2*m)/r.width).toFixed(4);r=pop.getBoundingClientRect();}   // wider than the window: scale it down to fit
     let sh=0;if(r.right>W-m)sh=W-m-r.right;if(r.left+sh<m)sh=m-r.left;
