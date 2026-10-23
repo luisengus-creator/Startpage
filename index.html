@@ -207,7 +207,36 @@ body.ll-noselect,body.ll-noselect *{user-select:none!important;-webkit-user-sele
 #top-stack .wx-compact::before{bottom:auto;top:100%}
 .wx-pop,.wx-pop *{pointer-events:none !important}
 .wx-pop-in{display:flex;gap:0.25rem;padding:0.5rem;background:var(--wxp-bg,transparent);-webkit-backdrop-filter:blur(var(--wxp-blur,5px));backdrop-filter:blur(var(--wxp-blur,5px));border:1px solid rgba(255,255,255,0.1);border-radius:var(--wxp-r,0px);box-shadow:0 10px 30px rgba(0,0,0,0.5)}
-#weather-area .weather-bg-wrap{position:relative}
+#weather-area .weather-bg-wrap{position:relative;isolation:isolate}
+#weather-area .wx-addcity{display:none;width:auto;align-items:center;justify-content:center;gap:0.6rem;margin:0;padding:0.6rem 1.3rem;border-radius:var(--widget-radius,10px);background:rgba(255,255,255,0.05);border:1px dashed rgba(255,255,255,0.28);color:rgba(255,255,255,0.78);font-family:var(--weather-font,inherit);font-size:0.9rem;font-weight:400;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:background 0.2s,border-color 0.2s,color 0.2s}
+#weather-area .wx-addcity:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.5);color:#fff}
+#weather-area.wx-empty .wx-addcity{display:inline-flex}
+#weather-area.wx-empty .weather-bg-wrap{display:none}
+.wx-photo-bg{display:none;position:absolute;z-index:-1;pointer-events:none;left:50%;top:50%;margin-left:var(--wx-ph-dx,0px);margin-top:var(--wx-ph-dy,0px);width:max(200%,390px);height:max(280%,200px);transform:translate(-50%,-50%) scale(var(--wx-ph-s,0.75))}
+.wx-photo-bg img{width:100%;height:100%;object-fit:cover;object-position:50% 30%;filter:saturate(1.1)}
+/* Classic: the photo hugs the weather field (a small soft bleed only). Compact keeps the wide spread above. */
+#weather-area:not(.wx-ph-compact) .wx-photo-bg{width:128%;height:215%;transform:translate(-50%,-50%) scale(calc(var(--wx-ph-s,0.75) / 0.75))}
+/* city / artist photo rows in the small weather pop-up */
+.ph-pop-row{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.ph-pop-lab{font-size:0.75rem;color:#888;width:44px;flex:none}
+.ph-pop-cnt{flex:1;min-width:0;font-size:0.68rem;color:#666;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#weather-modal .ph-pop-b{width:auto;min-width:30px;height:26px;padding:0 8px;margin:0;font-size:0.8rem;line-height:1;flex:none}
+#weather-modal .ph-pop-b.fav{color:#ffd24a;border-color:#ffd24a66}
+#weather-modal .ph-pop-row.off{opacity:0.4;pointer-events:none}
+#ph-pop{display:none;position:fixed;z-index:2600;width:296px;background:#0d1114;border:1px solid #2a3238;border-radius:12px;padding:10px;box-shadow:0 12px 40px rgba(0,0,0,0.6);color:#ddd;font-size:0.8rem}
+#ph-pop .php-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+#ph-pop .php-title{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+#ph-pop button{width:auto;min-width:30px;height:26px;padding:0 8px;margin:0;font-size:0.8rem;line-height:1}
+#ph-pop .php-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:8px;min-height:20px}
+#ph-pop .php-t{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:5px;cursor:pointer;opacity:0.65;border:2px solid transparent;background:#1a2025;display:block}
+#ph-pop .php-t:hover{opacity:1}
+#ph-pop .php-t.cur{opacity:1;border-color:#00d4ff}
+#ph-pop .php-row{display:flex;align-items:center;gap:6px;margin-top:6px}
+#ph-pop .php-row select{flex:1;min-width:0;height:26px;font-size:0.78rem}
+#ph-pop .php-note{flex:1;color:#8a949c;font-size:0.72rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wx-photo-bg img:not([src]){display:none}
+#weather-area.wx-ph-on .wx-photo-bg{display:block;opacity:0;transition:opacity 1.4s ease}
+#weather-area.wx-ph-on .wx-photo-bg.on{opacity:var(--wx-ph-a,0.25)}
 /* weather glow now lives in #bottom-dock (see #glow-wx) */
 @keyframes wxSpin{to{transform:rotate(360deg)}}
 @keyframes wxDrift{0%,100%{transform:translateX(-2px)}50%{transform:translateX(2px)}}
@@ -502,6 +531,12 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 .np-card{position:relative;isolation:isolate;display:flex;align-items:stretch;gap:clamp(10px,calc(var(--np-cover) * 0.16),20px);padding:0;border-radius:var(--widget-radius,14px);opacity:0;transform:translateY(6px);transition:opacity 0.7s ease,transform 0.7s ease;max-width:100%;min-width:0;height:auto;box-sizing:border-box}
 #np-area.np-ready .np-card{opacity:1;transform:none}
 /* side glow: the cover's colours bleed out to the right behind the text, clipped to the cover's height and fading to nothing */
+.np-artist-bg{display:none;position:absolute;z-index:-2;pointer-events:none;width:calc(var(--np-cover) * 7 * var(--np-art-s,1));height:calc(var(--np-cover) * 4.2 * var(--np-art-s,1));left:calc(var(--np-cover) * (0.9 - 3.5 * var(--np-art-s,1)));top:50%;margin-left:var(--np-art-dx,0px);margin-top:calc(var(--np-art-dy,0px) - var(--np-cover) * 0.6);transform:translateY(-50%)}
+.np-artist-bg,.wx-photo-bg{-webkit-mask-image:radial-gradient(ellipse var(--mrx,50%) var(--mry,50%) at var(--mcx,50%) var(--mcy,50%),#000 0%,#000 var(--mp,25%),rgba(0,0,0,0.990) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.0625),rgba(0,0,0,0.962) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.1250),rgba(0,0,0,0.916) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.1875),rgba(0,0,0,0.854) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.2500),rgba(0,0,0,0.778) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.3125),rgba(0,0,0,0.691) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.3750),rgba(0,0,0,0.598) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.4375),rgba(0,0,0,0.500) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.5000),rgba(0,0,0,0.402) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.5625),rgba(0,0,0,0.309) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.6250),rgba(0,0,0,0.222) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.6875),rgba(0,0,0,0.146) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.7500),rgba(0,0,0,0.084) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.8125),rgba(0,0,0,0.038) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.8750),rgba(0,0,0,0.010) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.9375),rgba(0,0,0,0.000) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 1.0000));mask-image:radial-gradient(ellipse var(--mrx,50%) var(--mry,50%) at var(--mcx,50%) var(--mcy,50%),#000 0%,#000 var(--mp,25%),rgba(0,0,0,0.990) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.0625),rgba(0,0,0,0.962) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.1250),rgba(0,0,0,0.916) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.1875),rgba(0,0,0,0.854) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.2500),rgba(0,0,0,0.778) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.3125),rgba(0,0,0,0.691) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.3750),rgba(0,0,0,0.598) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.4375),rgba(0,0,0,0.500) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.5000),rgba(0,0,0,0.402) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.5625),rgba(0,0,0,0.309) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.6250),rgba(0,0,0,0.222) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.6875),rgba(0,0,0,0.146) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.7500),rgba(0,0,0,0.084) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.8125),rgba(0,0,0,0.038) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.8750),rgba(0,0,0,0.010) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.9375),rgba(0,0,0,0.000) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 1.0000))}
+.np-artist-bg img{width:100%;height:100%;object-fit:cover;object-position:50% 15%;filter:saturate(1.1)}
+.np-artist-bg img:not([src]){display:none}
+#np-area.np-art-on .np-artist-bg{display:block;opacity:0;transition:opacity 1.4s ease}
+#np-area.np-art-on .np-artist-bg.on{opacity:var(--np-art-a,0.25)}
 .np-side-glow{display:none;position:absolute;z-index:-1;pointer-events:none;overflow:hidden;top:0;bottom:0;left:calc(var(--np-cover) * 0.5);right:-18px;-webkit-mask-image:linear-gradient(to right,#000 0,rgba(0,0,0,0.75) 25%,rgba(0,0,0,0.35) 60%,transparent 100%);mask-image:linear-gradient(to right,#000 0,rgba(0,0,0,0.75) 25%,rgba(0,0,0,0.35) 60%,transparent 100%)}
 .np-side-glow img{position:absolute;inset:-24px;width:calc(100% + 48px);height:calc(100% + 48px);object-fit:cover;filter:blur(16px) saturate(1.6);opacity:0.65}
 #np-area.np-sg-on .np-side-glow{display:block}
@@ -585,7 +620,9 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
   <div id="glow-wx" class="dock-glow g-center"></div>
   <img id="np-glow" class="dock-glow g-left" alt="">
   <section id="weather-area" style="position:relative;">
+    <button type="button" class="wx-addcity" id="wx-addcity" onclick="wxAddCityOpen()"><i class="fa-solid fa-plus"></i> Add City</button>
     <div class="weather-bg-wrap">
+      <div class="wx-photo-bg"><img id="wx-photo-img" alt=""></div>
       <div style="display:flex;justify-content:center;width:100%;">
         <div style="position:relative;display:inline-block;">
           <span id="city-name" onclick="cycleCity()">---</span>
@@ -600,6 +637,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
     <div class="np-box">
       <div class="np-label" id="np-status"><span class="np-eq"><span style="--i:0"></span><span style="--i:1"></span><span style="--i:2"></span><span style="--i:3"></span><span style="--i:4"></span></span><span id="np-status-t">Now playing</span></div>
       <div class="np-card" onclick="npManual(event)" title="Click to refresh">
+        <div class="np-artist-bg"><img id="np-artist-img" alt=""></div>
         <div class="np-side-glow"><img id="np-side-img" alt=""></div>
         <div class="np-cover"><img id="np-img" alt=""><div class="np-ph" id="np-ph"><i class="fa-solid fa-music"></i></div></div>
         <div class="np-meta">
@@ -870,9 +908,13 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
               <div class="inl"><span>Cover</span><select id="np-shape" onchange="npChange()"><option value="square">Square</option><option value="rounded">Rounded</option><option value="circle">Circle</option></select></div>
               <label class="label-inline inl"><input type="checkbox" id="np-glow-on" onchange="npChange()"> Cover glow</label>
               <label class="label-inline inl" title="The cover colours glow to the right, behind the song, artist and album"><input type="checkbox" id="np-sglow-on" onchange="npChange()"> Text glow</label>
+              <label class="label-inline inl" title="A faded photo of the artist appears behind the album cover"><input type="checkbox" id="np-art-on" onchange="npChange()"> Artist photo</label>
               <div class="inl"><span>Cover source</span><select id="np-cover" onchange="npCoverChange()"><option value="auto">Automatic</option><option value="service">ListenBrainz</option><option value="mb">MusicBrainz / Cover Art Archive</option><option value="itunes">iTunes</option><option value="deezer">Deezer</option></select></div>
               <label class="label-inline inl"><input type="checkbox" id="np-autohide" onchange="npChange()"> Hide when nothing is playing</label>
             </div>
+            <div class="s-field" id="np-art-sub"><div class="color-row" style="margin-bottom:4px;"><span>Artist photo intensity</span><span id="np-art-val" style="font-size:0.72rem;color:#888;">25%</span></div><input type="range" id="np-art-op" min="0.1" max="1" step="0.01" oninput="npChange()" style="width:100%;margin-top:0;">
+              <div class="color-row" style="margin:10px 0 4px;"><span>Artist photo size</span><span id="np-art-sz-val" style="font-size:0.72rem;color:#888;">100%</span></div><input type="range" id="np-art-sz" min="0.4" max="2.5" step="0.05" oninput="npChange()" style="width:100%;margin-top:0;">
+              <div class="inl-row" id="np-art-row" style="margin-top:10px;"><button onclick="npArtistStep(-1)" style="width:auto;padding:0 12px;" title="Previous photo of this artist">‹ Previous</button><button onclick="npArtistStep(1)" style="width:auto;padding:0 12px;" title="Next photo of this artist">Next ›</button><span id="np-art-count" class="s-note" style="margin:0;"></span></div></div>
             <div class="s-field"><div id="np-order" class="np-order"></div></div>
           </div>
         </div>
@@ -895,6 +937,13 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
             <input type="color" id="weather-color" style="display:none">
             <div class="s-field"><div class="s-lab">Style</div><div class="size-group" id="wx-style-group" style="flex-wrap:wrap;"><button class="size-btn" data-wxs="compact" onclick="setWxStyle('compact')">Compact</button><button class="size-btn" data-wxs="classic" onclick="setWxStyle('classic')">Classic</button></div></div>
             <div class="s-field"><div class="s-lab">Position</div><div class="size-group" id="wx-pos-group"><button class="size-btn" data-v="top" onclick="posSet('wx','top')">Top middle</button><button class="size-btn" data-v="left" onclick="posSet('wx','left')">Bottom left</button><button class="size-btn" data-v="center" onclick="posSet('wx','center')">Bottom center</button><button class="size-btn" data-v="right" onclick="posSet('wx','right')">Bottom right</button></div></div>
+            <div class="s-field"><label class="label-inline" title="A faded photo of the selected city appears behind the weather"><input type="checkbox" id="wx-photo-on" onchange="wxPhotoChange()"> City photo behind the weather</label>
+              <div id="wx-photo-sub" style="margin-top:8px;">
+                <div class="color-row" style="margin-bottom:4px;"><span>City photo intensity</span><span id="wx-photo-op-val" style="font-size:0.72rem;color:#888;">25%</span></div><input type="range" id="wx-photo-op" min="0.1" max="1" step="0.01" oninput="wxPhotoChange()" style="width:100%;margin-top:0;">
+                <div class="color-row" style="margin:10px 0 4px;"><span>City photo size</span><span id="wx-photo-sz-val" style="font-size:0.72rem;color:#888;">75%</span></div><input type="range" id="wx-photo-sz" min="0.4" max="2.5" step="0.05" oninput="wxPhotoChange()" style="width:100%;margin-top:0;">
+                <div class="inl-row" style="margin-top:10px;"><button onclick="wxPhotoStep(-1)" style="width:auto;padding:0 12px;" title="Previous photo of this city">‹ Previous</button><button onclick="wxPhotoStep(1)" style="width:auto;padding:0 12px;" title="Next photo of this city">Next ›</button><span id="wx-photo-count" class="s-note" style="margin:0;"></span></div>
+              </div>
+            </div>
           </div>
         </div>
         <div id="weather-rest">
@@ -988,6 +1037,8 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
   <div style="display:grid;grid-template-columns:auto 1fr;gap:6px 10px;align-items:center;margin-top:4px;margin-bottom:10px;">
     <span style="font-size:0.75rem;color:#888;">Icons</span><select id="wpop-icons" onchange="wxPopChange()" style="height:28px;line-height:26px;font-size:0.75rem;padding:0 6px;"><option value="colored">Colored</option><option value="solid">Solid</option></select>
   </div>
+  <div class="pop-title" style="margin-bottom:6px;">Photos</div>
+  <div class="ph-pop-row" id="wxp-city-row" style="margin-bottom:10px;"><span class="ph-pop-lab">City</span><span class="ph-pop-cnt" id="wxp-city-count"></span><button class="ph-pop-b" onclick="wxPhotoStep(-1)" title="Previous photo of this city">‹</button><button class="ph-pop-b" onclick="wxPhotoStep(1)" title="Next photo of this city">›</button></div>
   <div class="pop-title" style="margin-bottom:6px;">Locations</div>
   <div id="city-list-manager" style="margin-bottom:0.8rem;max-height:120px;overflow-y:auto;padding-right:4px;"></div>
   <input type="text" id="city-search-input" placeholder="Search for a city..." oninput="searchCity(this.value)">
@@ -1304,7 +1355,7 @@ const SE={google:{name:'Google',url:'https://www.google.com/search?q=',fav:'http
 function mkLinks(n){const l=[];for(let i=1;i<=n;i++)l.push({name:`Link ${i}`,url:'',color:'',linkIcon:{type:'none',src:''}});return l;}
 function mkCats(n,pfx){const c=[];for(let i=1;i<=n;i++)c.push({title:`${pfx} ${i}`,color:pfx==='Work'?'#ff8800':'#00d4ff',url:'',links:mkLinks(5)});return c;}
 function mkProf(cats,density){return{ql:[{name:'fa-solid fa-server',url:'',vis:false,color:'',linkIcon:{type:'none',src:''}},{name:'fa-solid fa-sliders',url:'',vis:false,color:'',linkIcon:{type:'none',src:''}},{name:'fa-brands fa-spotify',url:'',vis:false,color:'',linkIcon:{type:'none',src:''}},{name:'fa-solid fa-star',url:'',vis:false,color:'',linkIcon:{type:'none',src:''}}],categories:cats,showWeather:true,showHeaders:true,showClock:true,clockFormat:'24',clockSeconds:true,clockShowDate:true,clockDateFmt:'long',clockColor:'#ffffff',clockFont:'Inter',iconColor:'#ffffff',bgColor:'#1C1B22',bgImg:'',bgMode:'gradient',gradType:'auto',gradDir:'ltr',gradColorA:'#1C1B22',gradColorB:'#00d4ff',opGradient:0.1,fuzzy:0,photoDim:0.1,weatherColor:'#ffffff',weatherFont:'Inter',weatherBackdrop:0.1,wShowDay:true,wShowDate:true,wDateFmt:'dmy',wColored:true,wAqi:true,wUv:true,wPressure:true,wHumidity:true,wVisibility:true,wSunrise:true,density,searchFont:'Inter',showSearch:true,searchEngine:'startpage',profileIcon:'fa-solid fa-user',profilePhoto:'',profileIconColor:'#ffffff',cardOpacity:0.1,unsplashKey:UNSPLASH_KEY,unsplashDim:0.1,unsplashBlur:0,opTime:1.0};}
-function getDefaults(){return{profile:'p0',target:'_self',linkColor:'#cccccc',tabTitle:'Startpage',tabFavicon:'',tabFaviconEmoji:'⭐',cities:[{name:'Lisboa',lat:38.71,lon:-9.13}],profileNames:['Profile 1','Profile 2'],profiles:[mkProf(mkCats(5,'Category'),'m'),mkProf(mkCats(3,'Work'),'m')]};}
+function getDefaults(){return{profile:'p0',target:'_self',linkColor:'#cccccc',tabTitle:'Startpage',tabFavicon:'',tabFaviconEmoji:'⭐',cities:[],profileNames:['Profile 1','Profile 2'],profiles:[mkProf(mkCats(5,'Category'),'m'),mkProf(mkCats(3,'Work'),'m')]};}
 
 let state=JSON.parse(localStorage.getItem(KEY))||getDefaults();
 // migrations
@@ -1325,7 +1376,9 @@ state.profiles.forEach(p=>{
   delete p.weatherSize;delete p.weatherFontSize;delete p.clockSize;delete p.searchSize;delete p.npSize;
   if(p.weatherStyle!=='compact')p.weatherStyle='classic';
   if(p.wAnim===undefined)p.wAnim=true;
-  if(p.wTint===undefined)p.wTint=true;
+  if(p.wTint===undefined)p.wTint=false;
+  if(!p.defV3){p.defV3=true;p.npGlow=false;p.wTint=false;p.npArtist=true;p.wxPhoto=true;p.npArtSize=1;p.wxPhotoSize=0.75;}
+  if(!p.defV4){p.defV4=true;p.npArtSize=1;}   /* one-time: artist photo size back to 100% */   /* one-time: apply the new defaults to profiles saved before them */
   if(p.wShowDay===undefined)p.wShowDay=true;
   if(p.wShowDate===undefined)p.wShowDate=true;
   if(!p.wDateFmt)p.wDateFmt='dmy';
@@ -1356,7 +1409,7 @@ state.profiles.forEach(p=>{
   });
 });
 if(!state.tabFaviconEmoji&&!state.tabFavicon)state.tabFaviconEmoji='⭐';
-if(state.cities)state.cities.forEach(c=>{if(!c.photoMode)c.photoMode='generic';});
+if(state.cities)state.cities.forEach(c=>{if(!c.photoMode)c.photoMode='generic';if(c.name==='Lisboa')c.name='Lisbon';});
 
 let cityIdx=0;
 let _wxCache={code:0,icon:'fa-sun',isDay:true,hour:new Date().getHours()};
@@ -1536,7 +1589,7 @@ function syncWxPop(){const p=cur();document.getElementById('wpop-day').checked=(
 function wxPopChange(){const p=cur();p.wShowDay=document.getElementById('wpop-day').checked;p.wShowDate=document.getElementById('wpop-date').checked;p.wColored=document.getElementById('wpop-icons').value==='colored';saveAndRender();updateWeather();}
 function openWeatherPopover(anchor){const pop=document.getElementById('weather-modal');if(_wxPopOpen){pop.classList.remove('open');_wxPopOpen=false;return;}closeClockPop();closeWstatPop();syncWxPop();renderCityManager();pop.classList.add('open');_wxPopOpen=true;const r=anchor.getBoundingClientRect();const pw=340,ph=pop.offsetHeight||320;let left=r.left+r.width/2-pw/2;if(left+pw>window.innerWidth-10)left=window.innerWidth-pw-10;if(left<10)left=10;pop.style.left=left+'px';pop.style.top=popTopFor(r,ph)+'px';}
 function closeWxPop(){document.getElementById('weather-modal').classList.remove('open');document.getElementById('city-search-input').value='';document.getElementById('search-results').innerHTML='';_wxPopOpen=false;}
-document.addEventListener('click',e=>{if(_wxPopOpen&&!document.getElementById('weather-modal').contains(e.target)&&!e.target.closest('#weather-grid'))closeWxPop();});
+document.addEventListener('click',e=>{if(_wxPopOpen&&!document.getElementById('weather-modal').contains(e.target)&&!e.target.closest('#weather-grid')&&!e.target.closest('#wx-addcity'))closeWxPop();});
 
 function syncClockPop(){const p=cur();const sc=p.showClock!==false,sd=p.clockShowDate!==false;document.getElementById('cpop-show').checked=sc;document.getElementById('cpop-seconds').checked=(p.clockSeconds!==false);document.getElementById('cpop-date').checked=sd;document.getElementById('cpop-format').value=p.clockFormat||'24';document.getElementById('cpop-datefmt').value=p.clockDateFmt||'long';const sub=document.getElementById('cpop-sub');if(sub)sub.className=sc?'sub-enabled':'sub-disabled';['cpop-datefmt-label','cpop-datefmt'].map(i=>document.getElementById(i)).forEach(el=>{if(el)el.className=(sc&&sd)?'sub-enabled':'sub-disabled';});}
 function clockPopChange(){const p=cur();const sc=document.getElementById('cpop-show').checked,sd=document.getElementById('cpop-date').checked;p.showClock=sc;p.clockSeconds=document.getElementById('cpop-seconds').checked;p.clockShowDate=sd;p.clockFormat=document.getElementById('cpop-format').value;p.clockDateFmt=document.getElementById('cpop-datefmt').value;const sub=document.getElementById('cpop-sub');if(sub)sub.className=sc?'sub-enabled':'sub-disabled';['cpop-datefmt-label','cpop-datefmt'].map(i=>document.getElementById(i)).forEach(el=>{if(el)el.className=(sc&&sd)?'sub-enabled':'sub-disabled';});saveAndRender();tickClock();if(document.getElementById('settings-modal').style.display==='flex')renderSettings();}
@@ -2237,7 +2290,7 @@ function cDrop(e,i){e.preventDefault();document.querySelectorAll('.city-item').f
 async function searchCity(q){if(q.length<3){document.getElementById('search-results').innerHTML='';return;}const r=await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${q}&count=5&language=en&format=json`);const d=await r.json();document.getElementById('search-results').innerHTML=(d.results||[]).map(c=>`<div class="search-result-item" onclick="addCity('${c.name}',${c.latitude},${c.longitude})">${c.name}, ${c.admin1||''} (${c.country_code})</div>`).join('');}
 function addCity(name,lat,lon){state.cities.push({name,lat,lon,photoMode:'generic'});document.getElementById('search-results').innerHTML='';document.getElementById('city-search-input').value='';renderCityManager();saveAndRender();updateWeather();}
 function removeCity(i){if(state.cities.length>1){state.cities.splice(i,1);cityIdx=0;renderCityManager();saveAndRender();updateWeather();}}
-function cycleCity(){cityIdx=(cityIdx+1)%state.cities.length;try{window.getSelection().removeAllRanges();}catch(e){}updateWeather();}
+function cycleCity(){if(!state.cities.length)return;cityIdx=(cityIdx+1)%state.cities.length;try{window.getSelection().removeAllRanges();}catch(e){}updateWeather();}
 
 const WX_H={classic:148,compact:106};
 const wxSty=p=>(p&&p.weatherStyle==='compact')?'compact':'classic';
@@ -2247,7 +2300,7 @@ function applyWxArea(p){
   const wa=document.getElementById('weather-area');if(!wa||!p)return;
   wa.style.height=wxAreaH(p)+'px';
   ['classic','compact'].forEach(k=>wa.classList.toggle('wx-s-'+k,wxSty(p)===k));
-  wa.classList.toggle('wx-tinted',p.wTint!==false);{const dk=document.getElementById('bottom-dock');if(dk)dk.classList.toggle('wx-tinted',p.wTint!==false&&!!p.showWeather);}
+  wa.classList.toggle('wx-tinted',p.wTint===true);{const dk=document.getElementById('bottom-dock');if(dk)dk.classList.toggle('wx-tinted',p.wTint===true&&!!p.showWeather);}
 }
 function wxInfo(c,night){
   let r;
@@ -2320,7 +2373,7 @@ function syncWxStyle(p){
    if(g('wx-main-title'))g('wx-main-title').textContent=comp?'Current weather':'Forecast';
    wxpSync(p);}
   document.querySelectorAll('#wx-style-group .size-btn').forEach(b=>b.classList.toggle('active',b.dataset.wxs===wxSty(p)));
-  const a=document.getElementById('w-anim'),t=document.getElementById('w-tint');if(a)a.checked=p.wAnim!==false;if(t)t.checked=p.wTint!==false;
+  const a=document.getElementById('w-anim'),t=document.getElementById('w-tint');if(a)a.checked=p.wAnim!==false;if(t)t.checked=p.wTint===true;
 }
 function renderWxGrid(){
   const R=_wxRaw,p=cur();if(!R||!p)return;
@@ -2370,7 +2423,7 @@ async function wxFetch(city){
 function wxCacheGet(city){try{const c=JSON.parse(localStorage.getItem('STARTPAGE_WX'));if(c&&c.k===city.lat+','+city.lon&&Date.now()-c.t<6*3600*1000&&c.d&&c.d.daily)return c.d;}catch(e){}return null;}
 function wxCachePut(city,d){try{localStorage.setItem('STARTPAGE_WX',JSON.stringify({k:city.lat+','+city.lon,t:Date.now(),d}));}catch(e){}}
 async function updateWeather(){
-  const p=cur(),city=state.cities[cityIdx];if(!city||!p.showWeather)return;
+  const p=cur(),city=state.cities[cityIdx];wxEmptyState(!city&&!!p.showWeather);if(!city||!p.showWeather)return;
   document.getElementById('city-name').textContent=city.name;document.getElementById('city-name').style.color='var(--tx-wx-city-c,'+p.weatherColor+')';
   try{
     if(!_wxRaw){const cd=wxCacheGet(city);if(cd)await wxApply(cd,p,city);}
@@ -2823,9 +2876,63 @@ async function npFindCovers(artist,album,title,order){
   if(out.length)npCoverSave(key,out);
   return out;
 }
+
+// ── Artist photo behind the cover ──
+// Sources, best first: TheAudioDB by MusicBrainz ID (wide band/fanart photos) -> Wikidata photo via MusicBrainz -> TheAudioDB by exact name -> Deezer by exact name.
+// Every source must match the artist exactly (by ID, or by identical name), and results are cached per artist.
+let _npLastO=null,_npArtKey=null,_npArtSeq=0;
+const NP_AV='STARTPAGE_NP_ARTISTS';
+function npArtStore(){try{return JSON.parse(localStorage.getItem(NP_AV))||{};}catch(e){return{};}}
+function npArtSave(k,u){const c=npArtStore();c[k]={u:u,t:Date.now()};const ks=Object.keys(c);if(ks.length>80)ks.sort((a,b)=>c[a].t-c[b].t).slice(0,ks.length-80).forEach(x=>delete c[x]);try{localStorage.setItem(NP_AV,JSON.stringify(c));}catch(e){}}
+function npImgOk(u,ms){return new Promise(res=>{const i=new Image();const t=setTimeout(()=>{i.onload=i.onerror=null;res(false);},ms||9000);i.onload=()=>{clearTimeout(t);res(i.naturalWidth>=300);};i.onerror=()=>{clearTimeout(t);res(false);};i.src=u;});}
+function npArtSources(artist,mbid){
+  const enc=encodeURIComponent,N=_npNorm;
+  return[
+    // 1) Deezer: the artist picture
+    async()=>{const j=await npJsonp('https://api.deezer.com/search/artist?limit=10&q='+enc(artist));const m=((j&&j.data)||[]).find(x=>N(x.name)===N(artist));const u=m&&(m.picture_xl||m.picture_big);return u&&!u.includes('/artist//')?[u]:[];},
+    // 2) Discogs: search the artist by name, then the images of the exact match (primary first)
+    async()=>{
+      const sr=await fetch('https://api.discogs.com/database/search?type=artist&per_page=5&q='+enc(artist));
+      if(!sr.ok)return[];
+      const sj=await sr.json(),bare=t=>N((t||'').replace(/\s*\(\d+\)\s*$/,''));
+      const m=(sj.results||[]).find(x=>bare(x.title)===N(artist));
+      if(!m)return[];
+      const r=await fetch('https://api.discogs.com/artists/'+m.id);if(!r.ok)return[];
+      const d=await r.json(),im=(d.images||[]).slice().sort((a,b)=>(b.type==='primary')-(a.type==='primary'));
+      return im.map(x=>x.uri||x.resource_url).filter(Boolean);
+    }
+  ];
+}
+async function npFindArtistImage(artist,mbid){
+  const key='v4|'+(mbid||_npNorm(artist)),c=npArtStore()[key];
+  if(c&&c.u&&Date.now()-c.t<30*864e5)return c.u;                   // found before: instant
+  const ps=npArtSources(artist,mbid).map(f=>f().then(l=>({l:l||[]}),()=>({l:[],err:true})));   // both start now ...
+  let err=false;
+  for(const p of ps){                                              // ... Deezer is judged first, Discogs only if Deezer has nothing
+    const r=await p;if(r.err)err=true;
+    for(const u of r.l.slice(0,3)){
+      if(await npImgOk(u,10000)){if(!err)npArtSave(key,u);return u;}
+    }
+  }
+  return '';
+}
+async function npArtistLoad(o){
+  const p=cur(),bg=document.querySelector('#np-area .np-artist-bg'),img=document.getElementById('np-artist-img');
+  if(!bg||!img)return;
+  if(!p||p.npArtist===false||!o||!o.artist){return;}
+  const k=npArtKeyOf(o);
+  if(k===_npArtKey&&img.getAttribute('src'))return;   // same artist: keep the photo already shown
+  _npArtKey=k;const seq=++_npArtSeq;bg.classList.remove('on');
+  let u='';{const fv=npArtFavGet(k);if(fv&&await npImgOk(fv))u=fv;}
+  if(!u){try{u=await npFindArtistImage(o.artist,o.artistMbid);}catch(e){}}
+  if(seq!==_npArtSeq)return;
+  if(!u){img.removeAttribute('src');try{npArtPopSync();}catch(e){}return;}
+  img.onload=()=>{if(seq===_npArtSeq)bg.classList.add('on');};
+  img.src=u;try{npArtPopSync();}catch(e){}
+}
 function npGlowState(){
   const p=cur(),gl=document.getElementById('np-glow'),ar=document.getElementById('np-area');if(!gl||!ar||!p)return;
-  gl.classList.toggle('on',!!(npOn(p)&&p.npGlow!==false&&ar.classList.contains('np-ready')&&!ar.classList.contains('np-idle')&&gl.getAttribute('src')&&gl.dataset.ok==='1'));
+  gl.classList.toggle('on',!!(npOn(p)&&p.npGlow===true&&ar.classList.contains('np-ready')&&!ar.classList.contains('np-idle')&&gl.getAttribute('src')&&gl.dataset.ok==='1'));
 }
 function npSetCover(urls,o,key,pl){
   const img=document.getElementById('np-img'),glow=document.getElementById('np-glow'),ph=document.getElementById('np-ph');
@@ -2854,6 +2961,7 @@ function npRender(o){
   document.getElementById('np-status-t').textContent=o.playing?'Now playing':('Last played · '+npAgo(o.at));
   area.classList.toggle('np-playing',!!o.playing);
   if(key!==_npShown){_npShown=key;{const pl=npCoverPlan(p);npSetCover(pl.serviceFirst?(o.urls||[]):[],o,key,pl);}}
+  _npLastO=o;npArtistLoad(o);
   area.classList.add('np-ready');npGlowState();
 }
 let _npSeen=null;
@@ -2869,7 +2977,7 @@ async function npFetchLb(p){
   if(!item){const r2=await fetch(api+'/listens?count=1');status=r2.status;if(r2.ok){const j=await r2.json();item=((j.payload||{}).listens||[])[0]||null;}}
   if(!item)return{err:status===404?'User not found':(status&&status!==200?'ListenBrainz error '+status:'No listens yet')};
   const t=item.track_metadata||{};
-  return{o:{user:npIdent(p),title:t.track_name||'Unknown',artist:t.artist_name||'',album:t.release_name||'',playing,at:item.listened_at||0,urls:npCands(t)}};
+  return{o:{user:npIdent(p),artistMbid:(((t.mbid_mapping||{}).artist_mbids)||((t.additional_info||{}).artist_mbids)||[])[0]||'',title:t.track_name||'Unknown',artist:t.artist_name||'',album:t.release_name||'',playing,at:item.listened_at||0,urls:npCands(t)}};
 }
 async function npRefresh(force){
   const p=cur();if(!npOn(p))return null;
@@ -2933,6 +3041,8 @@ function npApply(){
   document.getElementById('np-artist').style.display=p.npShowArtist===false?'none':'';
   npOrderOf(p).forEach((k,i)=>{const el=document.getElementById('np-'+k);if(el)el.style.order=i;});
   area.classList.toggle('np-sg-on',!!p.npSideGlow);
+  area.classList.toggle('np-art-on',p.npArtist!==false);area.style.setProperty('--np-art-a',p.npArtOp??0.25);area.style.setProperty('--np-art-s',p.npArtSize??1);
+  if(p.npArtist!==false&&on&&_npLastO)npArtistLoad(_npLastO);
   const gl=document.getElementById('np-glow'),gw=document.getElementById('glow-wx');
   if(gl){['left','center','right'].forEach(k=>gl.classList.toggle('g-'+k,pos===k));gl.style.display=pos==='top'?'none':'';}
   if(gw){['left','center','right'].forEach(k=>gw.classList.toggle('g-'+k,wpos===k));gw.style.display=wpos==='top'?'none':'';}
@@ -2990,6 +3100,7 @@ function npChange(){
   p.showNP=g('np-enable').checked;p.npUser=g('np-user').value.trim();
   p.npShape=g('np-shape').value;
   p.npGlow=g('np-glow-on').checked;p.npSideGlow=g('np-sglow-on').checked;p.npAutoHide=g('np-autohide').checked;
+  p.npArtist=g('np-art-on').checked;p.npArtOp=parseFloat(g('np-art-op').value);p.npArtSize=parseFloat(g('np-art-sz').value);g('np-art-sz-val').textContent=Math.round(p.npArtSize*100)+'%';g('np-art-val').textContent=Math.round(p.npArtOp*100)+'%';g('np-art-sub').style.opacity=p.npArtist!==false?'1':'0.45';
   p.npBackdrop=parseFloat(g('np-backdrop').value);g('np-backdrop-val').textContent=Math.round(p.npBackdrop*100)+'%';
   saveAndRender();
 }
@@ -2998,7 +3109,8 @@ function npSync(){
   const p=cur(),g=id=>document.getElementById(id);if(!p||!g('np-enable'))return;
   renderNpOrder();
   g('np-enable').checked=!!p.showNP;g('np-user').value=p.npUser||'';  g('np-shape').value=p.npShape||'square';
-  g('np-glow-on').checked=p.npGlow!==false;g('np-sglow-on').checked=!!p.npSideGlow;g('np-autohide').checked=p.npAutoHide!==false;g('np-cover').value=p.npCover||'auto';
+  g('np-glow-on').checked=p.npGlow===true;g('np-sglow-on').checked=!!p.npSideGlow;g('np-autohide').checked=p.npAutoHide!==false;
+  g('np-art-on').checked=p.npArtist!==false;g('np-art-op').value=p.npArtOp??0.25;g('np-art-sz').value=p.npArtSize??1;g('np-art-sz-val').textContent=Math.round((p.npArtSize??1)*100)+'%';g('np-art-val').textContent=Math.round((p.npArtOp??0.25)*100)+'%';g('np-art-sub').style.opacity=p.npArtist!==false?'1':'0.45';g('np-cover').value=p.npCover||'auto';
   g('np-backdrop').value=p.npBackdrop??0.1;g('np-backdrop-val').textContent=Math.round((p.npBackdrop??0.1)*100)+'%';
   [['np','np-pos-group'],['wx','wx-pos-group'],['clock','clock-pos-group']].forEach(([w,id])=>document.querySelectorAll('#'+id+' .size-btn').forEach(b=>b.classList.toggle('active',b.dataset.v===plGet(p,w))));
 }
@@ -3006,6 +3118,333 @@ function npSync(){
 {const _sw=setWxStyle;setWxStyle=function(){const r=_sw.apply(this,arguments);try{renderTx();}catch(e){}return r;};}
 {const _uv=updateVis;updateVis=function(){const r=_uv.apply(this,arguments);try{renderTx();npSync();renderPhotoPreview();}catch(e){}return r;};}
 {const _rs=renderSettings;renderSettings=function(){const r=_rs.apply(this,arguments);npSync();renderTx();renderUiFont();searchSync();renderPhotoPreview();return r;};}
+
+// ── City photo behind the weather ──
+// The photo is the lead image of the city's Wikipedia article. The article is found by the city's coordinates and must carry the city's name, so a place with a similar name elsewhere is never used.
+let _wxPhKey=null,_wxPhSeq=0,_wxPhBusy=false,_wxPhList=[],_wxPhCur='',_wxPhSt=0;
+const WX_PV='STARTPAGE_CITYIMG',WX_PK='STARTPAGE_CITYPICK';
+function wxPhStore(){try{return JSON.parse(localStorage.getItem(WX_PV))||{};}catch(e){return{};}}
+function wxPhSave(k,l){const c=wxPhStore();c[k]={l:l,t:Date.now()};const ks=Object.keys(c);if(ks.length>40)ks.sort((a,b)=>c[a].t-c[b].t).slice(0,ks.length-40).forEach(x=>delete c[x]);try{localStorage.setItem(WX_PV,JSON.stringify(c));}catch(e){}}
+// the photo you settle on is remembered by city NAME, so deleting and re-adding a city brings the same photo back
+function wxPickAll(){try{return JSON.parse(localStorage.getItem(WX_PK))||{};}catch(e){return{};}}
+function wxPickGet(city){return wxPickAll()[_npNorm(city.name)]||'';}
+function wxPickSet(city,u){const a=wxPickAll();a[_npNorm(city.name)]=u;try{localStorage.setItem(WX_PK,JSON.stringify(a));}catch(e){}}
+function wxMigratePicks(){   // keeps the photo you already see for each city
+  const st=wxPhStore(),pk=wxPickAll();let ch=false;
+  Object.keys(st).forEach(k=>{if(k.startsWith('v2|')&&st[k].u){const nm=k.split('|').slice(2).join('|');if(nm&&!pk[nm]){pk[nm]=st[k].u;ch=true;}}});
+  if(ch)try{localStorage.setItem(WX_PK,JSON.stringify(pk));}catch(e){}
+}
+// All usable photos of the city, best first. The article is found by the city's coordinates and must carry the city's name.
+async function wxCityImages(city){
+  const key='v3|'+city.lat+','+city.lon+'|'+_npNorm(city.name),c=wxPhStore()[key],day=864e5;
+  if(c&&Array.isArray(c.l)&&Date.now()-c.t<(c.l.length?30*day:day))return c.l;
+  const norm=_npNorm,n=norm(city.name),api='https://en.wikipedia.org/w/api.php',out=[],add=u=>{if(u&&!out.includes(u)&&out.length<12)out.push(u);};
+  const q=async p=>(await fetch(api+'?'+p+'&format=json&origin=*')).json();
+  const BAD=/\.svg|flag|coat[ _]of|arms|seal|logo|map|location|locator|icon|symbol|stamp|emblem|wikidata|ambox|question/i;
+  const GOOD1=/skyline|panorama|panoramic|cityscape|aerial|overview|general[ _]view/i,GOOD2=/view[ _]of|vista|montage|collage/i;
+  const fix=t=>String(t).replace(/_/g,' ');
+  const info=async titles=>{
+    if(!titles.length)return[];
+    const j=await q('action=query&prop=imageinfo&iiprop=url%7Csize&iiurlwidth=1400&titles='+encodeURIComponent(titles.join('|'))),by={};
+    Object.values((j.query||{}).pages||{}).forEach(x=>{const i=(x.imageinfo||[])[0];if(i&&i.thumburl)by[fix(x.title).toLowerCase()]={u:i.thumburl,w:i.width,h:i.height};});
+    return titles.map(t=>by[t.toLowerCase()]).filter(Boolean);
+  };
+  try{
+    const g=await q(`action=query&list=geosearch&gscoord=${city.lat}%7C${city.lon}&gsradius=10000&gslimit=30`);
+    const hits=((g.query||{}).geosearch||[]).filter(x=>{const t=norm(String(x.title).replace(/\(.*?\)/g,' '));return t===n||t.startsWith(n+' ')||n.startsWith(t+' ');});
+    for(const h of hits.slice(0,2)){
+      const r=await q(`action=query&prop=pageprops%7Cpageimages%7Cimages&ppprop=wikibase_item&piprop=thumbnail&pithumbsize=1400&imlimit=80&pageids=${h.pageid}`);
+      const pg=((r.query||{}).pages||{})[h.pageid]||{},cands=[];
+      const item=(pg.pageprops||{}).wikibase_item;
+      if(item){try{const w=await(await fetch(`https://www.wikidata.org/w/api.php?action=wbgetclaims&entity=${item}&property=P948&format=json&origin=*`)).json();const f=((((w.claims||{}).P948||[])[0]||{}).mainsnak||{}).datavalue;if(f&&f.value)cands.push('File:'+fix(f.value));}catch(e){}}
+      const files=(pg.images||[]).map(i=>fix(i.title)).filter(t=>/\.(jpe?g|png|webp)$/i.test(t)&&!BAD.test(t));
+      files.filter(t=>GOOD1.test(t)).forEach(t=>cands.push(t));
+      files.filter(t=>!GOOD1.test(t)&&GOOD2.test(t)).forEach(t=>cands.push(t));
+      for(const i of await info([...new Set(cands)].slice(0,20)))if(i.w/i.h>=1.4)add(i.u);
+      const lead=pg.thumbnail;if(lead&&lead.source&&!/\.svg/i.test(lead.source))add(lead.source);
+    }
+  }catch(e){return out;}   // a failed lookup is not cached
+  wxPhSave(key,out);return out;
+}
+function wxPhotoCount(){
+  const e=document.getElementById('wx-photo-count'),city=state.cities&&state.cities[cityIdx];if(!e){try{wxPopPhSync();}catch(x){}return;}
+  const n=_wxPhList.length,i=_wxPhList.indexOf(_wxPhCur);
+  e.textContent=city&&n&&i>=0?`${city.name} · ${i+1} / ${n}`:'';
+  try{wxPopPhSync();}catch(x){}
+}
+async function wxPhotoApply(){
+  const p=cur(),area=document.getElementById('weather-area');if(!area||!p)return;
+  const on=!!(p.wxPhoto!==false&&p.showWeather);
+  area.classList.toggle('wx-ph-on',on);area.classList.toggle('wx-ph-compact',wxSty(p)==='compact');
+  area.style.setProperty('--wx-ph-a',p.wxPhotoOp??0.25);area.style.setProperty('--wx-ph-s',p.wxPhotoSize??0.75);
+  if(!on)return;
+  const city=state.cities&&state.cities[cityIdx],bg=area.querySelector('.wx-photo-bg'),img=document.getElementById('wx-photo-img');if(!city||!bg||!img)return;
+  phSetZones(bg,phZones(plGet(p,'wx'),1.35,false));requestAnimationFrame(()=>requestAnimationFrame(wxPhFit));
+  const k=city.lat+','+city.lon;
+  if(k===_wxPhKey&&(_wxPhBusy||img.getAttribute('src')))return;   // same city: keep the photo already shown
+  _wxPhKey=k;const seq=++_wxPhSeq;_wxPhBusy=true;bg.classList.remove('on');
+  try{wxMigratePicks();}catch(e){}
+  let list=[];try{list=await wxCityImages(city);}catch(e){}
+  if(seq!==_wxPhSeq)return;
+  const pick=wxPickGet(city);
+  if(pick&&!list.includes(pick))list=[pick,...list];
+  const order=pick?[pick,...list.filter(x=>x!==pick)]:list;
+  let u='';for(const cnd of order){if(await npImgOk(cnd)){u=cnd;break;}if(seq!==_wxPhSeq)return;}
+  if(seq!==_wxPhSeq)return;
+  _wxPhBusy=false;_wxPhList=list;_wxPhCur=u;wxPhotoCount();
+  if(!u){img.removeAttribute('src');return;}
+  if(!pick)wxPickSet(city,u);   // the first photo shown becomes the one that stays, until you choose another
+  img.onload=()=>{if(seq===_wxPhSeq)bg.classList.add('on');};
+  img.src=u;
+}
+// ‹ Previous / Next › in the settings: cycles through this city's photos; the one left showing is remembered
+async function wxPhotoStep(d){
+  const city=state.cities&&state.cities[cityIdx],bg=document.querySelector('#weather-area .wx-photo-bg'),img=document.getElementById('wx-photo-img');
+  const n=_wxPhList.length;if(!city||!bg||!img||_wxPhBusy||n<2)return;
+  const seq=++_wxPhSt,i=_wxPhList.indexOf(_wxPhCur);
+  for(let k=1;k<n;k++){
+    const u=_wxPhList[(((i+d*k)%n)+n)%n];
+    if(await npImgOk(u)){
+      if(seq!==_wxPhSt)return;
+      _wxPhCur=u;wxPickSet(city,u);wxPhotoCount();bg.classList.remove('on');
+      img.onload=()=>{if(seq===_wxPhSt)bg.classList.add('on');};img.src=u;return;
+    }
+  }
+}
+function wxPhotoChange(){
+  const p=cur(),g=id=>document.getElementById(id);if(!p)return;
+  p.wxPhoto=g('wx-photo-on').checked;p.wxPhotoOp=parseFloat(g('wx-photo-op').value);p.wxPhotoSize=parseFloat(g('wx-photo-sz').value);
+  g('wx-photo-op-val').textContent=Math.round(p.wxPhotoOp*100)+'%';g('wx-photo-sz-val').textContent=Math.round(p.wxPhotoSize*100)+'%';g('wx-photo-sub').style.opacity=p.wxPhoto!==false?'1':'0.45';
+  saveAndRender();
+}
+function wxPhotoSync(){
+  const p=cur(),g=id=>document.getElementById(id);if(!p||!g('wx-photo-on'))return;
+  g('wx-photo-on').checked=p.wxPhoto!==false;g('wx-photo-op').value=p.wxPhotoOp??0.25;g('wx-photo-sz').value=p.wxPhotoSize??0.75;
+  wxPhotoCount();g('wx-photo-op-val').textContent=Math.round((p.wxPhotoOp??0.25)*100)+'%';g('wx-photo-sz-val').textContent=Math.round((p.wxPhotoSize??0.75)*100)+'%';g('wx-photo-sub').style.opacity=p.wxPhoto!==false?'1':'0.45';
+}
+{const _sar2=saveAndRender;saveAndRender=function(){const r=_sar2.apply(this,arguments);try{wxPhotoApply();}catch(e){}return r;};}
+{const _uw=updateWeather;updateWeather=function(){const r=_uw.apply(this,arguments);try{wxPhotoApply();}catch(e){}return r;};}
+{const _rs2=renderSettings;renderSettings=function(){const r=_rs2.apply(this,arguments);try{wxPhotoSync();}catch(e){}return r;};}
+
+// ── Favorite photos + the Photos rows of the small weather pop-up ──
+const NP_FV='STARTPAGE_NP_ARTFAV',NP_AL='STARTPAGE_NP_ARTLIST';
+function jget(k){try{return JSON.parse(localStorage.getItem(k))||{};}catch(e){return{};}}
+function jset(k,o){try{localStorage.setItem(k,JSON.stringify(o));}catch(e){}}
+function npArtKeyOf(o){return o?(o.artistMbid||_npNorm(o.artist)):'';}
+function npArtFavGet(k){return jget(NP_FV)[k]||'';}
+try{if(localStorage.getItem('STARTPAGE_ART_V10')!=='1'){[NP_AL,NP_FV,NP_AV].forEach(k=>localStorage.removeItem(k));localStorage.setItem('STARTPAGE_ART_V10','1');}}catch(e){}
+let _npArtList=[],_npArtListKey='';
+async function npArtistCandidates(o){
+  const k=npArtKeyOf(o),key='v4|'+k,store=jget(NP_AL),c=store[key],day=864e5;
+  if(c&&Array.isArray(c.l)&&c.l.length&&Date.now()-c.t<30*day)return c.l;
+  const out=[];
+  // all sources are asked at the same time; the list keeps their order (best first)
+  let failed=false;
+  const res=await Promise.all(npArtSources(o.artist,o.artistMbid).map(f=>f().catch(()=>{failed=true;return[];})));
+  res.forEach(urls=>(urls||[]).forEach(u=>{if(u&&!out.includes(u)&&out.length<40)out.push(u);}));
+  if(out.length&&!failed){store[key]={l:out,t:Date.now()};const ks=Object.keys(store);if(ks.length>40)ks.sort((a,b)=>store[a].t-store[b].t).slice(0,ks.length-40).forEach(x=>delete store[x]);jset(NP_AL,store);}
+  return out;
+}
+async function npArtistSet(u){
+  const o=_npLastO,img=document.getElementById('np-artist-img'),bg=document.querySelector('#np-area .np-artist-bg');
+  if(!o||!o.artist||!img||!bg||!u)return;
+  const seq=++_npArtStepSeq,k=npArtKeyOf(o);
+  if(!await npImgOk(u,12000)){_npArtBad.add(u);return;}
+  if(seq!==_npArtStepSeq)return;
+  bg.classList.remove('on');
+  img.onload=()=>{if(seq===_npArtStepSeq)bg.classList.add('on');npArtPopSync();};
+  img.src=u;
+  {const a=jget(NP_FV);a[k]=u;jset(NP_FV,a);}
+  npArtPopSync();
+}
+async function wxPhotoSet(u){
+  const city=state.cities&&state.cities[cityIdx],bg=document.querySelector('#weather-area .wx-photo-bg'),img=document.getElementById('wx-photo-img');
+  if(!city||!bg||!img||!u)return;
+  const seq=++_wxPhSt;
+  if(!await npImgOk(u))return;
+  if(seq!==_wxPhSt)return;
+  _wxPhCur=u;wxPickSet(city,u);wxPhotoCount();bg.classList.remove('on');
+  img.onload=()=>{if(seq===_wxPhSt)bg.classList.add('on');};img.src=u;
+}
+function npArtMsg(t){const c=document.getElementById('np-art-count');if(c)c.textContent=t;}
+let _npArtStepSeq=0,_npArtBad=new Set();
+async function npArtistStep(d){
+  const o=_npLastO,img=document.getElementById('np-artist-img'),bg=document.querySelector('#np-area .np-artist-bg');
+  if(!o||!o.artist||!img||!bg)return;
+  const seq=++_npArtStepSeq,k=npArtKeyOf(o);
+  npArtMsg('Looking for photos…');
+  const list=await npArtistCandidates(o);if(seq!==_npArtStepSeq)return;
+  _npArtList=list;_npArtListKey=k;
+  const n=list.length;
+  if(n<2){npArtMsg(n?o.artist+' · only 1 photo found':'No photos found for '+o.artist);return;}
+  const cur0=img.getAttribute('src')||'',i=list.indexOf(cur0);
+  for(let j=1;j<=n;j++){
+    const u=list[(((i+d*j)%n)+n)%n];
+    if(u===cur0||_npArtBad.has(u))continue;
+    npArtMsg('Loading photo…');
+    if(await npImgOk(u,12000)){
+      if(seq!==_npArtStepSeq)return;
+      bg.classList.remove('on');
+      img.onload=()=>{if(seq===_npArtStepSeq)bg.classList.add('on');npArtPopSync();};
+      img.onerror=()=>{_npArtBad.add(u);npArtPopSync();};
+      img.src=u;
+      {const a=jget(NP_FV);a[k]=u;jset(NP_FV,a);}   // remembered for this artist
+      npArtPopSync();
+      return;
+    }
+    _npArtBad.add(u);
+  }
+  npArtMsg(o.artist+' · no other photo could be loaded');
+}
+function npArtPopSync(){
+  try{phPopRender();}catch(e){}
+  const row=document.getElementById('np-art-row');if(!row)return;
+  const p=cur(),o=_npLastO,img=document.getElementById('np-artist-img'),u=(img&&img.getAttribute('src'))||'';
+  const ok=!!(p&&p.npArtist!==false&&o&&o.artist);
+  row.style.opacity=(ok&&u)?'1':'0.45';row.style.pointerEvents=(ok&&u)?'':'none';
+  const cnt=document.getElementById('np-art-count');
+  const k=ok?npArtKeyOf(o):'';
+  if(!ok){cnt.textContent=p&&p.npArtist===false?'Artist photo is off':'Nothing playing right now';return;}
+  const i=_npArtListKey===k?_npArtList.indexOf(u):-1;
+  cnt.textContent=o.artist+(i>=0?` · ${i+1} / ${_npArtList.length}`:'');
+  if(_npArtListKey!==k&&u){_npArtListKey=k;npArtistCandidates(o).then(l=>{if(npArtKeyOf(_npLastO)===k){_npArtList=l;npArtPopSync();}}).catch(()=>{});}
+}
+function wxPopPhSync(){
+  try{phPopRender();}catch(e){}
+  const row=document.getElementById('wxp-city-row');if(!row)return;
+  const p=cur(),city=state.cities&&state.cities[cityIdx];
+  const ok=!!(p&&p.wxPhoto!==false&&city&&_wxPhCur);
+  row.classList.toggle('off',!ok);
+  const cnt=document.getElementById('wxp-city-count');
+  const n=_wxPhList.length,i=_wxPhList.indexOf(_wxPhCur);
+  cnt.textContent=!city?'No city':(p&&p.wxPhoto===false)?'City photo is off':(n&&i>=0?`${city.name} · ${i+1} / ${n}`:city.name);
+}
+{const _rsA=renderSettings;renderSettings=function(){const r=_rsA.apply(this,arguments);try{npArtPopSync();}catch(e){}return r;};}
+{const _ncA=npChange;npChange=function(){const r=_ncA.apply(this,arguments);try{npArtPopSync();}catch(e){}return r;};}
+{const _sp=syncWxPop;syncWxPop=function(){const r=_sp.apply(this,arguments);try{wxPopPhSync();}catch(e){}return r;};}
+
+// ── Click on the city / artist photo: small window to change it ──
+let _phKind='',_phSig='';
+function phEl(){
+  let e=document.getElementById('ph-pop');if(e)return e;
+  e=document.createElement('div');e.id='ph-pop';
+  e.innerHTML='<div class="php-head"><span class="php-title" id="php-title"></span><button onclick="phPopClose()" title="Close">✕</button></div>'
+   +'<div class="php-grid" id="php-grid"></div>'
+   +'<div class="php-row"><button onclick="phPopStep(-1)" title="Previous photo">‹</button><button onclick="phPopStep(1)" title="Next photo">›</button><span class="php-note" id="php-count"></span></div>';
+  document.body.appendChild(e);return e;
+}
+function phPopClose(){const e=document.getElementById('ph-pop');if(e)e.style.display='none';_phKind='';_phSig='';}
+function phPopOpen(kind,x,y){
+  const e=phEl();_phKind=kind;_phSig='';e.style.display='block';
+  phPopRender();
+  const w=e.offsetWidth,h=e.offsetHeight,vw=document.documentElement.clientWidth,vh=window.innerHeight;
+  e.style.left=Math.max(8,Math.min(vw-w-8,x+14))+'px';e.style.top=Math.max(8,Math.min(vh-h-8,y+14))+'px';
+}
+function phThumb(u){return /upload\.wikimedia\.org\/wikipedia\/commons\/thumb\//.test(u)?u.replace(/\/\d+px-/,'/250px-'):u;}
+function phPopStep(d){if(_phKind==='art')npArtistStep(d);else if(_phKind==='city')wxPhotoStep(d);}
+function phPopPick(u){if(_phKind==='art')npArtistSet(u);else if(_phKind==='city')wxPhotoSet(u);}
+function phPopRender(){
+  const e=document.getElementById('ph-pop');if(!e||e.style.display==='none'||!_phKind)return;
+  const g=id=>document.getElementById(id);let list=[],cur='',title='',note='';
+  if(_phKind==='art'){
+    const o=_npLastO,img=document.getElementById('np-artist-img');cur=(img&&img.getAttribute('src'))||'';
+    title='Artist photo'+(o&&o.artist?' · '+o.artist:'');
+    const k=npArtKeyOf(o);
+    if(o&&_npArtListKey===k)list=_npArtList;
+    else if(o&&o.artist){_npArtListKey=k;_npArtList=[];npArtistCandidates(o).then(l=>{if(npArtKeyOf(_npLastO)===k){_npArtList=l;phPopRender();}}).catch(()=>{});note='Looking for photos…';}
+    const i=list.indexOf(cur);if(list.length)note=(i>=0?(i+1)+' / ':'')+list.length+' photos';
+  }else{
+    const city=state.cities&&state.cities[cityIdx];list=_wxPhList;cur=_wxPhCur;
+    title='City photo'+(city?' · '+city.name:'');
+    const i=list.indexOf(cur);note=(list.length?(i>=0?(i+1)+' / ':'')+list.length+' photos':'No photos found');
+  }
+  g('php-title').textContent=title;g('php-count').textContent=note;
+  const sig=_phKind+'|'+list.join(',');
+  if(sig!==_phSig){
+    _phSig=sig;const grid=g('php-grid');grid.textContent='';
+    list.slice(0,16).forEach(u=>{const im=document.createElement('img');im.className='php-t';im.loading='lazy';im.dataset.u=u;im.src=phThumb(u);im.onerror=()=>{if(im.src!==u)im.src=u;};im.onclick=()=>phPopPick(u);grid.appendChild(im);});
+  }
+  g('php-grid').querySelectorAll('.php-t').forEach(im=>im.classList.toggle('cur',im.dataset.u===cur));
+}
+// where (0 = centre of the visible part, 1 = edge) a click lies on a photo; null if it is not on that photo
+function phHitOf(bg,on,x,y){
+  if(!bg||!on||getComputedStyle(bg).display==='none'||!bg.classList.contains('on'))return null;
+  const r=bg.getBoundingClientRect();if(!r.width||!r.height)return null;
+  const pf=n=>parseFloat(bg.style.getPropertyValue(n))/100;
+  const cx=r.left+(pf('--mcx')||0.5)*r.width,cy=r.top+(pf('--mcy')||0.5)*r.height,rx=(pf('--mrx')||0.5)*r.width,ry=(pf('--mry')||0.5)*r.height;
+  const d=Math.hypot((x-cx)/rx,(y-cy)/ry);
+  return d<0.72?d:null;
+}
+document.addEventListener('click',ev=>{
+  try{
+    const t=ev.target;
+    if(ev.defaultPrevented||!t||!t.closest||(window.getSelection&&String(window.getSelection()).length))return;
+    const pop=document.getElementById('ph-pop');
+    if(pop&&pop.style.display!=='none'){if(!pop.contains(t))phPopClose();return;}   // a click outside just closes it
+    if(t.closest('a,button,input,select,textarea,label,summary,[onclick],[contenteditable],[tabindex],[role=button],.modal,#weather-modal'))return;
+    if([...document.querySelectorAll('.modal,#weather-modal')].some(m=>getComputedStyle(m).display!=='none'))return;
+    const na=document.getElementById('np-area'),wa=document.getElementById('weather-area');
+    const da=phHitOf(na&&na.querySelector('.np-artist-bg'),na&&na.classList.contains('np-art-on'),ev.clientX,ev.clientY);
+    const dc=phHitOf(wa&&wa.querySelector('.wx-photo-bg'),wa&&wa.classList.contains('wx-ph-on'),ev.clientX,ev.clientY);
+    if(da===null&&dc===null)return;
+    phPopOpen(dc===null||(da!==null&&da<=dc)?'art':'city',ev.clientX,ev.clientY);
+  }catch(e){}
+});
+document.addEventListener('keydown',ev=>{if(ev.key==='Escape')phPopClose();});
+
+// Fade zones (% of the photo) for each widget position. The side facing the screen edge keeps a soft fade only where it is open:
+// bottom-left fades more on the right and top; bottom-right more on the left and top; bottom-middle fades everything except the bottom; top-middle everything except the top.
+function phZones(pos,k,edge){
+  k=k||1;   // edge=false: the photo is not stuck to the left/right page edge, it fades all round (used by the artist photo)
+  // 0 = this side sits against the edge of the page: it is not faded. Every other side fades away in an ellipse.
+  // left: the left page edge stays solid; right: the right page edge; top-middle: the top page edge. The bottom now fades too, so the photo sits higher.
+  const z={l:pos==='left'&&edge!==false?0:1,r:pos==='right'&&edge!==false?0:1,t:pos==='top'?0:1,b:1};
+  z.p=Math.round(30/k);   // size of the fully visible core (% of the radius); a bigger k = a softer, earlier fade
+  return z;
+}
+function phSetZones(el,z){
+  const S=(n,v)=>el.style.setProperty(n,v);
+  S('--zl',z.l+'%');S('--zr',z.r+'%');S('--zt',z.t+'%');S('--zb',z.b+'%');
+  // the ellipse is centred on the photo, or on a page-edge side so that side stays solid
+  const fx=z.l===0?0:z.r===0?100:50,fy=z.t===0?0:z.b===0?100:50;
+  S('--mcx',fx+'%');S('--mcy',fy+'%');
+  S('--mrx',(fx===50?50:100)+'%');S('--mry',(fy===50?50:100)+'%');
+  S('--mp',(z.p||25)+'%');
+}
+// Keeps a photo on screen: when it would run past a screen edge it slides back inside (by up to 60% of its size).
+// A photo with an unfaded bottom (or top) is set flush against the bottom (or top) of the screen.
+function phFit(bg,pre){
+  if(!bg||getComputedStyle(bg).display==='none')return;
+  bg.style.setProperty('--'+pre+'-dx','0px');bg.style.setProperty('--'+pre+'-dy','0px');
+  const r=bg.getBoundingClientRect();if(!r.width||!r.height)return;
+  const M=6,vw=document.documentElement.clientWidth,vh=window.innerHeight;
+  let dx=0,dy=0;
+  if(r.left<M)dx=M-r.left;else if(r.right>vw-M)dx=(vw-M)-r.right;
+  if(r.top<M)dy=M-r.top;else if(r.bottom>vh-M)dy=(vh-M)-r.bottom;
+  const mx=r.width*0.6,my=r.height*0.6;
+  dx=Math.max(-mx,Math.min(mx,dx));dy=Math.max(-my,Math.min(my,dy));
+  const zt=parseFloat(bg.style.getPropertyValue('--zt')),zb=parseFloat(bg.style.getPropertyValue('--zb'));
+  if(zt===0)dy=Math.max(-my,Math.min(my,-r.top));
+  else if(zb===0)dy=Math.max(-my,Math.min(my,vh-r.bottom));
+  else dy=Math.max(M-r.top,dy-r.height*0.16);   // not flush with the bottom any more: lift the photo so the upper part of the picture shows
+  const zl=parseFloat(bg.style.getPropertyValue('--zl')),zr=parseFloat(bg.style.getPropertyValue('--zr'));
+  if(zl===0)dx=Math.max(-mx,Math.min(mx,-r.left));else if(zr===0)dx=Math.max(-mx,Math.min(mx,vw-r.right));
+  bg.style.setProperty('--'+pre+'-dx',Math.round(dx)+'px');bg.style.setProperty('--'+pre+'-dy',Math.round(dy)+'px');
+}
+function npArtFit(){const ar=document.getElementById('np-area'),bg=ar&&ar.querySelector('.np-artist-bg');if(bg&&ar.classList.contains('np-art-on'))phFit(bg,'np-art');}
+function wxPhFit(){const ar=document.getElementById('weather-area'),bg=ar&&ar.querySelector('.wx-photo-bg');if(bg&&ar.classList.contains('wx-ph-on'))phFit(bg,'wx-ph');}
+{const _na=npApply;npApply=function(){const r=_na.apply(this,arguments);try{const p=cur(),bg=document.querySelector('#np-area .np-artist-bg');if(p&&bg)phSetZones(bg,phZones(plGet(p,'np'),1.35,false));}catch(e){}requestAnimationFrame(()=>{npArtFit();requestAnimationFrame(npArtFit);});return r;};}
+window.addEventListener('resize',()=>requestAnimationFrame(()=>{npArtFit();wxPhFit();}));
+
+// ── No city yet: the weather spot shows an "Add City" button that opens the city search ──
+function wxEmptyState(on){const wa=document.getElementById('weather-area');if(!wa)return;wa.classList.toggle('wx-empty',!!on);if(on&&!wa.classList.contains('weather-hidden'))wa.classList.add('weather-loaded');}
+function wxAddCityOpen(){
+  const b=document.getElementById('wx-addcity');if(!b)return;
+  if(typeof _wxPopOpen!=='undefined'&&_wxPopOpen){closeWxPop();return;}
+  openWeatherPopover(b);   // the same small popup used to manage the weather cities
+  setTimeout(()=>{const i=document.getElementById('city-search-input');if(i)i.focus();},40);
+}
+{const _sar3=saveAndRender;saveAndRender=function(){const r=_sar3.apply(this,arguments);try{const p=cur();wxEmptyState(!(state.cities&&state.cities.length)&&!!(p&&p.showWeather));}catch(e){}return r;};}
 
 var _topH=-1;
 try{const _ts=document.getElementById('top-stack');if(_ts&&window.ResizeObserver)new ResizeObserver(()=>{const h=topStackH();if(h!==_topH){_topH=h;try{applyScaling(true);}catch(e){}}else{try{topAlign();if(_lastKey===null)applyScaling(true);}catch(e){}}}).observe(_ts);}catch(e){}
