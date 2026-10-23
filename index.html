@@ -26,6 +26,13 @@ body.page-ready{visibility:visible}
 .nav-link i{font-size:1.05rem;color:#fff;transition:0.3s;width:1.2rem;text-align:center}
 .nav-link:hover i{opacity:0.6}
 .ql-img-icon{object-fit:contain;border-radius:2px;width:1.05rem;height:1.05rem;display:block;flex-shrink:0}
+/* profile picker: hover the profile icon, the other profiles appear on a circle around it */
+#pc-pop{position:fixed;z-index:60;width:0;height:0;pointer-events:none}
+#pc-pop .pc-it{position:absolute;width:2rem;height:2rem;margin:-1rem 0 0 -1rem;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;pointer-events:auto;background:rgba(18,18,18,0.82);border:1px solid rgba(255,255,255,0.22);backdrop-filter:blur(8px);box-shadow:0 4px 14px rgba(0,0,0,0.45);opacity:0;transform:translate(var(--sx),var(--sy)) scale(0.3);transition:opacity .2s ease,transform .24s cubic-bezier(.2,.8,.3,1),border-color .15s;transition-delay:calc(var(--i)*35ms)}
+#pc-pop.on .pc-it{opacity:1;transform:translate(var(--x),var(--y)) scale(1)}
+#pc-pop .pc-it:hover{border-color:var(--modal-accent,#00d4ff);transform:translate(var(--x),var(--y)) scale(1.14)}
+#pc-pop .pc-it img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+#pc-pop .pc-it i{font-size:0.95rem;width:auto}
 #profile-nav-btn{overflow:hidden}
 #profile-nav-btn img{width:1.45rem!important;height:1.45rem!important;border-radius:50%;object-fit:cover;border:1px solid rgba(255,255,255,0.2)}
 #main-content{flex-grow:1;display:flex;align-items:center;justify-content:center;width:100%;overflow:hidden;padding:1vh}
@@ -212,10 +219,8 @@ body.ll-noselect,body.ll-noselect *{user-select:none!important;-webkit-user-sele
 #weather-area .wx-addcity:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.5);color:#fff}
 #weather-area.wx-empty .wx-addcity{display:inline-flex}
 #weather-area.wx-empty .weather-bg-wrap{display:none}
-.wx-photo-bg{display:none;position:absolute;z-index:-1;pointer-events:none;left:50%;top:50%;margin-left:var(--wx-ph-dx,0px);margin-top:var(--wx-ph-dy,0px);width:max(200%,390px);height:max(280%,200px);transform:translate(-50%,-50%) scale(var(--wx-ph-s,0.75))}
-.wx-photo-bg img{width:100%;height:100%;object-fit:cover;object-position:50% 30%;filter:saturate(1.1)}
-/* Classic: the photo hugs the weather field (a small soft bleed only). Compact keeps the wide spread above. */
-#weather-area:not(.wx-ph-compact) .wx-photo-bg{width:128%;height:215%;transform:translate(-50%,-50%) scale(calc(var(--wx-ph-s,0.75) / 0.75))}
+.wx-photo-bg{display:none;position:absolute;z-index:-1;pointer-events:none;left:50%;top:50%;margin-left:var(--wx-ph-dx,0px);margin-top:var(--wx-ph-dy,0px);width:840px;height:504px;transform:translate(-50%,-50%) scale(var(--wx-ph-s,0.65))}
+.wx-photo-bg img{width:100%;height:100%;object-fit:cover;object-position:50% var(--wx-ph-y,100%);filter:saturate(1.1)}
 /* city / artist photo rows in the small weather pop-up */
 .ph-pop-row{display:flex;align-items:center;gap:6px;margin-bottom:6px}
 .ph-pop-lab{font-size:0.75rem;color:#888;width:44px;flex:none}
@@ -227,7 +232,8 @@ body.ll-noselect,body.ll-noselect *{user-select:none!important;-webkit-user-sele
 #ph-pop .php-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
 #ph-pop .php-title{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
 #ph-pop button{width:auto;min-width:30px;height:26px;padding:0 8px;margin:0;font-size:0.8rem;line-height:1}
-#ph-pop .php-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:8px;min-height:20px}
+#ph-pop .php-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:8px;min-height:20px;max-height:230px;overflow-y:auto;padding-right:3px;scrollbar-width:thin;scrollbar-color:#2a3238 transparent}
+#ph-pop .php-grid::-webkit-scrollbar{width:6px}#ph-pop .php-grid::-webkit-scrollbar-thumb{background:#2a3238;border-radius:3px}
 #ph-pop .php-t{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:5px;cursor:pointer;opacity:0.65;border:2px solid transparent;background:#1a2025;display:block}
 #ph-pop .php-t:hover{opacity:1}
 #ph-pop .php-t.cur{opacity:1;border-color:#00d4ff}
@@ -901,7 +907,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
           <div class="s-title">Now Playing</div>
           <label class="label-inline"><input type="checkbox" id="np-enable" onchange="npChange()"> Show Now Playing</label>
           <div id="np-sub">
-            <div class="s-field"><div class="s-lab">ListenBrainz username</div><input type="text" id="np-user" placeholder="ListenBrainz username" autocomplete="off" spellcheck="false" onchange="npChange()"></div>
+            <div class="s-field"><div class="s-lab">ListenBrainz username</div><input type="text" id="np-user" placeholder="ListenBrainz username" autocomplete="off" spellcheck="false" oninput="npUserTyped()" onchange="npUserTyped(true)"></div>
             <div class="inl-row"><button onclick="npTest()" style="width:auto;padding:0 14px;">Test connection</button><span id="np-msg" class="s-note" style="margin:0;"></span></div>
             <div class="s-field"><div class="s-lab">Position</div><div class="size-group" id="np-pos-group"><button class="size-btn" data-v="top" onclick="posSet('np','top')">Top middle</button><button class="size-btn" data-v="left" onclick="posSet('np','left')">Bottom left</button><button class="size-btn" data-v="center" onclick="posSet('np','center')">Bottom center</button><button class="size-btn" data-v="right" onclick="posSet('np','right')">Bottom right</button></div></div>
             <div class="inl-row nw">
@@ -939,8 +945,9 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
             <div class="s-field"><div class="s-lab">Position</div><div class="size-group" id="wx-pos-group"><button class="size-btn" data-v="top" onclick="posSet('wx','top')">Top middle</button><button class="size-btn" data-v="left" onclick="posSet('wx','left')">Bottom left</button><button class="size-btn" data-v="center" onclick="posSet('wx','center')">Bottom center</button><button class="size-btn" data-v="right" onclick="posSet('wx','right')">Bottom right</button></div></div>
             <div class="s-field"><label class="label-inline" title="A faded photo of the selected city appears behind the weather"><input type="checkbox" id="wx-photo-on" onchange="wxPhotoChange()"> City photo behind the weather</label>
               <div id="wx-photo-sub" style="margin-top:8px;">
+                <div class="color-row" style="margin-bottom:4px;"><span>City photo vertical position</span><span id="wx-photo-y-val" style="font-size:0.72rem;color:#888;">100%</span></div><input type="range" id="wx-photo-y" min="0" max="100" step="1" oninput="wxPhotoYChange()" style="width:100%;margin:0 0 10px;">
                 <div class="color-row" style="margin-bottom:4px;"><span>City photo intensity</span><span id="wx-photo-op-val" style="font-size:0.72rem;color:#888;">25%</span></div><input type="range" id="wx-photo-op" min="0.1" max="1" step="0.01" oninput="wxPhotoChange()" style="width:100%;margin-top:0;">
-                <div class="color-row" style="margin:10px 0 4px;"><span>City photo size</span><span id="wx-photo-sz-val" style="font-size:0.72rem;color:#888;">75%</span></div><input type="range" id="wx-photo-sz" min="0.4" max="2.5" step="0.05" oninput="wxPhotoChange()" style="width:100%;margin-top:0;">
+                <div class="color-row" style="margin:10px 0 4px;"><span>City photo size</span><span id="wx-photo-sz-val" style="font-size:0.72rem;color:#888;">65%</span></div><input type="range" id="wx-photo-sz" min="0.4" max="2.5" step="0.05" oninput="wxPhotoChange()" style="width:100%;margin-top:0;">
                 <div class="inl-row" style="margin-top:10px;"><button onclick="wxPhotoStep(-1)" style="width:auto;padding:0 12px;" title="Previous photo of this city">‹ Previous</button><button onclick="wxPhotoStep(1)" style="width:auto;padding:0 12px;" title="Next photo of this city">Next ›</button><span id="wx-photo-count" class="s-note" style="margin:0;"></span></div>
               </div>
             </div>
@@ -1377,8 +1384,9 @@ state.profiles.forEach(p=>{
   if(p.weatherStyle!=='compact')p.weatherStyle='classic';
   if(p.wAnim===undefined)p.wAnim=true;
   if(p.wTint===undefined)p.wTint=false;
-  if(!p.defV3){p.defV3=true;p.npGlow=false;p.wTint=false;p.npArtist=true;p.wxPhoto=true;p.npArtSize=1;p.wxPhotoSize=0.75;}
-  if(!p.defV4){p.defV4=true;p.npArtSize=1;}   /* one-time: artist photo size back to 100% */   /* one-time: apply the new defaults to profiles saved before them */
+  if(!p.defV3){p.defV3=true;p.npGlow=false;p.wTint=false;p.npArtist=true;p.wxPhoto=true;p.npArtSize=1;p.wxPhotoSize=0.65;}
+  if(!p.defV4){p.defV4=true;p.npArtSize=1;}   /* one-time: artist photo size back to 100% */
+  if(!p.defV6){p.defV6=true;p.wxPhotoSize=0.65;p.wxPhotoY=100;}   /* one-time: city photo size 65%, vertical position 100% */   /* one-time: apply the new defaults to profiles saved before them */
   if(p.wShowDay===undefined)p.wShowDay=true;
   if(p.wShowDate===undefined)p.wShowDate=true;
   if(!p.wDateFmt)p.wDateFmt='dmy';
@@ -1744,7 +1752,59 @@ window.addEventListener('resize',()=>applyScaling(true));
 new MutationObserver(()=>applyScaling()).observe(document.body,{attributes:true,attributeFilter:['class']});
 
 function switchProfile(idx){state.profile='p'+idx;_lastKey=null;_instantBg=true;saveAndRender();updateWeather();tickClock();if(document.getElementById('settings-modal').style.display==='flex')renderSettings();}
-function toggleProfile(){switchProfile((curIdx()+1)%state.profiles.length);}
+function toggleProfile(){pcHide();switchProfile((curIdx()+1)%state.profiles.length);}
+// ── Profile picker: pause the mouse on the profile icon and the other profiles open on a circle around it ──
+let _pcT=null,_pcC=null;
+function pcHide(){clearTimeout(_pcT);_pcT=null;clearTimeout(_pcC);_pcC=null;const e=document.getElementById('pc-pop');if(!e)return;e.classList.remove('on');setTimeout(()=>{if(!e.classList.contains('on'))e.remove();},300);}
+function pcLayout(cx,cy,vw,vh,n){
+  // finds the radius and angles that keep every icon on screen and splits them evenly along the free part of the circle
+  const M=22,N=360,T=Math.PI*2;let res=null;
+  for(let R=46;R<=130;R+=6){
+    const fl=[];for(let i=0;i<N;i++){const a=i*T/N,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R;fl.push(x>=M&&x<=vw-M&&y>=M&&y<=vh-M);}
+    let step,start;
+    if(fl.every(Boolean)){step=T/n;start=-Math.PI/2;}
+    else{
+      let best=0,bs=0;
+      for(let i=0;i<N;i++){if(!fl[i]||fl[(i+N-1)%N])continue;let L=0;while(L<N&&fl[(i+L)%N])L++;if(L>best){best=L;bs=i;}}
+      if(!best)continue;
+      const arc=(best-1)*T/N,a0=bs*T/N;
+      step=n>1?Math.min(arc/(n-1),0.95):0;start=a0+arc/2-(n-1)*step/2;
+    }
+    res={R,step,start};
+    if(n===1||2*R*Math.sin(Math.min(step,Math.PI)/2)>=38)break;
+  }
+  return res||{R:70,step:0.8,start:0};
+}
+function pcShow(){
+  const btn=document.getElementById('profile-nav-btn');if(!btn||state.profiles.length<3)return;
+  const old=document.getElementById('pc-pop');if(old)old.remove();
+  const others=state.profiles.map((q,i)=>i).filter(i=>i!==curIdx()),n=others.length;
+  const r=btn.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,vw=document.documentElement.clientWidth,vh=window.innerHeight;
+  const L=pcLayout(cx,cy,vw,vh,n);
+  const pop=document.createElement('div');pop.id='pc-pop';pop.style.left=cx+'px';pop.style.top=cy+'px';
+  others.forEach((pi,k)=>{
+    const q=state.profiles[pi],a=L.start+k*L.step,x=Math.cos(a)*L.R,y=Math.sin(a)*L.R;
+    const it=document.createElement('div');it.className='pc-it';it.title=(state.profileNames&&state.profileNames[pi])||('Profile '+(pi+1));
+    it.style.setProperty('--x',x+'px');it.style.setProperty('--y',y+'px');it.style.setProperty('--sx','0px');it.style.setProperty('--sy','0px');it.style.setProperty('--i',k);
+    if(q.profilePhoto){const im=document.createElement('img');im.alt='';im.src=q.profilePhoto;im.onerror=()=>{im.style.display='none';};it.appendChild(im);}
+    else{const ic=document.createElement('i');ic.className=q.profileIcon||'fa-solid fa-user';ic.style.color=q.profileIconColor||'#ffffff';it.appendChild(ic);}
+    it.onclick=ev=>{ev.stopPropagation();pcHide();switchProfile(pi);};
+    pop.appendChild(it);
+  });
+  document.body.appendChild(pop);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>pop.classList.add('on')));
+}
+document.addEventListener('mouseover',e=>{
+  const t=e.target&&e.target.closest?e.target.closest('#profile-nav-btn,#pc-pop'):null;if(!t)return;
+  clearTimeout(_pcC);_pcC=null;
+  if(t.id==='profile-nav-btn'&&!document.getElementById('pc-pop')&&!_pcT&&state.profiles.length>2)_pcT=setTimeout(()=>{_pcT=null;pcShow();},300);
+});
+document.addEventListener('mouseout',e=>{
+  const t=e.target&&e.target.closest?e.target.closest('#profile-nav-btn,#pc-pop'):null;if(!t)return;
+  const to=e.relatedTarget;if(to&&to.closest&&to.closest('#profile-nav-btn,#pc-pop'))return;
+  clearTimeout(_pcT);_pcT=null;clearTimeout(_pcC);_pcC=setTimeout(pcHide,380);
+});
+
 
 // Loads each Google font once, the first time any field uses it; re-measures the grid when it arrives.
 const _fontLinks=new Set(),_fontWait=[];
@@ -2615,13 +2675,19 @@ function renderProfileCards(){
   con.innerHTML=state.profiles.map((p,i)=>{
     const active=state.profile==='p'+i,name=state.profileNames[i]||'Profile '+(i+1);
     const acc='var(--modal-accent,#00d4ff)',ic=p.profileIcon||'fa-solid fa-user',icC=p.profileIconColor||'#ffffff';
-    return`<div style="border:1px solid ${active?acc:'#1e1e1e'};border-radius:10px;padding:11px 12px;margin-bottom:8px;background:${active?'rgba(var(--accent-rgb,0,212,255),0.04)':'#0d0d0d'};"><div style="display:flex;align-items:center;gap:8px;margin-bottom:9px;"><div style="width:26px;height:26px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;background:#111;">${p.profilePhoto?`<img src="${p.profilePhoto}" style="width:26px;height:26px;object-fit:cover;">`:`<i class="${ic}" style="font-size:0.80rem;color:${icC};"></i>`}</div><span style="font-size:0.78rem;font-weight:700;color:${active?acc:'#888'};flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${name}</span>${active?`<span style="font-size:0.62rem;color:${acc};background:rgba(var(--accent-rgb,0,212,255),0.12);padding:3px 8px;border-radius:6px;font-weight:700;border:1px solid rgba(var(--accent-rgb,0,212,255),0.25);">Active</span>`:`<button onclick="switchProfile(${i})" style="font-size:0.62rem;padding:3px 8px;color:${acc};border-color:rgba(var(--accent-rgb,0,212,255),0.3);background:rgba(var(--accent-rgb,0,212,255),0.06);width:auto;">Set Active</button>`}${state.profiles.length>1?`<button class="btn-icon" onclick="deleteProfile(${i})" style="color:#f44;"><i class="fa-solid fa-trash-can"></i></button>`:''}</div><div style="display:flex;gap:5px;margin-bottom:7px;align-items:center;"><input type="text" value="${name}" placeholder="Name..." style="height:26px;font-size:0.75rem;min-width:0;flex:1;" oninput="renameProfile(this.value,${i})"><button class="icon-picker-btn" onclick="event.stopPropagation();pipOpen(this,${i})" style="width:26px;height:26px;flex-shrink:0;"><i class="${ic}" style="color:${icC};font-size:0.80rem;"></i></button><div style="flex-shrink:0;"><input type="color" value="${icC}" oninput="updateProfileIconColor(this.value,${i})" style="display:none;width:28px!important;height:26px!important;"><div class="cp-swatch" onclick="cpOpenForProfile(${i})" style="margin:0;"></div></div></div><input type="text" value="${p.profilePhoto&&!p.profilePhoto.startsWith('data:')?p.profilePhoto:''}" placeholder="Photo URL..." oninput="updateProfilePhoto(this.value,${i})" style="height:26px;font-size:0.75rem;margin-bottom:6px;width:100%;box-sizing:border-box;"><div style="display:flex;gap:6px;"><button onclick="triggerPhotoUpload(${i})" style="font-size:0.70rem;padding:4px 8px;flex:1;">Upload</button><button style="color:#f88;font-size:0.70rem;padding:4px 8px;flex:1;" onclick="updateProfilePhoto('',${i})">Remove</button></div></div>`;
+    return`<div style="border:1px solid ${active?acc:'#1e1e1e'};border-radius:10px;padding:11px 12px;margin-bottom:8px;background:${active?'rgba(var(--accent-rgb,0,212,255),0.04)':'#0d0d0d'};"><div style="display:flex;align-items:center;gap:8px;margin-bottom:9px;"><div style="width:26px;height:26px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;background:#111;">${p.profilePhoto?`<img src="${p.profilePhoto}" style="width:26px;height:26px;object-fit:cover;">`:`<i class="${ic}" style="font-size:0.80rem;color:${icC};"></i>`}</div><span style="font-size:0.78rem;font-weight:700;color:${active?acc:'#888'};flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${name}</span>${active?`<span style="font-size:0.62rem;color:${acc};background:rgba(var(--accent-rgb,0,212,255),0.12);padding:3px 8px;border-radius:6px;font-weight:700;border:1px solid rgba(var(--accent-rgb,0,212,255),0.25);">Active</span>`:`<button onclick="switchProfile(${i})" style="font-size:0.62rem;padding:3px 8px;color:${acc};border-color:rgba(var(--accent-rgb,0,212,255),0.3);background:rgba(var(--accent-rgb,0,212,255),0.06);width:auto;">Set Active</button>`}${state.profiles.length>1?`<button class="btn-icon" onclick="deleteProfile(${i})" style="color:#f44;"><i class="fa-solid fa-trash-can"></i></button>`:''}</div><div style="display:flex;gap:5px;margin-bottom:7px;align-items:center;"><input type="text" value="${name}" placeholder="Name..." style="height:26px;font-size:0.75rem;min-width:0;flex:1;" oninput="renameProfile(this.value,${i})"><button class="icon-picker-btn" onclick="event.stopPropagation();pipOpen(this,${i})" style="width:26px;height:26px;flex-shrink:0;"><i class="${ic}" style="color:${icC};font-size:0.80rem;"></i></button><div style="flex-shrink:0;"><input type="color" id="prof-color-${i}" value="${icC}" oninput="updateProfileIconColor(this.value,${i})" style="display:none;width:28px!important;height:26px!important;"><div class="cp-swatch" onclick="cpOpenForProfile(${i})" style="margin:0;background:${icC};"></div></div></div><input type="text" value="${p.profilePhoto&&!p.profilePhoto.startsWith('data:')?p.profilePhoto:''}" placeholder="Photo URL..." oninput="updateProfilePhoto(this.value,${i})" style="height:26px;font-size:0.75rem;margin-bottom:6px;width:100%;box-sizing:border-box;"><div style="display:flex;gap:6px;"><button onclick="triggerPhotoUpload(${i})" style="font-size:0.70rem;padding:4px 8px;flex:1;">Upload</button><button style="color:#f88;font-size:0.70rem;padding:4px 8px;flex:1;" onclick="updateProfilePhoto('',${i})">Remove</button></div></div>`;
   }).join('');
 }
 function renameProfile(v,i){state.profileNames[i]=v;localStorage.setItem(KEY,JSON.stringify(state));}
 function deleteProfile(i){if(state.profiles.length<=1)return;state.profiles.splice(i,1);state.profileNames.splice(i,1);state.profile='p0';saveAndRender();renderSettings();}
-function updateProfileIconColor(v,i){state.profiles[i].profileIconColor=v;if(state.profile==='p'+i)saveAndRender();else{localStorage.setItem(KEY,JSON.stringify(state));renderProfileCards();}}
-function cpOpenForProfile(i){const card=document.querySelectorAll('#profile-cards-list > div')[i];if(!card)return;const inp=card.querySelector('input[type="color"]');if(inp){inp.id='prof-color-tmp';cpOpen('prof-color-tmp');}}
+function updateProfileIconColor(v,i){
+  state.profiles[i].profileIconColor=v;
+  // update this card in place (re-drawing the cards here would destroy the colour picker you are still using)
+  const card=document.querySelectorAll('#profile-cards-list > div')[i];
+  if(card){card.querySelectorAll('i:not(.fa-trash-can)').forEach(e=>{e.style.color=v;});const sw=card.querySelector('.cp-swatch');if(sw)sw.style.background=v;}
+  if(state.profile==='p'+i)saveAndRender();else localStorage.setItem(KEY,JSON.stringify(state));
+}
+function cpOpenForProfile(i){cpOpen('prof-color-'+i);}   // every profile has its own colour input id
 function updateProfilePhoto(v,i){state.profiles[i].profilePhoto=v;if(state.profile==='p'+i)saveAndRender();else{localStorage.setItem(KEY,JSON.stringify(state));}renderProfileCards();}
 let _ppIdx=null;
 function triggerPhotoUpload(i){_ppIdx=i;document.getElementById('profile-photo-file').click();}
@@ -2889,7 +2955,7 @@ function npArtStore(){try{return JSON.parse(localStorage.getItem(NP_AV))||{};}ca
 function npArtSave(k,u){const c=npArtStore();c[k]={u:u,t:Date.now()};const ks=Object.keys(c);if(ks.length>80)ks.sort((a,b)=>c[a].t-c[b].t).slice(0,ks.length-80).forEach(x=>delete c[x]);try{localStorage.setItem(NP_AV,JSON.stringify(c));}catch(e){}}
 /* Deezer's blank 'no photo' silhouette (empty-hash URL) and Discogs' spacer are never real artist photos */
 const npIsPh=u=>!u||/d41d8cd98f00b204e9800998ecf8427e|\/artist\/\/|spacer\.gif/i.test(String(u));
-function npImgOk(u,ms){return new Promise(res=>{const i=new Image();const t=setTimeout(()=>{i.onload=i.onerror=null;res(false);},ms||9000);i.onload=()=>{clearTimeout(t);res(i.naturalWidth>=300);};i.onerror=()=>{clearTimeout(t);res(false);};i.src=u;});}
+function npImgOk(u,ms,min){return new Promise(res=>{const i=new Image();const t=setTimeout(()=>{i.onload=i.onerror=null;res(false);},ms||9000);i.onload=()=>{clearTimeout(t);res(i.naturalWidth>=(min==null?300:min));};i.onerror=()=>{clearTimeout(t);res(false);};i.src=u;});}
 function npArtSources(artist,mbid){
   const enc=encodeURIComponent,N=_npNorm;
   return[
@@ -3100,6 +3166,18 @@ function posSet(who,v){
   if(v!=='top')['clock','wx','np'].forEach(o=>{if(o!==who&&plOn(p,o)&&plGet(p,o)===v)p[PL_KEYS[o]]=old;});   // whoever sits in that spot swaps places with this one
   p[PL_KEYS[who]]=v;saveAndRender();npSync();_lastKey=null;try{applyScaling(true);}catch(e){}
 }
+let _npUserT=null;
+function npUserTyped(now){
+  clearTimeout(_npUserT);
+  const go=()=>{
+    const p=cur(),g=id=>document.getElementById(id);if(!p)return;
+    const v=g('np-user').value.trim();
+    if(v&&!npIdent(p)&&!p.showNP){g('np-enable').checked=true;}   // first username entered: Now Playing turns on by itself
+    npChange();
+    if(v){const m=g('np-msg');if(m){m.textContent='';}npTest();}
+  };
+  if(now===true)go();else _npUserT=setTimeout(go,700);
+}
 function npChange(){
   const p=cur(),g=id=>document.getElementById(id);
   p.showNP=g('np-enable').checked;p.npUser=g('np-user').value.trim();
@@ -3132,15 +3210,52 @@ function wxPhStore(){try{return JSON.parse(localStorage.getItem(WX_PV))||{};}cat
 function wxPhSave(k,l){const c=wxPhStore();c[k]={l:l,t:Date.now()};const ks=Object.keys(c);if(ks.length>40)ks.sort((a,b)=>c[a].t-c[b].t).slice(0,ks.length-40).forEach(x=>delete c[x]);try{localStorage.setItem(WX_PV,JSON.stringify(c));}catch(e){}}
 // the photo you settle on is remembered by city NAME, so deleting and re-adding a city brings the same photo back
 function wxPickAll(){try{return JSON.parse(localStorage.getItem(WX_PK))||{};}catch(e){return{};}}
-function wxPickGet(city){return wxPickAll()[_npNorm(city.name)]||'';}
-function wxPickSet(city,u){const a=wxPickAll();a[_npNorm(city.name)]=u;try{localStorage.setItem(WX_PK,JSON.stringify(a));}catch(e){}}
+const wxPickK=city=>_npNorm(city.name);
+function wxPickGet(city){return wxPickAll()[wxPickK(city)]||'';}
+function wxPickSet(city,u){const a=wxPickAll();a[wxPickK(city)]=u;try{localStorage.setItem(WX_PK,JSON.stringify(a));}catch(e){}}
 function wxMigratePicks(){   // keeps the photo you already see for each city
   const st=wxPhStore(),pk=wxPickAll();let ch=false;
   Object.keys(st).forEach(k=>{if(k.startsWith('v2|')&&st[k].u){const nm=k.split('|').slice(2).join('|');if(nm&&!pk[nm]){pk[nm]=st[k].u;ch=true;}}});
   if(ch)try{localStorage.setItem(WX_PK,JSON.stringify(pk));}catch(e){}
 }
+
+async function wxCityImagesAlt(city,src){
+  const key='v5|'+src+'|'+city.lat+','+city.lon+'|'+_npNorm(city.name),c=wxPhStore()[key],day=864e5,p=cur();
+  if(c&&Array.isArray(c.l)&&Date.now()-c.t<(c.l.length?30*day:day))return c.l;
+  const out=[],add=u=>{if(u&&!out.includes(u)&&out.length<20)out.push(u);},enc=encodeURIComponent,nm=city.name,n=_npNorm(nm);
+  if(src==='wikivoyage'){
+    const api='https://en.wikivoyage.org/w/api.php',q=async x=>(await fetch(api+'?'+x+'&format=json&origin=*')).json(),fix=t=>String(t).replace(/_/g,' ');
+    const BAD=/\.svg|\.gif|flag|coat[ _]of|arms|seal|logo|map|locator|icon|symbol|stamp|emblem|wikivoyage|commons-logo|disambig/i;
+    let pg=null;
+    const g=await q('action=query&list=geosearch&gscoord='+city.lat+'%7C'+city.lon+'&gsradius=10000&gslimit=20');
+    const hit=((g.query||{}).geosearch||[]).find(x=>{const t=_npNorm(String(x.title).replace(/\(.*?\)/g,' '));return t===n||t.startsWith(n+' ')||n.startsWith(t+' ');});
+    if(hit)pg=hit.title;
+    else{const r=await q('action=query&list=search&srlimit=5&srsearch='+enc(nm));const m=((r.query||{}).search||[]).find(x=>_npNorm(x.title)===n);if(m)pg=m.title;}
+    if(!pg)return[];
+    const r=await q('action=query&prop=pageimages%7Cimages&piprop=thumbnail&pithumbsize=1600&imlimit=100&titles='+enc(pg));
+    const page=Object.values((r.query||{}).pages||{})[0]||{};
+    const lead=page.thumbnail&&page.thumbnail.source;
+    const files=(page.images||[]).map(i=>fix(i.title)).filter(t=>/\.jpe?g$/i.test(t)&&!BAD.test(t));
+    for(let i=0;i<files.length;i+=40){
+      const j=await q('action=query&prop=imageinfo&iiprop=url%7Csize&iiurlwidth=1600&titles='+enc(files.slice(i,i+40).join('|')));
+      Object.values((j.query||{}).pages||{}).map(x=>(x.imageinfo||[])[0]).filter(x=>x&&x.thumburl&&x.width>=1400&&x.width/x.height>=1.3).forEach(x=>add(x.thumburl));
+    }
+    if(lead&&!/\.svg/i.test(lead))add(lead);
+  }else if(src==='unsplash'){
+    const k=p.unsplashKey||UNSPLASH_KEY;if(!k)return[];
+    const r=await fetch('https://api.unsplash.com/search/photos?per_page=20&orientation=landscape&content_filter=high&query='+enc(nm)+'&client_id='+enc(k));if(!r.ok)throw 0;
+    ((await r.json()).results||[]).filter(x=>x.width>=2000).forEach(x=>add(x.urls&&x.urls.regular));
+  }
+  wxPhSave(key,out);return out;
+}
+function wxPhotoYChange(){const p=cur(),g=document.getElementById('wx-photo-y');if(!p||!g)return;p.wxPhotoY=parseFloat(g.value);document.getElementById('wx-photo-y-val').textContent=Math.round(p.wxPhotoY)+'%';saveAndRender();}
 // All usable photos of the city, best first. The article is found by the city's coordinates and must carry the city's name.
 async function wxCityImages(city){
+  const rs=await Promise.all([wxCityImagesAlt(city,'unsplash'),wxCityImagesAlt(city,'wikivoyage'),wxCityImagesWiki(city)].map(x=>x.catch(()=>[]))),out=[];
+  rs.forEach(l=>(l||[]).forEach(u=>{if(u&&!out.includes(u)&&out.length<60)out.push(u);}));
+  return out;   // best first: Unsplash (needs your key), then Wikivoyage, then Wikipedia
+}
+async function wxCityImagesWiki(city){
   const key='v3|'+city.lat+','+city.lon+'|'+_npNorm(city.name),c=wxPhStore()[key],day=864e5;
   if(c&&Array.isArray(c.l)&&Date.now()-c.t<(c.l.length?30*day:day))return c.l;
   const norm=_npNorm,n=norm(city.name),api='https://en.wikipedia.org/w/api.php',out=[],add=u=>{if(u&&!out.includes(u)&&out.length<12)out.push(u);};
@@ -3181,7 +3296,7 @@ async function wxPhotoApply(){
   const p=cur(),area=document.getElementById('weather-area');if(!area||!p)return;
   const on=!!(p.wxPhoto!==false&&p.showWeather);
   area.classList.toggle('wx-ph-on',on);area.classList.toggle('wx-ph-compact',wxSty(p)==='compact');
-  area.style.setProperty('--wx-ph-a',p.wxPhotoOp??0.25);area.style.setProperty('--wx-ph-s',p.wxPhotoSize??0.75);
+  area.style.setProperty('--wx-ph-a',p.wxPhotoOp??0.25);area.style.setProperty('--wx-ph-s',p.wxPhotoSize??0.65);area.style.setProperty('--wx-ph-y',(p.wxPhotoY??100)+'%');
   if(!on)return;
   const city=state.cities&&state.cities[cityIdx],bg=area.querySelector('.wx-photo-bg'),img=document.getElementById('wx-photo-img');if(!city||!bg||!img)return;
   phSetZones(bg,phZones(plGet(p,'wx'),1.35,false));requestAnimationFrame(()=>requestAnimationFrame(wxPhFit));
@@ -3224,8 +3339,8 @@ function wxPhotoChange(){
 }
 function wxPhotoSync(){
   const p=cur(),g=id=>document.getElementById(id);if(!p||!g('wx-photo-on'))return;
-  g('wx-photo-on').checked=p.wxPhoto!==false;g('wx-photo-op').value=p.wxPhotoOp??0.25;g('wx-photo-sz').value=p.wxPhotoSize??0.75;
-  wxPhotoCount();g('wx-photo-op-val').textContent=Math.round((p.wxPhotoOp??0.25)*100)+'%';g('wx-photo-sz-val').textContent=Math.round((p.wxPhotoSize??0.75)*100)+'%';g('wx-photo-sub').style.opacity=p.wxPhoto!==false?'1':'0.45';
+  g('wx-photo-on').checked=p.wxPhoto!==false;g('wx-photo-op').value=p.wxPhotoOp??0.25;g('wx-photo-sz').value=p.wxPhotoSize??0.65;
+  wxPhotoCount();try{g('wx-photo-y').value=p.wxPhotoY??100;g('wx-photo-y-val').textContent=Math.round(p.wxPhotoY??100)+'%';}catch(e){}g('wx-photo-op-val').textContent=Math.round((p.wxPhotoOp??0.25)*100)+'%';g('wx-photo-sz-val').textContent=Math.round((p.wxPhotoSize??0.65)*100)+'%';g('wx-photo-sub').style.opacity=p.wxPhoto!==false?'1':'0.45';
 }
 {const _sar2=saveAndRender;saveAndRender=function(){const r=_sar2.apply(this,arguments);try{wxPhotoApply();}catch(e){}return r;};}
 {const _uw=updateWeather;updateWeather=function(){const r=_uw.apply(this,arguments);try{wxPhotoApply();}catch(e){}return r;};}
@@ -3254,7 +3369,7 @@ async function npArtistSet(u){
   const o=_npLastO,img=document.getElementById('np-artist-img'),bg=document.querySelector('#np-area .np-artist-bg');
   if(!o||!o.artist||!img||!bg||!u)return;
   const seq=++_npArtStepSeq,k=npArtKeyOf(o);
-  if(!await npImgOk(u,12000)){_npArtBad.add(u);return;}
+  if(!await npImgOk(u,15000,1)&&!await npImgOk(u,15000,1)){npArtMsg('Could not load that photo');try{const c=document.getElementById('php-count');if(c)c.textContent='Could not load that photo';}catch(e){}return;}
   if(seq!==_npArtStepSeq)return;
   bg.classList.remove('on');
   img.onload=()=>{if(seq===_npArtStepSeq)bg.classList.add('on');npArtPopSync();};
@@ -3266,7 +3381,7 @@ async function wxPhotoSet(u){
   const city=state.cities&&state.cities[cityIdx],bg=document.querySelector('#weather-area .wx-photo-bg'),img=document.getElementById('wx-photo-img');
   if(!city||!bg||!img||!u)return;
   const seq=++_wxPhSt;
-  if(!await npImgOk(u))return;
+  if(!await npImgOk(u,15000,1)&&!await npImgOk(u,15000,1)){try{const c=document.getElementById('php-count');if(c)c.textContent='Could not load that photo';}catch(e){}return;}
   if(seq!==_wxPhSt)return;
   _wxPhCur=u;wxPickSet(city,u);wxPhotoCount();bg.classList.remove('on');
   img.onload=()=>{if(seq===_wxPhSt)bg.classList.add('on');};img.src=u;
@@ -3329,7 +3444,7 @@ function wxPopPhSync(){
 {const _sp=syncWxPop;syncWxPop=function(){const r=_sp.apply(this,arguments);try{wxPopPhSync();}catch(e){}return r;};}
 
 // ── Click on the city / artist photo: small window to change it ──
-let _phKind='',_phSig='';
+let _phKind='',_phSig='',_phScrolled='';
 function phEl(){
   let e=document.getElementById('ph-pop');if(e)return e;
   e=document.createElement('div');e.id='ph-pop';
@@ -3367,9 +3482,9 @@ function phPopRender(){
   const sig=_phKind+'|'+list.join(',');
   if(sig!==_phSig){
     _phSig=sig;const grid=g('php-grid');grid.textContent='';
-    list.slice(0,16).forEach(u=>{const im=document.createElement('img');im.className='php-t';im.loading='lazy';im.dataset.u=u;im.src=phThumb(u);im.onerror=()=>{if(im.src!==u)im.src=u;};im.onclick=()=>phPopPick(u);grid.appendChild(im);});
+    list.slice(0,60).forEach(u=>{const im=document.createElement('img');im.className='php-t';im.loading='lazy';im.dataset.u=u;im.src=phThumb(u);im.onerror=()=>{if(im.src!==u)im.src=u;};im.onclick=()=>phPopPick(u);grid.appendChild(im);});
   }
-  g('php-grid').querySelectorAll('.php-t').forEach(im=>im.classList.toggle('cur',im.dataset.u===cur));
+  g('php-grid').querySelectorAll('.php-t').forEach(im=>{const c=im.dataset.u===cur;im.classList.toggle('cur',c);if(c&&_phSig!==_phScrolled){_phScrolled=_phSig;im.scrollIntoView({block:'nearest'});}});
 }
 // where (0 = centre of the visible part, 1 = edge) a click lies on a photo; null if it is not on that photo
 function phHitOf(bg,on,x,y){
