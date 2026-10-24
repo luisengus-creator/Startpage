@@ -240,6 +240,9 @@ body.ll-noselect,body.ll-noselect *{user-select:none!important;-webkit-user-sele
 #ph-pop .php-t.cur{opacity:1;border-color:#00d4ff}
 #ph-pop .php-row{display:flex;align-items:center;gap:6px;margin-top:6px}
 #ph-pop .php-row select{flex:1;min-width:0;height:26px;font-size:0.78rem}
+#ph-pop .php-add{display:flex;gap:6px;margin-top:8px}
+#ph-pop .php-add input{flex:1;min-width:0;height:26px;box-sizing:border-box;padding:0 8px;font-size:0.74rem;background:#151b20;border:1px solid #2a3238;border-radius:6px;color:#ddd;outline:none}
+#ph-pop .php-add input:focus{border-color:#00d4ff}
 #ph-pop .php-size{margin-top:6px;font-size:0.7rem;color:#8a949c;text-align:left}
 .php-note{flex:1;color:#8a949c;font-size:0.72rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wx-photo-bg img:not([src]){display:none}
@@ -2762,9 +2765,10 @@ function delLink(ci,li){cur().categories[ci].links.splice(li,1);saveAndRender();
 function addProfile(){state.profiles.push(mkProf(mkCats(5,'Category'),'m'));state.profileNames.push('Profile '+state.profiles.length);saveAndRender();renderSettings();}
 
 // photo choices live outside the main settings: the city photo you settled on, the artist photo you settled on, and the cached photo lists / lookups
-const PHOTO_MEM_KEYS=['STARTPAGE_CITYPICK','STARTPAGE_NP_ARTFAV','STARTPAGE_NP_ARTISTS','STARTPAGE_CITYIMG','STARTPAGE_NP_ARTLIST','STARTPAGE_NP_COVERS','STARTPAGE_PHSIZES'];
+const PHOTO_MEM_KEYS=['STARTPAGE_CITYPICK','STARTPAGE_NP_ARTFAV','STARTPAGE_NP_ARTISTS','STARTPAGE_CITYIMG','STARTPAGE_NP_ARTLIST','STARTPAGE_NP_COVERS','STARTPAGE_PHSIZES','STARTPAGE_PHCUSTOM'];
 function importPhotoMemory(pm){if(!pm||typeof pm!=='object')return;PHOTO_MEM_KEYS.forEach(k=>{if(typeof pm[k]!=='string')return;try{const inc=JSON.parse(pm[k])||{},old=JSON.parse(localStorage.getItem(k))||{};localStorage.setItem(k,JSON.stringify(Object.assign({},old,inc)));}catch(e){}});try{localStorage.setItem('STARTPAGE_ART_V10','1');}catch(e){}_wxPhKey=null;_npArtKey=null;}
-function exportData(){const now=new Date();const pad=n=>String(n).padStart(2,'0');const stamp=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}`;const pm={};PHOTO_MEM_KEYS.forEach(k=>{try{const v=localStorage.getItem(k);if(v)pm[k]=v;}catch(e){}});const b=new Blob([JSON.stringify(Object.assign({},state,{photoMemory:pm}))],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`startpage_backup_${stamp}.json`;a.click();}
+function backupObj(){const pm={};PHOTO_MEM_KEYS.forEach(k=>{try{const v=localStorage.getItem(k);if(v)pm[k]=v;}catch(e){}});return Object.assign({},state,{photoMemory:pm});}
+function exportData(){const now=new Date();const pad=n=>String(n).padStart(2,'0');const stamp=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;const b=new Blob([JSON.stringify(backupObj())],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`startpage_backup_${stamp}.json`;a.click();}
 function importData(input){const file=input.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{try{const imp=JSON.parse(e.target.result);if(!imp.profiles&&!imp.home&&!imp.work){alert('Invalid backup.');return;}const base=getDefaults();['profile','target','linkColor','tabTitle','tabFavicon','tabFaviconEmoji'].forEach(k=>{if(imp[k]!==undefined)base[k]=imp[k];});if(Array.isArray(imp.cities)&&imp.cities.length)base.cities=imp.cities;if(Array.isArray(imp.profiles)&&imp.profiles.length){base.profiles=imp.profiles;base.profileNames=imp.profileNames||imp.profiles.map((_,i)=>'Profile '+(i+1));}const pi=parseInt((base.profile||'p0').replace('p',''));if(isNaN(pi)||pi>=base.profiles.length)base.profile='p0';base.profiles.forEach(p=>{if(p){migrateFonts(p);migrateClock(p);}if(p&&!['gradient','photo','unsplash','time'].includes(p.bgMode))p.bgMode='gradient';if(p&&!p.unsplashKey)p.unsplashKey=UNSPLASH_KEY;if(p&&p.unsplashDim===undefined)p.unsplashDim=0.1;if(p&&p.opTime===undefined)p.opTime=1.0;});if(!base.tabFaviconEmoji&&!base.tabFavicon)base.tabFaviconEmoji='⭐';state=base;localStorage.setItem(KEY,JSON.stringify(state));importPhotoMemory(imp.photoMemory);saveAndRender();renderSettings();updateWeather();try{if(typeof npSync==='function')npSync();}catch(e){}alert('Import successful!');closeModals();}catch(err){alert('Invalid backup: '+err.message);}};r.readAsText(file);input.value='';}
 function resetToDefaults(){if(confirm('Factory reset? This will erase everything.')){state=getDefaults();saveAndRender();renderSettings();updateWeather();}}
 function handleBgFile(input){const file=input.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{const canvas=document.createElement('canvas');const MAX=1920;let w=img.width,h=img.height;if(w>MAX){h*=MAX/w;w=MAX;}canvas.width=w;canvas.height=h;canvas.getContext('2d').drawImage(img,0,0,w,h);updateBgImg(canvas.toDataURL('image/jpeg',0.7));};img.src=e.target.result;};r.readAsDataURL(file);}
@@ -3463,15 +3467,46 @@ function phEl(){
   e.innerHTML='<div class="php-head"><span class="php-title" id="php-title"></span><button onclick="phPopClose()" title="Close">✕</button></div>'
    +'<div class="php-grid" id="php-grid"></div>'
    +'<div class="php-row"><button onclick="phPopStep(-1)" title="Previous photo">‹</button><button onclick="phPopStep(1)" title="Next photo">›</button><span class="php-note" id="php-count"></span></div>'
-   +'<div class="php-size" id="php-size"></div>';
+   +'<div class="php-size" id="php-size"></div>'
+   +'<div class="php-add"><input id="php-url" type="text" placeholder="Paste an image link…" spellcheck="false" onkeydown="if(event.key===\'Enter\')phPopAddUrl()"><button onclick="phPopAddUrl()" title="Use this link">Add</button></div>';
   document.body.appendChild(e);return e;
 }
 function phPopClose(){const e=document.getElementById('ph-pop');if(e)e.style.display='none';_phKind='';_phSig='';}
+let _phClick=null;
 function phPopOpen(kind,x,y){
-  const e=phEl();_phKind=kind;_phSig='';e.style.display='block';
-  phPopRender();
-  const w=e.offsetWidth,h=e.offsetHeight,vw=document.documentElement.clientWidth,vh=window.innerHeight;
-  e.style.left=Math.max(8,Math.min(vw-w-8,x+14))+'px';e.style.top=Math.max(8,Math.min(vh-h-8,y+14))+'px';
+  const e=phEl();_phKind=kind;_phSig='';_phClick={x,y};e.style.display='block';
+  phPopRender();phPopPlace();
+}
+// next to the photo's frame (right, else left, else above, else below) so the photo stays visible while you change it; always fully inside the window
+function phPopPlace(){
+  const e=document.getElementById('ph-pop');if(!e||e.style.display==='none')return;
+  const w=e.offsetWidth,h=e.offsetHeight,vw=document.documentElement.clientWidth,vh=window.innerHeight,m=8,gap=14;
+  const fr=(window._phFrame||{})[_phKind==='art'?'np':'wx'],c=_phClick||{x:vw/2,y:vh/2};
+  const cx=x=>Math.max(m,Math.min(vw-w-m,x)),cy=y=>Math.max(m,Math.min(vh-h-m,y));
+  let x=null,y=null;
+  if(fr){
+    if(fr.x+fr.w+gap+w<=vw-m){x=fr.x+fr.w+gap;y=cy(c.y-h/2);}
+    else if(fr.x-gap-w>=m){x=fr.x-gap-w;y=cy(c.y-h/2);}
+    else if(fr.y-gap-h>=m){y=fr.y-gap-h;x=cx(c.x-w/2);}
+    else if(fr.y+fr.h+gap+h<=vh-m){y=fr.y+fr.h+gap;x=cx(c.x-w/2);}
+  }
+  if(x===null){x=cx(c.x+gap);y=cy(c.y+gap);}
+  e.style.left=Math.round(x)+'px';e.style.top=Math.round(y)+'px';
+}
+window.addEventListener('resize',()=>{try{phPopPlace();}catch(e){}});
+async function phPopAddUrl(){
+  const inp=document.getElementById('php-url'),cnt=document.getElementById('php-count');if(!inp||!cnt)return;
+  const u=(inp.value||'').trim();
+  if(!/^https?:\/\/\S+$/i.test(u)){cnt.textContent='Paste a full image link (https://…)';return;}
+  let key='';
+  if(_phKind==='art'){const o=_npLastO;if(!o||!o.artist){cnt.textContent='No artist playing';return;}key='art|'+npArtKeyOf(o);}
+  else{const city=state.cities&&state.cities[cityIdx];if(!city){cnt.textContent='No city';return;}key='city|'+wxPickK(city);}
+  cnt.textContent='Checking the link…';
+  if(!await npImgOk(u,15000,1)&&!await npImgOk(u,15000,1)){cnt.textContent='That link is not an image I can load';return;}
+  phCustomAdd(key,u);
+  const L=_phKind==='art'?_npArtList:_wxPhList;if(L.indexOf(u)<0)L.unshift(u);
+  if(!phSzStore()[u]&&!_phMeas.has(u)){_phMeas.add(u);_phMq.push(u);phMeasureNext();}
+  inp.value='';phSortBySize(L);phPopPick(u);phPopRender();
 }
 function phThumb(u){return /upload\.wikimedia\.org\/wikipedia\/commons\/thumb\//.test(u)?u.replace(/\/\d+px-/,'/250px-'):u;}
 function phPopStep(d){if(_phKind==='art')npArtistStep(d);else if(_phKind==='city')wxPhotoStep(d);}
@@ -3501,6 +3536,7 @@ function phPopRender(){
     list.slice(0,60).forEach(u=>{const im=document.createElement('img');im.className='php-t';im.loading='lazy';im.dataset.u=u;im.src=phThumb(u);im.onerror=()=>{if(im.src!==u)im.src=u;};im.onclick=()=>phPopPick(u);grid.appendChild(im);});
   }
   g('php-grid').querySelectorAll('.php-t').forEach(im=>{const c=im.dataset.u===cur;im.classList.toggle('cur',c);if(c&&_phSig!==_phScrolled){_phScrolled=_phSig;im.scrollIntoView({block:'nearest'});}});
+  try{phPopPlace();}catch(e){}
 }
 // where (0 = centre of the visible part, 1 = edge) a click lies on a photo; null if it is not on that photo
 function phHitOf(bg,on,x,y,ar){
@@ -3566,6 +3602,7 @@ function phLayout(kind){
   const fw=vw*S,fh=vh*S,pos=plGet(p,wx?'wx':'np');
   const fx=pos==='left'?0:pos==='right'?vw-fw:(vw-fw)/2,fy=pos==='top'?0:vh-fh;   // the frame
   const k=Math.min(fw/nw,fh/nh),w=Math.max(8,Math.round(nw*k)),h=Math.max(8,Math.round(nh*k));   // the photo, fitted inside it
+  (window._phFrame=window._phFrame||{})[kind]={x:fx,y:fy,w:fw,h:fh};
   const x=fx+(fw-w)/2,y=pos==='top'?fy:fy+fh-h;
   const st=bg.style;st.left='0px';st.top='0px';st.width=w+'px';st.height=h+'px';
   const r=bg.getBoundingClientRect();   // an ancestor that moves things (transform) would shift a fixed box: measure and correct
@@ -3693,9 +3730,17 @@ Promise.race([Promise.all(_fontWait),new Promise(r=>setTimeout(r,1500))]).then((
 const PH_SZ_K='STARTPAGE_PHSIZES';let _phSz=null;const _phMeas=new Set(),_phMq=[];let _phMrun=0;
 function phSzStore(){if(!_phSz){try{_phSz=JSON.parse(localStorage.getItem(PH_SZ_K))||{};}catch(e){_phSz={};}}return _phSz;}
 function phSzSave(){try{const z=phSzStore(),k=Object.keys(z);if(k.length>1500)k.slice(0,k.length-1500).forEach(x=>delete z[x]);localStorage.setItem(PH_SZ_K,JSON.stringify(z));}catch(e){}}
+function phCustomAll(){try{return JSON.parse(localStorage.getItem('STARTPAGE_PHCUSTOM'))||{};}catch(e){return{};}}
+function phCustomFor(key){return(phCustomAll()[key]||[]).slice();}
+function phCustomAdd(key,u){const a=phCustomAll(),l=(a[key]||[]).filter(x=>x!==u);l.unshift(u);a[key]=l.slice(0,30);try{localStorage.setItem('STARTPAGE_PHCUSTOM',JSON.stringify(a));}catch(e){}}
+// order: links you added yourself, then photos that are NOT square (biggest first), then square ones (biggest first), then photos whose size is not known yet
 function phSortBySize(list){
-  const z=phSzStore(),a=u=>{const q=z[u];return q?q[0]*q[1]:-1;},idx=new Map(list.map((u,i)=>[u,i]));
-  return list.sort((x,y)=>(a(y)-a(x))||(idx.get(x)-idx.get(y)));   // unknown sizes stay at the end, in their original order
+  const z=phSzStore(),cu=new Set([].concat(...Object.values(phCustomAll()))),idx=new Map(list.map((u,i)=>[u,i]));
+  const info=u=>{const q=z[u];if(!q||!q[0]||!q[1])return{k:-1,a:0};return{k:Math.abs(q[0]/q[1]-1)<0.08?0:1,a:q[0]*q[1]};};
+  return list.sort((x,y)=>{
+    const cx=cu.has(x)?1:0,cy=cu.has(y)?1:0;if(cx!==cy)return cy-cx;
+    const a=info(x),b=info(y);if(a.k!==b.k)return b.k-a.k;if(a.a!==b.a)return b.a-a.a;return idx.get(x)-idx.get(y);
+  });
 }
 function phSzDone(){
   try{phSortBySize(_wxPhList);}catch(e){}try{phSortBySize(_npArtList);}catch(e){}
@@ -3716,8 +3761,8 @@ function phSortAndMeasure(list){
   list.forEach(u=>{if(!z[u]&&!_phMeas.has(u)){_phMeas.add(u);_phMq.push(u);}});
   phMeasureNext();return list;
 }
-{const f1=wxCityImages;wxCityImages=async function(c){return phSortAndMeasure(await f1(c));};
- const f2=npArtistCandidates;npArtistCandidates=async function(o){return phSortAndMeasure(await f2(o));};}
+{const f1=wxCityImages;wxCityImages=async function(c){const l=await f1(c),cu=c?phCustomFor('city|'+wxPickK(c)):[];return phSortAndMeasure(cu.concat(l.filter(u=>!cu.includes(u))));};
+ const f2=npArtistCandidates;npArtistCandidates=async function(o){const l=await f2(o),cu=o?phCustomFor('art|'+npArtKeyOf(o)):[];return phSortAndMeasure(cu.concat(l.filter(u=>!cu.includes(u))));};}
 try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','np-art']].forEach(a=>{const im=document.getElementById(a[0]);if(im)im.addEventListener('load',()=>{try{phLayout(a[2]==='wx-ph'?'wx':'np');}catch(e){}try{phPopRender();}catch(e){}});});}catch(e){}
 </script>
 </body>
