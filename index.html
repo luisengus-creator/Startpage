@@ -219,7 +219,7 @@ body.ll-noselect,body.ll-noselect *{user-select:none!important;-webkit-user-sele
 #weather-area .wx-addcity:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.5);color:#fff}
 #weather-area.wx-empty .wx-addcity{display:inline-flex}
 #weather-area.wx-empty .weather-bg-wrap{display:none}
-.wx-photo-bg{display:none;position:absolute;z-index:-1;pointer-events:none;left:50%;top:50%;margin-left:var(--wx-ph-dx,0px);margin-top:var(--wx-ph-dy,0px);width:840px;height:504px;transform:translate(-50%,-50%) scale(var(--wx-ph-s,0.65))}
+.wx-photo-bg{display:none;position:absolute;z-index:-1;pointer-events:none;left:50%;top:50%;margin-left:var(--wx-ph-dx,0px);margin-top:var(--wx-ph-dy,0px);width:840px;height:504px;transform:translate(-50%,-50%) scale(calc(var(--wx-ph-s,0.65) * var(--ph-k,1)))}
 .wx-photo-bg img{width:100%;height:100%;object-fit:cover;object-position:50% var(--wx-ph-y,100%);filter:saturate(1.1)}
 /* city / artist photo rows in the small weather pop-up */
 .ph-pop-row{display:flex;align-items:center;gap:6px;margin-bottom:6px}
@@ -532,14 +532,14 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 #np-area.np-pos-right .np-box{margin-right:-18px}
 .np-box{display:flex;flex-direction:column;align-items:flex-start;gap:0.35rem;min-width:0;max-width:100%;padding:6px 18px;box-sizing:border-box;border-radius:var(--widget-radius);background-color:rgba(var(--np-rgb,0,0,0),calc(var(--np-backdrop,0.1) * var(--np-solid,1)));background-image:var(--np-img,none);background-origin:border-box;background-repeat:no-repeat}
 /* same look as the weather city name */
-.np-label{color:var(--tx-np-label-c,inherit);display:flex;align-items:center;justify-content:flex-start;font-family:var(--tx-np-label-ff,inherit);font-weight:var(--tx-np-label-fw,400);font-style:var(--tx-np-label-fi,normal);font-size:calc(0.9rem * var(--tx-np-label-z,1));letter-spacing:2px;text-transform:uppercase;white-space:nowrap;transition:opacity 0.7s ease;-webkit-user-select:none;user-select:none}
+.np-label{color:var(--tx-np-label-c,inherit);display:flex;align-items:center;align-self:stretch;justify-content:var(--np-lab-j,flex-start);font-family:var(--tx-np-label-ff,inherit);font-weight:var(--tx-np-label-fw,400);font-style:var(--tx-np-label-fi,normal);font-size:calc(0.9rem * var(--tx-np-label-z,1));letter-spacing:2px;text-transform:uppercase;white-space:nowrap;transition:opacity 0.7s ease;-webkit-user-select:none;user-select:none}
 #np-area:not(.np-ready) .np-label{opacity:0}
 .np-card{position:relative;isolation:isolate;display:flex;align-items:stretch;gap:clamp(10px,calc(var(--np-cover) * 0.16),20px);padding:0;border-radius:var(--widget-radius,14px);opacity:0;transform:translateY(6px);transition:opacity 0.7s ease,transform 0.7s ease;max-width:100%;min-width:0;height:auto;box-sizing:border-box}
 #np-area.np-ready .np-card{opacity:1;transform:none}
 /* side glow: the cover's colours bleed out to the right behind the text, clipped to the cover's height and fading to nothing */
-.np-artist-bg{display:none;position:absolute;z-index:-2;pointer-events:none;width:calc(var(--np-cover) * 7 * var(--np-art-s,1));height:calc(var(--np-cover) * 4.2 * var(--np-art-s,1));left:calc(var(--np-cover) * (0.9 - 3.5 * var(--np-art-s,1)));top:50%;margin-left:var(--np-art-dx,0px);margin-top:calc(var(--np-art-dy,0px) - var(--np-cover) * 0.6);transform:translateY(-50%)}
+.np-artist-bg{display:none;position:absolute;z-index:-2;pointer-events:none;width:calc(var(--np-cover) * 7 * var(--np-art-s,1) * var(--ph-k,1));height:calc(var(--np-cover) * 4.2 * var(--np-art-s,1) * var(--ph-k,1));left:calc(var(--np-cover) * (0.9 - 3.5 * var(--np-art-s,1) * var(--ph-k,1)));top:50%;margin-left:var(--np-art-dx,0px);margin-top:calc(var(--np-art-dy,0px) - var(--np-cover) * 0.6);transform:translateY(-50%)}
 .np-artist-bg,.wx-photo-bg{-webkit-mask-image:radial-gradient(ellipse var(--mrx,50%) var(--mry,50%) at var(--mcx,50%) var(--mcy,50%),#000 0%,#000 var(--mp,25%),rgba(0,0,0,0.990) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.0625),rgba(0,0,0,0.962) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.1250),rgba(0,0,0,0.916) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.1875),rgba(0,0,0,0.854) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.2500),rgba(0,0,0,0.778) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.3125),rgba(0,0,0,0.691) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.3750),rgba(0,0,0,0.598) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.4375),rgba(0,0,0,0.500) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.5000),rgba(0,0,0,0.402) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.5625),rgba(0,0,0,0.309) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.6250),rgba(0,0,0,0.222) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.6875),rgba(0,0,0,0.146) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.7500),rgba(0,0,0,0.084) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.8125),rgba(0,0,0,0.038) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.8750),rgba(0,0,0,0.010) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.9375),rgba(0,0,0,0.000) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 1.0000));mask-image:radial-gradient(ellipse var(--mrx,50%) var(--mry,50%) at var(--mcx,50%) var(--mcy,50%),#000 0%,#000 var(--mp,25%),rgba(0,0,0,0.990) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.0625),rgba(0,0,0,0.962) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.1250),rgba(0,0,0,0.916) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.1875),rgba(0,0,0,0.854) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.2500),rgba(0,0,0,0.778) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.3125),rgba(0,0,0,0.691) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.3750),rgba(0,0,0,0.598) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.4375),rgba(0,0,0,0.500) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.5000),rgba(0,0,0,0.402) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.5625),rgba(0,0,0,0.309) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.6250),rgba(0,0,0,0.222) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.6875),rgba(0,0,0,0.146) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.7500),rgba(0,0,0,0.084) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.8125),rgba(0,0,0,0.038) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.8750),rgba(0,0,0,0.010) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.9375),rgba(0,0,0,0.000) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 1.0000))}
-.np-artist-bg img{width:100%;height:100%;object-fit:cover;object-position:50% 15%;filter:saturate(1.1)}
+.np-artist-bg img{width:100%;height:100%;object-fit:cover;object-position:50% var(--np-art-y,100%);filter:saturate(1.1)}
 .np-artist-bg img:not([src]){display:none}
 #np-area.np-art-on .np-artist-bg{display:block;opacity:0;transition:opacity 1.4s ease}
 #np-area.np-art-on .np-artist-bg.on{opacity:var(--np-art-a,0.25)}
@@ -569,8 +569,12 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 .np-ed-name>span{overflow:hidden;text-overflow:ellipsis}
 .eq-toggle{width:28px;height:28px;font-size:0.72rem}
 .np-ed-name{width:178px}
+#np-order .np-ed-name{width:262px}
+#np-order .np-ed-name>span{flex:none}   /* the name keeps its own width, so the controls sit right next to it (a general rule makes every span in these rows stretch) */
+.np-ed-name select.lab-pos{width:68px}
 .np-ed-name select.eq-side{width:58px;flex-shrink:0;height:26px;line-height:24px;font-size:0.7rem;padding:0 2px;cursor:pointer}
 .np-ed-name select.eq-side:disabled{opacity:0.4;cursor:default}
+.np-ed-name .eq-toggle{margin-left:auto;flex:none}
 .np-order-row .tx-ctl{flex:1}
 .np-order-row .font-dd{flex:1;min-width:0}.np-order-row .font-dd-btn{width:100%}
 .np-order-row select[data-k]{flex:1;min-width:0;width:auto;height:30px;line-height:28px;font-size:0.76rem;padding:0 4px}
@@ -920,7 +924,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
             </div>
             <div class="s-field" id="np-art-sub"><div class="color-row" style="margin-bottom:4px;"><span>Artist photo intensity</span><span id="np-art-val" style="font-size:0.72rem;color:#888;">25%</span></div><input type="range" id="np-art-op" min="0.1" max="1" step="0.01" oninput="npChange()" style="width:100%;margin-top:0;">
               <div class="color-row" style="margin:10px 0 4px;"><span>Artist photo size</span><span id="np-art-sz-val" style="font-size:0.72rem;color:#888;">100%</span></div><input type="range" id="np-art-sz" min="0.4" max="2.5" step="0.05" oninput="npChange()" style="width:100%;margin-top:0;">
-              <div class="inl-row" id="np-art-row" style="margin-top:10px;"><button onclick="npArtistStep(-1)" style="width:auto;padding:0 12px;" title="Previous photo of this artist">‹ Previous</button><button onclick="npArtistStep(1)" style="width:auto;padding:0 12px;" title="Next photo of this artist">Next ›</button><span id="np-art-count" class="s-note" style="margin:0;"></span></div></div>
+              <div class="color-row" style="margin:10px 0 4px;"><span>Artist photo vertical position</span><span id="np-art-y-val" style="font-size:0.72rem;color:#888;">100%</span></div><input type="range" id="np-art-y" min="0" max="100" step="1" oninput="npArtYChange()" style="width:100%;margin-top:0;"></div>
             <div class="s-field"><div id="np-order" class="np-order"></div></div>
           </div>
         </div>
@@ -948,7 +952,6 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
                 <div class="color-row" style="margin-bottom:4px;"><span>City photo vertical position</span><span id="wx-photo-y-val" style="font-size:0.72rem;color:#888;">100%</span></div><input type="range" id="wx-photo-y" min="0" max="100" step="1" oninput="wxPhotoYChange()" style="width:100%;margin:0 0 10px;">
                 <div class="color-row" style="margin-bottom:4px;"><span>City photo intensity</span><span id="wx-photo-op-val" style="font-size:0.72rem;color:#888;">25%</span></div><input type="range" id="wx-photo-op" min="0.1" max="1" step="0.01" oninput="wxPhotoChange()" style="width:100%;margin-top:0;">
                 <div class="color-row" style="margin:10px 0 4px;"><span>City photo size</span><span id="wx-photo-sz-val" style="font-size:0.72rem;color:#888;">65%</span></div><input type="range" id="wx-photo-sz" min="0.4" max="2.5" step="0.05" oninput="wxPhotoChange()" style="width:100%;margin-top:0;">
-                <div class="inl-row" style="margin-top:10px;"><button onclick="wxPhotoStep(-1)" style="width:auto;padding:0 12px;" title="Previous photo of this city">‹ Previous</button><button onclick="wxPhotoStep(1)" style="width:auto;padding:0 12px;" title="Next photo of this city">Next ›</button><span id="wx-photo-count" class="s-note" style="margin:0;"></span></div>
               </div>
             </div>
           </div>
@@ -1044,8 +1047,6 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
   <div style="display:grid;grid-template-columns:auto 1fr;gap:6px 10px;align-items:center;margin-top:4px;margin-bottom:10px;">
     <span style="font-size:0.75rem;color:#888;">Icons</span><select id="wpop-icons" onchange="wxPopChange()" style="height:28px;line-height:26px;font-size:0.75rem;padding:0 6px;"><option value="colored">Colored</option><option value="solid">Solid</option></select>
   </div>
-  <div class="pop-title" style="margin-bottom:6px;">Photos</div>
-  <div class="ph-pop-row" id="wxp-city-row" style="margin-bottom:10px;"><span class="ph-pop-lab">City</span><span class="ph-pop-cnt" id="wxp-city-count"></span><button class="ph-pop-b" onclick="wxPhotoStep(-1)" title="Previous photo of this city">‹</button><button class="ph-pop-b" onclick="wxPhotoStep(1)" title="Next photo of this city">›</button></div>
   <div class="pop-title" style="margin-bottom:6px;">Locations</div>
   <div id="city-list-manager" style="margin-bottom:0.8rem;max-height:120px;overflow-y:auto;padding-right:4px;"></div>
   <input type="text" id="city-search-input" placeholder="Search for a city..." oninput="searchCity(this.value)">
@@ -1776,7 +1777,7 @@ function pcLayout(cx,cy,vw,vh,n){
   return res||{R:70,step:0.8,start:0};
 }
 function pcShow(){
-  const btn=document.getElementById('profile-nav-btn');if(!btn||state.profiles.length<3)return;
+  const btn=document.getElementById('profile-nav-btn');if(!btn||state.profiles.length<2)return;
   const old=document.getElementById('pc-pop');if(old)old.remove();
   const others=state.profiles.map((q,i)=>i).filter(i=>i!==curIdx()),n=others.length;
   const r=btn.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,vw=document.documentElement.clientWidth,vh=window.innerHeight;
@@ -1797,7 +1798,7 @@ function pcShow(){
 document.addEventListener('mouseover',e=>{
   const t=e.target&&e.target.closest?e.target.closest('#profile-nav-btn,#pc-pop'):null;if(!t)return;
   clearTimeout(_pcC);_pcC=null;
-  if(t.id==='profile-nav-btn'&&!document.getElementById('pc-pop')&&!_pcT&&state.profiles.length>2)_pcT=setTimeout(()=>{_pcT=null;pcShow();},300);
+  if(t.id==='profile-nav-btn'&&!document.getElementById('pc-pop')&&!_pcT&&state.profiles.length>1)_pcT=setTimeout(()=>{_pcT=null;pcShow();},300);
 });
 document.addEventListener('mouseout',e=>{
   const t=e.target&&e.target.closest?e.target.closest('#profile-nav-btn,#pc-pop'):null;if(!t)return;
@@ -1862,9 +1863,10 @@ function npoDrop(e,k){e.preventDefault();const from=_npoDrag;npoEnd();if(!from||
 const NP_ROW_NAMES={label:'Now Playing',title:'Song name',artist:'Artist',album:'Album'},NP_VIS_KEY={label:'npStatus',title:'npShowTitle',artist:'npShowArtist',album:'npAlbum'};
 function renderNpOrder(){const e=document.getElementById('np-order'),p=cur();if(!e||!p)return;
   const eye=(k)=>`<label class="eye-toggle" title="Show / hide"><input type="checkbox" ${p[NP_VIS_KEY[k]]===false?'':'checked'} onchange="npVis('${k}',this.checked)"><i class="fa-solid fa-eye"></i><i class="fa-solid fa-eye-slash"></i></label>`;
-  const row=(k,drag)=>`<div class="np-order-row${p[NP_VIS_KEY[k]]===false?' off':''}"${drag?` data-k="${k}"`:''}>${drag?'<i class="fa-solid fa-grip-vertical drag-handle" title="Drag to reorder"></i>':'<i class="fa-solid fa-grip-vertical drag-handle" style="visibility:hidden"></i>'}${eye(k)}<span class="np-ed-name"><span>${NP_ROW_NAMES[k]}</span>${k==='label'?`<label class="eye-toggle eq-toggle" title="Equalizer on / off"><input type="checkbox" ${p.npEq===false?'':'checked'} onchange="npEqSet(this.checked)"><i class="fa-solid fa-chart-simple"></i></label><select class="eq-side" title="Equalizer side" ${p.npEq===false?'disabled':''} onchange="npEqSide(this.value)"><option value="right"${p.npEqSide==='left'?'':' selected'}>Right</option><option value="left"${p.npEqSide==='left'?' selected':''}>Left</option></select>`:''}</span><div class="tx-ctl">${txCtlHTML('np-'+k,p)}</div></div>`;
+  const row=(k,drag)=>`<div class="np-order-row${p[NP_VIS_KEY[k]]===false?' off':''}"${drag?` data-k="${k}"`:''}>${drag?'<i class="fa-solid fa-grip-vertical drag-handle" title="Drag to reorder"></i>':'<i class="fa-solid fa-grip-vertical drag-handle" style="visibility:hidden"></i>'}${eye(k)}<span class="np-ed-name"><span>${NP_ROW_NAMES[k]}</span>${k==='label'?`<select class="eq-side lab-pos" title="Where the “Now Playing” text sits above the song" onchange="npLabelPos(this.value)"><option value="left"${(p.npLabelPos||'left')==='left'?' selected':''}>Left</option><option value="center"${p.npLabelPos==='center'?' selected':''}>Center</option><option value="right"${p.npLabelPos==='right'?' selected':''}>Right</option></select><label class="eye-toggle eq-toggle" title="Equalizer on / off"><input type="checkbox" ${p.npEq===false?'':'checked'} onchange="npEqSet(this.checked)"><i class="fa-solid fa-chart-simple"></i></label><select class="eq-side" title="Equalizer side" ${p.npEq===false?'disabled':''} onchange="npEqSide(this.value)"><option value="right"${p.npEqSide==='left'?'':' selected'}>Right</option><option value="left"${p.npEqSide==='left'?' selected':''}>Left</option></select>`:''}</span><div class="tx-ctl">${txCtlHTML('np-'+k,p)}</div></div>`;
   e.innerHTML=row('label',false)+npOrderOf(p).map(k=>row(k,true)).join('');}
 function npEqSet(on){const p=cur();p.npEq=!!on;saveAndRender();renderNpOrder();}
+function npLabelPos(v){const p=cur();p.npLabelPos=['left','center','right'].includes(v)?v:'left';saveAndRender();requestAnimationFrame(()=>{try{npAlign();}catch(e){}});}
 function npEqSide(v){const p=cur();p.npEqSide=v==='left'?'left':'right';saveAndRender();requestAnimationFrame(()=>{try{npAlign();}catch(e){}});}
 function npVis(k,on){const p=cur();p[NP_VIS_KEY[k]]=!!on;saveAndRender();renderNpOrder();requestAnimationFrame(()=>{try{npAlign();}catch(e){}});}
 function renderTx(){
@@ -2959,9 +2961,7 @@ function npImgOk(u,ms,min){return new Promise(res=>{const i=new Image();const t=
 function npArtSources(artist,mbid){
   const enc=encodeURIComponent,N=_npNorm;
   return[
-    // 1) Deezer: the artist picture
-    async()=>{const j=await npJsonp('https://api.deezer.com/search/artist?limit=25&q='+enc(artist));const PH='d41d8cd98f00b204e9800998ecf8427e';const ms=((j&&j.data)||[]).filter(x=>N(x.name)===N(artist)).map(x=>({u:x.picture_xl||x.picture_big,f:x.nb_fan||0})).filter(x=>x.u&&!x.u.includes('/artist//')&&!x.u.includes(PH)).sort((a,b)=>b.f-a.f);return ms.map(x=>x.u);},  /* skip Deezer's blank placeholder, prefer the most-followed artist with that name */
-    // 2) Discogs: search the artist by name, then the images of the exact match (primary first)
+    // 1) Discogs: search the artist by name, then the images of the exact match (primary first)
     async()=>{
       const sr=await fetch('https://api.discogs.com/database/search?type=artist&per_page=5&q='+enc(artist));
       if(!sr.ok)return[];
@@ -2971,15 +2971,17 @@ function npArtSources(artist,mbid){
       const r=await fetch('https://api.discogs.com/artists/'+m.id);if(!r.ok)return[];
       const d=await r.json(),im=(d.images||[]).slice().sort((a,b)=>(b.type==='primary')-(a.type==='primary'));
       return im.map(x=>x.uri||x.resource_url).filter(Boolean);
-    }
+    },
+    // 2) Deezer: the artist picture
+    async()=>{const j=await npJsonp('https://api.deezer.com/search/artist?limit=25&q='+enc(artist));const PH='d41d8cd98f00b204e9800998ecf8427e';const ms=((j&&j.data)||[]).filter(x=>N(x.name)===N(artist)).map(x=>({u:x.picture_xl||x.picture_big,f:x.nb_fan||0})).filter(x=>x.u&&!x.u.includes('/artist//')&&!x.u.includes(PH)).sort((a,b)=>b.f-a.f);return ms.map(x=>x.u);},  /* skip Deezer's blank placeholder, prefer the most-followed artist with that name */
   ];
 }
 async function npFindArtistImage(artist,mbid){
-  const key='v5|'+(mbid||_npNorm(artist)),c=npArtStore()[key];
+  const key='v6|'+(mbid||_npNorm(artist)),c=npArtStore()[key];
   if(c&&c.u&&Date.now()-c.t<30*864e5)return c.u;                   // found before: instant
   const ps=npArtSources(artist,mbid).map(f=>f().then(l=>({l:l||[]}),()=>({l:[],err:true})));   // both start now ...
   let err=false;
-  for(const p of ps){                                              // ... Deezer is judged first, Discogs only if Deezer has nothing
+  for(const p of ps){                                              // ... Discogs is judged first, Deezer only if Discogs has nothing
     const r=await p;if(r.err)err=true;
     for(const u of r.l.filter(x=>!npIsPh(x)).slice(0,3)){
       if(await npImgOk(u,10000)){if(!err)npArtSave(key,u);return u;}
@@ -3106,13 +3108,14 @@ function npApply(){
   area.classList.toggle('np-hidden',!on);
   area.style.setProperty('--np-r',NP_SHAPE[p.npShape||'square']);document.documentElement.style.setProperty('--np-backdrop',p.npBackdrop??0.1);
   document.getElementById('np-status').style.display=p.npStatus===false?'none':'flex';
+  area.style.setProperty('--np-lab-j',({left:'flex-start',center:'center',right:'flex-end'})[p.npLabelPos]||'flex-start');
   document.getElementById('np-album').style.display=p.npAlbum===false?'none':'';
   {const eq=area.querySelector('.np-eq');if(eq)eq.style.display=p.npEq===false?'none':'';document.getElementById('np-status').classList.toggle('eq-right',p.npEqSide!=='left');}
   document.getElementById('np-title').style.display=p.npShowTitle===false?'none':'';
   document.getElementById('np-artist').style.display=p.npShowArtist===false?'none':'';
   npOrderOf(p).forEach((k,i)=>{const el=document.getElementById('np-'+k);if(el)el.style.order=i;});
   area.classList.toggle('np-sg-on',!!p.npSideGlow);
-  area.classList.toggle('np-art-on',p.npArtist!==false);area.style.setProperty('--np-art-a',p.npArtOp??0.25);area.style.setProperty('--np-art-s',p.npArtSize??1);
+  area.classList.toggle('np-art-on',p.npArtist!==false);area.style.setProperty('--np-art-a',p.npArtOp??0.25);area.style.setProperty('--np-art-s',p.npArtSize??1);area.style.setProperty('--np-art-y',(p.npArtY??100)+'%');
   if(p.npArtist!==false&&on&&_npLastO)npArtistLoad(_npLastO);
   const gl=document.getElementById('np-glow'),gw=document.getElementById('glow-wx');
   if(gl){['left','center','right'].forEach(k=>gl.classList.toggle('g-'+k,pos===k));gl.style.display=pos==='top'?'none':'';}
@@ -3187,13 +3190,14 @@ function npChange(){
   p.npBackdrop=parseFloat(g('np-backdrop').value);g('np-backdrop-val').textContent=Math.round(p.npBackdrop*100)+'%';
   saveAndRender();
 }
+function npArtYChange(){const p=cur(),g=document.getElementById('np-art-y');if(!p||!g)return;p.npArtY=parseFloat(g.value);document.getElementById('np-art-y-val').textContent=Math.round(p.npArtY)+'%';saveAndRender();}
 function npCoverChange(){const p=cur(),g=id=>document.getElementById(id);p.npCover=g('np-cover').value;_npShown=null;_npFbDone.clear();saveAndRender();npRefresh(true);}
 function npSync(){
   const p=cur(),g=id=>document.getElementById(id);if(!p||!g('np-enable'))return;
   renderNpOrder();
   g('np-enable').checked=!!p.showNP;g('np-user').value=p.npUser||'';  g('np-shape').value=p.npShape||'square';
   g('np-glow-on').checked=p.npGlow===true;g('np-sglow-on').checked=!!p.npSideGlow;g('np-autohide').checked=p.npAutoHide!==false;
-  g('np-art-on').checked=p.npArtist!==false;g('np-art-op').value=p.npArtOp??0.25;g('np-art-sz').value=p.npArtSize??1;g('np-art-sz-val').textContent=Math.round((p.npArtSize??1)*100)+'%';g('np-art-val').textContent=Math.round((p.npArtOp??0.25)*100)+'%';g('np-art-sub').style.opacity=p.npArtist!==false?'1':'0.45';g('np-cover').value=p.npCover||'auto';
+  g('np-art-on').checked=p.npArtist!==false;g('np-art-op').value=p.npArtOp??0.25;g('np-art-sz').value=p.npArtSize??1;g('np-art-sz-val').textContent=Math.round((p.npArtSize??1)*100)+'%';g('np-art-val').textContent=Math.round((p.npArtOp??0.25)*100)+'%';g('np-art-sub').style.opacity=p.npArtist!==false?'1':'0.45';g('np-cover').value=p.npCover||'auto';if(g('np-art-y')){g('np-art-y').value=p.npArtY??100;g('np-art-y-val').textContent=Math.round(p.npArtY??100)+'%';}
   g('np-backdrop').value=p.npBackdrop??0.1;g('np-backdrop-val').textContent=Math.round((p.npBackdrop??0.1)*100)+'%';
   [['np','np-pos-group'],['wx','wx-pos-group'],['clock','clock-pos-group']].forEach(([w,id])=>document.querySelectorAll('#'+id+' .size-btn').forEach(b=>b.classList.toggle('active',b.dataset.v===plGet(p,w))));
 }
@@ -3355,7 +3359,7 @@ function npArtFavGet(k){const v=jget(NP_FV)[k]||'';return npIsPh(v)?'':v;}
 try{if(localStorage.getItem('STARTPAGE_ART_V10')!=='1'){[NP_AL,NP_FV,NP_AV].forEach(k=>localStorage.removeItem(k));localStorage.setItem('STARTPAGE_ART_V10','1');}}catch(e){}
 let _npArtList=[],_npArtListKey='';
 async function npArtistCandidates(o){
-  const k=npArtKeyOf(o),key='v5|'+k,store=jget(NP_AL),c=store[key],day=864e5;
+  const k=npArtKeyOf(o),key='v6|'+k,store=jget(NP_AL),c=store[key],day=864e5;
   if(c&&Array.isArray(c.l)&&c.l.length&&Date.now()-c.t<30*day){const cl=c.l.filter(u=>!npIsPh(u));if(cl.length)return cl;}
   const out=[];
   // all sources are asked at the same time; the list keeps their order (best first)
@@ -3555,6 +3559,11 @@ function npArtFit(){const ar=document.getElementById('np-area'),bg=ar&&ar.queryS
 function wxPhFit(){const ar=document.getElementById('weather-area'),bg=ar&&ar.querySelector('.wx-photo-bg');if(bg&&ar.classList.contains('wx-ph-on'))phFit(bg,'wx-ph');}
 {const _na=npApply;npApply=function(){const r=_na.apply(this,arguments);try{const p=cur(),bg=document.querySelector('#np-area .np-artist-bg');if(p&&bg)phSetZones(bg,phZones(plGet(p,'np'),1.35,false));}catch(e){}requestAnimationFrame(()=>{npArtFit();requestAnimationFrame(npArtFit);});return r;};}
 window.addEventListener('resize',()=>requestAnimationFrame(()=>{npArtFit();wxPhFit();}));
+// Photo scale: 1.0 at a 1536x864 window (a 1080p screen at 125% scale, fullscreen = the look you set up), smaller on smaller windows, a bit larger on bigger ones.
+// The Size sliders in settings still work on top of this, so they stay relative to the screen.
+function phScale(){const de=document.documentElement,k=Math.max(0.5,Math.min(1.6,Math.min(de.clientWidth/1536,window.innerHeight/864)));de.style.setProperty('--ph-k',k.toFixed(3));}
+phScale();
+window.addEventListener('resize',phScale);
 
 // ── No city yet: the weather spot shows an "Add City" button that opens the city search ──
 function wxEmptyState(on){const wa=document.getElementById('weather-area');if(!wa)return;wa.classList.toggle('wx-empty',!!on);if(on&&!wa.classList.contains('weather-hidden'))wa.classList.add('weather-loaded');}
