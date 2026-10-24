@@ -2757,8 +2757,11 @@ function undoDelCat(){
 function delLink(ci,li){cur().categories[ci].links.splice(li,1);saveAndRender();}
 function addProfile(){state.profiles.push(mkProf(mkCats(5,'Category'),'m'));state.profileNames.push('Profile '+state.profiles.length);saveAndRender();renderSettings();}
 
-function exportData(){const now=new Date();const pad=n=>String(n).padStart(2,'0');const stamp=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}`;const b=new Blob([JSON.stringify(state)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`startpage_backup_${stamp}.json`;a.click();}
-function importData(input){const file=input.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{try{const imp=JSON.parse(e.target.result);if(!imp.profiles&&!imp.home&&!imp.work){alert('Invalid backup.');return;}const base=getDefaults();['profile','target','linkColor','tabTitle','tabFavicon','tabFaviconEmoji'].forEach(k=>{if(imp[k]!==undefined)base[k]=imp[k];});if(Array.isArray(imp.cities)&&imp.cities.length)base.cities=imp.cities;if(Array.isArray(imp.profiles)&&imp.profiles.length){base.profiles=imp.profiles;base.profileNames=imp.profileNames||imp.profiles.map((_,i)=>'Profile '+(i+1));}const pi=parseInt((base.profile||'p0').replace('p',''));if(isNaN(pi)||pi>=base.profiles.length)base.profile='p0';base.profiles.forEach(p=>{if(p){migrateFonts(p);migrateClock(p);}if(p&&!['gradient','photo','unsplash','time'].includes(p.bgMode))p.bgMode='gradient';if(p&&!p.unsplashKey)p.unsplashKey=UNSPLASH_KEY;if(p&&p.unsplashDim===undefined)p.unsplashDim=0.1;if(p&&p.opTime===undefined)p.opTime=1.0;});if(!base.tabFaviconEmoji&&!base.tabFavicon)base.tabFaviconEmoji='⭐';state=base;localStorage.setItem(KEY,JSON.stringify(state));saveAndRender();renderSettings();updateWeather();alert('Import successful!');closeModals();}catch(err){alert('Invalid backup: '+err.message);}};r.readAsText(file);input.value='';}
+// photo choices live outside the main settings: the city photo you settled on, the artist photo you settled on, and the cached photo lists / lookups
+const PHOTO_MEM_KEYS=['STARTPAGE_CITYPICK','STARTPAGE_NP_ARTFAV','STARTPAGE_NP_ARTISTS','STARTPAGE_CITYIMG','STARTPAGE_NP_ARTLIST','STARTPAGE_NP_COVERS'];
+function importPhotoMemory(pm){if(!pm||typeof pm!=='object')return;PHOTO_MEM_KEYS.forEach(k=>{if(typeof pm[k]!=='string')return;try{const inc=JSON.parse(pm[k])||{},old=JSON.parse(localStorage.getItem(k))||{};localStorage.setItem(k,JSON.stringify(Object.assign({},old,inc)));}catch(e){}});try{localStorage.setItem('STARTPAGE_ART_V10','1');}catch(e){}_wxPhKey=null;_npArtKey=null;}
+function exportData(){const now=new Date();const pad=n=>String(n).padStart(2,'0');const stamp=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}`;const pm={};PHOTO_MEM_KEYS.forEach(k=>{try{const v=localStorage.getItem(k);if(v)pm[k]=v;}catch(e){}});const b=new Blob([JSON.stringify(Object.assign({},state,{photoMemory:pm}))],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`startpage_backup_${stamp}.json`;a.click();}
+function importData(input){const file=input.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{try{const imp=JSON.parse(e.target.result);if(!imp.profiles&&!imp.home&&!imp.work){alert('Invalid backup.');return;}const base=getDefaults();['profile','target','linkColor','tabTitle','tabFavicon','tabFaviconEmoji'].forEach(k=>{if(imp[k]!==undefined)base[k]=imp[k];});if(Array.isArray(imp.cities)&&imp.cities.length)base.cities=imp.cities;if(Array.isArray(imp.profiles)&&imp.profiles.length){base.profiles=imp.profiles;base.profileNames=imp.profileNames||imp.profiles.map((_,i)=>'Profile '+(i+1));}const pi=parseInt((base.profile||'p0').replace('p',''));if(isNaN(pi)||pi>=base.profiles.length)base.profile='p0';base.profiles.forEach(p=>{if(p){migrateFonts(p);migrateClock(p);}if(p&&!['gradient','photo','unsplash','time'].includes(p.bgMode))p.bgMode='gradient';if(p&&!p.unsplashKey)p.unsplashKey=UNSPLASH_KEY;if(p&&p.unsplashDim===undefined)p.unsplashDim=0.1;if(p&&p.opTime===undefined)p.opTime=1.0;});if(!base.tabFaviconEmoji&&!base.tabFavicon)base.tabFaviconEmoji='⭐';state=base;localStorage.setItem(KEY,JSON.stringify(state));importPhotoMemory(imp.photoMemory);saveAndRender();renderSettings();updateWeather();try{if(typeof npSync==='function')npSync();}catch(e){}alert('Import successful!');closeModals();}catch(err){alert('Invalid backup: '+err.message);}};r.readAsText(file);input.value='';}
 function resetToDefaults(){if(confirm('Factory reset? This will erase everything.')){state=getDefaults();saveAndRender();renderSettings();updateWeather();}}
 function handleBgFile(input){const file=input.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{const canvas=document.createElement('canvas');const MAX=1920;let w=img.width,h=img.height;if(w>MAX){h*=MAX/w;w=MAX;}canvas.width=w;canvas.height=h;canvas.getContext('2d').drawImage(img,0,0,w,h);updateBgImg(canvas.toDataURL('image/jpeg',0.7));};img.src=e.target.result;};r.readAsDataURL(file);}
 
@@ -2954,7 +2957,7 @@ async function npFindCovers(artist,album,title,order){
 let _npLastO=null,_npArtKey=null,_npArtSeq=0;
 const NP_AV='STARTPAGE_NP_ARTISTS';
 function npArtStore(){try{return JSON.parse(localStorage.getItem(NP_AV))||{};}catch(e){return{};}}
-function npArtSave(k,u){const c=npArtStore();c[k]={u:u,t:Date.now()};const ks=Object.keys(c);if(ks.length>80)ks.sort((a,b)=>c[a].t-c[b].t).slice(0,ks.length-80).forEach(x=>delete c[x]);try{localStorage.setItem(NP_AV,JSON.stringify(c));}catch(e){}}
+function npArtSave(k,u){const c=npArtStore();c[k]={u:u,t:Date.now()};const ks=Object.keys(c);try{localStorage.setItem(NP_AV,JSON.stringify(c));}catch(e){}}
 /* Deezer's blank 'no photo' silhouette (empty-hash URL) and Discogs' spacer are never real artist photos */
 const npIsPh=u=>!u||/d41d8cd98f00b204e9800998ecf8427e|\/artist\/\/|spacer\.gif/i.test(String(u));
 function npImgOk(u,ms,min){return new Promise(res=>{const i=new Image();const t=setTimeout(()=>{i.onload=i.onerror=null;res(false);},ms||9000);i.onload=()=>{clearTimeout(t);res(i.naturalWidth>=(min==null?300:min));};i.onerror=()=>{clearTimeout(t);res(false);};i.src=u;});}
@@ -2978,7 +2981,7 @@ function npArtSources(artist,mbid){
 }
 async function npFindArtistImage(artist,mbid){
   const key='v6|'+(mbid||_npNorm(artist)),c=npArtStore()[key];
-  if(c&&c.u&&Date.now()-c.t<30*864e5)return c.u;                   // found before: instant
+  if(c&&c.u)return c.u;                                            // found before: kept for good (no expiry)
   const ps=npArtSources(artist,mbid).map(f=>f().then(l=>({l:l||[]}),()=>({l:[],err:true})));   // both start now ...
   let err=false;
   for(const p of ps){                                              // ... Discogs is judged first, Deezer only if Discogs has nothing
@@ -3000,6 +3003,7 @@ async function npArtistLoad(o){
   if(!u){try{u=await npFindArtistImage(o.artist,o.artistMbid);}catch(e){}}
   if(seq!==_npArtSeq)return;
   if(!u){img.removeAttribute('src');try{npArtPopSync();}catch(e){}return;}
+  {const a=jget(NP_FV);if(!a[k]){a[k]=u;jset(NP_FV,a);}}   // the first photo shown stays for this artist, until you choose another
   img.onload=()=>{if(seq===_npArtSeq)bg.classList.add('on');};
   img.src=u;try{npArtPopSync();}catch(e){}
 }
