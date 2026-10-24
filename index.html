@@ -219,8 +219,9 @@ body.ll-noselect,body.ll-noselect *{user-select:none!important;-webkit-user-sele
 #weather-area .wx-addcity:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.5);color:#fff}
 #weather-area.wx-empty .wx-addcity{display:inline-flex}
 #weather-area.wx-empty .weather-bg-wrap{display:none}
-.wx-photo-bg{display:none;position:absolute;z-index:-1;pointer-events:none;left:50%;top:50%;margin-left:var(--wx-ph-dx,0px);margin-top:var(--wx-ph-dy,0px);width:840px;height:504px;transform:translate(-50%,-50%) scale(calc(var(--wx-ph-s,0.65) * var(--ph-k,1)))}
-.wx-photo-bg img{width:100%;height:100%;object-fit:cover;object-position:50% var(--wx-ph-y,100%);filter:saturate(1.1)}
+.wx-photo-bg{display:none;position:fixed;z-index:-1;pointer-events:none;left:0;top:0;width:0;height:0}   /* size and place are set from JS: the whole photo, fitted to the screen, pinned toward the widget's side */
+
+.wx-photo-bg img,.np-artist-bg img{display:block;width:100%;height:100%;object-fit:fill;filter:saturate(1.1)}
 /* city / artist photo rows in the small weather pop-up */
 .ph-pop-row{display:flex;align-items:center;gap:6px;margin-bottom:6px}
 .ph-pop-lab{font-size:0.75rem;color:#888;width:44px;flex:none}
@@ -239,7 +240,8 @@ body.ll-noselect,body.ll-noselect *{user-select:none!important;-webkit-user-sele
 #ph-pop .php-t.cur{opacity:1;border-color:#00d4ff}
 #ph-pop .php-row{display:flex;align-items:center;gap:6px;margin-top:6px}
 #ph-pop .php-row select{flex:1;min-width:0;height:26px;font-size:0.78rem}
-#ph-pop .php-note{flex:1;color:#8a949c;font-size:0.72rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#ph-pop .php-size{margin-top:6px;font-size:0.7rem;color:#8a949c;text-align:left}
+.php-note{flex:1;color:#8a949c;font-size:0.72rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wx-photo-bg img:not([src]){display:none}
 #weather-area.wx-ph-on .wx-photo-bg{display:block;opacity:0;transition:opacity 1.4s ease}
 #weather-area.wx-ph-on .wx-photo-bg.on{opacity:var(--wx-ph-a,0.25)}
@@ -537,9 +539,10 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 .np-card{position:relative;isolation:isolate;display:flex;align-items:stretch;gap:clamp(10px,calc(var(--np-cover) * 0.16),20px);padding:0;border-radius:var(--widget-radius,14px);opacity:0;transform:translateY(6px);transition:opacity 0.7s ease,transform 0.7s ease;max-width:100%;min-width:0;height:auto;box-sizing:border-box}
 #np-area.np-ready .np-card{opacity:1;transform:none}
 /* side glow: the cover's colours bleed out to the right behind the text, clipped to the cover's height and fading to nothing */
-.np-artist-bg{display:none;position:absolute;z-index:-2;pointer-events:none;width:calc(var(--np-cover) * 7 * var(--np-art-s,1) * var(--ph-k,1));height:calc(var(--np-cover) * 4.2 * var(--np-art-s,1) * var(--ph-k,1));left:calc(var(--np-cover) * (0.9 - 3.5 * var(--np-art-s,1) * var(--ph-k,1)));top:50%;margin-left:var(--np-art-dx,0px);margin-top:calc(var(--np-art-dy,0px) - var(--np-cover) * 0.6);transform:translateY(-50%)}
+.np-artist-bg{display:none;position:fixed;z-index:-2;pointer-events:none;left:0;top:0;width:0;height:0}
 .np-artist-bg,.wx-photo-bg{-webkit-mask-image:radial-gradient(ellipse var(--mrx,50%) var(--mry,50%) at var(--mcx,50%) var(--mcy,50%),#000 0%,#000 var(--mp,25%),rgba(0,0,0,0.990) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.0625),rgba(0,0,0,0.962) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.1250),rgba(0,0,0,0.916) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.1875),rgba(0,0,0,0.854) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.2500),rgba(0,0,0,0.778) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.3125),rgba(0,0,0,0.691) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.3750),rgba(0,0,0,0.598) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.4375),rgba(0,0,0,0.500) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.5000),rgba(0,0,0,0.402) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.5625),rgba(0,0,0,0.309) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.6250),rgba(0,0,0,0.222) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.6875),rgba(0,0,0,0.146) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.7500),rgba(0,0,0,0.084) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.8125),rgba(0,0,0,0.038) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.8750),rgba(0,0,0,0.010) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.9375),rgba(0,0,0,0.000) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 1.0000));mask-image:radial-gradient(ellipse var(--mrx,50%) var(--mry,50%) at var(--mcx,50%) var(--mcy,50%),#000 0%,#000 var(--mp,25%),rgba(0,0,0,0.990) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.0625),rgba(0,0,0,0.962) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.1250),rgba(0,0,0,0.916) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.1875),rgba(0,0,0,0.854) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.2500),rgba(0,0,0,0.778) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.3125),rgba(0,0,0,0.691) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.3750),rgba(0,0,0,0.598) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.4375),rgba(0,0,0,0.500) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.5000),rgba(0,0,0,0.402) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.5625),rgba(0,0,0,0.309) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.6250),rgba(0,0,0,0.222) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.6875),rgba(0,0,0,0.146) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.7500),rgba(0,0,0,0.084) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.8125),rgba(0,0,0,0.038) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.8750),rgba(0,0,0,0.010) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 0.9375),rgba(0,0,0,0.000) calc(var(--mp,25%) + (100% - var(--mp,25%)) * 1.0000))}
-.np-artist-bg img{width:100%;height:100%;object-fit:cover;object-position:50% var(--np-art-y,100%);filter:saturate(1.1)}
+
+
 .np-artist-bg img:not([src]){display:none}
 #np-area.np-art-on .np-artist-bg{display:block;opacity:0;transition:opacity 1.4s ease}
 #np-area.np-art-on .np-artist-bg.on{opacity:var(--np-art-a,0.25)}
@@ -922,9 +925,8 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
               <div class="inl"><span>Cover source</span><select id="np-cover" onchange="npCoverChange()"><option value="auto">Automatic</option><option value="service">ListenBrainz</option><option value="mb">MusicBrainz / Cover Art Archive</option><option value="itunes">iTunes</option><option value="deezer">Deezer</option></select></div>
               <label class="label-inline inl"><input type="checkbox" id="np-autohide" onchange="npChange()"> Hide when nothing is playing</label>
             </div>
-            <div class="s-field" id="np-art-sub"><div class="color-row" style="margin-bottom:4px;"><span>Artist photo intensity</span><span id="np-art-val" style="font-size:0.72rem;color:#888;">25%</span></div><input type="range" id="np-art-op" min="0.1" max="1" step="0.01" oninput="npChange()" style="width:100%;margin-top:0;">
-              <div class="color-row" style="margin:10px 0 4px;"><span>Artist photo size</span><span id="np-art-sz-val" style="font-size:0.72rem;color:#888;">100%</span></div><input type="range" id="np-art-sz" min="0.4" max="2.5" step="0.05" oninput="npChange()" style="width:100%;margin-top:0;">
-              <div class="color-row" style="margin:10px 0 4px;"><span>Artist photo vertical position</span><span id="np-art-y-val" style="font-size:0.72rem;color:#888;">100%</span></div><input type="range" id="np-art-y" min="0" max="100" step="1" oninput="npArtYChange()" style="width:100%;margin-top:0;"></div>
+            <div class="s-field" id="np-art-sub"><div class="color-row" style="margin-bottom:4px;"><span>Artist photo intensity</span><span id="np-art-val" style="font-size:0.72rem;color:#888;">25%</span></div><input type="range" id="np-art-op" min="0" max="100" step="1" oninput="npChange()" style="width:100%;margin-top:0;">
+              <div class="color-row" style="margin:10px 0 4px;"><span>Artist photo size</span><span id="np-art-sz-val" style="font-size:0.72rem;color:#888;">100%</span></div><input type="range" id="np-art-sz" min="0" max="100" step="1" oninput="npChange()" style="width:100%;margin-top:0;"></div>
             <div class="s-field"><div id="np-order" class="np-order"></div></div>
           </div>
         </div>
@@ -949,9 +951,8 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
             <div class="s-field"><div class="s-lab">Position</div><div class="size-group" id="wx-pos-group"><button class="size-btn" data-v="top" onclick="posSet('wx','top')">Top middle</button><button class="size-btn" data-v="left" onclick="posSet('wx','left')">Bottom left</button><button class="size-btn" data-v="center" onclick="posSet('wx','center')">Bottom center</button><button class="size-btn" data-v="right" onclick="posSet('wx','right')">Bottom right</button></div></div>
             <div class="s-field"><label class="label-inline" title="A faded photo of the selected city appears behind the weather"><input type="checkbox" id="wx-photo-on" onchange="wxPhotoChange()"> City photo behind the weather</label>
               <div id="wx-photo-sub" style="margin-top:8px;">
-                <div class="color-row" style="margin-bottom:4px;"><span>City photo vertical position</span><span id="wx-photo-y-val" style="font-size:0.72rem;color:#888;">100%</span></div><input type="range" id="wx-photo-y" min="0" max="100" step="1" oninput="wxPhotoYChange()" style="width:100%;margin:0 0 10px;">
-                <div class="color-row" style="margin-bottom:4px;"><span>City photo intensity</span><span id="wx-photo-op-val" style="font-size:0.72rem;color:#888;">25%</span></div><input type="range" id="wx-photo-op" min="0.1" max="1" step="0.01" oninput="wxPhotoChange()" style="width:100%;margin-top:0;">
-                <div class="color-row" style="margin:10px 0 4px;"><span>City photo size</span><span id="wx-photo-sz-val" style="font-size:0.72rem;color:#888;">65%</span></div><input type="range" id="wx-photo-sz" min="0.4" max="2.5" step="0.05" oninput="wxPhotoChange()" style="width:100%;margin-top:0;">
+                <div class="color-row" style="margin-bottom:4px;"><span>City photo intensity</span><span id="wx-photo-op-val" style="font-size:0.72rem;color:#888;">25%</span></div><input type="range" id="wx-photo-op" min="0" max="100" step="1" oninput="wxPhotoChange()" style="width:100%;margin-top:0;">
+                <div class="color-row" style="margin:10px 0 4px;"><span>City photo size</span><span id="wx-photo-sz-val" style="font-size:0.72rem;color:#888;">65%</span></div><input type="range" id="wx-photo-sz" min="0" max="100" step="1" oninput="wxPhotoChange()" style="width:100%;margin-top:0;">
               </div>
             </div>
           </div>
@@ -1388,6 +1389,9 @@ state.profiles.forEach(p=>{
   if(!p.defV3){p.defV3=true;p.npGlow=false;p.wTint=false;p.npArtist=true;p.wxPhoto=true;p.npArtSize=1;p.wxPhotoSize=0.65;}
   if(!p.defV4){p.defV4=true;p.npArtSize=1;}   /* one-time: artist photo size back to 100% */
   if(!p.defV6){p.defV6=true;p.wxPhotoSize=0.65;p.wxPhotoY=100;}   /* one-time: city photo size 65%, vertical position 100% */   /* one-time: apply the new defaults to profiles saved before them */
+  if(!p.defV7){p.defV7=true;p.wxPhotoY=50;p.npArtY=50;}
+  if(!p.defV9){p.defV9=true;p.wxPhotoS=35;p.npArtS=35;}   /* one-time: photo size is now % of the whole photo fitted to the screen */
+  if(!p.defV8){p.defV8=true;p.wxPhotoY=100;p.npArtY=100;}   /* one-time: vertical position pans the picture inside its frame again (100 = bottom of the picture) */   /* one-time: vertical position slider is now centred (50 = the usual place) */
   if(p.wShowDay===undefined)p.wShowDay=true;
   if(p.wShowDate===undefined)p.wShowDate=true;
   if(!p.wDateFmt)p.wDateFmt='dmy';
@@ -2758,7 +2762,7 @@ function delLink(ci,li){cur().categories[ci].links.splice(li,1);saveAndRender();
 function addProfile(){state.profiles.push(mkProf(mkCats(5,'Category'),'m'));state.profileNames.push('Profile '+state.profiles.length);saveAndRender();renderSettings();}
 
 // photo choices live outside the main settings: the city photo you settled on, the artist photo you settled on, and the cached photo lists / lookups
-const PHOTO_MEM_KEYS=['STARTPAGE_CITYPICK','STARTPAGE_NP_ARTFAV','STARTPAGE_NP_ARTISTS','STARTPAGE_CITYIMG','STARTPAGE_NP_ARTLIST','STARTPAGE_NP_COVERS'];
+const PHOTO_MEM_KEYS=['STARTPAGE_CITYPICK','STARTPAGE_NP_ARTFAV','STARTPAGE_NP_ARTISTS','STARTPAGE_CITYIMG','STARTPAGE_NP_ARTLIST','STARTPAGE_NP_COVERS','STARTPAGE_PHSIZES'];
 function importPhotoMemory(pm){if(!pm||typeof pm!=='object')return;PHOTO_MEM_KEYS.forEach(k=>{if(typeof pm[k]!=='string')return;try{const inc=JSON.parse(pm[k])||{},old=JSON.parse(localStorage.getItem(k))||{};localStorage.setItem(k,JSON.stringify(Object.assign({},old,inc)));}catch(e){}});try{localStorage.setItem('STARTPAGE_ART_V10','1');}catch(e){}_wxPhKey=null;_npArtKey=null;}
 function exportData(){const now=new Date();const pad=n=>String(n).padStart(2,'0');const stamp=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}`;const pm={};PHOTO_MEM_KEYS.forEach(k=>{try{const v=localStorage.getItem(k);if(v)pm[k]=v;}catch(e){}});const b=new Blob([JSON.stringify(Object.assign({},state,{photoMemory:pm}))],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`startpage_backup_${stamp}.json`;a.click();}
 function importData(input){const file=input.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{try{const imp=JSON.parse(e.target.result);if(!imp.profiles&&!imp.home&&!imp.work){alert('Invalid backup.');return;}const base=getDefaults();['profile','target','linkColor','tabTitle','tabFavicon','tabFaviconEmoji'].forEach(k=>{if(imp[k]!==undefined)base[k]=imp[k];});if(Array.isArray(imp.cities)&&imp.cities.length)base.cities=imp.cities;if(Array.isArray(imp.profiles)&&imp.profiles.length){base.profiles=imp.profiles;base.profileNames=imp.profileNames||imp.profiles.map((_,i)=>'Profile '+(i+1));}const pi=parseInt((base.profile||'p0').replace('p',''));if(isNaN(pi)||pi>=base.profiles.length)base.profile='p0';base.profiles.forEach(p=>{if(p){migrateFonts(p);migrateClock(p);}if(p&&!['gradient','photo','unsplash','time'].includes(p.bgMode))p.bgMode='gradient';if(p&&!p.unsplashKey)p.unsplashKey=UNSPLASH_KEY;if(p&&p.unsplashDim===undefined)p.unsplashDim=0.1;if(p&&p.opTime===undefined)p.opTime=1.0;});if(!base.tabFaviconEmoji&&!base.tabFavicon)base.tabFaviconEmoji='⭐';state=base;localStorage.setItem(KEY,JSON.stringify(state));importPhotoMemory(imp.photoMemory);saveAndRender();renderSettings();updateWeather();try{if(typeof npSync==='function')npSync();}catch(e){}alert('Import successful!');closeModals();}catch(err){alert('Invalid backup: '+err.message);}};r.readAsText(file);input.value='';}
@@ -3190,18 +3194,18 @@ function npChange(){
   p.showNP=g('np-enable').checked;p.npUser=g('np-user').value.trim();
   p.npShape=g('np-shape').value;
   p.npGlow=g('np-glow-on').checked;p.npSideGlow=g('np-sglow-on').checked;p.npAutoHide=g('np-autohide').checked;
-  p.npArtist=g('np-art-on').checked;p.npArtOp=parseFloat(g('np-art-op').value);p.npArtSize=parseFloat(g('np-art-sz').value);g('np-art-sz-val').textContent=Math.round(p.npArtSize*100)+'%';g('np-art-val').textContent=Math.round(p.npArtOp*100)+'%';g('np-art-sub').style.opacity=p.npArtist!==false?'1':'0.45';
+  p.npArtist=g('np-art-on').checked;p.npArtOp=phOpFromV(g('np-art-op').value);p.npArtS=Math.max(5,parseFloat(g('np-art-sz').value));g('np-art-sz-val').textContent=Math.round(g('np-art-sz').value)+'%';g('np-art-val').textContent=Math.round(g('np-art-op').value)+'%';g('np-art-sub').style.opacity=p.npArtist!==false?'1':'0.45';
   p.npBackdrop=parseFloat(g('np-backdrop').value);g('np-backdrop-val').textContent=Math.round(p.npBackdrop*100)+'%';
-  saveAndRender();
+  saveAndRender();requestAnimationFrame(()=>{try{npArtFit();}catch(e){}});
 }
-function npArtYChange(){const p=cur(),g=document.getElementById('np-art-y');if(!p||!g)return;p.npArtY=parseFloat(g.value);document.getElementById('np-art-y-val').textContent=Math.round(p.npArtY)+'%';saveAndRender();}
+function npArtYChange(){const p=cur(),g=document.getElementById('np-art-y');if(!p||!g)return;p.npArtY=parseFloat(g.value);document.getElementById('np-art-y-val').textContent=Math.round(p.npArtY)+'%';saveAndRender();requestAnimationFrame(()=>{try{npArtFit();}catch(e){}});}
 function npCoverChange(){const p=cur(),g=id=>document.getElementById(id);p.npCover=g('np-cover').value;_npShown=null;_npFbDone.clear();saveAndRender();npRefresh(true);}
 function npSync(){
   const p=cur(),g=id=>document.getElementById(id);if(!p||!g('np-enable'))return;
   renderNpOrder();
   g('np-enable').checked=!!p.showNP;g('np-user').value=p.npUser||'';  g('np-shape').value=p.npShape||'square';
   g('np-glow-on').checked=p.npGlow===true;g('np-sglow-on').checked=!!p.npSideGlow;g('np-autohide').checked=p.npAutoHide!==false;
-  g('np-art-on').checked=p.npArtist!==false;g('np-art-op').value=p.npArtOp??0.25;g('np-art-sz').value=p.npArtSize??1;g('np-art-sz-val').textContent=Math.round((p.npArtSize??1)*100)+'%';g('np-art-val').textContent=Math.round((p.npArtOp??0.25)*100)+'%';g('np-art-sub').style.opacity=p.npArtist!==false?'1':'0.45';g('np-cover').value=p.npCover||'auto';if(g('np-art-y')){g('np-art-y').value=p.npArtY??100;g('np-art-y-val').textContent=Math.round(p.npArtY??100)+'%';}
+  g('np-art-on').checked=p.npArtist!==false;g('np-art-op').value=phOpToV(p.npArtOp??0.25);g('np-art-sz').value=p.npArtS??35;g('np-art-sz-val').textContent=g('np-art-sz').value+'%';g('np-art-val').textContent=g('np-art-op').value+'%';g('np-art-sub').style.opacity=p.npArtist!==false?'1':'0.45';g('np-cover').value=p.npCover||'auto';if(g('np-art-y')){g('np-art-y').value=p.npArtY??100;g('np-art-y-val').textContent=Math.round(p.npArtY??100)+'%';}
   g('np-backdrop').value=p.npBackdrop??0.1;g('np-backdrop-val').textContent=Math.round((p.npBackdrop??0.1)*100)+'%';
   [['np','np-pos-group'],['wx','wx-pos-group'],['clock','clock-pos-group']].forEach(([w,id])=>document.querySelectorAll('#'+id+' .size-btn').forEach(b=>b.classList.toggle('active',b.dataset.v===plGet(p,w))));
 }
@@ -3256,7 +3260,7 @@ async function wxCityImagesAlt(city,src){
   }
   wxPhSave(key,out);return out;
 }
-function wxPhotoYChange(){const p=cur(),g=document.getElementById('wx-photo-y');if(!p||!g)return;p.wxPhotoY=parseFloat(g.value);document.getElementById('wx-photo-y-val').textContent=Math.round(p.wxPhotoY)+'%';saveAndRender();}
+function wxPhotoYChange(){const p=cur(),g=document.getElementById('wx-photo-y');if(!p||!g)return;p.wxPhotoY=parseFloat(g.value);document.getElementById('wx-photo-y-val').textContent=Math.round(p.wxPhotoY)+'%';saveAndRender();requestAnimationFrame(()=>{try{wxPhFit();}catch(e){}});}
 // All usable photos of the city, best first. The article is found by the city's coordinates and must carry the city's name.
 async function wxCityImages(city){
   const rs=await Promise.all([wxCityImagesAlt(city,'unsplash'),wxCityImagesAlt(city,'wikivoyage'),wxCityImagesWiki(city)].map(x=>x.catch(()=>[]))),out=[];
@@ -3341,14 +3345,14 @@ async function wxPhotoStep(d){
 }
 function wxPhotoChange(){
   const p=cur(),g=id=>document.getElementById(id);if(!p)return;
-  p.wxPhoto=g('wx-photo-on').checked;p.wxPhotoOp=parseFloat(g('wx-photo-op').value);p.wxPhotoSize=parseFloat(g('wx-photo-sz').value);
-  g('wx-photo-op-val').textContent=Math.round(p.wxPhotoOp*100)+'%';g('wx-photo-sz-val').textContent=Math.round(p.wxPhotoSize*100)+'%';g('wx-photo-sub').style.opacity=p.wxPhoto!==false?'1':'0.45';
-  saveAndRender();
+  p.wxPhoto=g('wx-photo-on').checked;p.wxPhotoOp=phOpFromV(g('wx-photo-op').value);p.wxPhotoS=Math.max(5,parseFloat(g('wx-photo-sz').value));
+  g('wx-photo-op-val').textContent=Math.round(g('wx-photo-op').value)+'%';g('wx-photo-sz-val').textContent=Math.round(g('wx-photo-sz').value)+'%';g('wx-photo-sub').style.opacity=p.wxPhoto!==false?'1':'0.45';
+  saveAndRender();requestAnimationFrame(()=>{try{wxPhFit();}catch(e){}});
 }
 function wxPhotoSync(){
   const p=cur(),g=id=>document.getElementById(id);if(!p||!g('wx-photo-on'))return;
-  g('wx-photo-on').checked=p.wxPhoto!==false;g('wx-photo-op').value=p.wxPhotoOp??0.25;g('wx-photo-sz').value=p.wxPhotoSize??0.65;
-  wxPhotoCount();try{g('wx-photo-y').value=p.wxPhotoY??100;g('wx-photo-y-val').textContent=Math.round(p.wxPhotoY??100)+'%';}catch(e){}g('wx-photo-op-val').textContent=Math.round((p.wxPhotoOp??0.25)*100)+'%';g('wx-photo-sz-val').textContent=Math.round((p.wxPhotoSize??0.65)*100)+'%';g('wx-photo-sub').style.opacity=p.wxPhoto!==false?'1':'0.45';
+  g('wx-photo-on').checked=p.wxPhoto!==false;g('wx-photo-op').value=phOpToV(p.wxPhotoOp??0.25);g('wx-photo-sz').value=p.wxPhotoS??35;
+  wxPhotoCount();try{g('wx-photo-y').value=p.wxPhotoY??100;g('wx-photo-y-val').textContent=Math.round(p.wxPhotoY??100)+'%';}catch(e){}g('wx-photo-op-val').textContent=g('wx-photo-op').value+'%';g('wx-photo-sz-val').textContent=g('wx-photo-sz').value+'%';g('wx-photo-sub').style.opacity=p.wxPhoto!==false?'1':'0.45';
 }
 {const _sar2=saveAndRender;saveAndRender=function(){const r=_sar2.apply(this,arguments);try{wxPhotoApply();}catch(e){}return r;};}
 {const _uw=updateWeather;updateWeather=function(){const r=_uw.apply(this,arguments);try{wxPhotoApply();}catch(e){}return r;};}
@@ -3458,7 +3462,8 @@ function phEl(){
   e=document.createElement('div');e.id='ph-pop';
   e.innerHTML='<div class="php-head"><span class="php-title" id="php-title"></span><button onclick="phPopClose()" title="Close">✕</button></div>'
    +'<div class="php-grid" id="php-grid"></div>'
-   +'<div class="php-row"><button onclick="phPopStep(-1)" title="Previous photo">‹</button><button onclick="phPopStep(1)" title="Next photo">›</button><span class="php-note" id="php-count"></span></div>';
+   +'<div class="php-row"><button onclick="phPopStep(-1)" title="Previous photo">‹</button><button onclick="phPopStep(1)" title="Next photo">›</button><span class="php-note" id="php-count"></span></div>'
+   +'<div class="php-size" id="php-size"></div>';
   document.body.appendChild(e);return e;
 }
 function phPopClose(){const e=document.getElementById('ph-pop');if(e)e.style.display='none';_phKind='';_phSig='';}
@@ -3471,6 +3476,7 @@ function phPopOpen(kind,x,y){
 function phThumb(u){return /upload\.wikimedia\.org\/wikipedia\/commons\/thumb\//.test(u)?u.replace(/\/\d+px-/,'/250px-'):u;}
 function phPopStep(d){if(_phKind==='art')npArtistStep(d);else if(_phKind==='city')wxPhotoStep(d);}
 function phPopPick(u){if(_phKind==='art')npArtistSet(u);else if(_phKind==='city')wxPhotoSet(u);}
+function cur_(){return(typeof cur==='function'&&cur())||{};}
 function phPopRender(){
   const e=document.getElementById('ph-pop');if(!e||e.style.display==='none'||!_phKind)return;
   const g=id=>document.getElementById(id);let list=[],cur='',title='',note='';
@@ -3487,6 +3493,8 @@ function phPopRender(){
     const i=list.indexOf(cur);note=(list.length?(i>=0?(i+1)+' / ':'')+list.length+' photos':'No photos found');
   }
   g('php-title').textContent=title;g('php-count').textContent=note;
+  {const im=document.getElementById(_phKind==='art'?'np-artist-img':'wx-photo-img'),sz=g('php-size'),w=im&&im.naturalWidth,h=im&&im.naturalHeight;
+   sz.textContent=(w&&h)?`This photo: ${w} × ${h} px`+` · frame ${Math.round(((_phKind==='art'?cur_().npArtS:cur_().wxPhotoS)??35))}% of the page`:'';}
   const sig=_phKind+'|'+list.join(',');
   if(sig!==_phSig){
     _phSig=sig;const grid=g('php-grid');grid.textContent='';
@@ -3495,13 +3503,12 @@ function phPopRender(){
   g('php-grid').querySelectorAll('.php-t').forEach(im=>{const c=im.dataset.u===cur;im.classList.toggle('cur',c);if(c&&_phSig!==_phScrolled){_phScrolled=_phSig;im.scrollIntoView({block:'nearest'});}});
 }
 // where (0 = centre of the visible part, 1 = edge) a click lies on a photo; null if it is not on that photo
-function phHitOf(bg,on,x,y){
+function phHitOf(bg,on,x,y,ar){
   if(!bg||!on||getComputedStyle(bg).display==='none'||!bg.classList.contains('on'))return null;
   const r=bg.getBoundingClientRect();if(!r.width||!r.height)return null;
-  const pf=n=>parseFloat(bg.style.getPropertyValue(n))/100;
-  const cx=r.left+(pf('--mcx')||0.5)*r.width,cy=r.top+(pf('--mcy')||0.5)*r.height,rx=(pf('--mrx')||0.5)*r.width,ry=(pf('--mry')||0.5)*r.height;
-  const d=Math.hypot((x-cx)/rx,(y-cy)/ry);
-  return d<0.72?d:null;
+  if(x<r.left||x>r.right||y<r.top||y>r.bottom)return null;
+  if(ar){const a=ar.getBoundingClientRect();if(x<a.left-120||x>a.right+120||y<a.top-260||y>a.bottom+20)return null;}   // a full-screen photo must not turn every click on the page into the picker
+  return Math.hypot((x-(r.left+r.right)/2)/(r.width/2),(y-(r.top+r.bottom)/2)/(r.height/2))/1.5;
 }
 document.addEventListener('click',ev=>{
   try{
@@ -3512,8 +3519,8 @@ document.addEventListener('click',ev=>{
     if(t.closest('a,button,input,select,textarea,label,summary,[onclick],[contenteditable],[tabindex],[role=button],.modal,#weather-modal'))return;
     if([...document.querySelectorAll('.modal,#weather-modal')].some(m=>getComputedStyle(m).display!=='none'))return;
     const na=document.getElementById('np-area'),wa=document.getElementById('weather-area');
-    const da=phHitOf(na&&na.querySelector('.np-artist-bg'),na&&na.classList.contains('np-art-on'),ev.clientX,ev.clientY);
-    const dc=phHitOf(wa&&wa.querySelector('.wx-photo-bg'),wa&&wa.classList.contains('wx-ph-on'),ev.clientX,ev.clientY);
+    const da=phHitOf(na&&na.querySelector('.np-artist-bg'),na&&na.classList.contains('np-art-on'),ev.clientX,ev.clientY,na);
+    const dc=phHitOf(wa&&wa.querySelector('.wx-photo-bg'),wa&&wa.classList.contains('wx-ph-on'),ev.clientX,ev.clientY,wa);
     if(da===null&&dc===null)return;
     phPopOpen(dc===null||(da!==null&&da<=dc)?'art':'city',ev.clientX,ev.clientY);
   }catch(e){}
@@ -3541,8 +3548,61 @@ function phSetZones(el,z){
 }
 // Keeps a photo on screen: when it would run past a screen edge it slides back inside (by up to 60% of its size).
 // A photo with an unfaded bottom (or top) is set flush against the bottom (or top) of the screen.
+function phOpFromV(v){return Math.max(0,Math.min(1,parseFloat(v)/100));}   // photo sliders all run 0-100: intensity 0-100% opacity
+function phOpToV(o){return Math.round(Math.max(0,Math.min(1,o))*100);}
+function phSzFromV(v){return Math.round((0.4+Math.max(0,Math.min(100,parseFloat(v)))/100*2.1)*100)/100;}   // size 0-100 = 40%-250% of the normal photo size
+function phSzToV(z){return Math.round(Math.max(0,Math.min(100,(z-0.4)/2.1*100)));}
+const PH_LIFT=0.22;   // how far (as a share of the photo's height) the city / artist photos are lifted: bigger = lower part of the picture shows higher
+// One fixed FRAME for every photo: the size of the page itself (detected automatically), scaled by the size slider and pinned toward the widget's side
+// (bottom-left / bottom-center / bottom-right / top-middle). 100% = the whole page. Each photo is fitted inside the frame without distortion:
+// a bigger or wider photo shrinks to fit, a smaller or narrower one is scaled up to the frame's height, centred in the frame, and its open sides fade to nothing.
+// At 100% the frame edges are not faded; the smaller the size, the more the edges farthest from the anchor fade. The anchor side stays sharp.
+function phLayout(kind){
+  const wx=kind==='wx',ar=document.getElementById(wx?'weather-area':'np-area');if(!ar)return;
+  const bg=ar.querySelector(wx?'.wx-photo-bg':'.np-artist-bg'),img=bg&&bg.querySelector('img');
+  if(!bg||!img||!ar.classList.contains(wx?'wx-ph-on':'np-art-on')||!img.naturalWidth||!img.naturalHeight)return;
+  const p=cur()||{},S=Math.max(5,Math.min(100,wx?(p.wxPhotoS??35):(p.npArtS??35)))/100;
+  const vw=document.documentElement.clientWidth,vh=window.innerHeight,nw=img.naturalWidth,nh=img.naturalHeight;
+  const fw=vw*S,fh=vh*S,pos=plGet(p,wx?'wx':'np');
+  const fx=pos==='left'?0:pos==='right'?vw-fw:(vw-fw)/2,fy=pos==='top'?0:vh-fh;   // the frame
+  const k=Math.min(fw/nw,fh/nh),w=Math.max(8,Math.round(nw*k)),h=Math.max(8,Math.round(nh*k));   // the photo, fitted inside it
+  const x=fx+(fw-w)/2,y=pos==='top'?fy:fy+fh-h;
+  const st=bg.style;st.left='0px';st.top='0px';st.width=w+'px';st.height=h+'px';
+  const r=bg.getBoundingClientRect();   // an ancestor that moves things (transform) would shift a fixed box: measure and correct
+  st.left=Math.round(x-r.left)+'px';st.top=Math.round(y-r.top)+'px';
+  // Soft fade into the page background: ONE smooth elliptical falloff (no straight-edged rectangles). It is centred on the anchor side, so that side stays solid,
+  // the other sides melt completely into the background at small sizes, and at 100% nothing fades. Narrow photos also melt on their two open sides.
+  const narrow=w<fw-1.5,t=Math.max(0,Math.min(1,(1-S)/0.65));
+  const W=0.66*t,E=1+0.5*(1-t),A0=E-W,cx=narrow?50:pos==='left'?0:pos==='right'?100:50,cy=pos==='top'?0:40,rx=cx===50?62:125,ry=pos==='top'?100:72;   // wider than the photo: the sides fade less
+  const ease=(n,fn)=>{const o=[];for(let i=0;i<=n;i++){const u=i/n;o.push(fn(0.5+0.5*Math.cos(Math.PI*u),u));}return o;};
+  const layers=[];
+  if(t>0.001){
+    const stops=ease(10,(al,u)=>`rgba(0,0,0,${al.toFixed(3)}) ${((A0+W*u)*100).toFixed(1)}%`).join(',');
+    layers.push(`radial-gradient(ellipse ${rx}% ${ry}% at ${cx}% ${cy}%,#000 0%,${stops})`);
+  }
+  if(t>0.001&&pos!=='top'){   // the top edge also melts away (gently), so no straight line shows there
+    const td=ease(8,(al,u)=>`rgba(0,0,0,${(1-al).toFixed(3)}) ${(u*30).toFixed(1)}%`).join(',');
+    layers.push(`linear-gradient(to bottom,${td},#000 30%)`);
+  }
+  if(t>0.001&&!narrow){   // short, soft melt on the open sides so the photo never ends in a visible vertical edge (the anchored side stays solid)
+    const SW=16,e1=ease(8,(al,u)=>`rgba(0,0,0,${(1-al).toFixed(3)}) ${(u*SW).toFixed(1)}%`).join(','),e2=ease(8,(al,u)=>`rgba(0,0,0,${al.toFixed(3)}) ${(100-SW+u*SW).toFixed(1)}%`).join(',');
+    const L=pos==='left'?'#000 0%':e1,R=pos==='right'?'#000 100%':e2;
+    layers.push(`linear-gradient(to right,${L},#000 ${SW}%,#000 ${100-SW}%,${R})`);
+  }
+  if(narrow){   // the photo is narrower than its frame: its open sides melt away
+    const sd=ease(8,(al,u)=>`rgba(0,0,0,${(1-al).toFixed(3)}) ${(u*14).toFixed(1)}%`).join(',');
+    layers.push(`linear-gradient(to right,${sd},#000 14%,#000 86%,${ease(8,(al,u)=>`rgba(0,0,0,${al.toFixed(3)}) ${(86+u*14).toFixed(1)}%`).join(',')})`);
+  }
+  const m=layers.length?layers.join(','):'linear-gradient(#000,#000)';
+  st.setProperty('-webkit-mask-image',m);st.setProperty('mask-image',m);
+  st.setProperty('-webkit-mask-size','100% 100%');st.setProperty('mask-size','100% 100%');
+  st.setProperty('-webkit-mask-repeat','no-repeat');st.setProperty('mask-repeat','no-repeat');
+  st.setProperty('-webkit-mask-composite','source-in');st.setProperty('mask-composite','intersect');
+  if(!wx){const c=ar.querySelector('.np-card');if(c&&getComputedStyle(c).transform!=='none')setTimeout(()=>phLayout(kind),800);}   // the card is still sliding in
+}
 function phFit(bg,pre){
   if(!bg||getComputedStyle(bg).display==='none')return;
+  phLayout(pre==='wx-ph'?'wx':'np');return;
   bg.style.setProperty('--'+pre+'-dx','0px');bg.style.setProperty('--'+pre+'-dy','0px');
   const r=bg.getBoundingClientRect();if(!r.width||!r.height)return;
   const M=6,vw=document.documentElement.clientWidth,vh=window.innerHeight;
@@ -3554,7 +3614,7 @@ function phFit(bg,pre){
   const zt=parseFloat(bg.style.getPropertyValue('--zt')),zb=parseFloat(bg.style.getPropertyValue('--zb'));
   if(zt===0)dy=Math.max(-my,Math.min(my,-r.top));
   else if(zb===0)dy=Math.max(-my,Math.min(my,vh-r.bottom));
-  else dy=Math.max(M-r.top,dy-r.height*0.16);   // not flush with the bottom any more: lift the photo so the upper part of the picture shows
+  else dy=Math.max(M-r.top,dy-r.height*PH_LIFT);   // not flush with the bottom any more: lift the photo so the upper part of the picture shows
   const zl=parseFloat(bg.style.getPropertyValue('--zl')),zr=parseFloat(bg.style.getPropertyValue('--zr'));
   if(zl===0)dx=Math.max(-mx,Math.min(mx,-r.left));else if(zr===0)dx=Math.max(-mx,Math.min(mx,vw-r.right));
   bg.style.setProperty('--'+pre+'-dx',Math.round(dx)+'px');bg.style.setProperty('--'+pre+'-dy',Math.round(dy)+'px');
@@ -3629,6 +3689,36 @@ Promise.race([Promise.all(_fontWait),new Promise(r=>setTimeout(r,1500))]).then((
     cur.focus();hide();
   });
 })();
+// Suggested photos (city and artist) are listed biggest first. Each photo's size is measured once, remembered, and the lists are re-sorted as sizes come in.
+const PH_SZ_K='STARTPAGE_PHSIZES';let _phSz=null;const _phMeas=new Set(),_phMq=[];let _phMrun=0;
+function phSzStore(){if(!_phSz){try{_phSz=JSON.parse(localStorage.getItem(PH_SZ_K))||{};}catch(e){_phSz={};}}return _phSz;}
+function phSzSave(){try{const z=phSzStore(),k=Object.keys(z);if(k.length>1500)k.slice(0,k.length-1500).forEach(x=>delete z[x]);localStorage.setItem(PH_SZ_K,JSON.stringify(z));}catch(e){}}
+function phSortBySize(list){
+  const z=phSzStore(),a=u=>{const q=z[u];return q?q[0]*q[1]:-1;},idx=new Map(list.map((u,i)=>[u,i]));
+  return list.sort((x,y)=>(a(y)-a(x))||(idx.get(x)-idx.get(y)));   // unknown sizes stay at the end, in their original order
+}
+function phSzDone(){
+  try{phSortBySize(_wxPhList);}catch(e){}try{phSortBySize(_npArtList);}catch(e){}
+  try{phPopRender();}catch(e){}try{wxPhotoCount();}catch(e){}try{npArtPopSync();}catch(e){}
+}
+function phMeasureNext(){
+  while(_phMrun<4&&_phMq.length){
+    const u=_phMq.shift();_phMrun++;
+    const im=new Image();let fin=false;
+    const end=(w,h)=>{if(fin)return;fin=true;clearTimeout(t);im.onload=im.onerror=null;phSzStore()[u]=[w||0,h||0];_phMrun--;
+      if(!_phMq.length&&!_phMrun){phSzSave();phSzDone();}phMeasureNext();};
+    const t=setTimeout(()=>end(0,0),15000);
+    im.onload=()=>end(im.naturalWidth,im.naturalHeight);im.onerror=()=>end(0,0);im.src=u;
+  }
+}
+function phSortAndMeasure(list){
+  phSortBySize(list);const z=phSzStore();
+  list.forEach(u=>{if(!z[u]&&!_phMeas.has(u)){_phMeas.add(u);_phMq.push(u);}});
+  phMeasureNext();return list;
+}
+{const f1=wxCityImages;wxCityImages=async function(c){return phSortAndMeasure(await f1(c));};
+ const f2=npArtistCandidates;npArtistCandidates=async function(o){return phSortAndMeasure(await f2(o));};}
+try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','np-art']].forEach(a=>{const im=document.getElementById(a[0]);if(im)im.addEventListener('load',()=>{try{phLayout(a[2]==='wx-ph'?'wx':'np');}catch(e){}try{phPopRender();}catch(e){}});});}catch(e){}
 </script>
 </body>
 </html>
