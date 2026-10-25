@@ -3100,8 +3100,28 @@ const NP_AV='STARTPAGE_NP_ARTISTS';
 function npArtStore(){try{return JSON.parse(localStorage.getItem(NP_AV))||{};}catch(e){return{};}}
 function npArtSave(k,u){const c=npArtStore();c[k]={u:u,t:Date.now()};const ks=Object.keys(c);try{localStorage.setItem(NP_AV,JSON.stringify(c));}catch(e){}}
 /* Deezer's blank 'no photo' silhouette (empty-hash URL) and Discogs' spacer are never real artist photos */
-const npIsPh=u=>!u||/d41d8cd98f00b204e9800998ecf8427e|\/artist\/\/|spacer\.gif/i.test(String(u));
+const npIsPh=u=>!u||/d41d8cd98f00b204e9800998ecf8427e|2a96cbd8b46e442fc41c2b86b821562f|\/artist\/\/|spacer\.gif/i.test(String(u));
 function npImgOk(u,ms,min){return new Promise(res=>{const i=new Image();const t=setTimeout(()=>{i.onload=i.onerror=null;res(false);},ms||9000);i.onload=()=>{clearTimeout(t);res(i.naturalWidth>=(min==null?300:min));};i.onerror=()=>{clearTimeout(t);res(false);};i.src=u;});}
+/* A picture that is only a grey 'no photo' silhouette is rejected too, whatever site it comes from: it is almost colourless, has only a few flat shades and no fine detail.
+   (Needs the image host to allow reading its pixels; when it does not, the picture is simply accepted.) */
+const _npBlankMemo=new Map();
+function npImgBlank(u){
+  if(_npBlankMemo.has(u))return _npBlankMemo.get(u);
+  const pr=new Promise(res=>{
+    const i=new Image();i.crossOrigin='anonymous';
+    const t=setTimeout(()=>{i.onload=i.onerror=null;res(false);},8000);
+    i.onload=()=>{clearTimeout(t);try{
+      const n=48,c=document.createElement('canvas');c.width=c.height=n;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(i,0,0,n,n);
+      const d=x.getImageData(0,0,n,n).data,lv=new Array(16).fill(0);let sat=0,diff=0,cnt=0,prev=-1;
+      for(let k=0;k<d.length;k+=4){const r=d[k],g=d[k+1],b=d[k+2],l=(r+g+b)/3;sat+=Math.max(r,g,b)-Math.min(r,g,b);lv[Math.min(15,l>>4)]++;if(k%(n*4)!==0&&prev>=0){diff+=Math.abs(l-prev);cnt++;}prev=l;}
+      const px=n*n,used=lv.filter(v=>v/px>0.02).length;
+      res(sat/px<12&&used<=5&&diff/Math.max(1,cnt)<3);
+    }catch(e){res(false);}};
+    i.onerror=()=>{clearTimeout(t);res(false);};
+    i.src=u;
+  });
+  _npBlankMemo.set(u,pr);return pr;
+}
 function npArtSources(artist,mbid){
   const enc=encodeURIComponent,N=_npNorm;
   return[
@@ -3117,18 +3137,18 @@ function npArtSources(artist,mbid){
       return im.map(x=>x.uri||x.resource_url).filter(Boolean);
     },
     // 2) Deezer: the artist picture
-    async()=>{const j=await npJsonp('https://api.deezer.com/search/artist?limit=25&q='+enc(artist));const PH='d41d8cd98f00b204e9800998ecf8427e';const ms=((j&&j.data)||[]).filter(x=>N(x.name)===N(artist)).map(x=>({u:x.picture_xl||x.picture_big,f:x.nb_fan||0})).filter(x=>x.u&&!x.u.includes('/artist//')&&!x.u.includes(PH)).sort((a,b)=>b.f-a.f);return ms.map(x=>x.u);},  /* skip Deezer's blank placeholder, prefer the most-followed artist with that name */
+    async()=>{const j=await npJsonp('https://api.deezer.com/search/artist?limit=25&q='+enc(artist));const ms=((j&&j.data)||[]).filter(x=>N(x.name)===N(artist)).map(x=>({u:x.picture_xl||x.picture_big,f:x.nb_fan||0})).filter(x=>x.u&&!npIsPh(x.u)).sort((a,b)=>b.f-a.f);return ms.map(x=>x.u);},  /* skip Deezer's blank placeholder, prefer the most-followed artist with that name */
   ];
 }
 async function npFindArtistImage(artist,mbid){
-  const key='v6|'+(mbid||_npNorm(artist)),c=npArtStore()[key];
-  if(c&&c.u)return c.u;                                            // found before: kept for good (no expiry)
+  const key='v7|'+(mbid||_npNorm(artist)),c=npArtStore()[key];
+  if(c&&c.u&&!npIsPh(c.u)&&!(await npImgBlank(c.u)))return c.u;                                            // found before: kept for good (no expiry)
   const ps=npArtSources(artist,mbid).map(f=>f().then(l=>({l:l||[]}),()=>({l:[],err:true})));   // both start now ...
   let err=false;
   for(const p of ps){                                              // ... Discogs is judged first, Deezer only if Discogs has nothing
     const r=await p;if(r.err)err=true;
     for(const u of r.l.filter(x=>!npIsPh(x)).slice(0,3)){
-      if(await npImgOk(u,10000)){if(!err)npArtSave(key,u);return u;}
+      if(await npImgOk(u,10000)&&!(await npImgBlank(u))){if(!err)npArtSave(key,u);return u;}
     }
   }
   return '';
@@ -3140,11 +3160,11 @@ async function npArtistLoad(o){
   const k=npArtKeyOf(o);
   if(k===_npArtKey&&img.getAttribute('src'))return;   // same artist: keep the photo already shown
   _npArtKey=k;const seq=++_npArtSeq;bg.classList.remove('on');
-  let u='';{const fv=npArtFavGet(k);if(fv&&await npImgOk(fv))u=fv;}
+  let u='',fvBad=false;{const fv=npArtFavGet(k);if(fv&&await npImgOk(fv)){if(await npImgBlank(fv))fvBad=true;else u=fv;}}   // a remembered picture that is only a blank silhouette is dropped
   if(!u){try{u=await npFindArtistImage(o.artist,o.artistMbid);}catch(e){}}
   if(seq!==_npArtSeq)return;
   if(!u){img.removeAttribute('src');try{npArtPopSync();}catch(e){}return;}
-  {const a=jget(NP_FV);if(!a[k]){a[k]=u;jset(NP_FV,a);}}   // the first photo shown stays for this artist, until you choose another
+  {const a=jget(NP_FV);if(!a[k]||fvBad){a[k]=u;jset(NP_FV,a);}}   // the first photo shown stays for this artist, until you choose another
   img.onload=()=>{if(seq===_npArtSeq)bg.classList.add('on');};
   img.src=u;try{npArtPopSync();}catch(e){}
 }
