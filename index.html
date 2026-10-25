@@ -138,14 +138,16 @@ body.link-led.fx-ledtrace .link-row a:hover .led-svg rect.hd{animation:led-trace
 body.link-led.fx-sweeph .link-row a::before,body.link-led.fx-sweepv .link-row a::before{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;background-repeat:no-repeat}
 body.link-led.fx-sweeph .link-row a::before{background-image:linear-gradient(90deg,transparent 0%,transparent 20%,color-mix(in srgb,var(--cat-accent,#fff) 40%,transparent) 50%,transparent 80%,transparent 100%);background-size:300% 100%;background-position:0% 0}
 body.link-led.fx-sweepv .link-row a::before{background-image:linear-gradient(180deg,transparent 0%,transparent 20%,color-mix(in srgb,var(--cat-accent,#fff) 40%,transparent) 50%,transparent 80%,transparent 100%);background-size:100% 300%;background-position:0 0%}
+/* shine: a narrow bright streak sweeping across (the sweeps below are the wide soft versions) */
+body.link-led.fx-shine .link-row a::before{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;background-repeat:no-repeat;background-image:linear-gradient(105deg,transparent 0%,transparent 26%,color-mix(in srgb,var(--cat-accent,#fff) 55%,transparent) 50%,transparent 74%,transparent 100%);background-size:300% 100%;background-position:0% 0}
+body.link-led.fx-shine .link-row a:hover::before{opacity:1;animation:fx-sweep-h var(--led-dur,2.4s) ease-in-out infinite}
 body.link-led.fx-sweeph .link-row a:hover::before{opacity:1;animation:fx-sweep-h var(--led-dur,2.4s) ease-in-out infinite}
 body.link-led.fx-sweepv .link-row a:hover::before{opacity:1;animation:fx-sweep-v var(--led-dur,2.4s) ease-in-out infinite}
 body.link-led.fx-underline .link-row a .link-label{position:relative}
-body.link-led.fx-underline .link-row a .link-label::after{content:'';position:absolute;left:0;bottom:-2px;width:0;height:2px;background:linear-gradient(90deg,var(--cat-accent,#fff),var(--cat-accent2,var(--cat-accent,#fff)));pointer-events:none;transition:width .3s ease}   /* spans the text only (first letter to last); animates width, not a transform, so the 2px line is drawn pixel-snapped and stays the same thickness on every link */
+body.link-led.fx-underline .link-row a .link-label::after{content:'';position:absolute;left:0;bottom:-2px;width:0;height:0;border-bottom:2px solid var(--cat-accent,#fff);border-image:linear-gradient(90deg,var(--cat-accent,#fff),var(--cat-accent2,var(--cat-accent,#fff))) 1;pointer-events:none;transition:width .3s ease}   /* a border is always snapped to whole device pixels, so every link gets exactly the same line thickness */
 body.link-led.fx-underline .link-row a:hover .link-label::after{width:100%}
 body.link-led.fx-pulse .link-row a:hover{animation:fx-pulse var(--led-dur,2.4s) ease-in-out infinite}
 body.link-led.fx-neon .link-row a:hover{animation:fx-neon var(--led-dur,2.4s) ease-in-out infinite}
-body.link-led.fx-grow .link-row a:hover{transform:scale(1.08)}
 body.link-led.fx-border .link-row a{box-shadow:inset 0 0 0 1px transparent;transition:box-shadow .25s ease,background .2s ease}
 body.link-led.fx-border .link-row a:hover{box-shadow:inset 0 0 0 1.5px var(--cat-accent,#fff),0 0 10px -3px color-mix(in srgb,var(--cat-accent,#fff) 60%,transparent)}
 @media (prefers-reduced-motion:reduce){body[class*="fx-"] .link-row a:hover,body[class*="fx-"] .link-row a:hover::before{animation:none}}
@@ -253,7 +255,25 @@ body.link-led.fx-border .link-row a:hover{box-shadow:inset 0 0 0 1.5px var(--cat
 #top-stack .wx-compact:hover .wx-pop{transform:translateX(-50%)}
 #top-stack .wx-compact::before{bottom:auto;top:100%}
 .wx-pop,.wx-pop *{pointer-events:none !important}
-.wx-pop-in{display:flex;gap:0.25rem;padding:0.5rem;background:var(--wxp-bg,transparent);-webkit-backdrop-filter:blur(var(--wxp-blur,5px));backdrop-filter:blur(var(--wxp-blur,5px));border:1px solid rgba(255,255,255,0.1);border-radius:var(--wxp-r,0px);box-shadow:0 10px 30px rgba(0,0,0,0.5)}
+/* Hourly forecast: the Compact popup alternates between the days and the next hours; a Classic day card shows that day's hours on hover */
+.wx-pv{position:relative;overflow:hidden;transition:width .4s ease,height .4s ease}   /* width/height are set in JS to the size of the view being shown, so the popup resizes with it */
+.wx-pvd,.wx-pvh{position:absolute;top:0;left:50%;transform:translateX(-50%);width:max-content;transition:opacity .4s ease}
+.wx-pvd{display:flex;gap:0.25rem;justify-content:center;align-items:center}
+.wx-pvh{display:grid;grid-template-columns:repeat(12,auto);gap:0.25rem}
+.wx-pop{transition:opacity 0.2s ease,transform 0.2s ease,margin-left .4s ease}
+.wx-pvh{opacity:0}
+.wx-pop.h .wx-pvh{opacity:1}
+.wx-pop.h .wx-pvd{opacity:0}
+.wx-pdots{display:flex;gap:5px}
+.wx-pdots i{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.3;transition:opacity .3s}
+.wx-pdots i:nth-child(1){opacity:.9}
+.wx-pop.h .wx-pdots i:nth-child(1){opacity:.3}
+.wx-pop.h .wx-pdots i:nth-child(2){opacity:.9}
+#weather-grid{position:relative}
+#weather-grid>.wx-pop.on{opacity:1;transform:translateX(-50%)}   /* Classic: one popup for the whole day row, it never follows the mouse */
+.wx-hgrid{display:grid;grid-template-columns:repeat(12,auto);gap:0.25rem}
+.wx-hgrid .weather-card.past{opacity:.45}
+.wx-pop-in{display:flex;flex-direction:column;align-items:center;gap:0.35rem;padding:0.5rem;background:var(--wxp-bg,transparent);-webkit-backdrop-filter:blur(var(--wxp-blur,5px));backdrop-filter:blur(var(--wxp-blur,5px));border:1px solid rgba(255,255,255,0.1);border-radius:var(--wxp-r,0px);box-shadow:0 10px 30px rgba(0,0,0,0.5)}
 #weather-area .weather-bg-wrap{position:relative;isolation:isolate}
 #weather-area .wx-addcity{display:none;width:auto;align-items:center;justify-content:center;gap:0.6rem;margin:0;padding:0.6rem 1.3rem;border-radius:var(--widget-radius,10px);background:rgba(255,255,255,0.05);border:1px dashed rgba(255,255,255,0.28);color:rgba(255,255,255,0.78);font-family:var(--weather-font,inherit);font-size:0.9rem;font-weight:400;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:background 0.2s,border-color 0.2s,color 0.2s}
 #weather-area .wx-addcity:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.5);color:#fff}
@@ -755,7 +775,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
         </div>
         <div class="s-card">
           <div class="s-title">Links</div>
-          <div class="inl-row"><div class="inl"><span>Open Links On</span><select id="target-mode" onchange="updateVis()"><option value="_self">Current Tab</option><option value="_blank">New Tab</option></select></div><label class="label-inline inl" title="Adds an animated effect in the category color when you hover over a link"><input type="checkbox" id="link-led" onchange="updateVis()"> Hover effect</label><div class="inl" title="Which effect plays when you hover over a link"><select id="link-fx" onchange="updateVis()" style="width:auto;min-width:130px;"><optgroup label="LED"><option value="led">LED run</option><option value="ledrev">LED run (reverse)</option><option value="leddual">LED twin</option><option value="ledping">LED ping-pong</option><option value="ledtrace">LED trace</option></optgroup><optgroup label="Sweep"><option value="sweeph">Sweep horizontal</option><option value="sweepv">Sweep vertical</option></optgroup><optgroup label="Other"><option value="underline">Underline draw</option><option value="pulse">Glow pulse</option><option value="neon">Neon text</option><option value="border">Outline</option><option value="grow">Grow</option></optgroup></select></div><div class="inl" title="How fast the hover effect animates" style="flex:1;min-width:220px;"><span>Effect speed</span><div class="bd-slide" style="flex:1;min-width:0;margin:0;"><input type="range" id="link-led-speed" min="0.3" max="3" step="0.1" value="1" oninput="updateLedSpeed(this.value)"></div><span id="link-led-speed-val" style="font-size:0.72rem;color:#888;min-width:28px;">1.0×</span></div></div>
+          <div class="inl-row"><div class="inl"><span>Open Links On</span><select id="target-mode" onchange="updateVis()"><option value="_self">Current Tab</option><option value="_blank">New Tab</option></select></div><label class="label-inline inl" title="Adds an animated effect in the category color when you hover over a link"><input type="checkbox" id="link-led" onchange="updateVis()"> Hover effect</label><div class="inl" title="Which effect plays when you hover over a link"><select id="link-fx" onchange="updateVis()" style="width:auto;min-width:130px;"><optgroup label="LED"><option value="led">LED run</option><option value="ledrev">LED run (reverse)</option><option value="leddual">LED twin</option><option value="ledping">LED ping-pong</option><option value="ledtrace">LED trace</option></optgroup><optgroup label="Sweep"><option value="shine">Shine sweep</option><option value="sweeph">Sweep horizontal</option><option value="sweepv">Sweep vertical</option></optgroup><optgroup label="Other"><option value="underline">Underline draw</option><option value="pulse">Glow pulse</option><option value="neon">Neon text</option><option value="border">Outline</option></optgroup></select></div><div class="inl" title="How fast the hover effect animates" style="flex:1;min-width:220px;"><span>Effect speed</span><div class="bd-slide" style="flex:1;min-width:0;margin:0;"><input type="range" id="link-led-speed" min="0.3" max="3" step="0.1" value="1" oninput="updateLedSpeed(this.value)"></div><span id="link-led-speed-val" style="font-size:0.72rem;color:#888;min-width:28px;">1.0×</span></div></div>
         </div>
         <div class="s-card">
           <div class="s-title">Settings Window</div>
@@ -1018,20 +1038,6 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
             </div>
             <div class="tx-head">Fonts</div>
             <div class="tx-grid" id="tx-wx"></div>
-          </div>
-          <div class="s-card" id="wx-card-pop" style="display:none;">
-            <div class="s-title">Hover popup</div>
-            <div id="wx-slot-pop"></div>
-            <div class="s-field"><div class="s-lab">Background</div><div class="size-group" id="wxp-mode-group"><button class="size-btn" data-m="color" onclick="wxpSet('wpBgMode','color')">Color</button><button class="size-btn" data-m="blur" onclick="wxpSet('wpBgMode','blur')">Blur only</button></div></div>
-            <div id="wxp-color-row">
-              <div class="color-row" style="margin-bottom:4px;"><span>Color &amp; opacity</span><span id="wxp-op-val" style="font-size:0.72rem;color:#888;"></span></div>
-              <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;"><input type="range" id="wxp-op" min="0" max="1" step="0.01" oninput="wxpSet('wpBgOpacity',parseFloat(this.value))" style="flex:1;min-width:0;margin-top:0;"><div class="color-field"><input type="color" id="wxp-color" oninput="wxpSet('wpBgColor',this.value)" style="display:none"><div class="cp-swatch" title="Background color" onclick="cpOpen('wxp-color')"></div></div></div>
-            </div>
-            <div class="color-row" style="margin-bottom:4px;"><span>Blur</span><span id="wxp-blur-val" style="font-size:0.72rem;color:#888;"></span></div>
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;"><input type="range" id="wxp-blur" min="0" max="40" step="1" oninput="wxpSet('wpBlur',parseFloat(this.value))" style="flex:1;min-width:0;margin-top:0;"></div>
-            <div class="s-field"><div class="s-lab">Corners</div><div class="size-group" id="wxp-corner-group"><button class="size-btn" data-c="round" onclick="wxpSet('wpCorners','round')">Round</button><button class="size-btn" data-c="square" onclick="wxpSet('wpCorners','square')">Square</button></div></div>
-            <div class="tx-head">Fonts</div>
-            <div class="tx-grid" id="tx-wx-pop"></div>
           </div>
           <div class="s-card">
             <div class="s-title">Extra Info</div>
@@ -1407,7 +1413,7 @@ const SE={google:{name:'Google',url:'https://www.google.com/search?q=',fav:'http
 function mkLinks(n){const l=[];for(let i=1;i<=n;i++)l.push({name:`Link ${i}`,url:'',color:'',linkIcon:{type:'none',src:''}});return l;}
 function mkCats(n,pfx){const c=[];for(let i=1;i<=n;i++)c.push({title:`${pfx} ${i}`,color:pfx==='Work'?'#ff8800':'#00d4ff',url:'',links:mkLinks(5)});return c;}
 function mkProf(cats,density){return{ql:[{name:'fa-solid fa-server',url:'',vis:false,color:'',linkIcon:{type:'none',src:''}},{name:'fa-solid fa-sliders',url:'',vis:false,color:'',linkIcon:{type:'none',src:''}},{name:'fa-brands fa-spotify',url:'',vis:false,color:'',linkIcon:{type:'none',src:''}},{name:'fa-solid fa-star',url:'',vis:false,color:'',linkIcon:{type:'none',src:''}}],categories:cats,showWeather:true,showHeaders:true,showClock:true,clockFormat:'24',clockSeconds:true,clockShowDate:true,clockDateFmt:'long',clockColor:'#ffffff',clockFont:'Inter',iconColor:'#ffffff',bgColor:'#1C1B22',bgImg:'',bgMode:'gradient',gradType:'auto',gradDir:'ltr',gradColorA:'#1C1B22',gradColorB:'#00d4ff',opGradient:0.1,fuzzy:0,photoDim:0.1,weatherColor:'#ffffff',weatherFont:'Inter',weatherBackdrop:0.1,wShowDay:true,wShowDate:true,wDateFmt:'dmy',wColored:true,wAqi:true,wUv:true,wPressure:true,wHumidity:true,wVisibility:true,wSunrise:true,density,searchFont:'Inter',showSearch:true,searchEngine:'startpage',profileIcon:'fa-solid fa-user',profilePhoto:'',profileIconColor:'#ffffff',cardOpacity:0.1,unsplashKey:UNSPLASH_KEY,unsplashDim:0.1,unsplashBlur:0,opTime:1.0};}
-const LINK_FX=['led','ledrev','leddual','ledping','ledtrace','sweeph','sweepv','underline','pulse','neon','border','grow'];
+const LINK_FX=['led','ledrev','leddual','ledping','ledtrace','shine','sweeph','sweepv','underline','pulse','neon','border'];
 function linkFxOf(){return LINK_FX.includes(state.linkFx)?state.linkFx:'led';}
 const LED_SVG=(()=>{const N=18,T=34;let r='';for(let k=N-1;k>=0;k--){const L=+(T*(k+1)/N).toFixed(2);r+=`<rect class="${k>=N/2?'l2':''}" pathLength="100" stroke-dasharray="${L} ${+(100-L).toFixed(2)}"/>`;}r+=`<rect class="hd" pathLength="100" stroke-dasharray="1.2 98.8"/>`;return`<svg class="led-svg" aria-hidden="true">${r}</svg>`;})();
 const LED_SVG2=LED_SVG.replace('class="led-svg"','class="led-svg b"');
@@ -1879,10 +1885,11 @@ const TX_LABELS={'wx-pdays':'Days & dates','wx-ptemp':'Temperatures','wx-city':'
 const TX_LOCK={'np-label':'wx-city','np-title':'wx-temp','np-artist':'wx-days','np-album':'wx-stats'};
 const TX_DEFAULT={'wx-city':{fontStyle:'bold',fontSize:'m',color:'#999999'},'wx-days':{fontSize:'m'},'wx-temp':{fontSize:'l'},'wx-pdays':{fontSize:'s'},'wx-ptemp':{fontSize:'m'},'wx-x-humidity':{fontSize:'s',color:'#999999'},'wx-x-pressure':{fontSize:'s',color:'#999999'},'wx-x-aqi':{fontSize:'s',color:'#999999'},'wx-x-uv':{fontSize:'s',color:'#999999'},'wx-x-visibility':{fontSize:'s',color:'#999999'},'wx-x-sunrise':{fontSize:'s',color:'#999999'},'wx-cond':{fontSize:'m'},'wx-stats':{fontSize:'s',color:'#999999'},
   'np-label':{fontSize:'s',color:'#ff4444'},'np-title':{fontStyle:'bold',fontSize:'m'},'np-artist':{fontSize:'m'},'np-album':{fontSize:'m'}};   // the starting look of each text; the font size picked for each text is the ONLY thing that sizes it
-const TX_DEFAULT_CLASSIC={'wx-city':{fontSize:'s'},'wx-days':{fontSize:'s'},'wx-temp':{fontSize:'s'}};   // the Classic weather starts smaller than Compact
+const TX_DEFAULT_CLASSIC={'wx-days':{fontSize:'s'},'wx-temp':{fontSize:'s'}};   // the Classic weather starts smaller than Compact
 function txDef(p,k){const d=TX_DEFAULT[k]||{};return(p&&p.weatherStyle==='compact')?d:Object.assign({},d,TX_DEFAULT_CLASSIC[k]||{});}
-function txColorOf(p,k){return(p.tx&&p.tx[k]&&p.tx[k].color)||txDef(p,k).color||'';}
-function txGet(p,k){const o=(p.tx&&p.tx[k])||{},d=txDef(p,k);return{font:fontName(o.font||p.weatherFont),fontStyle:fstyleName(o.fontStyle||d.fontStyle||p.weatherFontStyle,'weather'),fontSize:fsizeName(o.fontSize||d.fontSize)};}
+const TX_POPFIXED=['wx-pdays','wx-ptemp'];   // hover popup texts: no settings, always the defaults
+function txColorOf(p,k){return(!TX_POPFIXED.includes(k)&&p.tx&&p.tx[k]&&p.tx[k].color)||txDef(p,k).color||'';}
+function txGet(p,k){const o=(!TX_POPFIXED.includes(k)&&p.tx&&p.tx[k])||{},d=txDef(p,k);return{font:fontName(o.font||p.weatherFont),fontStyle:fstyleName(o.fontStyle||d.fontStyle||p.weatherFontStyle,'weather'),fontSize:fsizeName(o.fontSize||d.fontSize)};}
 const txVars=k=>`font-family:var(--tx-${k}-ff);font-weight:var(--tx-${k}-fw);font-style:var(--tx-${k}-fi);`;
 const txZ=k=>`var(--tx-${k}-z,1)`;
 function applyTx(p){
@@ -1924,7 +1931,6 @@ function renderTx(){
   const p=cur();if(!p)return;
   const f=(id,keys)=>{const e=document.getElementById(id);if(e)e.innerHTML=keys.map(k=>txCell(k,p)).join('');};
   f('tx-wx',wxSty(p)==='compact'?['wx-city','wx-temp','wx-cond']:['wx-city','wx-days','wx-temp']);   /* Compact: the weather now (its popup has its own card); Classic: the forecast */
-  f('tx-wx-pop',['wx-pdays','wx-ptemp']);
   renderXiList();renderNpOrder();
 }
 function txSet(k,prop,v){const p=cur();p.tx=p.tx||{};const o=p.tx[k]=p.tx[k]||{};o[prop]=cleanFontProp(prop,v,'weather');saveAndRender();requestAnimationFrame(()=>{try{npAlign();}catch(e){}});}
@@ -2449,7 +2455,7 @@ function wxAnimCls(icon){
 let _wxRaw=null;
 // the hover popup is centred on the weather; when the weather sits at the left / right edge it is slid back inside the window
 var WXP_DEF={wpBgMode:'blur',wpBgColor:'#0e0e0e',wpBgOpacity:0.9,wpBlur:5,wpCorners:'square'};
-function wxpGet(p,k){return(p&&p[k]!==undefined)?p[k]:WXP_DEF[k];}
+function wxpGet(p,k){return WXP_DEF[k];}   // the hover popup has no settings: always its default look
 function wxpHex(h){h=String(h||'#0e0e0e').replace('#','');if(h.length===3)h=h.split('').map(c=>c+c).join('');const n=parseInt(h,16)||0;return[(n>>16)&255,(n>>8)&255,n&255];}
 function applyWxPopStyle(p){
   const r=document.documentElement.style,blur=wxpGet(p,'wpBlur');
@@ -2484,17 +2490,71 @@ function wxPopFit(){
     pop.style.setProperty('--wx-pop-shift',Math.round(sh)+'px');
   });
 }
-document.addEventListener('mouseover',e=>{if(e.target.closest&&e.target.closest('.wx-compact'))wxPopFit();});
+document.addEventListener('mouseover',e=>{if(e.target.closest&&e.target.closest('.wx-compact')){try{wxPvReset();}catch(err){}wxPopFit();}});
 window.addEventListener('resize',()=>{try{wxPopFit();}catch(e){}});
+/* Hourly forecast popups.
+   Compact: while the popup is open it flips between the days and the next hours every few seconds.
+   Classic: hovering a day card opens a small popup with that day's hours (built the first time it is needed). */
+let _wxPopEl=null,_wxWheelT=0;
+function wxPvSize(pop){   // size the box to the view that is showing (days or hours)
+  const pv=pop.querySelector('.wx-pv');if(!pv)return;
+  const v=pv.querySelector(pop.classList.contains('h')?'.wx-pvh':'.wx-pvd');if(!v)return;
+  pv.style.width=v.offsetWidth+'px';pv.style.height=v.offsetHeight+'px';
+}
+function wxPvReset(){   // fresh hover: back to the days view at its own size (no animation)
+  document.querySelectorAll('#weather-grid .wx-pop').forEach(pop=>{
+    const pv=pop.querySelector('.wx-pv');if(!pv||pop===_wxPopEl)return;
+    pop.classList.remove('h');if(pop.firstElementChild)pop.firstElementChild.style.zoom='';
+    pv.style.transition='none';wxPvSize(pop);void pv.offsetWidth;pv.style.transition='';
+  });
+}
+function wxPopSwitch(pop,toH){   // show the days or the hours; the box animates to the new size and the popup is re-fitted to the window
+  const pv=pop.querySelector('.wx-pv'),inn=pop.firstElementChild;if(!pv)return;
+  const oW=pv.style.width,oH=pv.style.height;
+  pop.classList.toggle('h',!!toH);if(inn)inn.style.zoom='';
+  pv.style.transition='none';wxPvSize(pop);const nW=pv.style.width,nH=pv.style.height;
+  try{wxPopFit();}catch(e){}
+  pv.style.width=oW;pv.style.height=oH;void pv.offsetWidth;
+  pv.style.transition='';pv.style.width=nW;pv.style.height=nH;
+}
+document.addEventListener('mouseover',e=>{
+  const c=e.target.closest&&e.target.closest('.wx-compact');if(!c)return;
+  const pop=c.querySelector('.wx-pop');if(pop&&pop.querySelector('.wx-pvh'))_wxPopEl=pop;
+});
+document.addEventListener('mouseout',e=>{const c=e.target.closest&&e.target.closest('.wx-compact');if(c&&!(e.relatedTarget&&c.contains(e.relatedTarget)))_wxPopEl=null;});
+// Compact: roll the mouse wheel over the weather to switch the popup between the days (wheel up) and the next 24 hours (wheel down)
+document.addEventListener('wheel',e=>{
+  const c=e.target.closest&&e.target.closest('.wx-compact');if(!c)return;
+  const pop=c.querySelector('.wx-pop');if(!pop||!pop.querySelector('.wx-pvh')||!e.deltaY)return;
+  e.preventDefault();
+  const toH=e.deltaY>0;if(toH===pop.classList.contains('h')||Date.now()-_wxWheelT<400)return;
+  _wxWheelT=Date.now();wxPopSwitch(pop,toH);
+},{passive:false});
+function wxDayPopEl(){   // the one popup of the Classic weather, made the first time it is needed
+  const g=document.getElementById('weather-grid');if(!g||!window._wxDayPop)return null;
+  let p=g.querySelector(':scope>.wx-pop');
+  if(!p){const h=window._wxDayPop();if(!h)return null;g.insertAdjacentHTML('beforeend',h);p=g.lastElementChild;}
+  return p;
+}
+document.addEventListener('mouseover',e=>{
+  const c=e.target.closest&&e.target.closest('.wx-dcard');if(!c)return;
+  const p=wxDayPopEl();if(!p||p.classList.contains('on'))return;
+  try{wxPopFit();}catch(err){}
+  requestAnimationFrame(()=>{if(c.matches(':hover'))p.classList.add('on');});
+});
+document.addEventListener('mouseout',e=>{
+  const g=e.target.closest&&e.target.closest('#weather-grid');if(!g||(e.relatedTarget&&g.contains(e.relatedTarget)))return;
+  const p=g.querySelector(':scope>.wx-pop');if(p)p.classList.remove('on');
+});
+
 function wxRerender(){if(_wxRaw)renderWxGrid();else updateWeather();}
 function setWxStyle(st){const p=cur();p.weatherStyle=st;syncWxStyle(p);saveAndRender();wxRerender();}
 function wxFx(){const p=cur();p.wAnim=document.getElementById('w-anim').checked;p.wTint=document.getElementById('w-tint').checked;saveAndRender();wxRerender();}
 function syncWxStyle(p){
-  {const comp=wxSty(p)==='compact',g=id=>document.getElementById(id),row=g('wx-row-days'),slot=g(comp?'wx-slot-pop':'wx-slot-days');
-   if(row&&slot&&row.parentNode!==slot)slot.appendChild(row);   // Show Day / Date / format belong to the popup in Compact, to the forecast in Classic
-   if(g('wx-card-pop'))g('wx-card-pop').style.display=comp?'':'none';
+  {const comp=wxSty(p)==='compact',g=id=>document.getElementById(id),row=g('wx-row-days'),slot=g('wx-slot-days');
+   if(row&&slot&&row.parentNode!==slot)slot.appendChild(row);
    if(g('wx-main-title'))g('wx-main-title').textContent=comp?'Current weather':'Forecast';
-   wxpSync(p);}
+}
   document.querySelectorAll('#wx-style-group .size-btn').forEach(b=>b.classList.toggle('active',b.dataset.wxs===wxSty(p)));
   const a=document.getElementById('w-anim'),t=document.getElementById('w-tint');if(a)a.checked=p.wAnim!==false;if(t)t.checked=p.wTint===true;
 }
@@ -2518,24 +2578,39 @@ function renderWxGrid(){
   const head=(t,fs)=>{const dn=(p.wShowDay!==false)?new Date(t+'T12:00:00').toLocaleDateString('en',{weekday:'short'}):'',ds=(p.wShowDate!==false)?fmtD(t):'';return`<div class="wx-dl" style="font-size:${F(fs,'wx-days')}"><span>${dn}</span>${ds?`<span>${ds}</span>`:''}</div>`;};
   const hbar=i=>{const g=seg(i);return`<div class="wx-hbar"><span style="left:${g.l}%;width:${g.w}%;background:linear-gradient(90deg,${tc(lo[i])},${tc(hi[i])})"></span></div>`;};
   const rainRow=i=>{const v=d.daily.precipitation_probability_max?d.daily.precipitation_probability_max[i]:null;return v==null?'':`<div class="wx-rain" style="color:${col};font-size:${F(0.66,'wx-days')}" title="Chance of rain"><i class="fa-solid fa-droplet"></i>${Math.round(v)}%</div>`;};
-  const cardCols=(kd,kt)=>{   // which texts style the cards: the popup of the Compact weather has its own
+  const cardCols=(kd,kt,dc)=>{   // which texts style the cards: the popup of the Compact weather has its own
     const dfs='0.9rem',ifs=F(1.5,kt),tfs='0.9rem',tms='0.9rem';
     const cp='calc(0.4rem * var(--wx-cz,1)) calc(0.6rem * var(--wx-cz,1))',mw='calc(4.2rem * var(--wx-cz,1))';
     const dS=`${txVars(kd)}color:var(--tx-${kd}-c,inherit);font-size:calc(${dfs} * ${txZ(kd)});`,tS=`${txVars(kt)}`;
-    return days.map((t,i)=>{const wx=dinfo(i);const dn=(p.wShowDay!==false)?new Date(t+'T12:00:00').toLocaleDateString('en',{weekday:'short'}):'';const ds2=(p.wShowDate!==false)?fmtD(t):'';return`<div class="weather-card" title="${wx.label}" style="padding:${cp};min-width:${mw};"><div style="display:flex;align-items:baseline;justify-content:center;gap:4px;margin-bottom:0.2rem;white-space:nowrap;"><span style="${dS}text-transform:uppercase;">${dn}</span>${ds2?`<span style="${dS}">${ds2}</span>`:''}</div><i class="fa-solid ${wx.icon} ${i===0?an(wx):''}" style="color:${icc(wx)};font-size:${ifs};margin:0.25rem 0;display:block;"></i><div style="display:flex;align-items:baseline;justify-content:center;gap:5px;"><span style="${tS}color:var(--tx-${kt}-c,${col});font-size:calc(${tfs} * ${txZ(kt)});">${hi[i]}°</span><span style="${tS}color:var(--tx-${kt}-c,${col});font-size:calc(${tms} * ${txZ(kt)});">${lo[i]}°</span></div></div>`;}).join('');
+    return days.map((t,i)=>{const wx=dinfo(i);const dn=(p.wShowDay!==false)?new Date(t+'T12:00:00').toLocaleDateString('en',{weekday:'short'}):'';const ds2=(p.wShowDate!==false)?fmtD(t):'';return`<div class="weather-card${dc?' wx-dcard':''}"${dc?` data-di="${i}"`:''} title="${wx.label}" style="padding:${cp};min-width:${mw};"><div style="display:flex;align-items:baseline;justify-content:center;gap:4px;margin-bottom:0.2rem;white-space:nowrap;"><span style="${dS}text-transform:uppercase;">${dn}</span>${ds2?`<span style="${dS}">${ds2}</span>`:''}</div><i class="fa-solid ${wx.icon} ${i===0?an(wx):''}" style="color:${icc(wx)};font-size:${ifs};margin:0.25rem 0;display:block;"></i><div style="display:flex;align-items:baseline;justify-content:center;gap:5px;"><span style="${tS}color:var(--tx-${kt}-c,${col});font-size:calc(${tfs} * ${txZ(kt)});">${hi[i]}°</span><span style="${tS}color:var(--tx-${kt}-c,${col});font-size:calc(${tms} * ${txZ(kt)});">${lo[i]}°</span></div></div>`;}).join('');
   };
+  // ---- hourly data (older cached weather has none: then the popups simply stay as before)
+  const hr=d.hourly&&d.hourly.time&&d.hourly.temperature_2m?d.hourly:null,u12=(p.clockFormat||'24')==='12';
+  const hLabel=t=>{const h=+t.slice(11,13);return u12?((h%12||12)+(h>=12?'p':'a')):(String(h).padStart(2,'0')+':00');};
+  const hCard=(j,kd,kt,dim)=>{
+    const wx=wxInfo(hr.weathercode?hr.weathercode[j]:0,hr.is_day?hr.is_day[j]===0:false);
+    const cp='calc(0.4rem * var(--wx-cz,1)) calc(0.45rem * var(--wx-cz,1))',mw='calc(3.3rem * var(--wx-cz,1))';
+    const dS=`${txVars(kd)}color:var(--tx-${kd}-c,inherit);font-size:calc(0.8rem * ${txZ(kd)});`,tS=`${txVars(kt)}`;
+    return`<div class="weather-card${dim?' past':''}" title="${wx.label}" style="padding:${cp};min-width:${mw};"><div style="display:flex;justify-content:center;margin-bottom:0.2rem;white-space:nowrap;"><span style="${dS}">${hLabel(hr.time[j])}</span></div><i class="fa-solid ${wx.icon}" style="color:${icc(wx)};font-size:${F(1.3,kt)};margin:0.25rem 0;display:block;"></i><div style="display:flex;justify-content:center;"><span style="${tS}color:var(--tx-${kt}-c,${col});font-size:calc(0.9rem * ${txZ(kt)});">${Math.round(hr.temperature_2m[j])}°</span></div></div>`;
+  };
+  // index of the current hour in the hourly list
+  const hNow=()=>{if(!hr)return 0;const ct=d.current&&d.current.time?d.current.time.slice(0,13)+':00':null;let k=ct?hr.time.indexOf(ct):-1;if(k<0&&ct){k=hr.time.findIndex(t=>t>ct);k=k<0?0:Math.max(0,k-1);}return Math.max(0,k);};
+  const nextHours=n=>{if(!hr)return'';const a=hNow();let o='';for(let j=a;j<Math.min(hr.time.length,a+n);j++)o+=hCard(j,'wx-pdays','wx-ptemp',false);return o;};
+  const dayHours=i=>{if(!hr)return'';const a=hr.time.findIndex(t=>t.startsWith(days[i]));if(a<0)return'';const nowK=hNow();let o='';for(let j=a;j<Math.min(hr.time.length,a+24);j++){if(!hr.time[j].startsWith(days[i]))break;o+=hCard(j,'wx-pdays','wx-ptemp',i===0&&j<nowK);}return o;};
+  window._wxDayPop=()=>{const c=nextHours(24);   // whichever day card is hovered, the popup shows the next 24 hours, counted from now
+  return c?`<div class="wx-pop"><div class="wx-pop-in"><div class="wx-hgrid">${c}</div></div></div>`:'';};
   let html='';
   if(style==='compact'){
-    html=`<div class="wx-compact" style="color:${col}"><div class="wx-ctrig"><i class="fa-solid ${nowInfo.icon} ${an(nowInfo)}" style="color:${icc(nowInfo)};font-size:${F(1.6,'wx-temp')}"></i><span class="wx-cnow" style="${txVars('wx-temp')}color:var(--tx-wx-temp-c,inherit);font-size:${F(0.9,'wx-temp')}">${curT}°</span></div><span class="wx-ccond" style="${txVars('wx-cond')}color:var(--tx-wx-cond-c,inherit);font-size:${F(0.9,'wx-cond')}">${nowInfo.label}</span><div class="wx-pop"><div class="wx-pop-in">${cardCols('wx-pdays','wx-ptemp')}</div></div></div>`;
+    html=`<div class="wx-compact" style="color:${col}"><div class="wx-ctrig"><i class="fa-solid ${nowInfo.icon} ${an(nowInfo)}" style="color:${icc(nowInfo)};font-size:${F(1.6,'wx-temp')}"></i><span class="wx-cnow" style="${txVars('wx-temp')}color:var(--tx-wx-temp-c,inherit);font-size:${F(0.9,'wx-temp')}">${curT}°</span></div><span class="wx-ccond" style="${txVars('wx-cond')}color:var(--tx-wx-cond-c,inherit);font-size:${F(0.9,'wx-cond')}">${nowInfo.label}</span><div class="wx-pop"><div class="wx-pop-in">${hr?`<div class="wx-pv"><div class="wx-pvd">${cardCols('wx-pdays','wx-ptemp')}</div><div class="wx-pvh">${nextHours(24)}</div></div><div class="wx-pdots"><i></i><i></i></div>`:cardCols('wx-pdays','wx-ptemp')}</div></div></div>`;
   }else{
-    html=cardCols('wx-days','wx-temp');
+    html=cardCols('wx-days','wx-temp',true);
   }
   grid.innerHTML=html;
   try{wxPopFit();}catch(e){}
   applyWxArea(p);
   if(wa)wa.style.setProperty('--wx-tint',nowInfo.tint);{const dk=document.getElementById('bottom-dock');if(dk)dk.style.setProperty('--wx-tint',nowInfo.tint);}
 }
-function wxUrl(city){return `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_probability_max&current=temperature_2m,relative_humidity_2m,surface_pressure,visibility,uv_index,weathercode,is_day,apparent_temperature&timezone=auto`;}
+function wxUrl(city){return `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_probability_max&current=temperature_2m,relative_humidity_2m,surface_pressure,visibility,uv_index,weathercode,is_day,apparent_temperature&hourly=temperature_2m,weathercode,is_day&timezone=auto`;}
 let _wxPre=null;
 try{const c0=state.cities&&state.cities[0];if(c0){_wxPre={k:c0.lat+','+c0.lon,t:Date.now(),p:fetch(wxUrl(c0)).then(r=>r.json())};_wxPre.p.catch(()=>{});}}catch(e){}
 async function wxFetch(city){
