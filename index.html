@@ -3692,12 +3692,22 @@ function phPopRender(){
   try{phPopPlace();}catch(e){}
 }
 // where (0 = centre of the visible part, 1 = edge) a click lies on a photo; null if it is not on that photo
-function phHitOf(bg,on,x,y,ar){
-  if(!bg||!on||getComputedStyle(bg).display==='none'||!bg.classList.contains('on'))return null;
-  const r=bg.getBoundingClientRect();if(!r.width||!r.height)return null;
+function phHitRect(r,x,y,ar){
+  if(!r||!r.width||!r.height)return null;
   if(x<r.left||x>r.right||y<r.top||y>r.bottom)return null;
   if(ar){const a=ar.getBoundingClientRect();if(x<a.left-120||x>a.right+120||y<a.top-260||y>a.bottom+20)return null;}   // a full-screen photo must not turn every click on the page into the picker
   return Math.hypot((x-(r.left+r.right)/2)/(r.width/2),(y-(r.top+r.bottom)/2)/(r.height/2))/1.5;
+}
+function phHitOf(bg,on,x,y,ar){
+  if(!bg||!on||getComputedStyle(bg).display==='none'||!bg.classList.contains('on'))return null;
+  return phHitRect(bg.getBoundingClientRect(),x,y,ar);
+}
+// The frame a photo would fill (the same one phLayout uses), so the place of a missing photo can still be clicked
+function phFrameRect(kind){
+  const wx=kind==='wx',p=cur()||{},S=Math.max(5,Math.min(100,wx?(p.wxPhotoS??35):(p.npArtS??35)))/100;
+  const vw=document.documentElement.clientWidth,vh=window.innerHeight,fw=vw*S,fh=vh*S,pos=plGet(p,wx?'wx':'np');
+  const fx=pos==='left'?0:pos==='right'?vw-fw:(vw-fw)/2,fy=pos==='top'?0:vh-fh;
+  return{left:fx,top:fy,right:fx+fw,bottom:fy+fh,width:fw,height:fh};
 }
 document.addEventListener('click',ev=>{
   try{
@@ -3708,7 +3718,11 @@ document.addEventListener('click',ev=>{
     if(t.closest('a,button,input,select,textarea,label,summary,[onclick],[contenteditable],[tabindex],[role=button],.modal,#weather-modal'))return;
     if([...document.querySelectorAll('.modal,#weather-modal')].some(m=>getComputedStyle(m).display!=='none'))return;
     const na=document.getElementById('np-area'),wa=document.getElementById('weather-area');
-    const da=phHitOf(na&&na.querySelector('.np-artist-bg'),na&&na.classList.contains('np-art-on'),ev.clientX,ev.clientY,na);
+    let da=phHitOf(na&&na.querySelector('.np-artist-bg'),na&&na.classList.contains('np-art-on'),ev.clientX,ev.clientY,na);
+    if(da===null&&na&&na.classList.contains('np-art-on')&&!na.classList.contains('np-idle')&&_npLastO&&_npLastO.artist){   // no artist photo (none found, or only a blank silhouette): its place can still be clicked to add one by hand
+      const im=document.getElementById('np-artist-img');
+      if(im&&!im.getAttribute('src'))da=phHitRect(phFrameRect('np'),ev.clientX,ev.clientY,na);
+    }
     const dc=phHitOf(wa&&wa.querySelector('.wx-photo-bg'),wa&&wa.classList.contains('wx-ph-on'),ev.clientX,ev.clientY,wa);
     if(da===null&&dc===null)return;
     phPopOpen(dc===null||(da!==null&&da<=dc)?'art':'city',ev.clientX,ev.clientY);
