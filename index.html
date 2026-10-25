@@ -3095,7 +3095,7 @@ async function npFindCovers(artist,album,title,order){
 // ── Artist photo behind the cover ──
 // Sources, best first: TheAudioDB by MusicBrainz ID (wide band/fanart photos) -> Wikidata photo via MusicBrainz -> TheAudioDB by exact name -> Deezer by exact name.
 // Every source must match the artist exactly (by ID, or by identical name), and results are cached per artist.
-let _npLastO=null,_npArtKey=null,_npArtSeq=0;
+let _npLastO=null,_npArtKey=null,_npArtSeq=0,_npArtNorm='',_npArtLoading='',_npArtRestored=false;
 const NP_AV='STARTPAGE_NP_ARTISTS';
 function npArtStore(){try{return JSON.parse(localStorage.getItem(NP_AV))||{};}catch(e){return{};}}
 function npArtSave(k,u){const c=npArtStore();c[k]={u:u,t:Date.now()};const ks=Object.keys(c);try{localStorage.setItem(NP_AV,JSON.stringify(c));}catch(e){}}
@@ -3104,6 +3104,9 @@ const npIsPh=u=>!u||/d41d8cd98f00b204e9800998ecf8427e|2a96cbd8b46e442fc41c2b86b8
 function npImgOk(u,ms,min){return new Promise(res=>{const i=new Image();const t=setTimeout(()=>{i.onload=i.onerror=null;res(false);},ms||9000);i.onload=()=>{clearTimeout(t);res(i.naturalWidth>=(min==null?300:min));};i.onerror=()=>{clearTimeout(t);res(false);};i.src=u;});}
 /* A picture that is only a grey 'no photo' silhouette is rejected too, whatever site it comes from: it is almost colourless, has only a few flat shades and no fine detail.
    (Needs the image host to allow reading its pixels; when it does not, the picture is simply accepted.) */
+const NP_OK_KEY='np_art_ok';   // photos that already passed the checks: not tested again when the page is reopened (that made the photo slow to appear)
+function npArtOkGet(u){try{return JSON.parse(localStorage.getItem(NP_OK_KEY)||'[]').includes(u);}catch(e){return false;}}
+function npArtOkAdd(u){try{const a=JSON.parse(localStorage.getItem(NP_OK_KEY)||'[]').filter(x=>x!==u);a.push(u);localStorage.setItem(NP_OK_KEY,JSON.stringify(a.slice(-300)));}catch(e){}}
 const _npBlankMemo=new Map();
 function npImgBlank(u){
   if(_npBlankMemo.has(u))return _npBlankMemo.get(u);
@@ -3142,13 +3145,13 @@ function npArtSources(artist,mbid){
 }
 async function npFindArtistImage(artist,mbid){
   const key='v7|'+(mbid||_npNorm(artist)),c=npArtStore()[key];
-  if(c&&c.u&&!npIsPh(c.u)&&!(await npImgBlank(c.u)))return c.u;                                            // found before: kept for good (no expiry)
+  if(c&&c.u&&!npIsPh(c.u)&&(npArtOkGet(c.u)||!(await npImgBlank(c.u)))){npArtOkAdd(c.u);return c.u;}                                            // found before: kept for good (no expiry)
   const ps=npArtSources(artist,mbid).map(f=>f().then(l=>({l:l||[]}),()=>({l:[],err:true})));   // both start now ...
   let err=false;
   for(const p of ps){                                              // ... Discogs is judged first, Deezer only if Discogs has nothing
     const r=await p;if(r.err)err=true;
     for(const u of r.l.filter(x=>!npIsPh(x)).slice(0,3)){
-      if(await npImgOk(u,10000)&&!(await npImgBlank(u))){if(!err)npArtSave(key,u);return u;}
+      if(await npImgOk(u,10000)&&!(await npImgBlank(u))){npArtOkAdd(u);if(!err)npArtSave(key,u);return u;}
     }
   }
   return '';
@@ -3157,16 +3160,46 @@ async function npArtistLoad(o){
   const p=cur(),bg=document.querySelector('#np-area .np-artist-bg'),img=document.getElementById('np-artist-img');
   if(!bg||!img)return;
   if(!p||p.npArtist===false||!o||!o.artist){return;}
-  const k=npArtKeyOf(o);
-  if(k===_npArtKey&&img.getAttribute('src'))return;   // same artist: keep the photo already shown
-  _npArtKey=k;const seq=++_npArtSeq;bg.classList.remove('on');
-  let u='',fvBad=false;{const fv=npArtFavGet(k);if(fv&&await npImgOk(fv)){if(await npImgBlank(fv))fvBad=true;else u=fv;}}   // a remembered picture that is only a blank silhouette is dropped
+  const k=npArtKeyOf(o),nk=_npNorm(o.artist);
+  if(k===_npArtKey&&(img.getAttribute('src')||_npArtLoading===k))return;   // same artist: keep the photo already shown (or already being loaded)
+  if(img.getAttribute('src')&&nk===_npArtNorm){_npArtKey=k;return;}       // same artist, only the key changed (name -> MusicBrainz id): no reload, no blink
+  _npArtKey=k;_npArtNorm=nk;_npArtLoading=k;const seq=++_npArtSeq;bg.classList.remove('on');
+  let u='',fvBad=false,viaFav=false;
+  {const fv=npArtFavGet(k);
+   if(fv){
+     if(npArtOkGet(fv)){u=fv;viaFav=true;}   // already checked once: shown straight away
+     else if(await npImgOk(fv)){if(await npImgBlank(fv))fvBad=true;else{u=fv;viaFav=true;npArtOkAdd(fv);}}   // a remembered picture that is only a blank silhouette is dropped
+   }}
   if(!u){try{u=await npFindArtistImage(o.artist,o.artistMbid);}catch(e){}}
   if(seq!==_npArtSeq)return;
+  _npArtLoading='';
   if(!u){img.removeAttribute('src');try{npArtPopSync();}catch(e){}return;}
-  {const a=jget(NP_FV);if(!a[k]||fvBad){a[k]=u;jset(NP_FV,a);}}   // the first photo shown stays for this artist, until you choose another
+  {const a=jget(NP_FV);if(!a[k]||fvBad){a[k]=u;jset(NP_FV,a);npArtOkAdd(u);}}   // the first photo shown stays for this artist, until you choose another
   img.onload=()=>{if(seq===_npArtSeq)bg.classList.add('on');};
+  img.onerror=()=>{if(seq!==_npArtSeq||!viaFav)return;   // a remembered photo that no longer loads: look for another
+    const a=jget(NP_FV);delete a[k];jset(NP_FV,a);img.removeAttribute('src');_npArtKey=null;_npArtNorm='';npArtistLoad(o);};
   img.src=u;try{npArtPopSync();}catch(e){}
+}
+// On open, show the artist photo of the last song straight away (no wait for the network, no fade), like the city photo.
+// When the first real answer arrives and it is the same artist, nothing happens (no reload, no blink); otherwise the normal load takes over.
+function npArtistRestore(p){
+  const bg=document.querySelector('#np-area .np-artist-bg'),img=document.getElementById('np-artist-img');
+  if(!bg||!img||img.getAttribute('src')||_npArtLoading)return;
+  let c=null;try{c=JSON.parse(localStorage.getItem(NP_CK));}catch(e){}
+  if(!c||!c.artist||c.user!==npIdent(p)||!c.playing||!c._t||Date.now()-c._t>6*3600*1000)return;
+  const k=npArtKeyOf(c),fv=npArtFavGet(k);
+  if(!fv||!npArtOkGet(fv))return;
+  _npArtKey=k;_npArtNorm=_npNorm(c.artist);_npArtRestored=true;
+  bg.style.transition='none';
+  img.onload=()=>{bg.classList.add('on');requestAnimationFrame(()=>requestAnimationFrame(()=>{bg.style.transition='';}));};
+  img.onerror=()=>{bg.style.transition='';npArtistUnrestore();};
+  img.src=fv;
+}
+function npArtistUnrestore(){
+  if(!_npArtRestored)return;_npArtRestored=false;
+  const bg=document.querySelector('#np-area .np-artist-bg'),img=document.getElementById('np-artist-img');
+  if(bg)bg.classList.remove('on');if(img){img.removeAttribute('src');}
+  _npArtKey=null;_npArtNorm='';
 }
 function npGlowState(){
   const p=cur(),gl=document.getElementById('np-glow'),ar=document.getElementById('np-area');if(!gl||!ar||!p)return;
@@ -3191,7 +3224,7 @@ function npRender(o){
   const key=o.artist+'|'+o.title+'|'+o.album;
   const idle=!o.playing&&p.npAutoHide!==false,was=area.classList.contains('np-idle');
   area.classList.toggle('np-idle',idle);
-  if(idle){npGlowState();return;}
+  if(idle){try{npArtistUnrestore();}catch(e){}npGlowState();return;}
   if(was){requestAnimationFrame(()=>{npAlign();requestAnimationFrame(npAlign);});}
   document.getElementById('np-title-t').textContent=o.title;document.getElementById('np-title').title=o.title;
   document.getElementById('np-artist-t').textContent=o.artist;
@@ -3199,7 +3232,7 @@ function npRender(o){
   document.getElementById('np-status-t').textContent=o.playing?'Now playing':('Last played · '+npAgo(o.at));
   area.classList.toggle('np-playing',!!o.playing);
   if(key!==_npShown){_npShown=key;{const pl=npCoverPlan(p);npSetCover(pl.serviceFirst?(o.urls||[]):[],o,key,pl);}}
-  _npLastO=o;npArtistLoad(o);
+  _npLastO=o;_npArtRestored=false;npArtistLoad(o);
   area.classList.add('np-ready');npGlowState();
 }
 let _npSeen=null;
@@ -3282,6 +3315,7 @@ function npApply(){
   area.classList.toggle('np-sg-on',!!p.npSideGlow);
   area.classList.toggle('np-art-on',p.npArtist!==false);area.style.setProperty('--np-art-a',p.npArtOp??0.25);area.style.setProperty('--np-art-s',p.npArtSize??1);area.style.setProperty('--np-art-y',(p.npArtY??100)+'%');
   if(p.npArtist!==false&&on&&_npLastO)npArtistLoad(_npLastO);
+  else if(p.npArtist!==false&&on&&!_npLastO)npArtistRestore(p);
   const gl=document.getElementById('np-glow'),gw=document.getElementById('glow-wx');
   if(gl){['left','center','right'].forEach(k=>gl.classList.toggle('g-'+k,pos===k));gl.style.display=pos==='top'?'none':'';}
   if(gw){['left','center','right'].forEach(k=>gw.classList.toggle('g-'+k,wpos===k));gw.style.display=wpos==='top'?'none':'';}
