@@ -107,19 +107,18 @@ body.ll-noselect,body.ll-noselect *{user-select:none!important;-webkit-user-sele
 .editor-link-row.drag-over{border-top:2px solid var(--modal-accent,#00d4ff)}
 .city-item.drag-over{border-top:2px solid var(--modal-accent,#00d4ff)}
 .link-row{display:grid;grid-template-columns:1fr auto;align-items:center;white-space:nowrap;position:relative}
-.link-row a{text-decoration:none;transition:0.2s;font-size:calc(1rem * var(--scale) * var(--density-mod) * var(--fsz,1) * var(--lm,1));padding:calc(0.42rem * var(--scale) * var(--density-mod) * var(--lm,1)) calc(0.8rem * var(--scale) * var(--density-mod));text-align:center;border-radius:calc(var(--widget-radius) * 0.5);transition:transform 0.2s ease,background 0.2s ease,opacity 0.2s}
+.link-row a{text-decoration:none;transition:0.2s;font-size:calc(1rem * var(--scale) * var(--density-mod) * var(--fsz,1) * var(--lm,1));padding:calc(0.42rem * var(--scale) * var(--density-mod) * var(--lm,1)) calc(0.8rem * var(--scale) * var(--density-mod));text-align:center;border-radius:0;transition:transform 0.2s ease,background 0.2s ease,opacity 0.2s}   /* links are always a perfectly straight rectangle, whatever the corner style of the widgets */
 .link-row a:hover{background:color-mix(in srgb,var(--cat-accent,#fff) 12%,transparent)}
 .link-row a:focus-visible{outline:2px solid var(--cat-accent,#fff);outline-offset:2px}
 /* Optional LED hover effect (Display > Links > LED hover effect, off by default): a thin light with a fading tail runs around the link outline at constant speed, in the category colour */
 @keyframes led-run{to{stroke-dashoffset:100}}
 .link-row a{position:relative}
 .led-svg{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;pointer-events:none;opacity:0;transition:opacity .2s ease;transform:scaleX(-1);filter:drop-shadow(0 0 2px var(--cat-accent,#fff))}
-.led-svg rect{x:1px;y:1px;width:calc(100% - 2px);height:calc(100% - 2px);rx:calc(var(--widget-radius,0px) * 0.5);fill:none;stroke:var(--cat-accent,#fff);stroke-width:2px;stroke-linecap:round;stroke-opacity:.11;animation:led-run var(--led-dur,2.4s) linear infinite;animation-play-state:paused}
+.led-svg rect{x:1px;y:1px;width:calc(100% - 2px);height:calc(100% - 2px);rx:0;fill:none;stroke:var(--cat-accent,#fff);stroke-width:2px;stroke-linecap:round;stroke-opacity:.11;animation:led-run var(--led-dur,2.4s) linear infinite;animation-play-state:paused}
 .led-svg rect.l2{stroke:var(--cat-accent2,var(--cat-accent,#fff))}
 .led-svg rect.hd{stroke-opacity:1}
 .link-row a:hover .led-svg{opacity:1}
 .link-row a:hover .led-svg rect{animation-play-state:running}
-.link-row a:hover{box-shadow:0 0 10px -3px color-mix(in srgb,var(--cat-accent,#fff) 60%,transparent)}
 @media (prefers-reduced-motion:reduce){.led-svg rect{animation:none}}
 /* Extra link hover effects (picked in Display > Links > Hover effect). LED variants reuse the LED svg overlay above with different motion */
 @keyframes led-trace{from{stroke-dashoffset:100}to{stroke-dashoffset:0}}
@@ -149,7 +148,7 @@ body.link-led.fx-underline .link-row a:hover .link-label::after{width:100%}
 body.link-led.fx-pulse .link-row a:hover{animation:fx-pulse var(--led-dur,2.4s) ease-in-out infinite}
 body.link-led.fx-neon .link-row a:hover{animation:fx-neon var(--led-dur,2.4s) ease-in-out infinite}
 body.link-led.fx-border .link-row a{box-shadow:inset 0 0 0 1px transparent;transition:box-shadow .25s ease,background .2s ease}
-body.link-led.fx-border .link-row a:hover{box-shadow:inset 0 0 0 1.5px var(--cat-accent,#fff),0 0 10px -3px color-mix(in srgb,var(--cat-accent,#fff) 60%,transparent)}
+body.link-led.fx-border .link-row a:hover{box-shadow:inset 0 0 0 2px var(--cat-accent,#fff)}
 @media (prefers-reduced-motion:reduce){body[class*="fx-"] .link-row a:hover,body[class*="fx-"] .link-row a:hover::before{animation:none}}
 
 /* Column width = widest text; underline spans exactly that width, text sits flush with it */
