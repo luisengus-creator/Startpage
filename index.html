@@ -281,6 +281,13 @@ body.link-led.fx-border .link-row a:hover{box-shadow:inset 0 0 0 1.5px var(--cat
 #weather-area.wx-empty .weather-bg-wrap{display:none}
 .wx-photo-bg{display:none;position:fixed;z-index:-1;pointer-events:none;left:0;top:0;width:0;height:0}   /* size and place are set from JS: the whole photo, fitted to the screen, pinned toward the widget's side */
 
+/* Photo side extension: the photo's left / right edge colours, stretched and blurred, fade out OUTSIDE the photo, so the picture feels wider */
+.ph-ext{display:none;position:fixed;pointer-events:none;overflow:hidden;opacity:0;transition:opacity 1.4s ease}
+.ph-ext img{position:absolute;display:block;max-width:none;object-fit:fill;filter:blur(16px) saturate(1.1)}
+.ph-ext-wx{z-index:-1}.ph-ext-np{z-index:-2}
+#weather-area.wx-ph-on .ph-ext-wx,#np-area.np-art-on .ph-ext-np{display:block}
+#weather-area.wx-ph-on .wx-photo-bg.on~.ph-ext-wx{opacity:var(--wx-ph-a,0.25)}
+#np-area.np-art-on .np-artist-bg.on~.ph-ext-np{opacity:var(--np-art-a,0.25)}
 .wx-photo-bg img,.np-artist-bg img{display:block;width:100%;height:100%;object-fit:fill;filter:saturate(1.1)}
 /* city / artist photo rows in the small weather pop-up */
 .ph-pop-row{display:flex;align-items:center;gap:6px;margin-bottom:6px}
@@ -3715,6 +3722,7 @@ function phOpFromV(v){return Math.max(0,Math.min(1,parseFloat(v)/100));}   // ph
 function phOpToV(o){return Math.round(Math.max(0,Math.min(1,o))*100);}
 function phSzFromV(v){return Math.round((0.4+Math.max(0,Math.min(100,parseFloat(v)))/100*2.1)*100)/100;}   // size 0-100 = 40%-250% of the normal photo size
 function phSzToV(z){return Math.round(Math.max(0,Math.min(100,(z-0.4)/2.1*100)));}
+const PH_EXT=0.35;   // outside side-fade of the city / artist photos: how far it reaches beyond each side, as a share of the photo's width (0 = off)
 const PH_LIFT=0.22;   // how far (as a share of the photo's height) the city / artist photos are lifted: bigger = lower part of the picture shows higher
 // One fixed FRAME for every photo: the size of the page itself (detected automatically), scaled by the size slider and pinned toward the widget's side
 // (bottom-left / bottom-center / bottom-right / top-middle). 100% = the whole page. Each photo is fitted inside the frame without distortion:
@@ -3739,29 +3747,55 @@ function phLayout(kind){
   const narrow=w<fw-1.5,t=Math.max(0,Math.min(1,(1-S)/0.65));
   const W=0.66*t,E=1+0.5*(1-t),A0=E-W,cx=narrow?50:pos==='left'?0:pos==='right'?100:50,cy=pos==='top'?0:40,rx=cx===50?62:125,ry=pos==='top'?100:72;   // wider than the photo: the sides fade less
   const ease=(n,fn)=>{const o=[];for(let i=0;i<=n;i++){const u=i/n;o.push(fn(0.5+0.5*Math.cos(Math.PI*u),u));}return o;};
+  const EXW=PH_EXT>0?Math.round(w*PH_EXT):0,exL=Math.max(0,Math.min(EXW,Math.floor(x))),exR=Math.max(0,Math.min(EXW,Math.floor(vw-(x+w))));   // room for the outside fade, left and right of the photo
+  let rs='',ts='';
   const layers=[];
   if(t>0.001){
     const stops=ease(10,(al,u)=>`rgba(0,0,0,${al.toFixed(3)}) ${((A0+W*u)*100).toFixed(1)}%`).join(',');
-    layers.push(`radial-gradient(ellipse ${rx}% ${ry}% at ${cx}% ${cy}%,#000 0%,${stops})`);
+    rs=stops;layers.push(`radial-gradient(ellipse ${rx}% ${ry}% at ${cx}% ${cy}%,#000 0%,${stops})`);
   }
   if(t>0.001&&pos!=='top'){   // the top edge also melts away (gently), so no straight line shows there
     const td=ease(8,(al,u)=>`rgba(0,0,0,${(1-al).toFixed(3)}) ${(u*30).toFixed(1)}%`).join(',');
-    layers.push(`linear-gradient(to bottom,${td},#000 30%)`);
+    ts=td;layers.push(`linear-gradient(to bottom,${td},#000 30%)`);
   }
   if(t>0.001&&!narrow){   // short, soft melt on the open sides so the photo never ends in a visible vertical edge (the anchored side stays solid)
     const SW=16,e1=ease(8,(al,u)=>`rgba(0,0,0,${(1-al).toFixed(3)}) ${(u*SW).toFixed(1)}%`).join(','),e2=ease(8,(al,u)=>`rgba(0,0,0,${al.toFixed(3)}) ${(100-SW+u*SW).toFixed(1)}%`).join(',');
-    const L=pos==='left'?'#000 0%':e1,R=pos==='right'?'#000 100%':e2;
+    const L=(pos==='left'||exL>=24)?'#000 0%':e1,R=(pos==='right'||exR>=24)?'#000 100%':e2;   // a side that has an outside fade does not melt inside the photo
     layers.push(`linear-gradient(to right,${L},#000 ${SW}%,#000 ${100-SW}%,${R})`);
   }
   if(narrow){   // the photo is narrower than its frame: its open sides melt away
     const sd=ease(8,(al,u)=>`rgba(0,0,0,${(1-al).toFixed(3)}) ${(u*14).toFixed(1)}%`).join(',');
-    layers.push(`linear-gradient(to right,${sd},#000 14%,#000 86%,${ease(8,(al,u)=>`rgba(0,0,0,${al.toFixed(3)}) ${(86+u*14).toFixed(1)}%`).join(',')})`);
+    layers.push(`linear-gradient(to right,${exL>=24?'#000 0%':sd},#000 14%,#000 86%,${exR>=24?'#000 100%':ease(8,(al,u)=>`rgba(0,0,0,${al.toFixed(3)}) ${(86+u*14).toFixed(1)}%`).join(',')})`);
   }
   const m=layers.length?layers.join(','):'linear-gradient(#000,#000)';
   st.setProperty('-webkit-mask-image',m);st.setProperty('mask-image',m);
   st.setProperty('-webkit-mask-size','100% 100%');st.setProperty('mask-size','100% 100%');
   st.setProperty('-webkit-mask-repeat','no-repeat');st.setProperty('mask-repeat','no-repeat');
   st.setProperty('-webkit-mask-composite','source-in');st.setProperty('mask-composite','intersect');
+  try{   // the outside fade: the photo's edge, stretched and blurred, melting away beyond the photo
+    const ox=r.left,oy=r.top,top=parseFloat(st.top);
+    [['l',exL],['r',exR]].forEach(([sd,ew])=>{
+      let e=ar.querySelector('.ph-ext-'+kind+'.ph-ext-'+sd);
+      if(!e){e=document.createElement('div');e.className='ph-ext ph-ext-'+kind+' ph-ext-'+sd;e.innerHTML='<img alt="">';(sd==='l'?bg:ar.querySelector('.ph-ext-'+kind+'.ph-ext-l')||bg).insertAdjacentElement('afterend',e);}
+      if(ew<3){e.style.display='none';return;}
+      e.style.display='';
+      const ei=e.firstChild,src=img.currentSrc||img.src;if(ei.getAttribute('src')!==src)ei.src=src;
+      const left=sd==='l'?x-ew:x+w;
+      e.style.left=Math.round(left-ox)+'px';e.style.top=top+'px';e.style.width=ew+'px';e.style.height=h+'px';
+      // not mirrored: only a thin strip of the photo's edge, stretched sideways over the whole extension (then blurred), so it is just the edge colour smearing out
+      const K=0.02,Wi=ew/K;
+      ei.style.width=Wi+'px';ei.style.height=h+'px';ei.style.top='0px';ei.style.transform='none';ei.style.transformOrigin='';
+      ei.style.left=(sd==='l'?0:ew-Wi)+'px';
+      const ml=[];
+      if(rs){const cxp=sd==='l'?ew+(cx/100)*w:(cx/100)*w-w;ml.push(`radial-gradient(ellipse ${(rx/100*w).toFixed(1)}px ${(ry/100*h).toFixed(1)}px at ${cxp.toFixed(1)}px ${(cy/100*h).toFixed(1)}px,#000 0%,${rs})`);}   // the same fade as the photo, carried on past its edge
+      if(ts)ml.push(`linear-gradient(to bottom,${ts},#000 30%)`);
+      ml.push(`linear-gradient(to ${sd==='l'?'left':'right'},${ease(10,(al,u)=>`rgba(0,0,0,${al.toFixed(3)}) ${(u*100).toFixed(1)}%`).join(',')})`);
+      const mm=ml.join(',');
+      e.style.setProperty('-webkit-mask-image',mm);e.style.setProperty('mask-image',mm);
+      e.style.setProperty('-webkit-mask-composite','source-in');e.style.setProperty('mask-composite','intersect');
+      e.style.setProperty('-webkit-mask-size','100% 100%');e.style.setProperty('mask-size','100% 100%');
+    });
+  }catch(err){}
   if(!wx){const c=ar.querySelector('.np-card');if(c&&getComputedStyle(c).transform!=='none')setTimeout(()=>phLayout(kind),800);}   // the card is still sliding in
 }
 function phFit(bg,pre){
