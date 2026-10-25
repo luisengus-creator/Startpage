@@ -1025,15 +1025,15 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
             <div class="s-title" id="wx-main-title">Forecast</div>
             <div class="inl-row nw" id="wx-line">
               <div id="wx-slot-days"><div class="inl-row nw" id="wx-row-days">
-              <label class="label-inline inl"><input type="checkbox" id="w-day" onchange="updateVis()"> Show Day</label>
-              <label class="label-inline inl"><input type="checkbox" id="w-date" onchange="updateVis()"> Show Date</label>
-              <div class="inl"><span>Date Format</span><select id="w-date-fmt" onchange="updateVis()"><option value="dmy">DD/MM</option><option value="mdy">MM/DD</option></select></div>
+              <label class="label-inline inl" title="Show the day name (Mon, Tue...)"><input type="checkbox" id="w-day" onchange="updateVis()"> Day</label>
+              <label class="label-inline inl" title="Show the date"><input type="checkbox" id="w-date" onchange="updateVis()"> Date</label>
+              <div class="inl" title="Date format"><span>Format</span><select id="w-date-fmt" onchange="updateVis()"><option value="dmy">DD/MM</option><option value="mdy">MM/DD</option></select></div>
             </div></div>
               <div class="inl-row nw" id="wx-row-icons">
-              <label class="label-inline inl"><input type="checkbox" id="w-colored" onchange="toggleWxStyle('colored')"> Colored Icons</label>
-              <label class="label-inline inl"><input type="checkbox" id="w-solid" onchange="toggleWxStyle('solid')"> Solid Icons</label>
-                          <label class="label-inline inl"><input type="checkbox" id="w-anim" onchange="wxFx()"> Animated icon</label>
-              <label class="label-inline inl"><input type="checkbox" id="w-tint" onchange="wxFx()"> Condition glow</label>
+              <div class="inl" title="Weather icon style"><span>Icons</span><select id="w-icons" onchange="setWxIcons(this.value)"><option value="colored">Colored</option><option value="solid">Solid</option></select></div>
+              <label class="label-inline inl" title="Animated weather icon"><input type="checkbox" id="w-anim" onchange="wxFx()"> Animated</label>
+              <label class="label-inline inl" title="Soft glow in the colour of the current weather condition"><input type="checkbox" id="w-tint" onchange="wxFx()"> Glow</label>
+              <label class="label-inline inl" title="Hourly forecast for the next 24 hours: shown in the popup when you hover the weather"><input type="checkbox" id="w-hourly" onchange="wxHourlyChange()"> 24h</label>
             </div>
             </div>
             <div class="tx-head">Fonts</div>
@@ -2277,7 +2277,7 @@ function renderSettings(){
   const sbk=document.getElementById('search-backdrop-slider'),sbkv=document.getElementById('search-backdrop-val');if(sbk)sbk.value=p.searchBackdrop??0.1;if(sbkv)sbkv.textContent=Math.round((p.searchBackdrop??0.1)*100)+'%';
   // weather
   document.getElementById('w-enable').checked=p.showWeather;
-  document.getElementById('w-colored').checked=p.wColored;document.getElementById('w-solid').checked=!p.wColored;
+  document.getElementById('w-icons').value=p.wColored?'colored':'solid';
   syncWxStyle(p);
   document.getElementById('w-day').checked=(p.wShowDay!==false);document.getElementById('w-date').checked=(p.wShowDate!==false);
   document.getElementById('w-date-fmt').value=p.wDateFmt||'dmy';
@@ -2556,7 +2556,7 @@ function syncWxStyle(p){
    if(g('wx-main-title'))g('wx-main-title').textContent=comp?'Current weather':'Forecast';
 }
   document.querySelectorAll('#wx-style-group .size-btn').forEach(b=>b.classList.toggle('active',b.dataset.wxs===wxSty(p)));
-  const a=document.getElementById('w-anim'),t=document.getElementById('w-tint');if(a)a.checked=p.wAnim!==false;if(t)t.checked=p.wTint===true;
+  const a=document.getElementById('w-anim'),t=document.getElementById('w-tint'),hh=document.getElementById('w-hourly');if(a)a.checked=p.wAnim!==false;if(t)t.checked=p.wTint===true;if(hh)hh.checked=p.wHourly!==false;
 }
 function renderWxGrid(){
   const R=_wxRaw,p=cur();if(!R||!p)return;
@@ -2585,7 +2585,7 @@ function renderWxGrid(){
     return days.map((t,i)=>{const wx=dinfo(i);const dn=(p.wShowDay!==false)?new Date(t+'T12:00:00').toLocaleDateString('en',{weekday:'short'}):'';const ds2=(p.wShowDate!==false)?fmtD(t):'';return`<div class="weather-card${dc?' wx-dcard':''}"${dc?` data-di="${i}"`:''} title="${wx.label}" style="padding:${cp};min-width:${mw};"><div style="display:flex;align-items:baseline;justify-content:center;gap:4px;margin-bottom:0.2rem;white-space:nowrap;"><span style="${dS}text-transform:uppercase;">${dn}</span>${ds2?`<span style="${dS}">${ds2}</span>`:''}</div><i class="fa-solid ${wx.icon} ${i===0?an(wx):''}" style="color:${icc(wx)};font-size:${ifs};margin:0.25rem 0;display:block;"></i><div style="display:flex;align-items:baseline;justify-content:center;gap:5px;"><span style="${tS}color:var(--tx-${kt}-c,${col});font-size:calc(${tfs} * ${txZ(kt)});">${hi[i]}°</span><span style="${tS}color:var(--tx-${kt}-c,${col});font-size:calc(${tms} * ${txZ(kt)});">${lo[i]}°</span></div></div>`;}).join('');
   };
   // ---- hourly data (older cached weather has none: then the popups simply stay as before)
-  const hr=d.hourly&&d.hourly.time&&d.hourly.temperature_2m?d.hourly:null,u12=(p.clockFormat||'24')==='12';
+  const hr=(p.wHourly!==false&&d.hourly&&d.hourly.time&&d.hourly.temperature_2m)?d.hourly:null,u12=(p.clockFormat||'24')==='12';
   const hLabel=t=>{const h=+t.slice(11,13);return u12?((h%12||12)+(h>=12?'p':'a')):(String(h).padStart(2,'0')+':00');};
   const hCard=(j,kd,kt,dim)=>{
     const wx=wxInfo(hr.weathercode?hr.weathercode[j]:0,hr.is_day?hr.is_day[j]===0:false);
@@ -2685,7 +2685,8 @@ async function wxApply(d,p,city){
     _wxRaw={d,isNight,cc,wc};renderWxGrid();
     wxStats(d,p,city);
 }
-function toggleWxStyle(t){const p=cur();if(t==='colored'){p.wColored=true;document.getElementById('w-solid').checked=false;}else{p.wColored=false;document.getElementById('w-colored').checked=false;}updateVis();}
+function setWxIcons(v){const p=cur();p.wColored=(v==='colored');updateVis();}
+function wxHourlyChange(){const p=cur();p.wHourly=document.getElementById('w-hourly').checked;saveAndRender();wxRerender();}
 function openModal(id){const el=document.getElementById(id);el.style.display=id==='settings-modal'?'flex':'block';document.getElementById('overlay').style.display='block';if(id==='settings-modal'){FONTS.forEach(ensureFont);renderSettings();}}
 function closeModals(){hideCatUndo();document.querySelectorAll('.modal').forEach(m=>m.style.display='none');document.getElementById('overlay').style.display='none';}
 // Elastic settings: the layout is designed for SET_DW px of content. On a narrower window nothing re-wraps, the whole page just scales down.
