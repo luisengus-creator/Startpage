@@ -2452,9 +2452,24 @@ function setSearchEngine(k){cur().searchEngine=k;_seOpen=false;document.getEleme
 function doSearch(e){e.preventDefault();const q=document.getElementById('search-input').value.trim();if(!q)return;const eng=cur().searchEngine||'startpage';window.open(SE[eng].url+encodeURIComponent(q),state.target||'_self');document.getElementById('search-input').value='';}
 
 // ── Main render ──
+// Sources of the auto gradient: the column cards, or (Mosaic mode) the tiles of the shown category, coloured from their icons
+function glowSources(p){
+  const out=[];
+  if(document.body.classList.contains('layout-mosaic')&&typeof window.moGlowItems==='function'){
+    try{(window.moGlowItems()||[]).forEach(o=>out.push({r:o.r,rgb:o.rgb}));}catch(e){}
+    return out;
+  }
+  [...document.querySelectorAll('#grid .column')].forEach((el,i)=>{
+    const cat=p.categories[i];if(!cat||!cat.color)return;
+    const r=el.getBoundingClientRect();if(!r.width||!r.height)return;
+    let rgb;try{rgb=hexToRgbStr(cat.color);}catch(e){return;}
+    out.push({r,rgb});
+  });
+  return out;
+}
 // Auto gradient: a soft, tall glow of each category's colour behind its own card (ambience, not a hard gradient)
 function autoGlowCss(p){
-  const cols=[...document.querySelectorAll('#grid .column')],layers=[],vh=window.innerHeight,vw=window.innerWidth,mode=p.glowDir||'ud';
+  const cols=glowSources(p),layers=[],vh=window.innerHeight,vw=window.innerWidth,mode=p.glowDir||'ud';
   const stops=rgb=>easeStops(rgb,0.30,1.35);   // many stops on a smooth curve (was 4 straight segments, which showed as visible rings)
   // full ellipse
   const full=(rgb,cx,cy,rx,ry)=>`radial-gradient(ellipse ${rx}px ${ry}px at ${cx}px ${cy}px,${stops(rgb)})`;
@@ -2467,10 +2482,8 @@ function autoGlowCss(p){
     else{x=cx-rx;y=cy-ry;w=rx;h=2*ry;lx=rx;ly=ry;}
     return `radial-gradient(ellipse ${rx}px ${ry}px at ${lx}px ${ly}px,${stops(rgb)}) ${x}px ${y}px / ${w}px ${h}px no-repeat`;
   };
-  cols.forEach((el,i)=>{
-    const cat=p.categories[i];if(!cat||!cat.color)return;
-    const r=el.getBoundingClientRect();if(!r.width||!r.height)return;
-    let rgb;try{rgb=hexToRgbStr(cat.color);}catch(e){return;}
+  cols.forEach(src=>{
+    const r=src.r,rgb=src.rgb;
     const L=r.left,T=r.top,W=r.width,H=r.height;
     const cx=Math.round(L+W/2);
     const narrowX=Math.round(W*0.95),tallY=Math.round(Math.max(H*1.6,vh*0.6));      // classic up & down proportions
@@ -2496,14 +2509,12 @@ function easeStops(rgb,peak,pw){const o=[],N=24;for(let i=0;i<=N;i++){const t=i/
 const GLOW_NZ=(()=>{const a=new Float32Array(65536);let s=987654321;const r=()=>{s^=s<<13;s^=s>>>17;s^=s<<5;return (s>>>0)/4294967296;};for(let i=0;i<65536;i++)a[i]=r()+r()-1;return a;})();
 const GLOW_LUT=(()=>{const a=new Float32Array(1025);for(let i=0;i<=1024;i++)a[i]=0.30*Math.pow(1-i/1024,1.35);return a;})();
 function autoGlowLayers(p){
-  const cols=[...document.querySelectorAll('#grid .column')],layers=[],vh=window.innerHeight,vw=window.innerWidth,mode=p.glowDir||'ud';
+  const cols=glowSources(p),layers=[],vh=window.innerHeight,vw=window.innerWidth,mode=p.glowDir||'ud';
   const full=(rgb,cx,cy,rx,ry)=>layers.push({rgb,cx,cy,rx,ry,x0:cx-rx,x1:cx+rx,y0:cy-ry,y1:cy+ry});
   const half=(rgb,cx,cy,rx,ry,side)=>{const o={rgb,cx,cy,rx,ry,x0:cx-rx,x1:cx+rx,y0:cy-ry,y1:cy+ry};
     if(side==='d')o.y0=cy;else if(side==='u')o.y1=cy;else if(side==='r')o.x0=cx;else o.x1=cx;layers.push(o);};
-  cols.forEach((el,i)=>{
-    const cat=p.categories[i];if(!cat||!cat.color)return;
-    const r=el.getBoundingClientRect();if(!r.width||!r.height)return;
-    let rgb;try{rgb=hexToRgbStr(cat.color).split(',').map(Number);}catch(e){return;}
+  cols.forEach(src=>{
+    const r=src.r;let rgb;try{rgb=src.rgb.split(',').map(Number);}catch(e){return;}
     const L=r.left,T=r.top,W=r.width,H=r.height;
     const cx=Math.round(L+W/2);
     const narrowX=Math.round(W*0.95),tallY=Math.round(Math.max(H*1.6,vh*0.6));
@@ -4680,6 +4691,7 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     else if(c.moBg){const d=clamp(+c.moBgDim||0,0,0.85),u=String(c.moBg).replace(/["\\\n\r]/g,'');cb.style.backgroundImage=`linear-gradient(rgba(0,0,0,${d}),rgba(0,0,0,${d})),url("${u}")`;cb.style.display='block';}
     else{cb.style.backgroundImage='';cb.style.display='none';}
     requestAnimationFrame(place);
+    try{paintAutoGlow();}catch(e){}
   }
 
   // ── Auto background: the colors of the tile icons / photos, spread over the screen where those tiles sit ──
@@ -4769,6 +4781,22 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     const need=info.filter(i=>i.src&&!_colC.has(i.src));
     if(need.length)Promise.all(need.map(i=>sampleImg(i.src))).then(()=>{if(tok===autoTok&&cb.isConnected)build();});
   }
+  // Auto gradient (Settings > Background > Gradient > Auto) in Mosaic: one glow per tile, in the colour of its icon, where the tile sits
+  window.moGlowItems=function(){
+    const p=cur(),cats=MCATS(p)||[];let ti=parseInt(p.mosaicTab);if(!(ti>=0&&ti<cats.length))ti=0;
+    const c=cats[ti];if(!c)return [];
+    const fb=hexRgb(c.color)||[124,183,255],out=[],pend=[];
+    document.querySelectorAll('#mosaic .mo-tile').forEach(el=>{
+      const l=(c.links||[])[+el.dataset.li];if(!l)return;
+      const r=el.getBoundingClientRect();if(!r.width||!r.height)return;
+      const src=autoSrc(l),own=hexRgb(l.moLC)||fb,got=src&&_colC.get(src);
+      const rgb=(got&&got.every(Number.isFinite)?got:own).map(v=>Math.round(v)).join(',');
+      out.push({r,rgb});
+      if(src&&!_colC.has(src))pend.push(src);
+    });
+    if(pend.length)Promise.all([...new Set(pend)].map(sampleImg)).then(()=>{try{if(document.body.classList.contains('layout-mosaic'))paintAutoGlow();}catch(e){}});
+    return out;
+  };
   window.moBgAuto=function(){const c=selCat();if(!c)return;if(c.moBgAuto)delete c.moBgAuto;else c.moBgAuto=true;save();render();syncMo();};
 
   function tabsVars(T){
