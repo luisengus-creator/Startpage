@@ -2540,7 +2540,26 @@ function easeStops(rgb,peak,pw){const o=[],N=24;for(let i=0;i<=N;i++){const t=i/
 // dither (+-1 level), which turns every step into an invisible, smooth blend. Same shapes/colours as the CSS version.
 const GLOW_NZ=(()=>{const a=new Float32Array(65536);let s=987654321;const r=()=>{s^=s<<13;s^=s>>>17;s^=s<<5;return (s>>>0)/4294967296;};for(let i=0;i<65536;i++)a[i]=r()+r()-1;return a;})();
 const GLOW_LUT=(()=>{const a=new Float32Array(1025);for(let i=0;i<=1024;i++)a[i]=0.30*Math.pow(1-i/1024,1.35);return a;})();
+// Mosaic auto gradient: a smooth "mesh" of the tile colours. Every tile pours its icon colour into the page around it (gaussian reach, bigger tiles reach further),
+// neighbouring colours melt into each other, the gaps between tiles are filled by a soft ambient mix of all of them, and nothing is ever flat black.
+function meshTune(c){   // keep the colour, but bring it into a lively, readable range (neutral/dark icons stay neutral, just lifted)
+  let [r,g,b]=c.map(v=>v/255);const mx=Math.max(r,g,b),mn=Math.min(r,g,b);let l=(mx+mn)/2,d=mx-mn,h=0,s=0;
+  if(d>1e-6){s=d/(1-Math.abs(2*l-1));h=mx===r?((g-b)/d)%6:mx===g?(b-r)/d+2:(r-g)/d+4;h*=60;if(h<0)h+=360;}
+  s=s<0.12?s:Math.max(0.55,Math.min(0.95,s*1.1));l=Math.max(0.42,Math.min(0.58,l<0.1?0.45:l));
+  const C=(1-Math.abs(2*l-1))*s,X=C*(1-Math.abs((h/60)%2-1)),m=l-C/2;let q=h<60?[C,X,0]:h<120?[X,C,0]:h<180?[0,C,X]:h<240?[0,X,C]:h<300?[X,0,C]:[C,0,X];
+  return q.map(v=>Math.round((v+m)*255));
+}
+function meshSpec(p){
+  const vw=window.innerWidth,vh=window.innerHeight,src=[];
+  glowSources(p).forEach(o=>{
+    const r=o.r;if(r.right<0||r.left>vw||r.bottom<0||r.top>vh)return;
+    let rgb;try{rgb=o.rgb.split(',').map(Number);}catch(e){return;}
+    src.push({cx:Math.round(r.left+r.width/2),cy:Math.round(r.top+r.height/2),sx:Math.round(r.width*0.75+vw*0.06),sy:Math.round(r.height*0.75+vh*0.10),a:Math.pow(r.width*r.height,0.3),rgb:meshTune(rgb)});
+  });
+  return {kind:'mesh',src,amb:0.22,peak:0.88,shade:Math.max(-1,Math.min(1,p.gradShade||0))};
+}
 function autoGlowLayers(p){
+  if(document.body.classList.contains('layout-mosaic')&&typeof window.moGlowItems==='function')return meshSpec(p);
   const cols=glowSources(p),layers=[],vh=window.innerHeight,vw=window.innerWidth,mode=p.glowDir||'ud';
   const full=(rgb,cx,cy,rx,ry)=>layers.push({rgb,cx,cy,rx,ry,x0:cx-rx,x1:cx+rx,y0:cy-ry,y1:cy+ry});
   const half=(rgb,cx,cy,rx,ry,side)=>{const o={rgb,cx,cy,rx,ry,x0:cx-rx,x1:cx+rx,y0:cy-ry,y1:cy+ry};
@@ -2583,6 +2602,22 @@ function glowRender(bg,spec){
     const R=new Float32Array(W),G=new Float32Array(W),Bl=new Float32Array(W);
     const inv=1/dpr;
     const L=spec.kind==='auto'?spec.layers:null,sh=spec.shade||0,shc=sh>0?255:0,sha=Math.abs(sh);
+    let MESH=null;
+    if(spec.kind==='mesh'){   // the colour field is computed once at 1/4 size (floating point), then enlarged smoothly with dither in the loop below
+      const k=4*dpr,LW=Math.max(2,Math.ceil(W/k)+1),LH=Math.max(2,Math.ceil(H/k)+1),f=new Float32Array(LW*LH*3),S=spec.src;
+      let ta=0,ar=0,ag=0,ab=0;S.forEach(t=>{ta+=t.a;ar+=t.rgb[0]*t.a;ag+=t.rgb[1]*t.a;ab+=t.rgb[2]*t.a;});
+      const am=ta?[ar/ta,ag/ta,ab/ta]:[B0,B1,B2];
+      for(let j=0;j<LH;j++){const y=(j+0.5)*k/dpr;
+        for(let i=0;i<LW;i++){
+          const x=(i+0.5)*k/dpr;let sw=0,sr=0,sg=0,sb=0,keep=1;
+          for(let n=0;n<S.length;n++){const t=S[n],dx=(x-t.cx)/t.sx,dy=(y-t.cy)/t.sy,g=Math.exp(-0.5*(dx*dx+dy*dy)),w=g*t.a;sw+=w;sr+=w*t.rgb[0];sg+=w*t.rgb[1];sb+=w*t.rgb[2];keep*=1-spec.peak*g;}
+          const near=1-keep,amb=spec.amb;   // near = how much the tiles reach this spot; the rest of the strength is the soft ambient mix of all tile colours
+          let cr=am[0],cg=am[1],cb=am[2];if(sw>1e-6){const m=Math.min(1,sw/(sw+0.35*(ta||1)*0.15+1e-6)),lr=sr/sw,lg=sg/sw,lb=sb/sw;cr=am[0]+(lr-am[0])*m;cg=am[1]+(lg-am[1])*m;cb=am[2]+(lb-am[2])*m;}
+          const al=Math.min(0.95,amb+(1-amb)*near),o=(j*LW+i)*3;
+          f[o]=B0+(cr-B0)*al;f[o+1]=B1+(cg-B1)*al;f[o+2]=B2+(cb-B2)*al;
+        }}
+      MESH={f,w:LW,h:LH,k};
+    }
     for(let py=0;py<H;py++){
       const yc=(py+0.5)/dpr;
       if(spec.kind==='manual'){
@@ -2591,6 +2626,13 @@ function glowRender(bg,spec){
           let t=(dir==='ltr'||dir==='rtl')?(px+0.5)/W:(py+0.5)/H;if(dir==='rtl'||dir==='btt')t=1-t;
           R[px]=A[0]+(Bc[0]-A[0])*t;G[px]=A[1]+(Bc[1]-A[1])*t;Bl[px]=A[2]+(Bc[2]-A[2])*t;
         }
+      }else if(spec.kind==='mesh'){
+        const f=MESH.f,LW=MESH.w,gy=Math.min(MESH.h-1.001,Math.max(0,(py+0.5)/MESH.k-0.5)),y0=gy|0,ty=gy-y0;
+        for(let px=0;px<W;px++){
+          const gx=Math.min(LW-1.001,Math.max(0,(px+0.5)/MESH.k-0.5)),x0=gx|0,tx=gx-x0,i00=(y0*LW+x0)*3,i10=i00+3,i01=i00+LW*3,i11=i01+3,w00=(1-tx)*(1-ty),w10=tx*(1-ty),w01=(1-tx)*ty,w11=tx*ty;
+          R[px]=f[i00]*w00+f[i10]*w10+f[i01]*w01+f[i11]*w11;G[px]=f[i00+1]*w00+f[i10+1]*w10+f[i01+1]*w01+f[i11+1]*w11;Bl[px]=f[i00+2]*w00+f[i10+2]*w10+f[i01+2]*w01+f[i11+2]*w11;
+        }
+        if(sha>0)for(let px=0;px<W;px++){R[px]+=(shc-R[px])*sha;G[px]+=(shc-G[px])*sha;Bl[px]+=(shc-Bl[px])*sha;}
       }else{
         R.fill(B0);G.fill(B1);Bl.fill(B2);
         for(let li=L.length-1;li>=0;li--){          // first layer is the top one, so paint from the last
