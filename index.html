@@ -16,6 +16,7 @@ body.page-ready{visibility:visible}
 .full-bg-layer{position:fixed;inset:0;z-index:-1;pointer-events:none;background-size:cover;background-position:center;background-repeat:no-repeat;transition:none}
 .ready .full-bg-layer{transition:opacity 1.2s ease,filter var(--fade-speed) ease}
 #dim-el{transition:none}
+body.layout-mosaic #fx-glow{z-index:2}
 #fx-glow{position:fixed;left:0;top:0;z-index:-1;pointer-events:none;border-radius:50%;opacity:0;transition:opacity .35s ease;will-change:transform}
 #dim-el.dim-smooth{transition:background 0.4s ease}
 .container{width:100%;height:100%;margin:0 auto;padding:2vh 2vw;display:flex;flex-direction:column}
@@ -1145,6 +1146,10 @@ body.layout-mosaic .mo-tabs.mo-item .mo-tab{flex:1 1 auto;display:flex;align-ite
           <div class="s-title">Links</div>
           <div class="inl-row"><div class="inl"><span>Open Links On</span><select id="target-mode" onchange="updateVis()"><option value="_self">Current Tab</option><option value="_blank">New Tab</option></select></div><label class="label-inline inl col-only" title="Adds an animated effect in the category color when you hover over a link"><input type="checkbox" id="link-led" onchange="updateVis()"> Hover effect</label><div class="inl col-only" title="Which effect plays when you hover over a link"><select id="link-fx" onchange="updateVis()" style="width:auto;min-width:130px;"><optgroup label="LED"><option value="led">LED run</option><option value="ledrev">LED run (reverse)</option><option value="leddual">LED twin</option><option value="ledping">LED ping-pong</option><option value="ledtrace">LED trace</option></optgroup><optgroup label="Sweep"><option value="shine">Shine sweep</option><option value="sweeph">Sweep horizontal</option><option value="sweepv">Sweep vertical</option></optgroup><optgroup label="Other"><option value="underline">Underline draw</option><option value="pulse">Glow pulse</option><option value="neon">Neon text</option><option value="border">Outline</option></optgroup></select></div><div class="inl col-only" title="How fast the hover effect animates" style="flex:1;min-width:220px;"><span>Effect speed</span><div class="bd-slide" style="flex:1;min-width:0;margin:0;"><input type="range" id="link-led-speed" min="0.3" max="3" step="0.1" value="1" oninput="updateLedSpeed(this.value)"></div><span id="link-led-speed-val" style="font-size:0.72rem;color:#888;min-width:28px;">1.0×</span></div></div>
         </div>
+        <div class="s-card"><div class="s-title">Effects</div>
+          <div class="s-field"><label class="label-inline"><input type="checkbox" id="fx-glow-check" onchange="setFx('cursorGlow',this.checked)"> Glow follows cursor</label></div>
+          <div class="s-slide" id="fx-glow-row"><div class="color-row"><span>Glow strength</span><span id="fx-glow-val" class="s-val"></span></div><div class="bd-slide"><input type="range" id="fx-glow-amt" min="0.05" max="1" step="0.01" oninput="setFx('cursorGlowAmt',parseFloat(this.value))"></div></div>
+        </div>
         <div class="s-card mo-only">
           <div class="s-title">Mosaic Grid</div>
           <div class="inl-row"><div class="inl"><span>Grid size</span><input type="range" id="mo-cols" min="8" max="60" step="1" oninput="moGridCols(+this.value)" style="width:160px"><span id="mo-cols-v" style="min-width:76px;color:#888;margin-left:8px;"></span></div></div>
@@ -1269,10 +1274,6 @@ body.layout-mosaic .mo-tabs.mo-item .mo-tab{flex:1 1 auto;display:flex;align-ite
             <div class="s-note">Animated live scene driven by your current <strong style="color:#ccc;">weather &amp; time of day</strong>. Updates automatically.</div>
             <div class="s-slide"><div class="color-row"><span>Intensity</span><span id="time-intensity-val" class="s-val">100%</span></div><div class="bd-slide"><input type="range" id="time-intensity" min="0" max="1" step="0.01" oninput="updateTimeIntensity()" ></div></div>
           </div>
-        </div>
-        <div class="s-card"><div class="s-title">Effects</div>
-          <div class="s-field"><label class="label-inline"><input type="checkbox" id="fx-glow-check" onchange="setFx('cursorGlow',this.checked)"> Glow follows cursor</label></div>
-          <div class="s-slide" id="fx-glow-row"><div class="color-row"><span>Glow strength</span><span id="fx-glow-val" class="s-val"></span></div><div class="bd-slide"><input type="range" id="fx-glow-amt" min="0.05" max="1" step="0.01" oninput="setFx('cursorGlowAmt',parseFloat(this.value))"></div></div>
         </div>
       </div>
     </div>
@@ -2591,6 +2592,11 @@ function paintAutoGlow(){const p=cur();if(!p||p.bgImg||(p.bgMode||'gradient')!==
 // ── Effects: cursor glow (works on top of every background mode) ──
 const FX={x:0,y:0,tx:0,ty:0,rgb:[255,255,255],trgb:[255,255,255],raf:0,seen:false,on:false,amt:0.5,R:300};
 function fxNearestColor(x,y){
+  if(document.body.classList.contains('layout-mosaic')&&typeof window.moGlowItems==='function'){
+    let best=null,bd=Infinity;
+    try{window.moGlowItems().forEach(o=>{const r=o.r,dx=x<r.left?r.left-x:(x>r.right?x-r.right:0),dy=y<r.top?r.top-y:(y>r.bottom?y-r.bottom:0),d=dx*dx+dy*dy;if(d<bd){bd=d;best=o.rgb;}});}catch(e){}
+    return best?best.split(',').map(Number):null;
+  }
   const p=cur(),cols=document.querySelectorAll('#grid .column');let best=-1,bd=Infinity;
   cols.forEach((el,i)=>{const r=el.getBoundingClientRect(),dx=x<r.left?r.left-x:(x>r.right?x-r.right:0),dy=y<r.top?r.top-y:(y>r.bottom?y-r.bottom:0),d=dx*dx+dy*dy;if(d<bd){bd=d;best=i;}});
   const c=p&&p.categories[best];if(!c||!c.color)return null;
@@ -4789,8 +4795,11 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     document.querySelectorAll('#mosaic .mo-tile').forEach(el=>{
       const l=(c.links||[])[+el.dataset.li];if(!l)return;
       const r=el.getBoundingClientRect();if(!r.width||!r.height)return;
-      const src=autoSrc(l),own=hexRgb(l.moLC)||fb,got=src&&_colC.get(src);
-      const rgb=(got&&got.every(Number.isFinite)?got:own).map(v=>Math.round(v)).join(',');
+      const src=autoSrc(l),got=src&&_colC.get(src);
+      // the colour the tile itself shows (taken from its icon) first, then the icon's own colour, then the tile / category colour; near-black ones are skipped
+      const cand=[hexRgb(l.moTC),got&&got.every(Number.isFinite)?got:null,hexRgb(l.moLC),hexRgb(c.color),fb].filter(Boolean);
+      const pick=cand.find(v=>Math.max(v[0],v[1],v[2])>=45)||cand[0];
+      const rgb=pick.map(v=>Math.round(v)).join(',');
       out.push({r,rgb});
       if(src&&!_colC.has(src))pend.push(src);
     });
