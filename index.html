@@ -3705,7 +3705,7 @@ async function npArtistLoad(o){
   _npArtLoading='';
   if(!u){img.removeAttribute('src');try{npArtPopSync();}catch(e){}return;}
   {const a=jget(NP_FV);if(!a[k]||fvBad){a[k]=u;jset(NP_FV,a);npArtOkAdd(u);}}   // the first photo shown stays for this artist, until you choose another
-  img.onload=()=>{if(seq===_npArtSeq)bg.classList.add('on');};
+  img.onload=()=>{if(seq===_npArtSeq){try{npArtFit();}catch(e){}requestAnimationFrame(()=>{if(seq===_npArtSeq)bg.classList.add('on');});}};
   img.onerror=()=>{if(seq!==_npArtSeq||!viaFav)return;   // a remembered photo that no longer loads: look for another
     const a=jget(NP_FV);delete a[k];jset(NP_FV,a);img.removeAttribute('src');_npArtKey=null;_npArtNorm='';npArtistLoad(o);};
   img.src=u;try{npArtPopSync();}catch(e){}
@@ -3721,7 +3721,18 @@ function npArtistRestore(p){
   if(!fv||!npArtOkGet(fv))return;
   _npArtKey=k;_npArtNorm=_npNorm(c.artist);_npArtRestored=true;
   bg.style.transition='none';
-  img.onload=()=>{bg.classList.add('on');requestAnimationFrame(()=>requestAnimationFrame(()=>{bg.style.transition='';}));};
+  // the page is still hidden / scaling while it starts: show the photo only once the page is ready and the photo has been placed, so it never appears misplaced and then jumps
+  img.onload=()=>{
+    const go=()=>{
+      if(!_npArtRestored&&!bg.classList.contains('on')&&!img.getAttribute('src'))return;
+      try{npArtFit();}catch(e){}
+      requestAnimationFrame(()=>{try{npArtFit();}catch(e){}
+        if(img.getAttribute('src'))bg.classList.add('on');
+        requestAnimationFrame(()=>requestAnimationFrame(()=>{bg.style.transition='';}));});
+    };
+    if(document.body.classList.contains('page-ready'))go();
+    else{const t=setInterval(()=>{if(document.body.classList.contains('page-ready')||!img.getAttribute('src')){clearInterval(t);if(img.getAttribute('src'))go();}},30);}
+  };
   img.onerror=()=>{bg.style.transition='';npArtistUnrestore();};
   img.src=fv;
 }
