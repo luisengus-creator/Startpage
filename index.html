@@ -213,7 +213,6 @@ body.link-led.fx-border .link-row a:hover{box-shadow:inset 0 0 0 2px var(--cat-a
 .wx-now{display:flex;align-items:center;gap:1rem}
 .wx-now-temp{font-weight:300;line-height:1;letter-spacing:-0.03em}
 .wx-now-meta{display:flex;flex-direction:column;gap:0.15rem;text-align:left}
-.wx-cond{font-weight:700}
 .wx-sub{opacity:0.55;white-space:nowrap}
 .wx-strip{display:flex;gap:0.25rem;align-items:stretch}
 .wx-mini,.wx-col{display:flex;flex-direction:column;align-items:center;gap:0.25rem;border-radius:var(--widget-radius,12px);background:rgba(255,255,255,calc(0.03 * var(--weather-on,1)));transition:background 0.2s}
@@ -244,7 +243,6 @@ body.link-led.fx-border .link-row a:hover{box-shadow:inset 0 0 0 2px var(--cat-a
 .wx-lo{opacity:0.45}
 .wx-compact{display:flex;align-items:center;gap:calc(0.75rem * var(--wx-k,1));padding:calc(0.35rem * var(--wx-k,1)) calc(1rem * var(--wx-k,1));border-radius:999px;position:relative;background:rgba(255,255,255,calc(0.04 * var(--weather-on,1)))}
 .wx-cnow{line-height:1}
-.wx-ccond{}
 .wx-ctrig{display:flex;align-items:center;gap:calc(0.75rem * var(--wx-k,1));position:static}
 .wx-pop{position:absolute;bottom:calc(100% + var(--wx-pop-up,0px) + 12px);left:50%;transform:translateX(-50%) translateY(6px);margin-left:var(--wx-pop-shift,0px);opacity:0;pointer-events:none;transition:opacity 0.2s ease,transform 0.2s ease;z-index:20}
 .wx-compact{cursor:default}
@@ -517,6 +515,8 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 .edit-add-btn:hover{background:rgba(255,255,255,0.08);border-color:var(--cat-accent,var(--modal-accent,#00d4ff));color:var(--cat-accent,var(--modal-accent,#00d4ff))}
 .add-link-btn{width:calc(2.4rem * var(--scale) * var(--density-mod));height:calc(1.7rem * var(--scale) * var(--density-mod));margin:calc(0.4rem * var(--scale) * var(--density-mod)) auto 0}
 .add-cat-btn{flex:0 0 auto;align-self:stretch;width:calc(2.6rem * var(--scale) * var(--density-mod));min-height:calc(4rem * var(--scale) * var(--density-mod))}
+.cat-tabs-row{display:flex;align-items:flex-start;gap:8px;margin:0 0 14px}
+.cat-tabs-row .cat-tabs{flex:1;min-width:0;margin:0}
 .cat-tabs{display:grid;grid-template-columns:repeat(auto-fill,minmax(124px,1fr));gap:6px;margin:0 0 14px}
 .cat-tab{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-width:0;height:28px;box-sizing:border-box;line-height:1;padding:0 28px 0 10px;font-size:0.72rem;font-weight:600;background:#0a0a0a;border:1px solid #1e1e1e;color:#888;border-radius:999px;cursor:pointer;transition:0.15s}
 .cat-tab:hover{background:#151515;border-color:#2c2c2c;color:#ddd}
@@ -697,7 +697,7 @@ body.edit-mode .mo-optw{display:block}
 .mo-xs .mo-h-e,.mo-xs .mo-h-w{top:12px;bottom:12px;width:8px}
 .mo-xs .mo-h-ne::after,.mo-xs .mo-h-nw::after,.mo-xs .mo-h-se::after,.mo-xs .mo-h-sw::after{width:7px;height:7px;top:auto;right:auto;bottom:auto;left:auto}
 .mo-xs .mo-h-ne::after{top:2px;right:2px}.mo-xs .mo-h-nw::after{top:2px;left:2px}.mo-xs .mo-h-se::after{bottom:2px;right:2px}.mo-xs .mo-h-sw::after{bottom:2px;left:2px}
-.mo-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-1;transition:transform .5s ease;pointer-events:none}
+.mo-img{position:absolute;left:calc(50% - 50% * var(--phs,1));top:calc(50% - 50% * var(--phs,1));width:calc(100% * var(--phs,1));height:calc(100% * var(--phs,1));object-fit:cover;z-index:-1;transition:transform .5s ease;pointer-events:none}
 .mo-body{transition:transform .5s ease}
 .mo-tile:hover .mo-body{transform:scale(1.08)}
 .mo-head{flex:none;display:flex;align-items:center;gap:10px;padding:0 12px;height:var(--mo-head-h,25px);background:linear-gradient(90deg,var(--tc),var(--tc2,var(--tc)));color:var(--ink,#fff);position:relative;z-index:2;pointer-events:none}
@@ -742,11 +742,9 @@ body.edit-mode .mo-opts{opacity:1;pointer-events:auto}
 .mo-opt:hover{background:rgba(0,0,0,.9);border-color:#fff}
 .mo-upbtn{width:auto;height:26px;padding:0 10px;font-size:.72rem;white-space:nowrap}
 /* settings: layout switch + options that only exist in one layout */
-#layout-group{display:flex;gap:8px;width:100%}
-#layout-group button{flex:1;height:40px;margin:0;border-radius:10px;border:1px solid #2a2a2a;background:#111;color:#8a8a8a;font-size:.88rem;font-weight:600;cursor:pointer;transition:.2s;width:auto}
-#layout-group button:hover{color:#ddd;border-color:#444}
-#layout-group button.active{background:var(--modal-accent,#00d4ff);color:var(--accent-text,#000);border-color:transparent}
 body.layout-mosaic .col-only{display:none!important}
+/* mosaic: text size is defined by the size of each field, so no font size pickers (the settings-window font keeps its own) */
+body.layout-mosaic select[data-k="size"]:not([onchange^="uiSet"]){display:none!important}
 body:not(.layout-mosaic) .mo-only{display:none!important}
 /* full-screen mosaic: the clock, search, quick links and tabs stay above the tiles so they can always be clicked */
 body.layout-mosaic .top-bar,body.layout-mosaic #search-bar-wrap,body.layout-mosaic #top-stack{z-index:20}
@@ -850,19 +848,21 @@ body.edit-mode .mo-tile.mo-t-nolift:hover,body.edit-mode .mo-tile.mo-t-lift:hove
 #mo-pop .mo-sbody .settings-panel{padding:0;min-height:0}
 #mo-pop .mo-sbody .section-h{display:none}
 #mo-pop .mo-sbody .s-card{margin-bottom:8px}
-#mo-pop[data-m="link"] #panel-categories .setting-block>.s-card:has(#layout-group),
-#mo-pop[data-m="link"] #cat-tabs,#mo-pop[data-m="link"] #cat-undo,
+#mo-pop[data-m="link"] #panel-categories .setting-block>.s-card:has(#mo-cfg),
+#mo-pop[data-m="link"] .cat-tabs-row,#mo-pop[data-m="cat"] .cat-tabs-row,#mo-pop[data-m="link"] #cat-tabs,#mo-pop[data-m="link"] #cat-undo,
 #mo-pop[data-m="link"] #cat-pane>.s-card:nth-child(1),
 #mo-pop[data-m="link"] #cat-pane>.s-card:nth-child(2)>.s-title,
 #mo-pop[data-m="link"] #cat-pane>.s-card:nth-child(2)>.flex-row:last-child,
 #mo-pop[data-m="link"] .mo-photorow,
 #mo-pop[data-m="link"] .editor-link-row .drag-handle,
 #mo-pop[data-m="link"] .editor-link-row .row-end{display:none!important}
-#mo-pop[data-m="cat"] .s-card:has(#layout-group),
+#mo-pop[data-m="cat"] .s-card:has(#mo-cfg),
 #mo-pop[data-m="cat"] #cat-tabs,#mo-pop[data-m="cat"] #cat-undo,
 #mo-pop[data-m="cat"] #mo-cbg-row,#mo-pop[data-m="cat"] div:has(+ #mo-cbg-row),
 #mo-pop[data-m="cat"] #cat-pane>.s-card:nth-child(2){display:none!important}
 #mo-pop .s-field:has(#clock-pos-group),#mo-pop .s-field:has(#np-pos-group),#mo-pop .s-field:has(#wx-pos-group){display:none}
+/* mosaic mode: clock, weather and now playing are placed by dragging, so the Position buttons are not shown in the settings (Column mode keeps them) */
+body.layout-mosaic .s-field:has(#clock-pos-group),body.layout-mosaic .s-field:has(#np-pos-group),body.layout-mosaic .s-field:has(#wx-pos-group){display:none}
 /* title bar: its height is a setting, the text follows it */
 .mo-name,.mo-xs .mo-name,.mo-m .mo-name,.mo-xl .mo-name{font-size:max(11px,calc(var(--mo-head-h,25px)*.52*var(--fsz,1)))}
 .mo-xs .mo-head,.mo-head{gap:calc(var(--mo-head-h,25px)*.3);padding:0 calc(var(--mo-head-h,25px)*.4)}
@@ -875,7 +875,15 @@ body.edit-mode .mo-tile.mo-t-nolift:hover,body.edit-mode .mo-tile.mo-t-lift:hove
 /* the grid is sized in px (square cells), the stage only positions it */
 .mo-grid{inset:auto}
 /* settings: wide layout switch and the mosaic-only options */
-#layout-group button{height:46px;font-size:.95rem}
+#mo-cfg{margin-top:0;padding-top:0;border-top:0}
+/* ── the two mode buttons at the top of the settings sidebar: Column = blue, Mosaic = orange ── */
+#mode-switch{display:flex;flex-direction:column;gap:6px;padding:0 .7rem .9rem;margin-bottom:.5rem;border-bottom:1px solid rgba(255,255,255,0.05);flex-shrink:0}
+#mode-switch .mode-btn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;margin:0;padding:9px 6px;border-radius:8px;font-size:.7rem;font-weight:800;letter-spacing:.3px;white-space:nowrap;background:#111;color:var(--mc);border:1px solid color-mix(in srgb,var(--mc) 45%,transparent);transition:.2s}
+#mode-switch .mode-btn i{font-size:.8rem}
+#mode-switch .mode-col{--mc:#00d4ff}
+#mode-switch .mode-mo{--mc:#ff8800}
+#mode-switch .mode-btn:hover{background:color-mix(in srgb,var(--mc) 16%,#111)}
+#mode-switch .mode-btn.active{background:var(--mc);color:#000;border-color:var(--mc);box-shadow:0 0 12px color-mix(in srgb,var(--mc) 45%,transparent)}
 .mo-cfg{display:flex;flex-wrap:wrap;align-items:center;gap:12px 28px;margin-top:14px;padding-top:14px;border-top:1px solid #1e1e1e}
 .mo-cfg .inl-s{display:flex;align-items:center;gap:8px;font-size:.78rem;color:#bbb}
 .mo-cfg .inl-s select{width:auto;height:30px;font-size:.78rem;padding:0 6px}
@@ -901,6 +909,9 @@ body.layout-mosaic #weather-area.mo-item .weather-bg-wrap,body.layout-mosaic #np
 body.layout-mosaic .chrome-overlay{display:none!important}
 /* ── Mosaic: every widget fills the grid area it is given; its contents are scaled with the area ── */
 body.layout-mosaic #clock-display.mo-item{justify-content:center;align-items:center}
+/* mosaic: text never wraps onto a second line, the whole widget is scaled down to fit instead */
+body.layout-mosaic #clock-display.mo-item,body.layout-mosaic #clock-display.mo-item *,body.layout-mosaic #search-form.mo-item,body.layout-mosaic #search-form.mo-item *,body.layout-mosaic .mo-tabs.mo-item,body.layout-mosaic .mo-tabs.mo-item *{white-space:nowrap!important}
+body.layout-mosaic #clock-display.mo-item #clock-time,body.layout-mosaic #clock-display.mo-item #clock-date{width:max-content;max-width:none}
 body.layout-mosaic #search-form.mo-item{justify-content:center}
 body.layout-mosaic #weather-area.mo-item{display:flex;flex-direction:column;align-items:stretch;justify-content:stretch;gap:0}
 body.layout-mosaic #weather-area.mo-item .weather-bg-wrap{flex:1 1 auto;width:100%;min-height:0;box-sizing:border-box;align-items:center;justify-content:flex-end;padding-bottom:0}
@@ -990,7 +1001,7 @@ body.layout-mosaic #np-area.mo-item.mo-in .np-box,body.layout-mosaic #weather-ar
 .mo-w.mo-w-in{z-index:3;border-color:#38bdf8;background:rgba(56,189,248,.07)}
 .mo-w.mo-w-in:hover{border-color:#7dd3fc;background:rgba(56,189,248,.14)}
 /* options boxes of the two fields: the field itself (photo, opacity, what is shown) and the info inside it (cover, texts) */
-#mo-pop[data-m="np-in"] label.label-inline:has(#np-enable),#mo-pop[data-m="np-in"] .s-field:has(#np-user),#mo-pop[data-m="np-in"] .inl-row:has(#np-msg),#mo-pop[data-m="np-in"] #np-art-sub,#mo-pop[data-m="np-in"] .inl:has(#np-art-on),#mo-pop[data-m="np-in"] .inl:has(#np-cover),#mo-pop[data-m="np-in"] .inl:has(#np-autohide){display:none!important}
+#mo-pop[data-m="np-in"] label.label-inline:has(#np-enable),#mo-pop[data-m="np-in"] #np-art-sub,#mo-pop[data-m="np-in"] .inl:has(#np-art-on),#mo-pop[data-m="np-in"] .inl:has(#np-cover),#mo-pop[data-m="np-in"] .inl:has(#np-autohide){display:none!important}
 #mo-pop[data-m="np-out"] .inl:has(#np-shape),#mo-pop[data-m="np-out"] .inl:has(#np-glow-on),#mo-pop[data-m="np-out"] .inl:has(#np-sglow-on),#mo-pop[data-m="np-out"] .s-field:has(#np-order){display:none!important}
 #mo-pop[data-m="wx-in"] label.label-inline:has(#w-enable),#mo-pop[data-m="wx-in"] .s-field:has(#wx-photo-on){display:none!important}
 #mo-pop[data-m="wx-out"] #weather-rest,#mo-pop[data-m="wx-out"] .s-field:has(#wx-style-group){display:none!important}
@@ -1083,6 +1094,10 @@ body.layout-mosaic .mo-tabs.mo-item .mo-tab{flex:1 1 auto;display:flex;align-ite
 
 <div id="settings-modal" class="modal" style="display:none;flex-direction:row;">
   <div id="settings-sidebar">
+    <div id="mode-switch">
+      <button type="button" class="mode-btn mode-col" data-layout="columns" title="Column mode: its own settings" onclick="setLayout('columns')"><i class="fa-solid fa-table-columns"></i><span>Column mode</span></button>
+      <button type="button" class="mode-btn mode-mo" data-layout="mosaic" title="Mosaic mode: its own settings" onclick="setLayout('mosaic')"><i class="fa-solid fa-table-cells-large"></i><span>Mosaic mode</span></button>
+    </div>
     <div class="settings-nav-item active" onclick="showPanel('profiles',this)"><i class="fa-solid fa-user"></i>Profiles</div>
     <div class="settings-nav-item" onclick="showPanel('display',this)"><i class="fa-solid fa-display"></i>Display</div>
     <div class="settings-nav-item" onclick="showPanel('quick-links',this)"><i class="fa-solid fa-link"></i>Quick Links</div>
@@ -1130,9 +1145,13 @@ body.layout-mosaic .mo-tabs.mo-item .mo-tab{flex:1 1 auto;display:flex;align-ite
           <div class="s-title">Links</div>
           <div class="inl-row"><div class="inl"><span>Open Links On</span><select id="target-mode" onchange="updateVis()"><option value="_self">Current Tab</option><option value="_blank">New Tab</option></select></div><label class="label-inline inl col-only" title="Adds an animated effect in the category color when you hover over a link"><input type="checkbox" id="link-led" onchange="updateVis()"> Hover effect</label><div class="inl col-only" title="Which effect plays when you hover over a link"><select id="link-fx" onchange="updateVis()" style="width:auto;min-width:130px;"><optgroup label="LED"><option value="led">LED run</option><option value="ledrev">LED run (reverse)</option><option value="leddual">LED twin</option><option value="ledping">LED ping-pong</option><option value="ledtrace">LED trace</option></optgroup><optgroup label="Sweep"><option value="shine">Shine sweep</option><option value="sweeph">Sweep horizontal</option><option value="sweepv">Sweep vertical</option></optgroup><optgroup label="Other"><option value="underline">Underline draw</option><option value="pulse">Glow pulse</option><option value="neon">Neon text</option><option value="border">Outline</option></optgroup></select></div><div class="inl col-only" title="How fast the hover effect animates" style="flex:1;min-width:220px;"><span>Effect speed</span><div class="bd-slide" style="flex:1;min-width:0;margin:0;"><input type="range" id="link-led-speed" min="0.3" max="3" step="0.1" value="1" oninput="updateLedSpeed(this.value)"></div><span id="link-led-speed-val" style="font-size:0.72rem;color:#888;min-width:28px;">1.0×</span></div></div>
         </div>
+        <div class="s-card mo-only">
+          <div class="s-title">Mosaic Grid</div>
+          <div class="inl-row"><div class="inl"><span>Grid size</span><input type="range" id="mo-cols" min="8" max="60" step="1" oninput="moGridCols(+this.value)" style="width:160px"><span id="mo-cols-v" style="min-width:76px;color:#888;margin-left:8px;"></span></div></div>
+        </div>
         <div class="s-card">
           <div class="s-title">Settings Window</div>
-          <div class="inl-row"><div class="inl"><span>Settings Color</span><div class="color-field"><input type="color" id="ui-accent-color" oninput="updateUiAccent(this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('ui-accent-color')" title="Accent color of this settings window"></div><button class="btn-icon" onclick="resetUiAccent()" title="Reset to blue"><i class="fa-solid fa-rotate-left"></i></button></div></div></div>
+          <div class="inl-row"><div class="inl"><span>Settings Color</span><div class="color-field"><input type="color" id="ui-accent-color" oninput="updateUiAccent(this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('ui-accent-color')" title="Accent color of this settings window"></div><button class="btn-icon" onclick="resetUiAccent()" title="Reset to this mode's default color"><i class="fa-solid fa-rotate-left"></i></button></div></div></div>
         </div>
       </div>
     </div>
@@ -1147,30 +1166,7 @@ body.layout-mosaic .mo-tabs.mo-item .mo-tab{flex:1 1 auto;display:flex;align-ite
     <div class="settings-panel" id="panel-categories">
       <div class="setting-block">
         <div class="section-h">Categories & Content</div>
-        <div class="s-card" style="margin-bottom:10px;">
-          <div class="s-title">Layout</div>
-          <div id="layout-group">
-            <button type="button" data-layout="columns" title="Classic columns" onclick="setLayout('columns')"><i class="fa-solid fa-table-columns"></i>&nbsp; Columns</button>
-            <button type="button" data-layout="mosaic" title="Tabs with a mosaic of tiles" onclick="setLayout('mosaic')"><i class="fa-solid fa-table-cells-large"></i>&nbsp; Mosaic</button>
-          </div>
-          <div style="font-size:0.7rem;opacity:.6;margin-top:8px;">Each layout keeps its own arrangement. Switching never changes the other one. Only the settings that apply to the chosen layout are shown below.</div>
-          <div class="mo-only mo-cfg" id="mo-cfg">
-            
-            <div class="inl-s"><span>Tile opacity</span><input type="range" id="mo-op" min="0" max="1" step="0.01" oninput="moCfg('moOp',+this.value)"><span id="mo-op-v" style="min-width:36px;color:#888;"></span></div>
-            <div class="inl-s"><span>Tile color</span><input type="color" id="mo-tile-color" oninput="moCfg('moTileColor',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('mo-tile-color')" title="Tile color"></div></div>
-            <div class="inl-s"><span>Tile gap</span><input type="range" id="mo-gap" min="0" max="30" step="1" oninput="moCfg('moGap',+this.value)"><span id="mo-gap-v" style="min-width:32px;color:#888;"></span></div>
-            <div class="inl-s"><span>Photo fit</span><select id="mo-fit" onchange="moCfg('moFit',this.value)"><option value="cover">Fill the tile</option><option value="contain">Show the whole photo</option></select></div>
-            <label class="inl-s"><input type="checkbox" id="mo-head" onchange="moCfg('moHead',this.checked)"> Title bar on tiles</label>
-            <div class="inl-s"><span>Title &amp; icon position</span><select id="mo-halign" onchange="moCfg('moHeadAlign',this.value)"><option value="left">Left</option><option value="center">Center</option><option value="right">Right</option></select></div>
-            <div class="inl-s"><span>Title bar height</span><input type="range" id="mo-headh" min="14" max="60" step="1" oninput="moCfg('moHeadH',+this.value)"><span id="mo-headh-v" style="min-width:32px;color:#888;"></span></div>
-            <div class="inl-s"><span>Title text color</span><input type="color" id="mo-name-color" oninput="moCfg('moNameColor',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('mo-name-color')" title="Color of the name on the tiles"></div><span id="mo-name-color-v" style="min-width:52px;color:#888;"></span><button type="button" class="btn-icon" onclick="moCfg('moNameColor','')" title="Automatic (readable on the title bar color)"><i class="fa-solid fa-rotate-left"></i></button></div>
-            <div class="inl-s"><span>Grid size</span><input type="range" id="mo-cols" min="8" max="60" step="1" oninput="moGridCols(+this.value)"><span id="mo-cols-v" style="min-width:76px;color:#888;"></span></div>
-            <label class="inl-s"><input type="checkbox" id="mo-lift" onchange="moCfg('moLift',this.checked)"> Lift tile on hover</label>
-            <label class="inl-s"><input type="checkbox" id="mo-zoom" onchange="moCfg('moZoom',this.checked)"> Zoom tile on hover</label>
-            <div class="inl-s"><button type="button" class="mo-upbtn" onclick="moResetW()" title="Put the categories bar, clock, search, weather, now playing and quick links back in place and show hidden ones (Mosaic only)">Reset moved / hidden items</button></div>
-          </div>
-        </div>
-        <div class="cat-tabs" id="cat-tabs"></div>
+        <div class="cat-tabs-row"><label class="eye-toggle mo-only" title="Show / hide the categories bar (Mosaic only)"><input type="checkbox" id="mo-tabs-vis" checked onchange="moTabsVis(this.checked)"><i class="fa-solid fa-eye"></i><i class="fa-solid fa-eye-slash"></i></label><div class="cat-tabs" id="cat-tabs"></div></div>
         <div class="cat-undo" id="cat-undo"></div>
         <input type="hidden" id="cat-sel" value="">
         <div id="cat-pane">
@@ -1599,7 +1595,7 @@ const fsizeOpts=(cur,four)=>Object.entries(four?FSIZES4:FSIZES3).map(([k,l])=>`<
 function fstyleParts(v,kind){v=fstyleName(v,kind);return{w:(v==='bold'||v==='bolditalic')?'700':'400',i:v==='italic'||v==='bolditalic'};}
 const fstyleCss=(v,kind)=>{const q=fstyleParts(v,kind);return `font-weight:${q.w};font-style:${q.i?'italic':'normal'};`;};
 // inline css for one category title / link: font + style + size multiplier (read by --fsz in the stylesheet)
-const fontCss=(o,kind)=>`font-family:${fontStack(o.font)};${fstyleCss(o.fontStyle,kind)}--fsz:${fsizeMult(o.fontSize)};`;
+const fontCss=(o,kind)=>`font-family:${fontStack(o.font)};${fstyleCss(o.fontStyle,kind)}${document.body&&document.body.classList.contains('layout-mosaic')?'':`--fsz:${fsizeMult(o.fontSize)};`}`;   // Mosaic: text size comes from the size of its field, never from a font size setting
 const cleanFontProp=(k,v,kind)=>/fontstyle$/i.test(k)?fstyleName(v,kind):/fontsize$/i.test(k)?fsizeName(v):fontName(v);
 const kindOfKey=k=>/^clockDate/.test(k)?'cdate':/^clock/.test(k)?'clock':/^weather/.test(k)?'weather':'search';
 // One control used everywhere: [font][style][size][All]  (fontOnly: [font][All], used by the search bar).
@@ -1865,6 +1861,59 @@ function cur(){return state.profiles[parseInt(state.profile.replace('p',''))]||s
 function MCATS(p){p=p||cur();if(!Array.isArray(p.moCats))p.moCats=JSON.parse(JSON.stringify(p.categories||[]));return p.moCats;}
 function CATS(p){p=p||cur();return p.layout==='mosaic'?MCATS(p):p.categories;}
 function curIdx(){return parseInt(state.profile.replace('p',''));}
+// ── Column mode / Mosaic mode: each mode has its own profiles and its own settings ──
+// The active mode's profiles live in state.profiles / profileNames / profile, so all the existing code keeps working.
+// The other mode's profiles are parked in state._modeP[mode] and swapped back in when you switch.
+const MODE_ACC={columns:'#00d4ff',mosaic:'#ff8800'};
+const MODE_GK=['uiAccent','target','linkColor','linkLed','linkLedSpeed','linkFx','ui','tabTitle','tabFavicon','tabFaviconEmoji'];   // everything here is kept separately for Column and Mosaic (only cities + photo preferences are shared)
+const MODE_PKEEP=new Set(['categories','moCats','mosaicTab','gridC','layout','_modes','profileIcon','profilePhoto','profileIconColor']);
+function isModeKey(k){return !MODE_PKEEP.has(k)&&!/^mo[A-Z]/.test(k)&&!/^defV\d+$/.test(k);}
+function curMode(){return state.mode==='mosaic'?'mosaic':'columns';}
+const _cl=o=>JSON.parse(JSON.stringify(o));
+function migrateModes(){   // first run: every existing profile gets a Column version and a Mosaic version
+  if(state.mode&&state._modeP)return;
+  const act=(cur()&&cur().layout==='mosaic')?'mosaic':'columns',cols=[],mos=[];
+  const build=(p,target)=>{
+    const L=p.layout==='mosaic'?'mosaic':'columns',o=_cl(p);delete o._modes;
+    if(L!==target&&p._modes&&p._modes[target]){Object.keys(o).forEach(k=>{if(isModeKey(k))delete o[k];});Object.assign(o,_cl(p._modes[target]));}
+    o.layout=target;
+    if(target==='columns')Object.keys(o).forEach(k=>{if(/^mo[A-Z]/.test(k)||k==='mosaicTab'||k==='gridC')delete o[k];});
+    return o;};
+  state.profiles.forEach(p=>{cols.push(build(p,'columns'));mos.push(build(p,'mosaic'));});
+  const other=act==='mosaic'?'columns':'mosaic',names=(state.profileNames||[]).slice();
+  state._modeP={[other]:{profiles:other==='mosaic'?mos:cols,profileNames:names.slice(),profile:state.profile}};
+  state.profiles=act==='mosaic'?mos:cols;state.mode=act;
+}
+function setModeProfiles(to){   // swap in the other mode's profiles
+  const from=curMode();if(from===to)return;
+  state._modeP=state._modeP||{};
+  state._modeP[from]={profiles:state.profiles,profileNames:state.profileNames,profile:state.profile};
+  const n=state._modeP[to];
+  if(n&&Array.isArray(n.profiles)&&n.profiles.length){state.profiles=n.profiles;state.profileNames=n.profileNames||n.profiles.map((_,i)=>'Profile '+(i+1));state.profile=n.profile||'p0';}
+  else{const d=getDefaults();state.profiles=d.profiles;state.profileNames=d.profileNames;state.profile='p0';}
+  delete state._modeP[to];state.mode=to;
+  const pi=parseInt(String(state.profile).replace('p',''));if(isNaN(pi)||pi>=state.profiles.length)state.profile='p0';
+}
+function syncModeGlobals(){
+  if(!state.profiles||!cur())return;
+  migrateModes();
+  const m=curMode();
+  state.profiles.forEach(q=>{if(q.layout!==m)q.layout=m;});
+  const snap=()=>{const o={};MODE_GK.forEach(k=>{if(state[k]!==undefined)o[k]=state[k];});return o;};
+  if(!state._modeG||!state._gMode){state._modeG={columns:snap(),mosaic:snap()};delete state._modeG.mosaic.uiAccent;state._gMode='columns';state._modeGv=2;}
+  if(state._modeGv!==2){   // one-time: settings font + tab title/icon became per-mode, so the parked mode starts from a copy of the current values
+    ['ui','tabTitle','tabFavicon','tabFaviconEmoji'].forEach(k=>['columns','mosaic'].forEach(md=>{
+      state._modeG[md]=state._modeG[md]||{};
+      if(md!==state._gMode&&state._modeG[md][k]===undefined&&state[k]!==undefined)state._modeG[md][k]=_cl(state[k]);
+    }));
+    state._modeGv=2;
+  }
+  if(state._gMode===m)return;
+  state._modeG[state._gMode]=snap();
+  const n=state._modeG[m]||{};
+  MODE_GK.forEach(k=>{if(n[k]!==undefined)state[k]=n[k];else delete state[k];});
+  state._gMode=m;
+}
 
 // ── Unsplash ──
 // Photo cache lives in localStorage keyed by city+condition — persists across tabs/pages, cleared only on manual refresh
@@ -2293,11 +2342,11 @@ function ensureFont(f){
 }
 // ── Per-section text: each piece of the weather / Now Playing widgets has its own font, style and size.
 // Unset values follow the main Weather font. Applied as CSS variables (--tx-<key>-ff / -fw / -fi / -z).
-const TX_KEYS=['wx-city','wx-days','wx-temp','wx-cond','wx-pdays','wx-ptemp','wx-stats','wx-x-humidity','wx-x-pressure','wx-x-aqi','wx-x-uv','wx-x-visibility','wx-x-sunrise','np-label','np-title','np-artist','np-album'];
-const TX_LABELS={'wx-pdays':'Days & dates','wx-ptemp':'Temperatures','wx-city':'City name','wx-days':'Days & dates','wx-temp':'Temperatures','wx-cond':'Condition','wx-stats':'Extra info','np-label':'“Now Playing” label','np-title':'Song name','np-artist':'Artist','np-album':'Album'};
+const TX_KEYS=['wx-city','wx-days','wx-temp','wx-pdays','wx-ptemp','wx-stats','wx-x-humidity','wx-x-pressure','wx-x-aqi','wx-x-uv','wx-x-visibility','wx-x-sunrise','np-label','np-title','np-artist','np-album'];
+const TX_LABELS={'wx-pdays':'Days & dates','wx-ptemp':'Temperatures','wx-city':'City name','wx-days':'Days & dates','wx-temp':'Temperatures','wx-stats':'Extra info','np-label':'“Now Playing” label','np-title':'Song name','np-artist':'Artist','np-album':'Album'};
 // while the weather is on, Now Playing copies the matching weather section (font, style and size are locked to it)
 const TX_LOCK={'np-label':'wx-city','np-title':'wx-temp','np-artist':'wx-days','np-album':'wx-stats'};
-const TX_DEFAULT={'wx-city':{fontStyle:'bold',fontSize:'m',color:'#999999'},'wx-days':{fontSize:'m'},'wx-temp':{fontSize:'l'},'wx-pdays':{fontSize:'s'},'wx-ptemp':{fontSize:'m'},'wx-x-humidity':{fontSize:'s',color:'#999999'},'wx-x-pressure':{fontSize:'s',color:'#999999'},'wx-x-aqi':{fontSize:'s',color:'#999999'},'wx-x-uv':{fontSize:'s',color:'#999999'},'wx-x-visibility':{fontSize:'s',color:'#999999'},'wx-x-sunrise':{fontSize:'s',color:'#999999'},'wx-cond':{fontSize:'m'},'wx-stats':{fontSize:'s',color:'#999999'},
+const TX_DEFAULT={'wx-city':{fontStyle:'bold',fontSize:'m',color:'#999999'},'wx-days':{fontSize:'m'},'wx-temp':{fontSize:'l'},'wx-pdays':{fontSize:'s'},'wx-ptemp':{fontSize:'m'},'wx-x-humidity':{fontSize:'s',color:'#999999'},'wx-x-pressure':{fontSize:'s',color:'#999999'},'wx-x-aqi':{fontSize:'s',color:'#999999'},'wx-x-uv':{fontSize:'s',color:'#999999'},'wx-x-visibility':{fontSize:'s',color:'#999999'},'wx-x-sunrise':{fontSize:'s',color:'#999999'},'wx-stats':{fontSize:'s',color:'#999999'},
   'np-label':{fontSize:'s',color:'#ff4444'},'np-title':{fontStyle:'bold',fontSize:'m'},'np-artist':{fontSize:'m'},'np-album':{fontSize:'m'}};   // the starting look of each text; the font size picked for each text is the ONLY thing that sizes it
 const TX_DEFAULT_CLASSIC={'wx-days':{fontSize:'s'},'wx-temp':{fontSize:'s'}};   // the Classic weather starts smaller than Compact
 function txDef(p,k){const d=TX_DEFAULT[k]||{};return(p&&p.weatherStyle==='compact')?d:Object.assign({},d,TX_DEFAULT_CLASSIC[k]||{});}
@@ -2344,7 +2393,7 @@ function npVis(k,on){const p=cur();p[NP_VIS_KEY[k]]=!!on;saveAndRender();renderN
 function renderTx(){
   const p=cur();if(!p)return;
   const f=(id,keys)=>{const e=document.getElementById(id);if(e)e.innerHTML=keys.map(k=>txCell(k,p)).join('');};
-  f('tx-wx',wxSty(p)==='compact'?['wx-city','wx-temp','wx-cond']:['wx-city','wx-days','wx-temp']);   /* Compact: the weather now (its popup has its own card); Classic: the forecast */
+  f('tx-wx',wxSty(p)==='compact'?['wx-city','wx-temp']:['wx-city','wx-days','wx-temp']);   /* Compact: the weather now (its popup has its own card); Classic: the forecast */
   renderXiList();renderNpOrder();
 }
 function txSet(k,prop,v){const p=cur();p.tx=p.tx||{};const o=p.tx[k]=p.tx[k]||{};o[prop]=cleanFontProp(prop,v,'weather');saveAndRender();requestAnimationFrame(()=>{try{npAlign();}catch(e){}});}
@@ -2391,9 +2440,9 @@ function revertAll(scope){
 function syncRevertBtns(){document.querySelectorAll('.font-revert-btn').forEach(b=>{const u=_allUndo[b.dataset.scope];b.disabled=!(u&&u.pi===state.profile);});}
 // Settings colour: global preference (state.uiAccent), drives the whole settings window + popups
 function contrastText(hex){const [r,g,b]=hexToRgbStr(hex).split(',').map(Number).map(v=>{v/=255;return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4);});const L=0.2126*r+0.7152*g+0.0722*b;return (L+0.05)/0.05>=1.05/(L+0.05)?'#000':'#fff';}
-function updateModalAccent(){const a=/^#[0-9a-f]{6}$/i.test(state.uiAccent||'')?state.uiAccent:'#00d4ff',s=document.documentElement.style;s.setProperty('--modal-accent',a);s.setProperty('--modal-accent-border',a+'44');s.setProperty('--accent-rgb',hexToRgbStr(a));s.setProperty('--accent-text',contrastText(a));}
+function updateModalAccent(){const a=/^#[0-9a-f]{6}$/i.test(state.uiAccent||'')?state.uiAccent:MODE_ACC[curMode()],s=document.documentElement.style;s.setProperty('--modal-accent',a);s.setProperty('--modal-accent-border',a+'44');s.setProperty('--accent-rgb',hexToRgbStr(a));s.setProperty('--accent-text',contrastText(a));}
 function updateUiAccent(hex){state.uiAccent=hex;updateModalAccent();localStorage.setItem(KEY,JSON.stringify(state));}
-function resetUiAccent(){const i=document.getElementById('ui-accent-color');if(i){i.value='#00d4ff';cpSync('ui-accent-color');}delete state.uiAccent;updateModalAccent();localStorage.setItem(KEY,JSON.stringify(state));}
+function resetUiAccent(){const i=document.getElementById('ui-accent-color');if(i){i.value=MODE_ACC[curMode()];cpSync('ui-accent-color');}delete state.uiAccent;updateModalAccent();localStorage.setItem(KEY,JSON.stringify(state));}
 
 let _seOpen=false;
 function toggleSeMenu(e){e.stopPropagation();const m=document.getElementById('se-menu');_seOpen=!_seOpen;m.classList.toggle('open',_seOpen);if(_seOpen){const r=document.getElementById('se-current-btn').getBoundingClientRect();m.style.left=r.left+'px';m.style.top=(r.bottom+6)+'px';}}
@@ -2577,6 +2626,7 @@ function syncFx(p){
 }
 window.addEventListener('resize',()=>applyFx(cur()));
 function saveAndRender(refreshModal=false){
+  try{syncModeGlobals();}catch(e){console.warn('mode sync',e);}
   localStorage.setItem(KEY,JSON.stringify(state));
   const p=cur();if(!p)return;
   document.body.style.backgroundColor=p.bgColor;
@@ -2678,7 +2728,7 @@ function renderSettings(){
   {const le=document.getElementById('link-led');if(le)le.checked=!!state.linkLed;const lf=document.getElementById('link-fx');if(lf)lf.value=linkFxOf();const ls=document.getElementById('link-led-speed'),lv=document.getElementById('link-led-speed-val'),sp=state.linkLedSpeed||1;if(ls)ls.value=sp;if(lv)lv.textContent=sp.toFixed(1)+'×';}
   document.getElementById('search-enable').checked=(p.showSearch!==false);
   document.getElementById('search-engine').value=p.searchEngine||'startpage';
-  {const ua=document.getElementById('ui-accent-color');if(ua){ua.value=state.uiAccent||'#00d4ff';cpSync('ui-accent-color');}}
+  {const ua=document.getElementById('ui-accent-color');if(ua){ua.value=state.uiAccent||MODE_ACC[curMode()];cpSync('ui-accent-color');}}
   // clock
   document.getElementById('clock-check').checked=(p.showClock!==false);
   document.getElementById('clock-seconds').checked=(p.clockSeconds!==false);
@@ -2828,8 +2878,28 @@ function cDS(e,i){_cdi=i;e.dataTransfer.effectAllowed='move';}
 function cDO(e,i){e.preventDefault();if(i!==_cdi)document.querySelectorAll('.city-item')[i]?.classList.add('drag-over');}
 function cDL(e){e.target.closest('.city-item')?.classList.remove('drag-over');}
 function cDrop(e,i){e.preventDefault();document.querySelectorAll('.city-item').forEach(el=>el.classList.remove('drag-over'));if(_cdi===null||_cdi===i)return;const m=state.cities.splice(_cdi,1)[0];state.cities.splice(i,0,m);_cdi=null;renderCityManager();saveAndRender();updateWeather();}
-async function searchCity(q){if(q.length<3){document.getElementById('search-results').innerHTML='';return;}const r=await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${q}&count=5&language=en&format=json`);const d=await r.json();document.getElementById('search-results').innerHTML=(d.results||[]).map(c=>`<div class="search-result-item" onclick="addCity('${c.name}',${c.latitude},${c.longitude})">${c.name}, ${c.admin1||''} (${c.country_code})</div>`).join('');}
-function addCity(name,lat,lon){state.cities.push({name,lat,lon,photoMode:'generic'});document.getElementById('search-results').innerHTML='';document.getElementById('city-search-input').value='';renderCityManager();saveAndRender();updateWeather();}
+let _cityRes=[],_citySeq=0;
+async function searchCity(q){
+  q=(q||'').trim();const box=document.getElementById('search-results'),seq=++_citySeq;
+  const msg=(t,err)=>'<div class="search-result-item" style="cursor:default;'+(err?'color:#ff7070;':'')+'">'+t+'</div>';
+  const escH=t=>String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  if(q.length<2){_cityRes=[];box.innerHTML='';return;}
+  box.innerHTML=msg('Searching…');
+  try{
+    const r=await fetch('https://geocoding-api.open-meteo.com/v1/search?name='+encodeURIComponent(q)+'&count=5&language=en&format=json');
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const d=await r.json();
+    if(seq!==_citySeq)return;   // a newer search was started, ignore this late answer
+    _cityRes=d.results||[];
+    box.innerHTML=_cityRes.length?_cityRes.map((c,i)=>'<div class="search-result-item" onclick="addCityIdx('+i+')">'+escH(c.name)+', '+escH(c.admin1||'')+' ('+escH(c.country_code||'')+')</div>').join(''):msg('No cities found');
+  }catch(e){
+    if(seq!==_citySeq)return;
+    console.warn('City search failed:',e);
+    box.innerHTML=msg('Search failed. Check your connection, or whether an ad-blocker blocks geocoding-api.open-meteo.com',true);
+  }
+}
+function addCityIdx(i){const c=_cityRes[i];if(c)addCity(c.name,c.latitude,c.longitude);}
+function addCity(name,lat,lon){if(!Array.isArray(state.cities))state.cities=[];state.cities.push({name,lat,lon,photoMode:'generic'});if(state.cities.length===1)cityIdx=0;_cityRes=[];document.getElementById('search-results').innerHTML='';document.getElementById('city-search-input').value='';renderCityManager();saveAndRender();updateWeather();}
 function removeCity(i){if(state.cities.length>1){state.cities.splice(i,1);cityIdx=0;renderCityManager();saveAndRender();updateWeather();}}
 function cycleCity(){if(!state.cities.length)return;cityIdx=(cityIdx+1)%state.cities.length;try{window.getSelection().removeAllRanges();}catch(e){}updateWeather();}
 
@@ -2998,7 +3068,7 @@ function renderWxGrid(){
     const dfs='0.9rem',ifs=F(1.5,kt),tfs='0.9rem',tms='0.9rem';
     const cp='calc(0.4rem * var(--wx-cz,1)) calc(0.6rem * var(--wx-cz,1))',mw='calc(4.2rem * var(--wx-cz,1))';
     const dS=`${txVars(kd)}color:var(--tx-${kd}-c,inherit);font-size:calc(${dfs} * ${txZ(kd)});`,tS=`${txVars(kt)}`;
-    return days.map((t,i)=>{const wx=dinfo(i);const dn=(p.wShowDay!==false)?new Date(t+'T12:00:00').toLocaleDateString('en',{weekday:'short'}):'';const ds2=(p.wShowDate!==false)?fmtD(t):'';return`<div class="weather-card${dc?' wx-dcard':''}"${dc?` data-di="${i}"`:''} title="${wx.label}" style="padding:${cp};min-width:${mw};"><div style="display:flex;align-items:baseline;justify-content:center;gap:4px;margin-bottom:0.2rem;white-space:nowrap;"><span style="${dS}text-transform:uppercase;">${dn}</span>${ds2?`<span style="${dS}">${ds2}</span>`:''}</div><i class="fa-solid ${wx.icon} ${i===0?an(wx):''}" style="color:${icc(wx)};font-size:${ifs};margin:0.25rem 0;display:block;"></i><div style="display:flex;align-items:baseline;justify-content:center;gap:5px;"><span style="${tS}color:var(--tx-${kt}-c,${col});font-size:calc(${tfs} * ${txZ(kt)});">${hi[i]}°</span><span style="${tS}color:var(--tx-${kt}-c,${col});font-size:calc(${tms} * ${txZ(kt)});">${lo[i]}°</span></div></div>`;}).join('');
+    return days.map((t,i)=>{const wx=dinfo(i);const dn=(p.wShowDay!==false)?new Date(t+'T12:00:00').toLocaleDateString('en',{weekday:'short'}):'';const ds2=(p.wShowDate!==false)?fmtD(t):'';return`<div class="weather-card${dc?' wx-dcard':''}"${dc?` data-di="${i}"`:''} style="padding:${cp};min-width:${mw};"><div style="display:flex;align-items:baseline;justify-content:center;gap:4px;margin-bottom:0.2rem;white-space:nowrap;"><span style="${dS}text-transform:uppercase;">${dn}</span>${ds2?`<span style="${dS}">${ds2}</span>`:''}</div><i class="fa-solid ${wx.icon} ${i===0?an(wx):''}" style="color:${icc(wx)};font-size:${ifs};margin:0.25rem 0;display:block;"></i><div style="display:flex;align-items:baseline;justify-content:center;gap:5px;"><span style="${tS}color:var(--tx-${kt}-c,${col});font-size:calc(${tfs} * ${txZ(kt)});">${hi[i]}°</span><span style="${tS}color:var(--tx-${kt}-c,${col});font-size:calc(${tms} * ${txZ(kt)});">${lo[i]}°</span></div></div>`;}).join('');
   };
   // ---- hourly data (older cached weather has none: then the popups simply stay as before)
   const hr=(p.wHourly!==false&&d.hourly&&d.hourly.time&&d.hourly.temperature_2m)?d.hourly:null,u12=(p.clockFormat||'24')==='12';
@@ -3007,7 +3077,7 @@ function renderWxGrid(){
     const wx=wxInfo(hr.weathercode?hr.weathercode[j]:0,hr.is_day?hr.is_day[j]===0:false);
     const cp='calc(0.4rem * var(--wx-cz,1)) calc(0.45rem * var(--wx-cz,1))',mw='calc(3.3rem * var(--wx-cz,1))';
     const dS=`${txVars(kd)}color:var(--tx-${kd}-c,inherit);font-size:calc(0.8rem * ${txZ(kd)});`,tS=`${txVars(kt)}`;
-    return`<div class="weather-card${dim?' past':''}" title="${wx.label}" style="padding:${cp};min-width:${mw};"><div style="display:flex;justify-content:center;margin-bottom:0.2rem;white-space:nowrap;"><span style="${dS}">${hLabel(hr.time[j])}</span></div><i class="fa-solid ${wx.icon}" style="color:${icc(wx)};font-size:${F(1.3,kt)};margin:0.25rem 0;display:block;"></i><div style="display:flex;justify-content:center;"><span style="${tS}color:var(--tx-${kt}-c,${col});font-size:calc(0.9rem * ${txZ(kt)});">${Math.round(hr.temperature_2m[j])}°</span></div></div>`;
+    return`<div class="weather-card${dim?' past':''}" style="padding:${cp};min-width:${mw};"><div style="display:flex;justify-content:center;margin-bottom:0.2rem;white-space:nowrap;"><span style="${dS}">${hLabel(hr.time[j])}</span></div><i class="fa-solid ${wx.icon}" style="color:${icc(wx)};font-size:${F(1.3,kt)};margin:0.25rem 0;display:block;"></i><div style="display:flex;justify-content:center;"><span style="${tS}color:var(--tx-${kt}-c,${col});font-size:calc(0.9rem * ${txZ(kt)});">${Math.round(hr.temperature_2m[j])}°</span></div></div>`;
   };
   // index of the current hour in the hourly list
   const hNow=()=>{if(!hr)return 0;const ct=d.current&&d.current.time?d.current.time.slice(0,13)+':00':null;let k=ct?hr.time.indexOf(ct):-1;if(k<0&&ct){k=hr.time.findIndex(t=>t>ct);k=k<0?0:Math.max(0,k-1);}return Math.max(0,k);};
@@ -3017,7 +3087,7 @@ function renderWxGrid(){
   return c?`<div class="wx-pop"><div class="wx-pop-in"><div class="wx-hgrid">${c}</div></div></div>`:'';};
   let html='';
   if(style==='compact'){
-    html=`<div class="wx-compact" style="color:${col}"><div class="wx-ctrig"><i class="fa-solid ${nowInfo.icon} ${an(nowInfo)}" style="color:${icc(nowInfo)};font-size:${F(1.6,'wx-temp')}"></i><span class="wx-cnow" style="${txVars('wx-temp')}color:var(--tx-wx-temp-c,inherit);font-size:${F(0.9,'wx-temp')}">${curT}°</span></div><span class="wx-ccond" style="${txVars('wx-cond')}color:var(--tx-wx-cond-c,inherit);font-size:${F(0.9,'wx-cond')}">${nowInfo.label}</span><div class="wx-pop"><div class="wx-pop-in">${hr?`<div class="wx-pv"><div class="wx-pvd">${cardCols('wx-pdays','wx-ptemp')}</div><div class="wx-pvh">${nextHours(24)}</div></div><div class="wx-pdots"><i></i><i></i></div>`:cardCols('wx-pdays','wx-ptemp')}</div></div></div>`;
+    html=`<div class="wx-compact" style="color:${col}"><div class="wx-ctrig"><i class="fa-solid ${nowInfo.icon} ${an(nowInfo)}" style="color:${icc(nowInfo)};font-size:${F(1.6,'wx-temp')}"></i><span class="wx-cnow" style="${txVars('wx-temp')}color:var(--tx-wx-temp-c,inherit);font-size:${F(0.9,'wx-temp')}">${curT}°</span></div><div class="wx-pop"><div class="wx-pop-in">${hr?`<div class="wx-pv"><div class="wx-pvd">${cardCols('wx-pdays','wx-ptemp')}</div><div class="wx-pvh">${nextHours(24)}</div></div><div class="wx-pdots"><i></i><i></i></div>`:cardCols('wx-pdays','wx-ptemp')}</div></div></div>`;
   }else{
     html=cardCols('wx-days','wx-temp',true);
   }
@@ -3310,9 +3380,42 @@ function addProfile(){state.profiles.push(mkProf(mkCats(5,'Category'),'m'));stat
 // photo choices live outside the main settings: the city photo you settled on, the artist photo you settled on, and the cached photo lists / lookups
 const PHOTO_MEM_KEYS=['STARTPAGE_CITYPICK','STARTPAGE_NP_ARTFAV','STARTPAGE_NP_ARTISTS','STARTPAGE_CITYIMG','STARTPAGE_NP_ARTLIST','STARTPAGE_NP_COVERS','STARTPAGE_PHSIZES','STARTPAGE_PHCUSTOM'];
 function importPhotoMemory(pm){if(!pm||typeof pm!=='object')return;PHOTO_MEM_KEYS.forEach(k=>{if(typeof pm[k]!=='string')return;try{const inc=JSON.parse(pm[k])||{},old=JSON.parse(localStorage.getItem(k))||{};localStorage.setItem(k,JSON.stringify(Object.assign({},old,inc)));}catch(e){}});try{localStorage.setItem('STARTPAGE_ART_V10','1');}catch(e){}_wxPhKey=null;_npArtKey=null;}
-function backupObj(){const pm={};PHOTO_MEM_KEYS.forEach(k=>{try{const v=localStorage.getItem(k);if(v)pm[k]=v;}catch(e){}});return Object.assign({},state,{photoMemory:pm});}
+// Backup layout: shared stuff (cities, photo preferences) once, then a separate block for Column mode and one for Mosaic mode
+function backupObj(){
+  try{syncModeGlobals();}catch(e){}
+  const pm={};PHOTO_MEM_KEYS.forEach(k=>{try{const v=localStorage.getItem(k);if(v)pm[k]=v;}catch(e){}});
+  const m=curMode(),other=m==='mosaic'?'columns':'mosaic',g={};
+  MODE_GK.forEach(k=>{if(state[k]!==undefined)g[k]=_cl(state[k]);});
+  const modes={};
+  modes[m]={profiles:_cl(state.profiles),profileNames:_cl(state.profileNames||[]),profile:state.profile,globals:g};
+  const par=state._modeP&&state._modeP[other];
+  if(par&&Array.isArray(par.profiles)&&par.profiles.length)modes[other]={profiles:_cl(par.profiles),profileNames:_cl(par.profileNames||[]),profile:par.profile||'p0',globals:_cl((state._modeG&&state._modeG[other])||{})};
+  return{backupVersion:2,activeMode:m,shared:{cities:_cl(state.cities||[]),photoMemory:pm},modes};
+}
+function normImportedProfiles(arr){(arr||[]).forEach(p=>{if(p){migrateFonts(p);migrateClock(p);}if(p&&!['gradient','photo','unsplash','time'].includes(p.bgMode))p.bgMode='gradient';if(p&&!p.unsplashKey)p.unsplashKey=UNSPLASH_KEY;if(p&&p.unsplashDim===undefined)p.unsplashDim=0.1;if(p&&p.opTime===undefined)p.opTime=1.0;});}
 function exportData(){const now=new Date();const pad=n=>String(n).padStart(2,'0');const stamp=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;const b=new Blob([JSON.stringify(backupObj())],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`startpage_backup_${stamp}.json`;a.click();}
-function importData(input){const file=input.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{try{const imp=JSON.parse(e.target.result);if(!imp.profiles&&!imp.home&&!imp.work){alert('Invalid backup.');return;}const base=getDefaults();['profile','target','linkColor','tabTitle','tabFavicon','tabFaviconEmoji','linkLed','linkLedSpeed','linkFx'].forEach(k=>{if(imp[k]!==undefined)base[k]=imp[k];});if(Array.isArray(imp.cities)&&imp.cities.length)base.cities=imp.cities;if(Array.isArray(imp.profiles)&&imp.profiles.length){base.profiles=imp.profiles;base.profileNames=imp.profileNames||imp.profiles.map((_,i)=>'Profile '+(i+1));}const pi=parseInt((base.profile||'p0').replace('p',''));if(isNaN(pi)||pi>=base.profiles.length)base.profile='p0';base.profiles.forEach(p=>{if(p){migrateFonts(p);migrateClock(p);}if(p&&!['gradient','photo','unsplash','time'].includes(p.bgMode))p.bgMode='gradient';if(p&&!p.unsplashKey)p.unsplashKey=UNSPLASH_KEY;if(p&&p.unsplashDim===undefined)p.unsplashDim=0.1;if(p&&p.opTime===undefined)p.opTime=1.0;});if(!base.tabFaviconEmoji&&!base.tabFavicon)base.tabFaviconEmoji='⭐';state=base;localStorage.setItem(KEY,JSON.stringify(state));importPhotoMemory(imp.photoMemory);saveAndRender();renderSettings();updateWeather();try{if(typeof npSync==='function')npSync();}catch(e){}alert('Import successful!');closeModals();}catch(err){alert('Invalid backup: '+err.message);}};r.readAsText(file);input.value='';}
+function importData(input){const file=input.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{try{const imp=JSON.parse(e.target.result);let pmem=imp.photoMemory;const base=getDefaults();
+  if(imp.backupVersion===2&&imp.modes){   // new format: one block per mode
+    const act=imp.activeMode==='mosaic'?'mosaic':'columns',other=act==='mosaic'?'columns':'mosaic',A=imp.modes[act]||imp.modes[other];
+    if(!A||!Array.isArray(A.profiles)||!A.profiles.length){alert('Invalid backup.');return;}
+    const B=imp.modes[other];
+    base.profiles=A.profiles;base.profileNames=A.profileNames&&A.profileNames.length?A.profileNames:A.profiles.map((_,i)=>'Profile '+(i+1));base.profile=A.profile||'p0';
+    Object.keys(A.globals||{}).forEach(k=>{base[k]=A.globals[k];});
+    base.cities=(imp.shared&&Array.isArray(imp.shared.cities))?imp.shared.cities:[];
+    pmem=imp.shared&&imp.shared.photoMemory;
+    base.mode=act;base._gMode=act;base._modeGv=2;base._modeG={};base._modeG[act]=_cl(A.globals||{});base._modeG[other]=_cl((B&&B.globals)||{});
+    if(B&&Array.isArray(B.profiles)&&B.profiles.length){normImportedProfiles(B.profiles);base._modeP={};base._modeP[other]={profiles:B.profiles,profileNames:B.profileNames&&B.profileNames.length?B.profileNames:B.profiles.map((_,i)=>'Profile '+(i+1)),profile:B.profile||'p0'};}
+  }else{   // older backups: one flat object
+    if(!imp.profiles&&!imp.home&&!imp.work){alert('Invalid backup.');return;}
+    ['profile','target','linkColor','tabTitle','tabFavicon','tabFaviconEmoji','linkLed','linkLedSpeed','linkFx','uiAccent','ui','_modeG','_gMode','_modeGv','mode','_modeP'].forEach(k=>{if(imp[k]!==undefined)base[k]=imp[k];});
+    if(Array.isArray(imp.cities)&&imp.cities.length)base.cities=imp.cities;
+    if(Array.isArray(imp.profiles)&&imp.profiles.length){base.profiles=imp.profiles;base.profileNames=imp.profileNames||imp.profiles.map((_,i)=>'Profile '+(i+1));}
+    if(base._modeP)Object.keys(base._modeP).forEach(k=>normImportedProfiles(base._modeP[k]&&base._modeP[k].profiles));
+  }
+  const pi=parseInt((base.profile||'p0').replace('p',''));if(isNaN(pi)||pi>=base.profiles.length)base.profile='p0';
+  normImportedProfiles(base.profiles);
+  if(!base.tabFaviconEmoji&&!base.tabFavicon)base.tabFaviconEmoji='⭐';
+  state=base;localStorage.setItem(KEY,JSON.stringify(state));importPhotoMemory(pmem);saveAndRender();applyTabMeta();try{applyUi();}catch(err2){}renderSettings();updateWeather();try{if(typeof npSync==='function')npSync();}catch(e){}alert('Import successful!');closeModals();}catch(err){alert('Invalid backup: '+err.message);}};r.readAsText(file);input.value='';}
 function resetToDefaults(){if(confirm('Factory reset? This will erase everything.')){state=getDefaults();saveAndRender();renderSettings();updateWeather();}}
 function handleBgFile(input){const file=input.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{const canvas=document.createElement('canvas');const MAX=1920;let w=img.width,h=img.height;if(w>MAX){h*=MAX/w;w=MAX;}canvas.width=w;canvas.height=h;canvas.getContext('2d').drawImage(img,0,0,w,h);updateBgImg(canvas.toDataURL('image/jpeg',0.7));};img.src=e.target.result;};r.readAsDataURL(file);}
 
@@ -4459,12 +4562,19 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     const spot=(w,h)=>scan(w,h,autoTop)||scan(w,h,0);   // automatic tiles start below the clock/search/tabs; only if there is no room there do they go higher
     let hero=true;
     const nVis=links.filter(l=>!l.hidden).length,base=nVis<=16?[UNIT,UNIT]:nVis<=24?[Math.max(1,Math.round(UNIT*.75)),Math.max(1,Math.round(UNIT*.75))]:nVis<=48?[Math.max(1,Math.round(UNIT/2)),Math.max(1,Math.round(UNIT/2))]:[1,1];   // many links: smaller default tiles so they all fit
+    // default look: when all the automatic tiles fit in ONE row they are spread evenly across the width (equal space between them and at both ends)
+    const pref={};
+    {let h2=true;const list=[];
+     links.forEach((l,li)=>{const wh=!!l.tileImg&&h2;if(l.tileImg)h2=false;if(l.hidden||has.has(li))return;list.push({li,w:(SIZES[l.tileSize]||(wh&&nVis<=16?SIZES.l:base))[0]});});
+     const tot=list.reduce((a,q)=>a+q.w,0);
+     if(list.length>1&&tot<=COLS){const free=COLS-tot,n=list.length;let acc=0;list.forEach((q,i)=>{pref[q.li]=Math.round((i+1)*free/(n+1))+acc;acc+=q.w;});}}
     links.forEach((l,li)=>{
       const wantHero=!!l.tileImg&&hero;if(l.tileImg)hero=false;
       if(l.hidden||has.has(li))return;
       const want=SIZES[l.tileSize]||(wantHero&&nVis<=16?SIZES.l:base);
       let g=null;
-      for(const sz of [want,base,[UNIT,UNIT],[Math.max(1,UNIT>>1),Math.max(1,UNIT>>1)],[1,1]]){g=spot(sz[0],sz[1]);if(g)break;}
+      if(pref[li]!==undefined){const t={x:pref[li],y:autoTop,w:want[0],h:want[1]};if(t.x+t.w<=COLS&&t.y+t.h<=ROWS&&!placed.some(q=>ov(q,t))&&!ob.some(q=>ov(q,t)))g=t;}
+      if(!g)for(const sz of [want,base,[UNIT,UNIT],[Math.max(1,UNIT>>1),Math.max(1,UNIT>>1)],[1,1]]){g=spot(sz[0],sz[1]);if(g)break;}
       if(g)placed.push(Object.assign({li},g));else unplaced.push(li);
     });
     return {placed,unplaced};
@@ -4539,6 +4649,8 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     const nHid=Object.keys(p.moW||{}).filter(k=>p.moW[k]&&p.moW[k].hidden).length;
     mo.innerHTML=`<div class=\"mo-tabs${TB.glow==='off'?' mt-noglow':''}\" style=\"${tabsVars(TB)}\">${tabs}</div><div class="mo-editbar"><span>Drag anything to move it · drag edges to resize · click it for its options</span>${nHid?`<button type="button" class="mo-hidbtn">Hidden items (${nHid})</button>`:''}<button type="button" class="mo-addbtn" data-ma="tile" title="Add a new mosaic (tile) to this category"><i class="fa-solid fa-plus"></i>&nbsp;Mosaic</button><button type="button" class="mo-addbtn" data-ma="mosaic" title="Add another category (a new tab with its own mosaics)"><i class="fa-solid fa-plus"></i>&nbsp;Category</button><button type="button" class="mo-delbtn" data-ma="delmosaic" title="Delete this category (the columns are not touched)"><i class="fa-solid fa-trash-can"></i>&nbsp;Category</button><button class="mo-reset" title="Pack this category's tiles automatically again">Reset layout</button></div>`;
     renderSig=applyItems(p,true);
+    // automatic tiles start on the first row under the clock / search / categories bar, so they line up in order below the header (never in the free corners beside it)
+    autoTop=ITEMS.filter(q=>(q.key==='clock'||q.key==='search'||q.key==='tabs')&&q.y+q.h<=Math.ceil(ROWS*.6)).reduce((m,q)=>Math.max(m,q.y+q.h),0);
     const L=layoutOf(c);
     const gap0=geom(p,mo).gap;
     let cells='';for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++)cells+=`<div class="mo-cell" style="grid-column:${x+1};grid-row:${y+1}"></div>`;
@@ -4553,7 +4665,7 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
       const area=t.w*t.h,sz=area>=16?'mo-xl':area>=6?'mo-m':area<=2?'mo-xs':'';
       const tc=[];if(l.moHead==='off')tc.push('mo-t-nohead');if(l.moHead==='on')tc.push('mo-t-head');tc.push('mo-t-ha-'+(['left','center','right'].includes(l.moHA)?l.moHA:'left'));if(l.moFit==='contain'||l.moFit==='cover')tc.push('mo-t-'+l.moFit);if(l.moLift==='off')tc.push('mo-t-nolift');else if(l.moLift==='on')tc.push('mo-t-lift');if(l.moZoom==='off')tc.push('mo-t-nozoom');else if(l.moZoom==='on')tc.push('mo-t-zoom');
       const tcls=tc.length?' '+tc.join(' '):'';
-      const tsty=(l.moR==='round'?';border-radius:14px':';border-radius:0px')+(Number.isFinite(+l.tIconSz)&&l.tIconSz!==''&&l.tIconSz!=null?`;--ics:${clamp(+l.tIconSz,30,250)/100}`:'')+(Number.isFinite(+l.moHH)&&l.moHH!==''&&l.moHH!=null?`;--mo-head-h:${clamp(+l.moHH,14,60)}px`:'')+(/^#[0-9a-f]{6}$/i.test(l.moNC||'')?`;--mo-nc:${l.moNC}`:'')+(/^#[0-9a-f]{6}$/i.test(l.icC||'')?`;--ic1:${l.icC};--ic2:${/^#[0-9a-f]{6}$/i.test(l.icC2||'')?l.icC2:l.icC}`:'');
+      const tsty=(l.moR==='round'?';border-radius:14px':';border-radius:0px')+(Number.isFinite(+l.tIconSz)&&l.tIconSz!==''&&l.tIconSz!=null?`;--ics:${clamp(+l.tIconSz,30,250)/100}`:'')+(Number.isFinite(+l.tPhotoSz)&&l.tPhotoSz!==''&&l.tPhotoSz!=null?`;--phs:${clamp(+l.tPhotoSz,30,300)/100}`:'')+(Number.isFinite(+l.moHH)&&l.moHH!==''&&l.moHH!=null?`;--mo-head-h:${clamp(+l.moHH,14,60)}px`:'')+(/^#[0-9a-f]{6}$/i.test(l.moNC||'')?`;--mo-nc:${l.moNC}`:'')+(/^#[0-9a-f]{6}$/i.test(l.icC||'')?`;--ic1:${l.icC};--ic2:${/^#[0-9a-f]{6}$/i.test(l.icC2||'')?l.icC2:l.icC}`:'');
       const opts=`<span class="mo-opts"><span class="mo-opt" data-a="edit" title="Edit this link"><i class="fa-solid fa-pen"></i></span><span class="mo-opt" data-a="size" title="Change the size of this tile"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></span><span class="mo-opt" data-a="photo" title="Use a photo from this computer (or drop one on the tile)"><i class="fa-solid fa-image"></i></span>${l.tileImg?`<span class="mo-opt" data-a="clear" title="Remove the photo"><i class="fa-solid fa-xmark"></i></span>`:''}<span class="mo-opt" data-a="open" title="Open in a new tab"><i class="fa-solid fa-arrow-up-right-from-square"></i></span></span>`;
       const hico=h?`https://www.google.com/s2/favicons?domain=${encodeURIComponent(h)}&sz=64`:'';
       return `<a class="mo-tile ${sz}${tcls}" data-li="${t.li}" href="${esc(l.url||'#')}" target="${esc(state.target||'_self')}" style="--tc:${esc(col)};${col2?`--tc2:${esc(col2)};`:''}--ink:${ink(col)};${tileVars(p,c,l)}${tsty};grid-column:${t.x+1} / span ${t.w};grid-row:${t.y+1} / span ${t.h}"><div class="mo-head">${hico?`<img class="mo-hico" src="${hico}" alt="" draggable="false" onerror="this.remove()">`:''}<span class="mo-name" style="${fontCss(l,'link')}">${esc(l.name)}</span></div><div class="mo-body"><div class="mo-bg${ticon?' has-tic':''}" style="--fav:url('${fav}')">${big}</div>${img}${ticon}</div>${['n','s','e','w','ne','nw','se','sw'].map(d=>`<span class="mo-h mo-h-${d}" data-d="${d}"></span>`).join('')}</a>`;
@@ -4663,7 +4775,7 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     const hx=v=>/^#[0-9a-f]{6}$/i.test(v||''),n=(v,a,b)=>Number.isFinite(+v)&&v!==''&&v!=null?clamp(+v,a,b):null,o=[];
     if(T.ff){try{ensureFont(T.ff);o.push('--mt-ff:'+fontStack(T.ff));}catch(e){}}
     if(T.fw==='bold')o.push('--mt-fw:700');if(T.fi==='on')o.push('--mt-fi:italic');
-    const fs=n(T.fs,60,180);if(fs!=null)o.push('--mt-fs:'+fs/100);
+    
     if(hx(T.tc))o.push('--mt-c:'+T.tc);
     if(hx(T.bc))o.push('--mt-bar-rgb:'+hexToRgbStr(T.bc));
     const px=n(T.px,4,60),py=n(T.py,2,30),gp=n(T.gap,0,30);
@@ -4823,6 +4935,7 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     else if(on===0){if(l.icC2)l.icC2Last=l.icC2;delete l.icC2;}
     else{delete l.icC;delete l.icC2;delete l.icC2Last;}
     save();render();try{syncCatEditor();}catch(e){}};
+  window.moPhotoSz=function(ci,li,v,out){const l=linkAt(ci,li);if(!l)return;l.tPhotoSz=clamp(+v,30,300);save();render();if(out)out.textContent=Math.round(l.tPhotoSz)+'%';};
   window.moIconSz=function(ci,li,v,out){const l=linkAt(ci,li);if(!l)return;l.tIconSz=clamp(+v,30,250);save();render();if(out)out.textContent=Math.round(l.tIconSz)+'%';};
   window.moTileRowHTML=function(ci,li,l,fontF,colorsF){
     const p=cur(),has=k=>l[k]!=null&&l[k]!=='',hex=x=>/^#[0-9a-f]{6}$/i.test(x||'');
@@ -4845,7 +4958,8 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     const fitRow=(mode==='photo'&&l.tileImg)?seg('Photo fit','moFit',[['cover','Fill'],['contain','Whole']],'cover',1):'';
     const more='',photoRow='';
     const isz=has('tIconSz')?clamp(+l.tIconSz,30,250):100;
-    const iszRow=mode==='photo'?'':row('Icon size',`<input type="range" min="30" max="250" step="5" value="${isz}" oninput="moIconSz(${ci},${li},this.value,this.nextElementSibling)"><b>${Math.round(isz)}%</b>`,1);
+    const psz=has('tPhotoSz')?clamp(+l.tPhotoSz,30,300):100;
+    const iszRow=mode==='photo'?(l.tileImg?row('Photo size',`<input type="range" min="30" max="300" step="5" value="${psz}" oninput="moPhotoSz(${ci},${li},this.value,this.nextElementSibling)"><b>${Math.round(psz)}%</b>`,1):''):row('Icon size',`<input type="range" min="30" max="250" step="5" value="${isz}" oninput="moIconSz(${ci},${li},this.value,this.nextElementSibling)"><b>${Math.round(isz)}%</b>`,1);
     const hasHead=(l.moHead||(p.moHead===false?'off':'on'));
     const headRow=row('Title bar',`<div class="mo-seg">${[['on','Show'],['off','Hide']].map(([v,tx])=>`<button type="button" class="${hasHead===v?'on':''}" onclick="moLinkSet(${ci},${li},'moHead','${v}');syncCatEditor();">${tx}</button>`).join('')}</div>${colorsF?`<span class="mo-hcol" title="Title bar color">${colorsF}</span>`:''}`,1);
     const hhOff=hasHead==='off',hhRow=row('Title height',`<input type="range" min="14" max="60" step="1" value="${hh}"${hhOff?' disabled':''} oninput="moLinkSet(${ci},${li},'moHH',+this.value);this.nextElementSibling.textContent=this.value+'px'"><b>${hh}px</b>`,1).replace('class="mo-sr mo-half"',hhOff?'class="mo-sr mo-half mo-dis" title="Turn the title bar on to change its height"':'class="mo-sr mo-half"');
@@ -4955,16 +5069,9 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
   window.moCfg=function(k,v){const p=cur();if(v===''||v==null)delete p[k];else p[k]=v;save();render();syncMo();};
   function syncMo(){
     try{
-      const p=cur(),$=id=>document.getElementById(id);if(!$('mo-gap'))return;
-      const g=Number.isFinite(+p.moGap)&&p.moGap!==''&&p.moGap!=null?+p.moGap:5;$('mo-gap').value=g;$('mo-gap-v').textContent=g+'px';
-      {const c0=selCat()||(MCATS(p)||[])[0];if(c0){const o=tileOp(p,c0);$('mo-op').value=o;$('mo-op-v').textContent=Math.round(o*100)+'%';}
-       $('mo-tile-color').value=/^#[0-9a-f]{6}$/i.test(p.moTileColor||'')?p.moTileColor:'#000000';cpSync('mo-tile-color');}
-      $('mo-halign').value=p.moHeadAlign==='center'||p.moHeadAlign==='right'?p.moHeadAlign:'left';
-      $('mo-fit').value=p.moFit==='contain'?'contain':'cover';
-      const hh=Number.isFinite(+p.moHeadH)&&p.moHeadH!==''&&p.moHeadH!=null?+p.moHeadH:25;$('mo-headh').value=hh;$('mo-headh-v').textContent=hh+'px';
-      $('mo-cols').value=COLS;$('mo-cols-v').textContent=COLS+' × '+ROWS+' cells';
-      {const nc=/^#[0-9a-f]{6}$/i.test(p.moNameColor||'');$('mo-name-color').value=nc?p.moNameColor:'#ffffff';cpSync('mo-name-color');$('mo-name-color-v').textContent=nc?p.moNameColor.toUpperCase():'Auto';}
-      $('mo-head').checked=p.moHead!==false;$('mo-lift').checked=p.moLift!==false;$('mo-zoom').checked=p.moZoom!==false;
+      const p=cur(),$=id=>document.getElementById(id);
+      if($('mo-cols')){$('mo-cols').value=COLS;$('mo-cols-v').textContent=COLS+' × '+ROWS+' cells';}
+      {const tv=$('mo-tabs-vis');if(tv)tv.checked=!wc(p,'tabs').hidden;}
       const c=selCat();
       if(c){const u=$('mo-cbg-url');const has=String(c.moBg||'').startsWith('data:');u.value=has?'':(c.moBg||'');u.placeholder=has?'Local photo in use (paste a URL to replace it)':'Photo URL (optional)';
         $('mo-cbg-dim').value=c.moBgDim||0;$('mo-cbg-clear').style.visibility=(c.moBg||c.moBgAuto)?'visible':'hidden';const ab=$('mo-cbg-auto');if(ab)ab.classList.toggle('on',!!c.moBgAuto);}
@@ -5023,13 +5130,14 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
   function applyItems(p,on){
     const all=collect();
     if(!on){all.forEach(it=>{it.el.classList.remove('mo-item','mo-gone','mo-icon','mo-in');['--ix','--iy','--is','--iw','--ih','--in-x','--in-y','--in-w','--in-h'].forEach(v=>it.el.style.removeProperty(v));opOff(it);});{const nb=document.querySelector('#np-area .np-box');if(nb)nb.classList.remove('np-vert');}window._moRect={};ITEMS=[];try{phLayout('wx');phLayout('np');}catch(e){}return '';}
+    {const tv=document.getElementById('mo-tabs-vis');if(tv)tv.checked=!wc(p,'tabs').hidden;}   // the eye in Settings always shows the real state, whichever way the bar was hidden
     const gap=gapOf(p),cell=GS+gap,cellY=GH+gap,live=[];window._moRect={};
     all.forEach(it=>{
       const el=it.el;
       if(wc(p,it.key).hidden){el.classList.add('mo-gone');el.classList.remove('mo-item');return;}
       el.classList.remove('mo-gone');el.classList.add('mo-item');el.classList.toggle('mo-icon',!!it.icon);el.classList.remove('mo-in');
       el.style.setProperty('--ix','0px');el.style.setProperty('--iy','0px');el.style.setProperty('--is','1');el.style.removeProperty('--iw');el.style.removeProperty('--ih');
-      try{ro.observe(el);}catch(e){}
+      try{ro.observe(el);if(it.bd==='clock')[...el.children].forEach(c=>ro.observe(c));}catch(e){}
       live.push(it);
     });
     const vis=live.filter(it=>{
@@ -5049,6 +5157,12 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
       const it=vis.find(i=>i.key===key);if(!it||G[key])return;
       let w=1,h=1;
       if(!it.icon){w=clamp(Math.ceil((it.nw+gap)/cell),1,Math.max(1,Math.floor(COLS*.6)));h=clamp(Math.ceil((it.nh+gap)/cellY),1,Math.max(1,Math.floor(ROWS*.4)));}
+      {   // default sizes (in cells of a 36-column grid, scaled to the grid): clock 5x2, search 7x1, categories bar 16x2, weather and now playing 4x2 while they are empty
+        const k=COLS/36,D={clock:[5,2],search:[7,1],tabs:[16,2]};let d=D[key];
+        if(key==='weather'&&it.el.classList.contains('wx-empty'))d=[4,2];
+        if(key==='np'&&it.el.classList.contains('np-hidden'))d=[4,2];
+        if(d){w=clamp(Math.round(d[0]*k),1,COLS);h=clamp(d[1],1,ROWS);}
+      }
       const cx=Math.floor((COLS-w)/2);let px=0,py=0;
       if(key==='edit')px=COLS-2;else if(key==='settings')px=COLS-1;
       else if(/^ql/.test(key))px=1+(+key.slice(2));
@@ -5111,7 +5225,8 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
   }
   function innerFrameHTML(q){
     const o=q.inn,hd=['n','s'].map(d=>`<span class="mo-h mo-h-${d}" data-d="${d}"></span>`).join('');
-    const m='0px';   // a side that touches the field is drawn a little inside, so both frames can be grabbed
+    const I=18,tq=o.y===q.y?I:0,rq2=o.x+o.w===q.x+q.w?I:0,bq=o.y+o.h===q.y+q.h?I:0,lq=o.x===q.x?I:0;
+    const m=`${tq}px ${rq2}px ${bq}px ${lq}px`;   // a side that touches the field is drawn a little inside, so the field's own edges / corners stay free to grab (move + resize)
     return `<div class="mo-w mo-w-in" data-k="${esc(q.key)}:in" title="${esc(q.name)} · info" style="grid-column:${o.x+1} / span ${o.w};grid-row:${o.y+1} / span ${o.h};margin:${m}">${hd}</div>`;
   }
   function frameHTML(q){
@@ -5128,6 +5243,7 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     [['ql-nav',{childList:true}],['profile-nav-btn',{childList:true}],['np-area',{attributes:true,attributeFilter:['class']}],['weather-area',{attributes:true,attributeFilter:['class']}],['search-bar-wrap',{attributes:true,attributeFilter:['class']}]].forEach(([id,o])=>{const e=gid(id);if(e)mo2.observe(e,o);});
   }catch(e){}
   window.addEventListener('resize',()=>{try{refit();}catch(e){}});
+  try{if(document.fonts){document.fonts.ready.then(()=>refit());document.fonts.addEventListener('loadingdone',()=>refit());}}catch(e){}
   window.moResetW=function(){const p=cur();delete p.moW;delete p.moG;delete p.moIn;save();closePop();render();};
 
   // small options box
@@ -5196,6 +5312,7 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     if(q.act==='settings'){closePop();try{openModal('settings-modal');}catch(e){}return;}
     openWPop(k);
   }
+  window.moTabsVis=function(on){const pp=cur(),w=ws(pp,'tabs');if(on){delete w.hidden;delete w.name;}else{w.hidden=true;w.name='Categories bar';}save();try{closePop();}catch(e){}render();};
   function openTabsPop(k,b,op,curTab,cats){
     const p=cur(),T=p.moTabs||{},hx=v=>/^#[0-9a-f]{6}$/i.test(v||'');
     const sw=(id,val,fb,title)=>`<input type="color" id="${id}" value="${hx(val)?val:fb}" data-t="${id.replace('mtp-','')}" style="display:none"><div class="cp-swatch" onclick="cpOpen('${id}')" style="background:${hx(val)?val:fb}" title="${title}"></div>`;
@@ -5211,7 +5328,6 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
       row('Opacity',`<input type="range" data-f="op" min="0" max="1" step=".01" value="${op}"><b>${pct(op)}</b>`)+
       row('Font',fontSel)+
       row('Weight',seg('fw',[['normal','Normal'],['bold','Bold']],'normal')+seg('fi',[['off','Upright'],['on','Italic']],'off'))+
-      row('Text size',rng('fs',60,180,100,'%'))+
       row('Text color',sw('mtp-tc',T.tc,'#a7aebf','Tab text color')+`<button type="button" class="btn-icon" data-ta="tcoff" title="Reset"><i class="fa-solid fa-rotate-left"></i></button>`)+
       row('Active tab',`<div class="color-field cf-grad">${sw('mtp-ac',T.ac,catCol,'Active tab color')}${act2}<button type="button" class="btn-icon" data-ta="acoff" title="Use each category's own color"><i class="fa-solid fa-rotate-left"></i></button></div>`)+
       row('Active text',sw('mtp-ai',T.ai,'#0b1220','Active tab text color')+`<button type="button" class="btn-icon" data-ta="aioff" title="Automatic"><i class="fa-solid fa-rotate-left"></i></button>`)+
@@ -5220,7 +5336,7 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
       row('Bar shape',seg('br',[['square','Square'],['round','Round'],['pill','Pill']],''))+
       row('Padding X',rng('px',4,60,26,'px'))+row('Padding Y',rng('py',2,30,9,'px'))+row('Gap',rng('gap',0,30,4,'px'))+
       row('Glow',seg('glow',[['on','On'],['off','Off']],'on'))+
-    `</div><div style="color:#777;font-size:.7rem;margin:0 0 8px;">Drag it to move it · drag its edges to resize it. It always stays on the grid.</div><div class="mo-pop-btns"><button type="button" data-a="reset">Reset</button></div>`;
+    `</div><div style="color:#777;font-size:.7rem;margin:0 0 8px;">Drag it to move it · drag its edges to resize it. It always stays on the grid.</div><div class="mo-pop-btns"><button type="button" data-a="reset">Reset</button><button type="button" data-a="hide" title="Hide the categories bar (bring it back with the eye in Settings → Mosaic, or from Hidden items in edit mode)"><i class="fa-solid fa-eye-slash"></i>&nbsp; Hide</button></div>`;
     const set=(key,v)=>{const pp=cur();pp.moTabs=pp.moTabs||{};if(v===''||v==null)delete pp.moTabs[key];else pp.moTabs[key]=v;if(!Object.keys(pp.moTabs).length)delete pp.moTabs;save();render();};
     pop.oninput=e=>{const t=e.target.dataset||{};
       if(t.f==='op'){const v=+e.target.value,pp=cur();ws(pp,k).op=v;e.target.nextElementSibling.textContent=pct(v);const it2=collect().find(z=>z.key===k);if(it2)applyOp(pp,it2);save();return;}
@@ -5235,7 +5351,8 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
         openTabsPop(k,b,op,curTab,cats);placePop();return;}
       const a=e.target.closest('[data-a]');if(!a)return;const pp=cur();
       if(a.dataset.a==='close')closePop();
-      else if(a.dataset.a==='reset'){if(pp.moG)delete pp.moG[k];if(pp.moW)delete pp.moW[k];delete pp.moTabs;save();closePop();render();}};
+      else if(a.dataset.a==='reset'){if(pp.moG)delete pp.moG[k];if(pp.moW)delete pp.moW[k];delete pp.moTabs;save();closePop();render();}
+      else if(a.dataset.a==='hide'){moTabsVis(false);}};
     placePop();
   }
   function openWPop(k){
@@ -5272,7 +5389,7 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     pop.onclick=e=>{if(e.target.closest('[data-a="close"]')){closePop();return;}const x=e.target.closest('[data-k]');if(!x)return;const pp=cur();if(pp.moW&&pp.moW[x.dataset.k]){delete pp.moW[x.dataset.k].hidden;delete pp.moW[x.dataset.k].name;}save();closePop();render();};
     placePop();
   }
-  const TILE_KEYS=['moMapV','moBgMap','moAutoBg','moAutoSrc','moGrad','moGradPos','icC','icC2','icC2Last','moOp','moTC','moTC2','moTC2Last','moLC','moLC2','moLC2Last','moHead','moHA','moHH','moFit','moR','moLift','moZoom','moNC','tIconSz'];
+  const TILE_KEYS=['moMapV','moBgMap','moAutoBg','moAutoSrc','moGrad','moGradPos','icC','icC2','icC2Last','moOp','moTC','moTC2','moTC2Last','moLC','moLC2','moLC2Last','moHead','moHA','moHH','moFit','moR','moLift','moZoom','moNC','tIconSz','tPhotoSz'];
   function openTilePop(ci,li){
     const p=cur(),c=MCATS(p)[ci],l=c&&c.links[li];if(!l)return;
     const t=document.querySelector(`#mosaic .mo-tile[data-li="${li}"]`);
@@ -5337,7 +5454,13 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
       cats.splice(ti,1);p.mosaicTab=Math.max(0,Math.min(ti,cats.length-1));save();render();try{renderSettings();}catch(err){}
     }
   };
-  window.setLayout=function(v){cur().layout=v==='mosaic'?'mosaic':'columns';saveAndRender();try{renderSettings();}catch(e){}};
+  window.setLayout=function(v){
+    const to=v==='mosaic'?'mosaic':'columns',chg=to!==curMode();
+    if(chg){try{syncModeGlobals();}catch(e){}setModeProfiles(to);_lastKey=null;_instantBg=true;}
+    saveAndRender();
+    if(chg){try{updateWeather();}catch(e){}try{tickClock();}catch(e){}try{applyTabMeta();}catch(e){}try{applyUi();}catch(e){}}
+    try{renderSettings();}catch(e){}
+  };
   window.moSet=function(ci,li,k,v){
     const c=MCATS(cur())[ci],l=c.links[li];if(v)l[k]=v;else delete l[k];
     if(k==='tileSize'&&l.mo&&SIZES[v]){   // an already placed tile takes the new size where it stands, or goes back to auto placement if it would collide
@@ -5346,7 +5469,7 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     }
     save();render();
   };
-  const syncBtns=()=>{try{const p=cur();document.querySelectorAll('#layout-group button').forEach(b=>b.classList.toggle('active',b.dataset.layout===(p.layout==='mosaic'?'mosaic':'columns')));}catch(e){}syncMo();};
+  const syncBtns=()=>{try{const p=cur();document.querySelectorAll('#mode-switch .mode-btn').forEach(b=>b.classList.toggle('active',b.dataset.layout===curMode(p)));}catch(e){}syncMo();};
   {const sce=syncCatEditor;syncCatEditor=function(){const r=sce.apply(this,arguments);syncMo();return r;};}
   const sar=saveAndRender;saveAndRender=function(){const r=sar.apply(this,arguments);try{render();}catch(e){console.warn('mosaic',e);}return r;};
   const rs0=renderSettings;renderSettings=function(){const r=rs0.apply(this,arguments);syncBtns();return r;};
