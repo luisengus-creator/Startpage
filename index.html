@@ -2229,7 +2229,7 @@ function renderCatTabs(){
   const add='<button class="cat-add-tab" onclick="addCat()" title="Add category" aria-label="Add category">+</button>';
   box.innerHTML=(tabs.length?tabs.join(''):'<span class="cat-tabs-empty">No categories yet.</span>')+add;
 }
-function selectCatTab(i){document.getElementById('cat-sel').value=i;syncCatEditor();}
+function selectCatTab(i){document.getElementById('cat-sel').value=i;syncCatEditor();try{const p=cur();if(p&&p.layout==='mosaic'&&(parseInt(p.mosaicTab)||0)!==(parseInt(i)||0)){p.mosaicTab=parseInt(i)||0;save();render();}}catch(e){}}
 function syncCatTab(c){const t=document.querySelector('#cat-tabs .cat-tab.active');if(!t)return;const n=t.querySelector('.cat-tab-name'),d=t.querySelector('.cat-tab-dot');if(n)n.textContent=c.title||'Untitled';if(d)d.style.background=c.color;t.title=c.title||'Untitled';}
 
 function getLayoutKey(p){return[p.categories.map(c=>{const g=catCfg(c,p);return g.density+(g.showHeader?1:0);}).join(','),p.showWeather,p.showSearch,fsizeName(p.searchFontSize),p.categories.length,p.categories.map(c=>c.links.length).join(','),p.categories.map(c=>c.title).join('|'),p.categories.map(c=>c.links.map(l=>l.name+(l.hidden?'!':'')+'/'+lszName(l.size)).join('~')).join('|'),p.categories.map(c=>[fontName(c.font),fstyleName(c.fontStyle,'cat'),fsizeName(c.fontSize)].join('/')+'>'+c.links.map(l=>[fontName(l.font),fstyleName(l.fontStyle,'link'),fsizeName(l.fontSize)].join('/')).join(',')).join('|'),document.body.classList.contains('edit-mode')].join(':');}
@@ -4854,7 +4854,7 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     if(!e.target.closest)return;
     if(Date.now()-justDragged<400&&e.target.closest('#mosaic')){e.preventDefault();e.stopPropagation();return;}
     const tab=e.target.closest('.mo-tab');
-    if(tab&&!document.body.classList.contains('edit-mode')){const p=cur();p.mosaicTab=parseInt(tab.dataset.i)||0;save();render();return;}
+    if(tab&&!document.body.classList.contains('edit-mode')){const p=cur();p.mosaicTab=parseInt(tab.dataset.i)||0;{const cs=document.getElementById('cat-sel');if(cs){cs.value=String(p.mosaicTab);try{syncCatEditor();}catch(e){}}}save();render();return;}
     const ma=e.target.closest('[data-ma]');
     if(ma){e.preventDefault();e.stopPropagation();window.moEditAct(ma.dataset.ma);return;}
     const rs=e.target.closest('.mo-reset');
