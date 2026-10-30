@@ -92,6 +92,7 @@ body.ll-noselect,body.ll-noselect *{user-select:none!important;-webkit-user-sele
 #panel-categories .bd-style-row .size-group{width:auto}
 .cat-title.hidden-header{display:none}
 .modal input[type="text"]{padding-right:26px}
+#mo-pop input[type="text"],#mo-pop input[type="url"],#mo-pop input[type="search"],#ph-pop input[type="text"],#ph-pop input[type="url"]{padding-right:26px;box-sizing:border-box}
 #clr-x{position:fixed;z-index:5000;display:none;width:16px;height:16px;border-radius:50%;background:#2a2a2a;color:#aaa;font-size:12px;line-height:15px;text-align:center;cursor:pointer;user-select:none;-webkit-user-select:none;font-family:Arial,sans-serif}
 #clr-x:hover{background:#444;color:#fff}
 .cat-split{position:absolute;top:0;bottom:0;width:50%;z-index:2;display:block;cursor:pointer}
@@ -152,6 +153,31 @@ body.link-led.fx-border .link-row a{box-shadow:inset 0 0 0 1px transparent;trans
 body.link-led.fx-border .link-row a:hover{box-shadow:inset 0 0 0 2px var(--cat-accent,#fff)}
 @media (prefers-reduced-motion:reduce){body[class*="fx-"] .mo-tile:hover,body[class*="fx-"] .mo-tile:hover::before{animation:none}}
 @media (prefers-reduced-motion:reduce){body[class*="fx-"] .link-row a:hover,body[class*="fx-"] .link-row a:hover::before{animation:none}}
+
+/* Shape tiles (launcher style): a square / round space sized by the tile on the grid; icon, favicon or photo fill it; the name can sit under it */
+.mo-tile.mo-shape{background:none!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;overflow:visible;align-items:center;justify-content:flex-start;gap:5px;padding:2px}
+.mo-tile.mo-shape:hover{box-shadow:none!important}
+.mo-tile.mo-shape::before,.mo-tile.mo-shape::after{display:none!important}
+.mo-shape .mo-shp{flex:none;position:relative;width:min(100%,calc(100cqh - var(--lbl-h) - 9px));aspect-ratio:1;container-type:size;border-radius:var(--shr,0px);margin:0 auto}
+.mo-tile.mo-shape{--lbl-h:0px}
+.mo-tile.mo-shape.mo-lb-below,.mo-tile.mo-shape.mo-lb-both{--lbl-h:calc(var(--mo-lbl-fs,15px)*1.4)}
+.mo-shape.mo-sh-circle .mo-shp{--shr:50%}
+.mo-shape .mo-clip{position:absolute;inset:0;border-radius:inherit;overflow:hidden;display:flex;flex-direction:column;isolation:isolate;box-shadow:0 8px 22px rgba(0,0,0,.35);
+  background-color:rgba(var(--card-rgb,0,0,0),calc(var(--card-opacity,.1)*var(--card-solid,1)));background-image:var(--card-img,none)}
+.mo-shape .mo-shp .led-svg{inset:0;z-index:4}
+.mo-shape .mo-fav,.mo-shape .mo-ticimg{width:calc(100%*var(--ics,1));height:calc(100%*var(--ics,1));object-fit:cover;border-radius:0;filter:none}
+.mo-shape .mo-ticimg{position:absolute;left:calc(50% - 50%*var(--ics,1));top:calc(50% - 50%*var(--ics,1));transform:none}
+.mo-shape .mo-fav{position:absolute;left:calc(50% - 50%*var(--ics,1));top:calc(50% - 50%*var(--ics,1))}
+.mo-shape .mo-bg{align-items:stretch}
+.mo-shape .mo-head{border-radius:0}
+.mo-lbl{flex:none;width:min(100%,calc(100cqh - var(--lbl-h) - 9px));height:calc(var(--mo-lbl-fs,15px)*1.4);display:flex;align-items:center;justify-content:center;text-align:center;font-size:var(--mo-lbl-fs,15px);font-weight:600;line-height:1.2;color:var(--mo-nc,#fff);text-shadow:0 1px 4px rgba(0,0,0,.7);pointer-events:none}
+.mo-shape.mo-sh-square.mo-t-ha-left .mo-lbl{justify-content:flex-start;text-align:left}
+.mo-shape.mo-sh-square.mo-t-ha-right .mo-lbl{justify-content:flex-end;text-align:right}
+.mo-shape.mo-sh-circle .mo-lbl{justify-content:center;text-align:center}
+.mo-lbl span{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mo-tile.mo-shape{--mo-lbl-fs:clamp(11px,calc(var(--mo-head-h,25px)*.52*var(--fsz,1)),20px)}
+body.link-led.fx-border .mo-shape .mo-shp::after{content:'';position:absolute;inset:0;border:2px solid var(--cat-accent,#fff);border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .25s ease;z-index:4}
+body.link-led.fx-border .mo-shape:hover .mo-shp::after{opacity:1}
 /* Hover effects in Mosaic: the same effects as in the columns, running around / across each tile (in the colour of the tile's title bar) */
 .mo-tile{--cat-accent:var(--tc,#fff);--cat-accent2:var(--tc2,var(--tc,#fff))}   /* the colour of the tile's title bar (also when the bar is hidden) */
 .mo-tile .led-svg{z-index:4;border-radius:inherit}
@@ -1183,6 +1209,8 @@ body.layout-mosaic .mo-tabs.mo-item .mo-tab{flex:1 1 auto;display:flex;align-ite
         </div>
         <div class="s-card mo-only">
           <div class="s-title">Mosaic Grid</div>
+          <div class="inl-row"><div class="inl"><span>Default tile shape</span><div class="mo-seg" id="mo-g-shape"><button type="button" data-v="card" onclick="moGlob('moShape','card')">Card</button><button type="button" data-v="square" onclick="moGlob('moShape','square')">Square</button><button type="button" data-v="circle" onclick="moGlob('moShape','circle')">Round</button></div></div></div>
+          <div class="inl-row"><div class="inl"><span>Default name (Square / Round)</span><div class="mo-seg" id="mo-g-lbl"><button type="button" data-v="bar" onclick="moGlob('moLbl','bar')">Bar</button><button type="button" data-v="below" onclick="moGlob('moLbl','below')">Below</button><button type="button" data-v="both" onclick="moGlob('moLbl','both')">Both</button></div></div></div>
           <div class="inl-row"><div class="inl"><span>Grid size</span><input type="range" id="mo-cols" min="8" max="60" step="1" oninput="moGridCols(+this.value)" style="width:160px"><span id="mo-cols-v" style="min-width:76px;color:#888;margin-left:8px;"></span></div></div>
         </div>
         <div class="s-card">
@@ -4551,7 +4579,7 @@ Promise.race([Promise.all(_fontWait),new Promise(r=>setTimeout(r,1500))]).then((
 (function(){
   const btn=document.createElement('div');btn.id='clr-x';btn.textContent='\u00d7';btn.title='Clear';document.body.appendChild(btn);
   let cur=null;
-  const ok=el=>el&&el.tagName==='INPUT'&&['text','url','search',''].includes((el.getAttribute('type')||'').toLowerCase())&&!el.readOnly&&!el.disabled&&!el.hasAttribute('data-noclear')&&!!el.closest('.modal');
+  const ok=el=>el&&el.tagName==='INPUT'&&['text','url','search',''].includes((el.getAttribute('type')||'').toLowerCase())&&!el.readOnly&&!el.disabled&&!el.hasAttribute('data-noclear')&&!!el.closest('.modal,#mo-pop,#ph-pop');
   const hide=()=>{btn.style.display='none';};
   const place=()=>{
     if(!cur||!document.body.contains(cur)||!cur.value){hide();return;}
@@ -4624,7 +4652,7 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
   const mkSizes=()=>{UNIT=Math.max(1,Math.round(COLS/6));SIZES={s:[UNIT,UNIT],w:[2*UNIT,UNIT],t:[UNIT,2*UNIT],l:[2*UNIT,2*UNIT]};};
   mkSizes();
   const esc=x=>String(x==null?'':x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const host=u=>{try{return new URL(/^[a-z][a-z0-9+.-]*:/i.test(u)?u:'https://'+u).hostname.replace(/^www\./,'');}catch(e){return '';}};
+  const host=u=>{try{const h=new URL(/^[a-z][a-z0-9+.-]*:/i.test(u)?u:'https://'+u).hostname.replace(/^www\./,'');if(/^\d+(\.\d+){3}$/.test(h)||h.indexOf(':')>-1)return h;const p=h.split('.');if(p.length<=2)return h;const SLD=/^(co|com|org|net|gov|edu|ac|or|ne|go|gob|nom)$/i;const n=(p[p.length-1].length===2&&SLD.test(p[p.length-2]))?3:2;return p.slice(-n).join('.');}catch(e){return '';}};
   const ink=c=>{const m=/^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(String(c||'').trim());if(!m)return '#0b1220';let h=m[1];if(h.length===3)h=h.replace(/./g,x=>x+x);const n=parseInt(h,16);return (0.299*(n>>16&255)+0.587*(n>>8&255)+0.114*(n&255))>150?'#0b1220':'#ffffff';};
   const ov=(a,b)=>a.x<b.x+b.w&&b.x<a.x+a.w&&a.y<b.y+b.h&&b.y<a.y+a.h;
   const fit=o=>{if(!o||![o.x,o.y,o.w,o.h].every(Number.isInteger)||o.w<1||o.h<1||o.x<0||o.y<0||o.w>COLS||o.h>ROWS)return null;return {x:Math.min(o.x,COLS-o.w),y:Math.min(o.y,ROWS-o.h),w:o.w,h:o.h};};
@@ -4764,12 +4792,16 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
       const ticon=(ti==='name')?`<span class="mo-tname" style="${fontCss(l,'link')}">${esc(l.name)}</span>`:(ti==='icon'&&/^(fa|cx)-[a-z0-9-]+$/.test(ts||''))?moIcHTML(ts,'mo-tic'+(/^#[0-9a-f]{6}$/i.test(l.icC||'')?' mo-tic-c':'')+(/^#[0-9a-f]{6}$/i.test(l.icC||'')&&/^#[0-9a-f]{6}$/i.test(l.icC2||'')?' mo-tic-g':'')):((ti==='url'||ti==='file')&&ts?`<img class="mo-tic mo-ticimg" src="${esc(ts)}" alt="" draggable="false" onerror="this.remove()">`:'');
       const big=(!l.tileImg&&fav&&!ticon)?`<img class="mo-fav" src="${esc(touch)}" data-f="${fav}" alt="" draggable="false" onerror="if(this.dataset.f){this.src=this.dataset.f;delete this.dataset.f}else this.remove()">`:'';
       const area=t.w*t.h,sz=area>=16?'mo-xl':area>=6?'mo-m':area<=2?'mo-xs':'';
+      const SH=['square','circle'],LB=['bar','below','both'],SHA=SH.concat('card'),shE=SHA.includes(l.moShape)?l.moShape:(SHA.includes(p.moShape)?p.moShape:'circle'),shp=shE==='card'?'':shE,lb=shp?(LB.includes(l.moLbl)?l.moLbl:(LB.includes(p.moLbl)?p.moLbl:'below')):'';
       const tc=[];if(l.moHead==='off')tc.push('mo-t-nohead');if(l.moHead==='on')tc.push('mo-t-head');tc.push('mo-t-ha-'+(['left','center','right'].includes(l.moHA)?l.moHA:'left'));if(l.moFit==='contain'||l.moFit==='cover')tc.push('mo-t-'+l.moFit);if(l.moLift==='off')tc.push('mo-t-nolift');else if(l.moLift==='on')tc.push('mo-t-lift');if(l.moZoom==='off')tc.push('mo-t-nozoom');else if(l.moZoom==='on')tc.push('mo-t-zoom');
+      if(shp){tc.push('mo-shape','mo-sh-'+shp,'mo-lb-'+lb);if(lb==='below'&&tc.indexOf('mo-t-nohead')<0)tc.push('mo-t-nohead');}
       const tcls=tc.length?' '+tc.join(' '):'';
-      const tsty=(l.moR==='round'?';border-radius:14px;--led-rx:14px':';border-radius:0px;--led-rx:0px')+(Number.isFinite(+l.tIconSz)&&l.tIconSz!==''&&l.tIconSz!=null?`;--ics:${clamp(+l.tIconSz,30,250)/100}`:'')+(Number.isFinite(+l.tPhotoSz)&&l.tPhotoSz!==''&&l.tPhotoSz!=null?`;--phs:${clamp(+l.tPhotoSz,30,300)/100}`:'')+(Number.isFinite(+l.moHH)&&l.moHH!==''&&l.moHH!=null?`;--mo-head-h:${clamp(+l.moHH,14,60)}px`:'')+(/^#[0-9a-f]{6}$/i.test(l.moNC||'')?`;--mo-nc:${l.moNC}`:'')+(/^#[0-9a-f]{6}$/i.test(l.icC||'')?`;--ic1:${l.icC};--ic2:${/^#[0-9a-f]{6}$/i.test(l.icC2||'')?l.icC2:l.icC}`:'');
+      const tsty=(shp==='circle'?';border-radius:0px;--led-rx:50%;--shr:50%':(l.moR==='round'?';border-radius:14px;--led-rx:14px;--shr:14px':';border-radius:0px;--led-rx:0px;--shr:0px'))+(Number.isFinite(+l.tIconSz)&&l.tIconSz!==''&&l.tIconSz!=null?`;--ics:${clamp(+l.tIconSz,30,250)/100}`:'')+(Number.isFinite(+l.tPhotoSz)&&l.tPhotoSz!==''&&l.tPhotoSz!=null?`;--phs:${clamp(+l.tPhotoSz,30,300)/100}`:'')+(Number.isFinite(+l.moHH)&&l.moHH!==''&&l.moHH!=null?`;--mo-head-h:${clamp(+l.moHH,14,60)}px`:'')+(/^#[0-9a-f]{6}$/i.test(l.moNC||'')?`;--mo-nc:${l.moNC}`:'')+(/^#[0-9a-f]{6}$/i.test(l.icC||'')?`;--ic1:${l.icC};--ic2:${/^#[0-9a-f]{6}$/i.test(l.icC2||'')?l.icC2:l.icC}`:'');
       const opts=`<span class="mo-opts"><span class="mo-opt" data-a="edit" title="Edit this link"><i class="fa-solid fa-pen"></i></span><span class="mo-opt" data-a="size" title="Change the size of this tile"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></span><span class="mo-opt" data-a="photo" title="Use a photo from this computer (or drop one on the tile)"><i class="fa-solid fa-image"></i></span>${l.tileImg?`<span class="mo-opt" data-a="clear" title="Remove the photo"><i class="fa-solid fa-xmark"></i></span>`:''}<span class="mo-opt" data-a="open" title="Open in a new tab"><i class="fa-solid fa-arrow-up-right-from-square"></i></span></span>`;
       const hico=h?`https://www.google.com/s2/favicons?domain=${encodeURIComponent(h)}&sz=64`:'';
-      return `<a class="mo-tile ${sz}${tcls}" data-li="${t.li}" href="${esc(l.url||'#')}" target="${esc(state.target||'_self')}" style="--tc:${esc(col)};${col2?`--tc2:${esc(col2)};`:''}--ink:${ink(col)};${tileVars(p,c,l)}${tsty};grid-column:${t.x+1} / span ${t.w};grid-row:${t.y+1} / span ${t.h}">${state.linkLed&&linkFxOf().startsWith('led')?(linkFxOf()==='leddual'?LED_SVG+LED_SVG2:LED_SVG):''}<div class="mo-head">${hico?`<img class="mo-hico" src="${hico}" alt="" draggable="false" onerror="this.remove()">`:''}<span class="mo-name" style="${fontCss(l,'link')}">${esc(l.name)}</span></div><div class="mo-body"><div class="mo-bg${ticon?' has-tic':''}" style="--fav:url('${fav}')">${big}</div>${img}${ticon}</div>${['n','s','e','w','ne','nw','se','sw'].map(d=>`<span class="mo-h mo-h-${d}" data-d="${d}"></span>`).join('')}</a>`;
+      const ledH=`${state.linkLed&&linkFxOf().startsWith('led')?(linkFxOf()==='leddual'?LED_SVG+LED_SVG2:LED_SVG):''}`,headH=`<div class="mo-head">${hico?`<img class="mo-hico" src="${hico}" alt="" draggable="false" onerror="this.remove()">`:''}<span class="mo-name" style="${fontCss(l,'link')}">${esc(l.name)}</span></div>`,bodyH=`<div class="mo-body"><div class="mo-bg${ticon?' has-tic':''}" style="--fav:url('${fav}')">${big}</div>${img}${ticon}</div>`;
+      const inner=shp?`<div class="mo-shp">${ledH}<div class="mo-clip">${headH}${bodyH}</div></div>${lb==='below'||lb==='both'?`<div class="mo-lbl" style="${fontCss(l,'link')}"><span>${esc(l.name)}</span></div>`:''}`:ledH+headH+bodyH;
+      return `<a class="mo-tile ${sz}${tcls}" data-li="${t.li}" href="${esc(l.url||'#')}" target="${esc(state.target||'_self')}" style="--tc:${esc(col)};${col2?`--tc2:${esc(col2)};`:''}--ink:${ink(col)};${tileVars(p,c,l)}${tsty};grid-column:${t.x+1} / span ${t.w};grid-row:${t.y+1} / span ${t.h}">${inner}${['n','s','e','w','ne','nw','se','sw'].map(d=>`<span class="mo-h mo-h-${d}" data-d="${d}"></span>`).join('')}</a>`;
     }).join('');
     const frames=ITEMS.map(frameHTML).join('')+ITEMS.filter(q=>q.inn&&!(q.key==='weather'&&gid('weather-area').classList.contains('wx-empty'))).map(innerFrameHTML).join('');
     const warn=L.unplaced.length?`<div class="mo-warn">${L.unplaced.length} tile${L.unplaced.length>1?'s don\'t':' doesn\'t'} fit: make other tiles smaller</div>`:'';
@@ -5023,6 +5055,8 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
   const storeIcon=(ci,li,v,keepEditor)=>{const l=linkAt(ci,li);if(!l)return false;const prev=l.tIcon;if(v)l.tIcon=v;else delete l.tIcon;
     try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){if(prev)l.tIcon=prev;else delete l.tIcon;alert('The browser storage is full, so this icon could not be saved.');return false;}
     render();if(!keepEditor)try{syncCatEditor();}catch(e){}return true;};
+  window.moGlob=function(k,v){const p=cur();p[k]=v;save();render();moGlobSync();};
+  window.moGlobSync=function(){const p=cur();[['mo-g-shape',p.moShape||'circle'],['mo-g-lbl',p.moLbl||'below']].forEach(([id,v])=>{const e=document.getElementById(id);if(e)e.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));});};
   window.moLinkSet=function(ci,li,k,v){const l=linkAt(ci,li);if(!l)return;
     if(v===''||v==null)delete l[k];else l[k]=v;if(k==='moTC'||k==='moTC2'){delete l.moGrad;delete l.moGradPos;delete l.moBgMap;delete l.moAutoBg;}save();render();};
   window.moIconMode=function(ci,li,m){const l=linkAt(ci,li);if(!l)return;
@@ -5081,7 +5115,7 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     const isz=has('tIconSz')?clamp(+l.tIconSz,30,250):100;
     const psz=has('tPhotoSz')?clamp(+l.tPhotoSz,30,300):100;
     const iszRow=mode==='photo'?(l.tileImg?row('Photo size',`<input type="range" min="30" max="300" step="5" value="${psz}" oninput="moPhotoSz(${ci},${li},this.value,this.nextElementSibling)"><b>${Math.round(psz)}%</b>`,1):''):row('Icon size',`<input type="range" min="30" max="250" step="5" value="${isz}" oninput="moIconSz(${ci},${li},this.value,this.nextElementSibling)"><b>${Math.round(isz)}%</b>`,1);
-    const hasHead=(l.moHead||(p.moHead===false?'off':'on'));
+    const hasHead=(l.moHead||(p.moHead===false?'off':'on'));const shEff=['card','square','circle'].includes(l.moShape)?l.moShape:(['card','square','circle'].includes(p.moShape)?p.moShape:'circle');
     const headRow=row('Title bar',`<div class="mo-seg">${[['on','Show'],['off','Hide']].map(([v,tx])=>`<button type="button" class="${hasHead===v?'on':''}" onclick="moLinkSet(${ci},${li},'moHead','${v}');syncCatEditor();">${tx}</button>`).join('')}</div>${colorsF?`<span class="mo-hcol" title="Title bar color">${colorsF}</span>`:''}`,1);
     const hhOff=hasHead==='off',hhRow=row('Title height',`<input type="range" min="14" max="60" step="1" value="${hh}"${hhOff?' disabled':''} oninput="moLinkSet(${ci},${li},'moHH',+this.value);this.nextElementSibling.textContent=this.value+'px'"><b>${hh}px</b>`,1).replace('class="mo-sr mo-half"',hhOff?'class="mo-sr mo-half mo-dis" title="Turn the title bar on to change its height"':'class="mo-sr mo-half"');
     const opRow=row('Opacity',`<input type="range" min="0" max="1" step="0.01" value="${opv}" oninput="moLinkSet(${ci},${li},'moOp',+this.value);this.nextElementSibling.textContent=Math.round(this.value*100)+'%'"><b>${Math.round(opv*100)}%</b>`,1);
@@ -5091,8 +5125,10 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     const colRow=row('Background Color',`<div class="color-field cf-grad"><input type="color" id="${id1}" value="${tc}" oninput="moLinkSet(${ci},${li},'moTC',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('${id1}')" style="background:${tc}" title="Color"></div>${hx2?`<span class="cf-c2"><input type="color" id="${id2}" value="${l.moTC2}" oninput="moLinkSet(${ci},${li},'moTC2',this.value)" style="display:none"><div class="cp-swatch" onclick="cpOpen('${id2}')" style="background:${l.moTC2}" title="Second gradient color"></div><button type="button" class="btn-icon" onclick="moColor2(${ci},${li},0)" title="Remove gradient"><i class="fa-solid fa-xmark"></i></button></span>`:`<button type="button" class="cp-add" onclick="moColor2(${ci},${li},1)" title="Add a second color (gradient)">+</button>`}<button type="button" class="btn-icon" onclick="moColor2(${ci},${li},-1)" title="Reset color"><i class="fa-solid fa-rotate-left"></i></button></div><button type=\"button\" class=\"mo-upbtn mo-autobtn\" onclick=\"moTileAuto(${ci},${li})\" title=\"Auto: make a gradient from the colors of this tile's icon or photo\"><i class=\"fa-solid fa-wand-magic-sparkles\"></i>&nbsp;Auto</button>`,0);
     const fontRow=fontF?`<div class="mo-sr"><span class="mo-sl">Font</span><div class="mo-sc font-field">${fontF}</div></div>`:'';
     return `<div class="mo-edit mo-only mo-set">`+fontRow+iconRow+iszRow+icColRow+fitRow+opRow+colRow+headRow+hhRow+
-      seg('Corners','moR',[['square','Square'],['round','Round']],'square',1)+
-      seg('Title position','moHA',[['left','Left'],['center','Center'],['right','Right']],'left',1)+
+      seg('Shape','moShape',[['card','Card'],['square','Square'],['circle','Round']],shEff,1)+
+      (shEff!=='card'?seg('Name','moLbl',[['bar','Bar'],['below','Below'],['both','Both']],(['bar','below','both'].includes(l.moLbl)?l.moLbl:(['bar','below','both'].includes(p.moLbl)?p.moLbl:'below')),1):'')+
+      ((shEff==='circle')?'':seg('Corners','moR',[['square','Square'],['round','Round']],'square',1))+
+      (shEff==='circle'?'':seg('Title position','moHA',[['left','Left'],['center','Center'],['right','Right']],'left',1))+
       seg('Hover lift','moLift',[['off','Off'],['on','On']],p.moLift===false?'off':'on',1)+
       seg('Hover zoom','moZoom',[['off','Off'],['on','On']],p.moZoom===false?'off':'on',1)+`</div>`;
   };
@@ -5191,7 +5227,7 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
   function syncMo(){
     try{
       const p=cur(),$=id=>document.getElementById(id);
-      if($('mo-cols')){$('mo-cols').value=COLS;$('mo-cols-v').textContent=COLS+' × '+ROWS+' cells';}
+      try{moGlobSync();}catch(e){}if($('mo-cols')){$('mo-cols').value=COLS;$('mo-cols-v').textContent=COLS+' × '+ROWS+' cells';}
       {const tv=$('mo-tabs-vis');if(tv)tv.checked=!wc(p,'tabs').hidden;}
       const c=selCat();
       if(c){const u=$('mo-cbg-url');const has=String(c.moBg||'').startsWith('data:');u.value=has?'':(c.moBg||'');u.placeholder=has?'Local photo in use (paste a URL to replace it)':'Photo URL (optional)';
@@ -5510,7 +5546,7 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     pop.onclick=e=>{if(e.target.closest('[data-a="close"]')){closePop();return;}const x=e.target.closest('[data-k]');if(!x)return;const pp=cur();if(pp.moW&&pp.moW[x.dataset.k]){delete pp.moW[x.dataset.k].hidden;delete pp.moW[x.dataset.k].name;}save();closePop();render();};
     placePop();
   }
-  const TILE_KEYS=['moMapV','moBgMap','moAutoBg','moAutoSrc','moGrad','moGradPos','icC','icC2','icC2Last','moOp','moTC','moTC2','moTC2Last','moLC','moLC2','moLC2Last','moHead','moHA','moHH','moFit','moR','moLift','moZoom','moNC','tIconSz','tPhotoSz'];
+  const TILE_KEYS=['moMapV','moBgMap','moAutoBg','moAutoSrc','moGrad','moGradPos','icC','icC2','icC2Last','moOp','moTC','moTC2','moTC2Last','moLC','moLC2','moLC2Last','moHead','moHA','moHH','moFit','moR','moLift','moZoom','moNC','tIconSz','tPhotoSz','moShape','moLbl'];
   function openTilePop(ci,li){
     const p=cur(),c=MCATS(p)[ci],l=c&&c.links[li];if(!l)return;
     const t=document.querySelector(`#mosaic .mo-tile[data-li="${li}"]`);
