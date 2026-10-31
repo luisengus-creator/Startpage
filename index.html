@@ -555,7 +555,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 .cp-custom-row span{font-size:0.68rem;color:#666;white-space:nowrap}
 .cp-custom-row input[type="color"]{width:28px!important;height:22px!important;flex-shrink:0}
 #weather-modal,#clock-popover,#wstat-popover{display:none!important;position:fixed;z-index:3000;background:#0e0e0e;border:1px solid var(--modal-accent-border,#00d4ff33);border-radius:12px;padding:1rem 1.1rem;box-shadow:0 8px 32px rgba(0,0,0,0.6)}
-#weather-modal{min-width:300px;width:340px}
+#weather-modal{min-width:300px;width:340px;max-height:calc(100vh - 16px);overflow-y:auto}
 #city-list-manager::-webkit-scrollbar{width:4px}
 #city-list-manager::-webkit-scrollbar-track{background:transparent}
 #city-list-manager::-webkit-scrollbar-thumb{background:#2a2a2a;border-radius:4px}
@@ -1077,10 +1077,6 @@ body.layout-mosaic #np-area.mo-item.mo-in .np-box,body.layout-mosaic #weather-ar
 .mo-w.mo-w-in{z-index:3;border-color:#38bdf8;background:rgba(56,189,248,.07)}
 .mo-w.mo-w-in:hover{border-color:#7dd3fc;background:rgba(56,189,248,.14)}
 /* options boxes of the two fields: the field itself (photo, opacity, what is shown) and the info inside it (cover, texts) */
-#mo-pop[data-m="np-in"] label.label-inline:has(#np-enable),#mo-pop[data-m="np-in"] #np-art-sub,#mo-pop[data-m="np-in"] .inl:has(#np-art-on),#mo-pop[data-m="np-in"] .inl:has(#np-cover),#mo-pop[data-m="np-in"] .inl:has(#np-autohide){display:none!important}
-#mo-pop[data-m="np-out"] .inl:has(#np-shape),#mo-pop[data-m="np-out"] .inl:has(#np-glow-on),#mo-pop[data-m="np-out"] .inl:has(#np-sglow-on),#mo-pop[data-m="np-out"] .s-field:has(#np-order){display:none!important}
-#mo-pop[data-m="wx-in"] label.label-inline:has(#w-enable),#mo-pop[data-m="wx-in"] .s-field:has(#wx-photo-on){display:none!important}
-#mo-pop[data-m="wx-out"] #weather-rest,#mo-pop[data-m="wx-out"] .s-field:has(#wx-style-group){display:none!important}
 /* categories bar: it fills the grid area you give it (the bar stretches, the tabs share the width) */
 body.layout-mosaic .mo-tabs.mo-item{display:flex;align-items:stretch;overflow:hidden}
 /* while editing, the bar sits under the dashed edit frame so the frame, handles and click stay visible */
@@ -2177,6 +2173,9 @@ document.addEventListener('click',e=>{if(_wstatOpen&&!document.getElementById('w
 function syncWxPop(){const p=cur();document.getElementById('wpop-day').checked=(p.wShowDay!==false);document.getElementById('wpop-date').checked=(p.wShowDate!==false);document.getElementById('wpop-icons').value=p.wColored?'colored':'solid';}
 function wxPopChange(){const p=cur();p.wShowDay=document.getElementById('wpop-day').checked;p.wShowDate=document.getElementById('wpop-date').checked;p.wColored=document.getElementById('wpop-icons').value==='colored';saveAndRender();updateWeather();}
 function openWeatherPopover(anchor){const pop=document.getElementById('weather-modal');if(_wxPopOpen){pop.classList.remove('open');_wxPopOpen=false;return;}closeClockPop();closeWstatPop();syncWxPop();renderCityManager();pop.classList.add('open');_wxPopOpen=true;const r=anchor.getBoundingClientRect();const pw=340,ph=pop.offsetHeight||320;let left=r.left+r.width/2-pw/2;if(left+pw>window.innerWidth-10)left=window.innerWidth-pw-10;if(left<10)left=10;pop.style.left=left+'px';pop.style.top=popTopFor(r,ph)+'px';}
+// the city list grows the popup while you type: keep the whole window on screen (it moves up only as far as needed)
+function wxPopClamp(){const pop=document.getElementById('weather-modal');if(!pop||!pop.classList.contains('open'))return;const h=pop.offsetHeight,t=parseFloat(pop.style.top)||0,max=window.innerHeight-8;if(t+h>max)pop.style.top=Math.max(8,max-h)+'px';}
+try{const _sr=document.getElementById('search-results');if(_sr)new MutationObserver(()=>requestAnimationFrame(wxPopClamp)).observe(_sr,{childList:true,subtree:true});window.addEventListener('resize',wxPopClamp);}catch(e){}
 function closeWxPop(){document.getElementById('weather-modal').classList.remove('open');document.getElementById('city-search-input').value='';document.getElementById('search-results').innerHTML='';_wxPopOpen=false;}
 document.addEventListener('click',e=>{if(_wxPopOpen&&!e.composedPath().includes(document.getElementById('weather-modal'))&&!e.target.closest('#weather-grid')&&!e.target.closest('#wx-addcity'))closeWxPop();});
 
@@ -4835,7 +4834,7 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
       const inner=shp?`<div class="mo-shp">${ledH}<div class="mo-clip">${headH}${bodyH}</div></div>${lb==='below'||lb==='both'?`<div class="mo-lbl" style="${fontCss(l,'link')}"><span>${esc(l.name)}</span></div>`:''}`:ledH+headH+bodyH;
       return `<a class="mo-tile ${sz}${tcls}" data-li="${t.li}" href="${esc(l.url||'#')}" target="${esc(state.target||'_self')}" style="--tc:${esc(col)};${col2?`--tc2:${esc(col2)};`:''}--ink:${ink(col)};${tileVars(p,c,l)}${tsty};grid-column:${t.x+1} / span ${t.w};grid-row:${t.y+1} / span ${t.h}">${inner}${['n','s','e','w','ne','nw','se','sw'].map(d=>`<span class="mo-h mo-h-${d}" data-d="${d}"></span>`).join('')}</a>`;
     }).join('');
-    const frames=ITEMS.map(frameHTML).join('')+ITEMS.filter(q=>q.inn&&!(q.key==='weather'&&gid('weather-area').classList.contains('wx-empty'))).map(innerFrameHTML).join('');
+    const frames=ITEMS.filter(q=>!(q.inn&&photoOff(q.key))).map(frameHTML).join('')+ITEMS.filter(q=>q.inn&&!(q.key==='weather'&&gid('weather-area').classList.contains('wx-empty'))).map(innerFrameHTML).join('');
     const warn=L.unplaced.length?`<div class="mo-warn">${L.unplaced.length} tile${L.unplaced.length>1?'s don\'t':' doesn\'t'} fit: make other tiles smaller</div>`:'';
     mo.insertAdjacentHTML('beforeend',`<div class="mo-stage" style="left:${gap0}px;right:${gap0}px;top:${gap0}px;bottom:${gap0}px"><div class="mo-grid" data-ci="${ti}" style="left:${GX}px;top:${GY}px;width:${COLS*GS+(COLS-1)*gap0}px;height:${ROWS*GH+(ROWS-1)*gap0}px;grid-template-columns:repeat(${COLS},${GS}px);grid-template-rows:repeat(${ROWS},${GH}px)">${cells}${tiles}${frames}<div class="mo-ghost"></div></div>${warn}</div>`);
     // photo behind the whole mosaic of this category
@@ -4986,7 +4985,7 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
       const base=wk.slice(0,-3),q=ITEMS.find(z=>z.key===base);if(!q||!q.inn)return;
       e.preventDefault();
       const gr=t.parentElement,r=gr.getBoundingClientRect(),cs=getComputedStyle(gr),gx=parseFloat(cs.columnGap)||0,gy=parseFloat(cs.rowGap)||0,me=q.inn;
-      drag={isW:true,inner:base,wk,mode:hd?'resize':'move',dir:hd?hd.dataset.d:'',t,ci:+gr.dataset.ci,li:-1,sx:e.clientX,sy:e.clientY,o:{x:me.x,y:me.y,w:me.w,h:me.h},n:{x:me.x,y:me.y,w:me.w,h:me.h},last:{x:me.x,y:me.y,w:me.w,h:me.h},B:{x:q.x,y:q.y,w:q.w,h:q.h},others:layoutOf(MCATS(cur())[+gr.dataset.ci]||{links:[]}).placed.concat(OB().filter(z=>z.key!==base)),pw:(r.width+gx)/COLS,ph:(r.height+gy)/ROWS,ghost:gr.querySelector('.mo-ghost'),ok:true,id:e.pointerId};
+      drag={isW:true,inner:base,wk,mode:hd?'resize':'move',dir:hd?hd.dataset.d:'',t,ci:+gr.dataset.ci,li:-1,sx:e.clientX,sy:e.clientY,o:{x:me.x,y:me.y,w:me.w,h:me.h},n:{x:me.x,y:me.y,w:me.w,h:me.h},last:{x:me.x,y:me.y,w:me.w,h:me.h},B:photoOff(base)?{x:0,y:0,w:COLS,h:ROWS}:{x:q.x,y:q.y,w:q.w,h:q.h},others:layoutOf(MCATS(cur())[+gr.dataset.ci]||{links:[]}).placed.concat(OB().filter(z=>z.key!==base)),pw:(r.width+gx)/COLS,ph:(r.height+gy)/ROWS,ghost:gr.querySelector('.mo-ghost'),ok:true,id:e.pointerId};
       try{t.setPointerCapture(e.pointerId);}catch(_){}
       t.classList.add('drag');showGhost();return;
     }
@@ -5390,10 +5389,12 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
         let IN=null,iw_=bw,ih_=bh;
         if(it.bd==='weather'||it.bd==='np'){IN=innerOf(p,it.key,g,it);iw_=IN.w*GS+(IN.w-1)*gap;ih_=IN.h*GH+(IN.h-1)*gap;}   // the info is fitted into its own inner field
         it._in=IN;
-        const s=(it.bd==='np'||it.bd==='weather')?Math.max(.05,Math.min(6,ih_/nh,bw/nw)):Math.max(.05,Math.min(bw/nw,bh/nh,6));   // weather / now playing: real size (set by their font sizes), never blown up with the window
-        st.setProperty('--ix',L0+'px');st.setProperty('--iy',T0+'px');st.setProperty('--is',String(s));
-        st.setProperty('--iw',(bw/s)+'px');st.setProperty('--ih',(bh/s)+'px');
-        if(IN){st.setProperty('--in-x',((IN.x-g.x)*cell/s)+'px');st.setProperty('--in-y',((IN.y-g.y)*cellY/s)+'px');st.setProperty('--in-w',(iw_/s)+'px');st.setProperty('--in-h',(ih_/s)+'px');it.el.classList.add('mo-in');}
+        const s=(it.bd==='np'||it.bd==='weather')?Math.max(.05,Math.min(6,ih_/nh,(IN&&photoOff(it.key)?(COLS*GS+(COLS-1)*gap):bw)/nw)):Math.max(.05,Math.min(bw/nw,bh/nh,6));   // weather / now playing: real size (set by their font sizes), never blown up with the window
+        // photo off: the field is just the info field (no photo field behind it), so its backdrop is drawn exactly there and nowhere else
+        const oi=!!IN&&photoOff(it.key),X=oi?gap+GX+IN.x*cell:L0,Y=oi?gap+GY+IN.y*cellY:T0,W=oi?iw_:bw,H=oi?ih_:bh;
+        st.setProperty('--ix',X+'px');st.setProperty('--iy',Y+'px');st.setProperty('--is',String(s));
+        st.setProperty('--iw',(W/s)+'px');st.setProperty('--ih',(H/s)+'px');
+        if(IN){st.setProperty('--in-x',(oi?0:(IN.x-g.x)*cell/s)+'px');st.setProperty('--in-y',(oi?0:(IN.y-g.y)*cellY/s)+'px');st.setProperty('--in-w',(iw_/s)+'px');st.setProperty('--in-h',(ih_/s)+'px');it.el.classList.add('mo-in');}
         if(it.bd==='weather')(window._moRect=window._moRect||{}).wx={x:L0,y:T0,w:bw,h:bh,s};
         if(it.bd==='np')(window._moRect=window._moRect||{}).np={x:L0,y:T0,w:bw,h:bh,s};
       }else if(it.kind==='tabs'){   // categories bar: text scales to fit, and the bar itself always fills the whole area
@@ -5411,18 +5412,21 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     return ITEMS.map(q=>q.key+':'+q.x+','+q.y+','+q.w+','+q.h+(q.inn?'/'+q.inn.x+','+q.inn.y+','+q.inn.w+','+q.inn.h:'')).join('|');
   }
   // the info field of Now playing / Weather: a block of grid cells that always stays inside the field (saved relative to it in p.moIn)
-  function innerOf(p,key,g,it){
+  // is the photo (weather photo / artist photo) of this field switched off? Then there is no photo field, only the info field
+  function photoOff(key){const p=cur()||{};return key==='weather'?p.wxPhoto===false:key==='np'?p.npArtist===false:false;}
+  function innerOf(p,key,g0,it){
+    const off=photoOff(key),g=off?{x:0,y:0,w:COLS,h:ROWS}:g0;   // photo off: the whole grid is the room of the info field
     const sv=p.moIn&&p.moIn[key];let r;
     if(sv&&Number.isFinite(+sv.w)&&Number.isFinite(+sv.h)){
       const w=clamp(Math.round(+sv.w),1,g.w),h=clamp(Math.round(+sv.h),key==='np'?Math.min(2,g.h):1,g.h);
-      r={x:g.x+clamp(Math.round(+sv.dx||0),0,g.w-w),y:g.y+clamp(Math.round(+sv.dy||0),0,g.h-h),w,h,saved:true};
-    }else r={x:g.x,y:g.y,w:g.w,h:g.h,saved:false};
+      r={x:clamp(g0.x+Math.round(+sv.dx||0),g.x,g.x+g.w-w),y:clamp(g0.y+Math.round(+sv.dy||0),g.y,g.y+g.h-h),w,h,saved:true};
+    }else r={x:g0.x,y:g0.y,w:g0.w,h:g0.h,saved:false};
     // the width is never set by hand: it is exactly what the contents need at the size the height gives (cover = height in squares)
     if(it&&it.nw>0&&it.nh>0){
       const gap=gapOf(p),cell=GS+gap,ih=r.h*GH+(r.h-1)*gap,bw=g.w*GS+(g.w-1)*gap;
       let sc=Math.min(6,ih/it.nh);if(it.nw*sc>bw)sc=bw/it.nw;
       const wc=clamp(Math.ceil((it.nw*sc-1+gap)/cell),1,g.w);
-      r.x=(r.saved||key!=='weather')?clamp(r.x,g.x,g.x+g.w-wc):g.x+Math.floor((g.w-wc)/2);
+      r.x=(r.saved||key!=='weather')?clamp(r.x,g.x,g.x+g.w-wc):g0.x+Math.floor((g0.w-wc)/2);
       r.w=wc;
     }
     return {x:r.x,y:r.y,w:r.w,h:r.h};
@@ -5430,7 +5434,7 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
   function innerFrameHTML(q){
     const o=q.inn,hd=['n','s'].map(d=>`<span class="mo-h mo-h-${d}" data-d="${d}"></span>`).join('');
     const I=18,tq=o.y===q.y?I:0,rq2=o.x+o.w===q.x+q.w?I:0,bq=o.y+o.h===q.y+q.h?I:0,lq=o.x===q.x?I:0;
-    const m=`${tq}px ${rq2}px ${bq}px ${lq}px`;   // a side that touches the field is drawn a little inside, so the field's own edges / corners stay free to grab (move + resize)
+    const m=photoOff(q.key)?'0px':`${tq}px ${rq2}px ${bq}px ${lq}px`;   // a side that touches the field is drawn a little inside, so the field's own edges / corners stay free to grab (move + resize)
     return `<div class="mo-w mo-w-in" data-k="${esc(q.key)}:in" title="${esc(q.name)} · info" style="grid-column:${o.x+1} / span ${o.w};grid-row:${o.y+1} / span ${o.h};margin:${m}">${hd}</div>`;
   }
   function frameHTML(q){
@@ -5469,7 +5473,7 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     st.textContent=mode==='link'&&o?`#mo-pop #link-list-editor .editor-link-row:not([data-li="${o.li}"]){display:none}`:'';
   }
   function mountFor(k){
-    const map={tabs:['categories','cat'],clock:['clock'],search:['search'],weather:['weather','wx-out'],np:['nowplaying','np-out'],profile:['profiles']};
+    const map={tabs:['categories','cat'],clock:['clock'],search:['search'],weather:['weather','wx-all'],np:['nowplaying','np-all'],profile:['profiles']};
     const m=map[k]||(/^ql/.test(k)?['quick-links']:null);if(!m||!pop)return;
     openPanelIn(pop.querySelector('.mo-pop-b'),m[0],m[1]||m[0]);
   }
@@ -5559,15 +5563,15 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
       else if(a.dataset.a==='hide'){moTabsVis(false);}};
     placePop();
   }
-  function openWPop(k){
+  function openWPop(k,anchor){
     const p=cur(),q=ITEMS.find(z=>z.key===k);if(!q)return;
     const it=collect().find(z=>z.key===k);if(!it)return;
     const fr=document.querySelector(`#mosaic .mo-w[data-k="${k}"]`),c=wc(p,k),op=c.op!=null&&c.op!==''?clamp(+c.op,0,1):defOp(it);
-    const b=mkPop(q.name,(fr||it.el).getBoundingClientRect());
+    const b=mkPop(q.name,anchor||(fr||it.el).getBoundingClientRect());
     const cats=(MCATS(p)||[]),curTab=parseInt(p.mosaicTab)||0;
     if(q.kind==='tabs'){openTabsPop(k,b,op,curTab,cats);return;}
     b.innerHTML=(q.kind==='tabs'?`<div style=\"color:#999;font-size:.7rem;margin:0 0 6px;\">Show category</div><div class="mo-pop-btns" style="margin-bottom:10px;">${cats.map((x,i)=>`<button type="button" data-tab="${i}" class="${i===curTab?'on':''}">${esc(x.title||'Untitled')}</button>`).join('')}</div>`:'')+(q.hasOp?prow('Opacity','op',0,1,.01,op,pct(op)):'')+
-      `<div style="color:#777;font-size:.7rem;margin:0 0 8px;">Drag it to move it${q.icon?'':' · drag its edges to resize it'}. It always stays on the grid.</div><div class="mo-pop-btns"><button type="button" data-a="reset">Reset</button>${q.kind==='tabs'?'':'<button type="button" class="del" data-a="del"><i class="fa-solid fa-trash-can"></i>&nbsp; Delete</button>'}</div>`;
+      `<div style="color:#777;font-size:.7rem;margin:0 0 8px;">Drag it to move it${q.icon?'':' · drag its edges to resize it'}. It always stays on the grid.${q.inn?' The info field inside it moves and resizes the same way.':''}</div><div class="mo-pop-btns"><button type="button" data-a="reset">Reset</button>${q.kind==='tabs'?'':'<button type="button" class="del" data-a="del"><i class="fa-solid fa-trash-can"></i>&nbsp; Delete</button>'}</div>`;
     pop.oninput=e=>{if(!(e.target.dataset&&e.target.dataset.f==='op'))return;const v=+e.target.value,pp=cur();ws(pp,k).op=v;e.target.nextElementSibling.textContent=pct(v);const it2=collect().find(z=>z.key===k);if(it2)applyOp(pp,it2);save();};
     pop.onclick=e=>{const tb=e.target.closest('[data-tab]');if(tb){const pp=cur();pp.mosaicTab=parseInt(tb.dataset.tab)||0;save();closePop();render();return;}
       const a=e.target.closest('[data-a]');if(!a)return;const pp=cur();
@@ -5576,15 +5580,10 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
       else if(a.dataset.a==='del'){const w=ws(pp,k);w.hidden=true;w.name=q.name;save();closePop();render();}};
     mountFor(k);placePop();
   }
-  // options box of the info field (cover, artist, texts...) of Now playing / Weather
+  // the info field of Now playing / Weather opens the same single menu as its photo field
   function openInPop(base){
-    const q=ITEMS.find(z=>z.key===base);if(!q)return;
-    const fr=document.querySelector(`#mosaic .mo-w[data-k="${base}:in"]`),b=mkPop(q.name+' · info',fr?fr.getBoundingClientRect():{left:20,top:80,bottom:80,right:20});
-    b.innerHTML=`<div style="color:#777;font-size:.7rem;margin:0 0 8px;">Drag it to move it · drag its edges to resize it. It always stays inside the ${esc(q.name)} field (the photo and the opacity are set by clicking the field itself).</div><div class="mo-pop-btns"><button type="button" data-a="reset">Reset</button></div>`;
-    pop.onclick=e=>{const a=e.target.closest('[data-a]');if(!a)return;const pp=cur();
-      if(a.dataset.a==='close')closePop();
-      else if(a.dataset.a==='reset'){if(pp.moIn)delete pp.moIn[base];save();closePop();render();}};
-    openPanelIn(b,base==='np'?'nowplaying':'weather',base==='np'?'np-in':'wx-in');placePop();
+    const fr=document.querySelector(`#mosaic .mo-w[data-k="${base}:in"]`);
+    openWPop(base,fr?fr.getBoundingClientRect():null);
   }
   function openHiddenPop(btn){
     const p=cur(),ks=Object.keys(p.moW||{}).filter(k=>p.moW[k]&&p.moW[k].hidden);
