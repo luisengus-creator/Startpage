@@ -731,6 +731,12 @@ body.layout-mosaic #grid{display:none!important}
 body.layout-mosaic #mosaic{display:flex}
 .mo-tabs{align-self:center;display:flex;gap:var(--mt-gap,4px);align-items:center;flex-shrink:0;max-width:100%;overflow-x:auto;scrollbar-width:none;padding:6px;border-radius:var(--mo-bar-r,999px);background:rgba(32,38,56,.62);border:0;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:none}
 .mo-tabs::-webkit-scrollbar{display:none}
+/* category switch animation: only the new category's tiles animate in (backwards fill, so hover transforms still work afterwards) */
+@keyframes mo-sw-fade{from{opacity:0;transform:scale(.96)}}
+@keyframes mo-sw-slide{from{opacity:0;transform:translateX(calc(var(--sw-d,1) * 60px))}}
+.mo-sw-fade .mo-tile{animation:mo-sw-fade .8s cubic-bezier(.25,.6,.3,1) backwards}
+.mo-sw-slide .mo-tile{animation:mo-sw-slide .9s cubic-bezier(.25,.6,.3,1) backwards}
+@media (prefers-reduced-motion:reduce){.mo-sw-fade .mo-tile,.mo-sw-slide .mo-tile{animation:none}}
 .mo-tab{appearance:none;margin:0;border:0;background:transparent;color:var(--mt-c,#a7aebf);font:inherit;font-family:var(--mt-ff,inherit);font-style:var(--mt-fi,normal);font-size:calc(0.95rem * var(--mt-fs,var(--fsz,1)));font-weight:var(--mt-fw,500);padding:var(--mt-py,9px) var(--mt-px,26px);border-radius:var(--mt-r,var(--widget-radius,0px));cursor:pointer;white-space:nowrap;transition:background .2s,color .2s,box-shadow .2s;width:auto;height:auto;box-shadow:none}
 .mo-tab:hover{color:#fff}
 .mo-tab.on{background:linear-gradient(135deg,var(--tc,#38bdf8),var(--tc2,var(--tc,#38bdf8)));color:var(--ink,#0b1220);font-weight:700;box-shadow:0 0 18px color-mix(in srgb,var(--tc,#38bdf8) 60%,transparent)}
@@ -997,7 +1003,7 @@ body.layout-mosaic #clock-display.mo-item,body.layout-mosaic #clock-display.mo-i
 body.layout-mosaic #clock-display.mo-item #clock-time,body.layout-mosaic #clock-display.mo-item #clock-date{width:max-content;max-width:none}
 body.layout-mosaic #search-form.mo-item{justify-content:center}
 body.layout-mosaic #weather-area.mo-item{display:flex;flex-direction:column;align-items:stretch;justify-content:stretch;gap:0}
-body.layout-mosaic #weather-area.mo-item .weather-bg-wrap{flex:1 1 auto;width:100%;min-height:0;box-sizing:border-box;align-items:center;justify-content:flex-end;padding-bottom:0}
+body.layout-mosaic #weather-area.mo-item .weather-bg-wrap{flex:1 1 auto;width:100%;min-height:0;box-sizing:border-box;align-items:center;justify-content:flex-end;padding-bottom:0;padding-left:4px;padding-right:4px}
 /* weather (compact too): one fixed arrangement that is only scaled - lines never break, nothing shrinks or leaks outside the field */
 body.layout-mosaic #weather-area.mo-item,body.layout-mosaic #weather-area.mo-item .weather-bg-wrap *{white-space:nowrap}
 body.layout-mosaic #weather-area.mo-item #weather-stats{flex-wrap:nowrap}
@@ -1077,6 +1083,7 @@ body.layout-mosaic #np-area.mo-item{background-color:rgba(var(--np-rgb,0,0,0),ca
 body.layout-mosaic #np-area.mo-item .np-box{background:none!important}
 body.layout-mosaic #weather-area.mo-item{background-color:rgba(var(--weather-rgb,0,0,0),calc(var(--weather-backdrop,0) * var(--weather-solid,1)));background-image:var(--weather-img,none);background-origin:border-box;background-repeat:no-repeat;border-radius:var(--widget-radius)}
 body.layout-mosaic #weather-area.mo-item .weather-bg-wrap{background:none!important}
+body.layout-mosaic #weather-area.mo-item .weather-bg-wrap,body.layout-mosaic #weather-area.mo-item.mo-in .weather-bg-wrap{justify-content:center;align-items:center}   /* the content sits in the exact middle of its field, both ways (it used to hug the bottom) */
 body.layout-mosaic #np-area.mo-item .np-box{padding:0!important;gap:0!important;overflow:hidden}
 body.layout-mosaic #np-area.mo-item.mo-in .np-box,body.layout-mosaic #weather-area.mo-item.mo-in .weather-bg-wrap{position:absolute;left:var(--in-x,0px);top:var(--in-y,0px);width:var(--in-w,100%);height:var(--in-h,100%);max-width:none;flex:none;margin:0!important;box-sizing:border-box;justify-content:flex-end}
 /* photo fields (weather / now playing) stay behind the tiles: click a tile over one and it moves; click the free part of the field to move the field */
@@ -3123,6 +3130,7 @@ function wxPopFit(){
   const W=document.documentElement.clientWidth,m=8;
   document.querySelectorAll('#weather-grid .wx-pop').forEach(pop=>{
     const inn=pop.firstElementChild;
+    const oldSh=pop.style.getPropertyValue('--wx-pop-shift')||'0px';pop.style.transition='none';   // measure from the true un-shifted position: a running margin/transform transition would give a wrong reading
     pop.style.setProperty('--wx-pop-shift','0px');if(inn)inn.style.zoom='';
     {const cn=document.getElementById('city-name'),gr=document.getElementById('weather-grid');   // distance up to the top of the city name, so the preview sits above it
      const up=(cn&&gr&&!pop.closest('#top-stack')&&cn.offsetHeight)?Math.max(0,Math.round(gr.getBoundingClientRect().top-cn.getBoundingClientRect().top)):0;
@@ -3130,7 +3138,9 @@ function wxPopFit(){
     let r=pop.getBoundingClientRect();
     if(inn&&r.width>W-2*m){inn.style.zoom=((W-2*m)/r.width).toFixed(4);r=pop.getBoundingClientRect();}   // wider than the window: scale it down to fit
     let sh=0;if(r.right>W-m)sh=W-m-r.right;if(r.left+sh<m)sh=m-r.left;
-    pop.style.setProperty('--wx-pop-shift',Math.round(sh)+'px');
+    {const mo=document.body.classList.contains('layout-mosaic'),sc=(mo&&window._moRect&&window._moRect.wx&&window._moRect.wx.s)||1;   // Mosaic scales the widget with CSS scale: the shift is in the widget's own (unscaled) pixels
+     pop.style.setProperty('--wx-pop-shift',oldSh);void pop.offsetWidth;pop.style.transition='';   // back to where it was, then animate to the new shift
+     pop.style.setProperty('--wx-pop-shift',Math.round(sh/sc)+'px');}
     if(document.body.classList.contains('layout-mosaic')){pop.classList.remove('wx-down');const rr=pop.getBoundingClientRect();if(rr.top<m)pop.classList.add('wx-down');}   // Mosaic: not enough room above the weather -> open it below
   });
 }
@@ -4849,6 +4859,10 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     const frames=ITEMS.filter(q=>!(q.inn&&photoOff(q.key))).map(frameHTML).join('')+ITEMS.filter(q=>q.inn&&!(q.key==='weather'&&gid('weather-area').classList.contains('wx-empty'))).map(innerFrameHTML).join('');
     const warn=L.unplaced.length?`<div class="mo-warn">${L.unplaced.length} tile${L.unplaced.length>1?'s don\'t':' doesn\'t'} fit: make other tiles smaller</div>`:'';
     mo.insertAdjacentHTML('beforeend',`<div class="mo-stage" style="left:${gap0}px;right:${gap0}px;top:${gap0}px;bottom:${gap0}px"><div class="mo-grid" data-ci="${ti}" style="left:${GX}px;top:${GY}px;width:${COLS*GS+(COLS-1)*gap0}px;height:${ROWS*GH+(ROWS-1)*gap0}px;grid-template-columns:repeat(${COLS},${GS}px);grid-template-rows:repeat(${ROWS},${GH}px)">${cells}${tiles}${frames}<div class="mo-ghost"></div></div>${warn}</div>`);
+    {const sw=window._moSwap;window._moSwap=undefined;const an=TB.anim||'fade';   // a category was just chosen: animate its tiles in
+     if(sw!==undefined&&an!=='off'){const st=mo.querySelector('.mo-stage');if(st){st.style.setProperty('--sw-d',String(sw||1));st.classList.add('mo-sw-'+an);
+       st.querySelectorAll('.mo-tile').forEach((t,i)=>{t.style.animationDelay=Math.min(i,14)*60+'ms';});
+       setTimeout(()=>{try{st.classList.remove('mo-sw-fade','mo-sw-slide');st.querySelectorAll('.mo-tile').forEach(t=>{t.style.animationDelay='';});}catch(e){}},2200);}}}
     // photo behind the whole mosaic of this category
     if(!cb){cb=document.createElement('div');cb.id='mo-cbg-layer';cb.className='mo-cbg';}
     if(!cb.isConnected)mo.appendChild(cb);
@@ -5050,7 +5064,7 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     if(!e.target.closest)return;
     if(Date.now()-justDragged<400&&e.target.closest('#mosaic')){e.preventDefault();e.stopPropagation();return;}
     const tab=e.target.closest('.mo-tab');
-    if(tab&&!document.body.classList.contains('edit-mode')){const p=cur();p.mosaicTab=parseInt(tab.dataset.i)||0;{const cs=document.getElementById('cat-sel');if(cs){cs.value=String(p.mosaicTab);try{syncCatEditor();}catch(e){}}}save();render();return;}
+    if(tab&&!document.body.classList.contains('edit-mode')){const p=cur();{const o0=parseInt(p.mosaicTab)||0,n0=parseInt(tab.dataset.i)||0;window._moSwap=n0>o0?1:n0<o0?-1:undefined;}p.mosaicTab=parseInt(tab.dataset.i)||0;{const cs=document.getElementById('cat-sel');if(cs){cs.value=String(p.mosaicTab);try{syncCatEditor();}catch(e){}}}save();render();return;}
     const ma=e.target.closest('[data-ma]');
     if(ma){e.preventDefault();e.stopPropagation();window.moEditAct(ma.dataset.ma);return;}
     const rs=e.target.closest('.mo-reset');
@@ -5556,13 +5570,14 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
       row('Bar shape',seg('br',[['square','Square'],['round','Round'],['pill','Pill']],''))+
       row('Padding X',rng('px',4,60,26,'px'))+row('Padding Y',rng('py',2,30,9,'px'))+row('Gap',rng('gap',0,30,4,'px'))+
       row('Glow',seg('glow',[['on','On'],['off','Off']],'on'))+
+      row('Switch animation',seg('anim',[['off','None'],['fade','Fade'],['slide','Slide']],'fade'))+
     `</div><div style="color:#777;font-size:.7rem;margin:0 0 8px;">Drag it to move it · drag its edges to resize it. It always stays on the grid.</div><div class="mo-pop-btns"><button type="button" data-a="reset">Reset</button><button type="button" data-a="hide" title="Hide the categories bar (bring it back with the eye in Settings → Mosaic, or from Hidden items in edit mode)"><i class="fa-solid fa-eye-slash"></i>&nbsp; Hide</button></div>`;
     const set=(key,v)=>{const pp=cur();pp.moTabs=pp.moTabs||{};if(v===''||v==null)delete pp.moTabs[key];else pp.moTabs[key]=v;if(!Object.keys(pp.moTabs).length)delete pp.moTabs;save();render();};
     pop.oninput=e=>{const t=e.target.dataset||{};
       if(t.f==='op'){const v=+e.target.value,pp=cur();ws(pp,k).op=v;e.target.nextElementSibling.textContent=pct(v);const it2=collect().find(z=>z.key===k);if(it2)applyOp(pp,it2);save();return;}
       if(t.t){let v=e.target.value;if(e.target.type==='range'){v=+v;const u=e.target.nextElementSibling;if(u)u.textContent=v+(t.t==='fs'?'%':'px');}set(t.t,v);}};
     pop.onchange=pop.oninput;
-    pop.onclick=e=>{const tb=e.target.closest('[data-tab]');if(tb){const pp=cur();pp.mosaicTab=parseInt(tb.dataset.tab)||0;save();closePop();render();return;}
+    pop.onclick=e=>{const tb=e.target.closest('[data-tab]');if(tb){const pp=cur();{const o0=parseInt(pp.mosaicTab)||0,n0=parseInt(tb.dataset.tab)||0;window._moSwap=n0>o0?1:n0<o0?-1:undefined;}pp.mosaicTab=parseInt(tb.dataset.tab)||0;save();closePop();render();return;}
       const sg=e.target.closest('[data-ts]');if(sg){const [kk,vv]=sg.dataset.ts.split(':');set(kk,vv);openTabsPop(k,b,op,curTab,cats);placePop();return;}
       const ta=e.target.closest('[data-ta]');if(ta){const pp=cur(),a=ta.dataset.ta;
         if(a==='ac2on'){const T2=pp.moTabs||{};set('ac2',autoColor2(/^#[0-9a-f]{6}$/i.test(T2.ac||'')?T2.ac:catCol));}
@@ -5585,7 +5600,7 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     b.innerHTML=(q.kind==='tabs'?`<div style=\"color:#999;font-size:.7rem;margin:0 0 6px;\">Show category</div><div class="mo-pop-btns" style="margin-bottom:10px;">${cats.map((x,i)=>`<button type="button" data-tab="${i}" class="${i===curTab?'on':''}">${esc(x.title||'Untitled')}</button>`).join('')}</div>`:'')+(q.hasOp?prow('Opacity','op',0,1,.01,op,pct(op)):'')+
       `<div style="color:#777;font-size:.7rem;margin:0 0 8px;">Drag it to move it${q.icon?'':' · drag its edges to resize it'}. It always stays on the grid.${q.inn?' The info field inside it moves and resizes the same way.':''}</div><div class="mo-pop-btns"><button type="button" data-a="reset">Reset</button>${q.kind==='tabs'?'':'<button type="button" class="del" data-a="del"><i class="fa-solid fa-trash-can"></i>&nbsp; Delete</button>'}</div>`;
     pop.oninput=e=>{if(!(e.target.dataset&&e.target.dataset.f==='op'))return;const v=+e.target.value,pp=cur();ws(pp,k).op=v;e.target.nextElementSibling.textContent=pct(v);const it2=collect().find(z=>z.key===k);if(it2)applyOp(pp,it2);save();};
-    pop.onclick=e=>{const tb=e.target.closest('[data-tab]');if(tb){const pp=cur();pp.mosaicTab=parseInt(tb.dataset.tab)||0;save();closePop();render();return;}
+    pop.onclick=e=>{const tb=e.target.closest('[data-tab]');if(tb){const pp=cur();{const o0=parseInt(pp.mosaicTab)||0,n0=parseInt(tb.dataset.tab)||0;window._moSwap=n0>o0?1:n0<o0?-1:undefined;}pp.mosaicTab=parseInt(tb.dataset.tab)||0;save();closePop();render();return;}
       const a=e.target.closest('[data-a]');if(!a)return;const pp=cur();
       if(a.dataset.a==='close')closePop();
       else if(a.dataset.a==='reset'){if(pp.moG)delete pp.moG[k];if(pp.moW)delete pp.moW[k];if(pp.moIn)delete pp.moIn[k];save();closePop();render();}
