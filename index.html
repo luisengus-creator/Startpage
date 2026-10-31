@@ -521,6 +521,13 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 .search-result-item{padding:6px 10px;border-bottom:1px solid #161616;cursor:pointer;font-size:0.75rem;color:#999;transition:background 0.12s,color 0.12s}
 .search-result-item:hover{background:rgba(255,255,255,0.06);color:var(--modal-accent,#00d4ff)}
 #wx-line #wx-slot-days,#wx-line #wx-row-days,#wx-line #wx-row-icons{display:contents}
+/* only what belongs to the chosen weather style is shown */
+.wx-only-compact{display:none!important}
+#wx-card-main.wx-comp .wx-only-compact,#weather-modal.wx-comp .wx-only-compact{display:flex!important}
+#wx-card-main.wx-comp #wx-slot-days,#wx-card-main.wx-comp #wx-row-days{display:none!important}
+#weather-modal.wx-comp .wx-only-classic{display:none!important}
+#weather-area.wx-nocity #city-name{display:none}
+#weather-area.wx-nocity .weather-bg-wrap>div:has(#city-name){display:none}
 #top-stack{pointer-events:none}
 #top-stack>*{pointer-events:auto}
 #search-bar-wrap{pointer-events:none}
@@ -1497,6 +1504,7 @@ input[type="color"],input[type="color"]::-webkit-color-swatch,input[type="color"
               <label class="label-inline inl" title="Animated weather icon"><input type="checkbox" id="w-anim" onchange="wxFx()"> Animated</label>
               <label class="label-inline inl" title="Soft glow in the colour of the current weather condition"><input type="checkbox" id="w-tint" onchange="wxFx()"> Glow</label>
               <label class="label-inline inl" title="Hourly forecast for the next 24 hours: shown in the popup when you hover the weather"><input type="checkbox" id="w-hourly" onchange="wxHourlyChange()"> 24h</label>
+              <label class="label-inline inl wx-only-compact" title="Show the city name above the weather (turn it off to keep only the icon and the temperature)"><input type="checkbox" id="w-city" onchange="wxCityChange()"> City name</label>
             </div>
             </div>
             <div class="tx-head">Fonts</div>
@@ -1555,8 +1563,9 @@ input[type="color"],input[type="color"]::-webkit-color-swatch,input[type="color"
 
 <div id="weather-modal">
   <div class="pop-title">Weather</div>
-  <label class="label-inline"><input type="checkbox" id="wpop-day" onchange="wxPopChange()"> Show Day</label>
-  <label class="label-inline"><input type="checkbox" id="wpop-date" onchange="wxPopChange()"> Show Date</label>
+  <label class="label-inline wx-only-classic"><input type="checkbox" id="wpop-day" onchange="wxPopChange()"> Show Day</label>
+  <label class="label-inline wx-only-classic"><input type="checkbox" id="wpop-date" onchange="wxPopChange()"> Show Date</label>
+  <label class="label-inline wx-only-compact"><input type="checkbox" id="wpop-city" onchange="wxPopChange()"> Show City Name</label>
   <div style="display:grid;grid-template-columns:auto 1fr;gap:6px 10px;align-items:center;margin-top:4px;margin-bottom:10px;">
     <span style="font-size:0.75rem;color:#888;">Icons</span><select id="wpop-icons" onchange="wxPopChange()" style="height:28px;line-height:26px;font-size:0.75rem;padding:0 6px;"><option value="colored">Colored</option><option value="solid">Solid</option></select>
   </div>
@@ -2170,8 +2179,8 @@ function openWstatPopover(anchor){const pop=document.getElementById('wstat-popov
 function closeWstatPop(){document.getElementById('wstat-popover').classList.remove('open');_wstatOpen=false;}
 document.addEventListener('click',e=>{if(_wstatOpen&&!document.getElementById('wstat-popover').contains(e.target)&&!e.target.closest('[onclick*="openWstatPopover"]'))closeWstatPop();});
 
-function syncWxPop(){const p=cur();document.getElementById('wpop-day').checked=(p.wShowDay!==false);document.getElementById('wpop-date').checked=(p.wShowDate!==false);document.getElementById('wpop-icons').value=p.wColored?'colored':'solid';}
-function wxPopChange(){const p=cur();p.wShowDay=document.getElementById('wpop-day').checked;p.wShowDate=document.getElementById('wpop-date').checked;p.wColored=document.getElementById('wpop-icons').value==='colored';saveAndRender();updateWeather();}
+function syncWxPop(){const p=cur();const pm=document.getElementById('weather-modal');if(pm)pm.classList.toggle('wx-comp',wxSty(p)==='compact');{const c=document.getElementById('wpop-city');if(c)c.checked=(p.wCity!==false);}document.getElementById('wpop-day').checked=(p.wShowDay!==false);document.getElementById('wpop-date').checked=(p.wShowDate!==false);document.getElementById('wpop-icons').value=p.wColored?'colored':'solid';}
+function wxPopChange(){const p=cur();if(wxSty(p)==='compact'){const c=document.getElementById('wpop-city');if(c)p.wCity=c.checked;}else{p.wShowDay=document.getElementById('wpop-day').checked;p.wShowDate=document.getElementById('wpop-date').checked;}p.wColored=document.getElementById('wpop-icons').value==='colored';saveAndRender();updateWeather();}
 function openWeatherPopover(anchor){const pop=document.getElementById('weather-modal');if(_wxPopOpen){pop.classList.remove('open');_wxPopOpen=false;return;}closeClockPop();closeWstatPop();syncWxPop();renderCityManager();pop.classList.add('open');_wxPopOpen=true;const r=anchor.getBoundingClientRect();const pw=340,ph=pop.offsetHeight||320;let left=r.left+r.width/2-pw/2;if(left+pw>window.innerWidth-10)left=window.innerWidth-pw-10;if(left<10)left=10;pop.style.left=left+'px';pop.style.top=popTopFor(r,ph)+'px';}
 // the city list grows the popup while you type: keep the whole window on screen (it moves up only as far as needed)
 function wxPopClamp(){const pop=document.getElementById('weather-modal');if(!pop||!pop.classList.contains('open'))return;const h=pop.offsetHeight,t=parseFloat(pop.style.top)||0,max=window.innerHeight-8;if(t+h>max)pop.style.top=Math.max(8,max-h)+'px';}
@@ -2483,7 +2492,7 @@ function npVis(k,on){const p=cur();p[NP_VIS_KEY[k]]=!!on;saveAndRender();renderN
 function renderTx(){
   const p=cur();if(!p)return;
   const f=(id,keys)=>{const e=document.getElementById(id);if(e)e.innerHTML=keys.map(k=>txCell(k,p)).join('');};
-  f('tx-wx',wxSty(p)==='compact'?['wx-city','wx-temp']:['wx-city','wx-days','wx-temp']);   /* Compact: the weather now (its popup has its own card); Classic: the forecast */
+  f('tx-wx',wxSty(p)==='compact'?(p.wCity===false?['wx-temp']:['wx-city','wx-temp']):['wx-city','wx-days','wx-temp']);   /* Compact: the weather now (its popup has its own card); Classic: the forecast */
   renderXiList();renderNpOrder();
 }
 function txSet(k,prop,v){const p=cur();p.tx=p.tx||{};const o=p.tx[k]=p.tx[k]||{};o[prop]=cleanFontProp(prop,v,'weather');saveAndRender();requestAnimationFrame(()=>{try{npAlign();}catch(e){}});}
@@ -3059,6 +3068,7 @@ function applyWxArea(p){
   const wa=document.getElementById('weather-area');if(!wa||!p)return;
   wa.style.height=wxAreaH(p)+'px';
   ['classic','compact'].forEach(k=>wa.classList.toggle('wx-s-'+k,wxSty(p)===k));
+  wa.classList.toggle('wx-nocity',wxSty(p)==='compact'&&p.wCity===false);   // Compact only: just the icon and the temperature
   wa.classList.toggle('wx-tinted',p.wTint===true);{const dk=document.getElementById('bottom-dock');if(dk)dk.classList.toggle('wx-tinted',p.wTint===true&&!!p.showWeather);}
 }
 function wxInfo(c,night){
@@ -3182,12 +3192,14 @@ document.addEventListener('mouseout',e=>{
 });
 
 function wxRerender(){if(_wxRaw)renderWxGrid();else updateWeather();}
-function setWxStyle(st){const p=cur();p.weatherStyle=st;syncWxStyle(p);saveAndRender();wxRerender();}
+function setWxStyle(st){const p=cur();p.weatherStyle=st;syncWxStyle(p);saveAndRender();wxRerender();try{renderTx();}catch(e){}}
+function wxCityChange(){const p=cur();p.wCity=document.getElementById('w-city').checked;saveAndRender();wxRerender();try{renderTx();}catch(e){}}
 function wxFx(){const p=cur();p.wAnim=document.getElementById('w-anim').checked;p.wTint=document.getElementById('w-tint').checked;saveAndRender();wxRerender();}
 function syncWxStyle(p){
   {const comp=wxSty(p)==='compact',g=id=>document.getElementById(id),row=g('wx-row-days'),slot=g('wx-slot-days');
    if(row&&slot&&row.parentNode!==slot)slot.appendChild(row);
    if(g('wx-main-title'))g('wx-main-title').textContent=comp?'Current weather':'Forecast';
+   const mc=g('wx-card-main');if(mc)mc.classList.toggle('wx-comp',comp);const wc=g('w-city');if(wc)wc.checked=(p.wCity!==false);
 }
   document.querySelectorAll('#wx-style-group .size-btn').forEach(b=>b.classList.toggle('active',b.dataset.wxs===wxSty(p)));
   const a=document.getElementById('w-anim'),t=document.getElementById('w-tint'),hh=document.getElementById('w-hourly');if(a)a.checked=p.wAnim!==false;if(t)t.checked=p.wTint===true;if(hh)hh.checked=p.wHourly!==false;
