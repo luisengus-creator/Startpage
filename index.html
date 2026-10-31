@@ -527,7 +527,7 @@ input[type="range"]::-moz-range-thumb{width:13px;height:13px;background:var(--mo
 #wx-card-main.wx-comp #wx-slot-days,#wx-card-main.wx-comp #wx-row-days{display:none!important}
 #weather-modal.wx-comp .wx-only-classic{display:none!important}
 #weather-area.wx-nocity #city-name{display:none}
-#weather-area.wx-nocity .weather-bg-wrap>div:has(#city-name){display:none}
+#weather-area.wx-nocity .weather-bg-wrap>div:has(#city-name){display:none!important}   /* !important: the row has an inline display:flex, and an empty row still adds a gap */
 #top-stack{pointer-events:none}
 #top-stack>*{pointer-events:auto}
 #search-bar-wrap{pointer-events:none}
@@ -1003,7 +1003,9 @@ body.layout-mosaic #clock-display.mo-item,body.layout-mosaic #clock-display.mo-i
 body.layout-mosaic #clock-display.mo-item #clock-time,body.layout-mosaic #clock-display.mo-item #clock-date{width:max-content;max-width:none}
 body.layout-mosaic #search-form.mo-item{justify-content:center}
 body.layout-mosaic #weather-area.mo-item{display:flex;flex-direction:column;align-items:stretch;justify-content:stretch;gap:0}
-body.layout-mosaic #weather-area.mo-item .weather-bg-wrap{flex:1 1 auto;width:100%;min-height:0;box-sizing:border-box;align-items:center;justify-content:flex-end;padding-bottom:0;padding-left:4px;padding-right:4px}
+body.layout-mosaic #weather-area.mo-item .weather-bg-wrap{flex:1 1 auto;width:100%;min-height:0;box-sizing:border-box;align-items:center;justify-content:center!important;padding:0}   /* no padding of its own: the margin to the field edge is set in the layout code, the same as the icon buttons have */
+body.layout-mosaic #weather-area.mo-item .wx-compact{padding:0}
+body.layout-mosaic #weather-area.mo-item #weather-stats:empty{display:none}   /* an empty stats row would still add a gap under the content and push it off-center */
 /* weather (compact too): one fixed arrangement that is only scaled - lines never break, nothing shrinks or leaks outside the field */
 body.layout-mosaic #weather-area.mo-item,body.layout-mosaic #weather-area.mo-item .weather-bg-wrap *{white-space:nowrap}
 body.layout-mosaic #weather-area.mo-item #weather-stats{flex-wrap:nowrap}
@@ -1034,7 +1036,7 @@ body.edit-mode .mo-w{display:flex;pointer-events:auto}
 .mo-w-tabs .mo-wl{display:none}
 .mo-grip{display:none;position:absolute;left:50%;top:-11px;transform:translateX(-50%);width:34px;height:20px;border-radius:999px;background:#4ade80;color:#052e16;align-items:center;justify-content:center;font-size:.7rem;cursor:grab;z-index:4}
 body.edit-mode .mo-item{pointer-events:none!important}
-body.edit-mode .mo-editbar{position:fixed;right:auto;top:auto;left:50%;bottom:8px;transform:translateX(-50%);z-index:40}
+body.edit-mode .mo-editbar{position:fixed;right:auto;top:auto;left:50%;bottom:8px;transform:translateX(-50%);z-index:11}   /* under the edit frames (the stage is z 12): anything placed behind the buttons can still be grabbed and moved */
 body.edit-mode .mo-editbar span{display:none}
 .mo-hidbtn{appearance:none;margin:0;width:auto;height:auto;padding:6px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.3);background:rgba(0,0,0,.45);color:#fff;font:inherit;font-size:.72rem;cursor:pointer}
 .mo-hidbtn:hover{background:rgba(255,255,255,.15)}
@@ -1083,7 +1085,7 @@ body.layout-mosaic #np-area.mo-item{background-color:rgba(var(--np-rgb,0,0,0),ca
 body.layout-mosaic #np-area.mo-item .np-box{background:none!important}
 body.layout-mosaic #weather-area.mo-item{background-color:rgba(var(--weather-rgb,0,0,0),calc(var(--weather-backdrop,0) * var(--weather-solid,1)));background-image:var(--weather-img,none);background-origin:border-box;background-repeat:no-repeat;border-radius:var(--widget-radius)}
 body.layout-mosaic #weather-area.mo-item .weather-bg-wrap{background:none!important}
-body.layout-mosaic #weather-area.mo-item .weather-bg-wrap,body.layout-mosaic #weather-area.mo-item.mo-in .weather-bg-wrap{justify-content:center;align-items:center}   /* the content sits in the exact middle of its field, both ways (it used to hug the bottom) */
+body.layout-mosaic #weather-area.mo-item .weather-bg-wrap,body.layout-mosaic #weather-area.mo-item.mo-in .weather-bg-wrap{justify-content:center!important;align-items:center!important}   /* the content sits in the exact middle of its field, both ways (it used to hug the bottom) */
 body.layout-mosaic #np-area.mo-item .np-box{padding:0!important;gap:0!important;overflow:hidden}
 body.layout-mosaic #np-area.mo-item.mo-in .np-box,body.layout-mosaic #weather-area.mo-item.mo-in .weather-bg-wrap{position:absolute;left:var(--in-x,0px);top:var(--in-y,0px);width:var(--in-w,100%);height:var(--in-h,100%);max-width:none;flex:none;margin:0!important;box-sizing:border-box;justify-content:flex-end}
 /* photo fields (weather / now playing) stay behind the tiles: click a tile over one and it moves; click the free part of the field to move the field */
@@ -5415,7 +5417,7 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
         let IN=null,iw_=bw,ih_=bh;
         if(it.bd==='weather'||it.bd==='np'){IN=innerOf(p,it.key,g,it);iw_=IN.w*GS+(IN.w-1)*gap;ih_=IN.h*GH+(IN.h-1)*gap;}   // the info is fitted into its own inner field
         it._in=IN;
-        const s=(it.bd==='np'||it.bd==='weather')?Math.max(.05,Math.min(6,ih_/nh,(IN&&photoOff(it.key)?(COLS*GS+(COLS-1)*gap):bw)/nw)):Math.max(.05,Math.min(bw/nw,bh/nh,6));   // weather / now playing: real size (set by their font sizes), never blown up with the window
+        const M_=it.bd==='weather'?wxMargin():0,s=it.bd==='weather'?Math.max(.05,Math.min(6,(ih_-2*M_)/nh,(iw_-2*M_)/nw)):(it.bd==='np')?Math.max(.05,Math.min(6,ih_/nh,(IN&&photoOff(it.key)?(COLS*GS+(COLS-1)*gap):bw)/nw)):Math.max(.05,Math.min(bw/nw,bh/nh,6));   // weather / now playing: real size (set by their font sizes), never blown up with the window
         // photo off: the field is just the info field (no photo field behind it), so its backdrop is drawn exactly there and nowhere else
         const oi=!!IN&&photoOff(it.key),X=oi?gap+GX+IN.x*cell:L0,Y=oi?gap+GY+IN.y*cellY:T0,W=oi?iw_:bw,H=oi?ih_:bh;
         st.setProperty('--ix',X+'px');st.setProperty('--iy',Y+'px');st.setProperty('--is',String(s));
@@ -5440,6 +5442,7 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
   // the info field of Now playing / Weather: a block of grid cells that always stays inside the field (saved relative to it in p.moIn)
   // is the photo (weather photo / artist photo) of this field switched off? Then there is no photo field, only the info field
   function photoOff(key){const p=cur()||{};return key==='weather'?p.wxPhoto===false:key==='np'?p.npArtist===false:false;}
+  function wxMargin(){return .18*Math.min(GS,GH);}   // an icon button's glyph sits about 18% of a cell in from the edge of its field
   function innerOf(p,key,g0,it){
     const off=photoOff(key),g=off?{x:0,y:0,w:COLS,h:ROWS}:g0;   // photo off: the whole grid is the room of the info field
     const sv=p.moIn&&p.moIn[key];let r;
@@ -5450,8 +5453,9 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     // the width is never set by hand: it is exactly what the contents need at the size the height gives (cover = height in squares)
     if(it&&it.nw>0&&it.nh>0){
       const gap=gapOf(p),cell=GS+gap,ih=r.h*GH+(r.h-1)*gap,bw=g.w*GS+(g.w-1)*gap;
-      let sc=Math.min(6,ih/it.nh);if(it.nw*sc>bw)sc=bw/it.nw;
-      const wc=clamp(Math.ceil((it.nw*sc-1+gap)/cell),1,g.w);
+      const M=key==='weather'?wxMargin():0;   // weather keeps the same breathing room to the field edge as the icon buttons (pencil, gear)
+      let sc=Math.min(6,Math.max(.05,ih-2*M)/it.nh);if(it.nw*sc>bw-2*M)sc=Math.max(.05,bw-2*M)/it.nw;
+      const wc=clamp(Math.ceil((it.nw*sc+2*M-1+gap)/cell),1,g.w);
       r.x=(r.saved||key!=='weather')?clamp(r.x,g.x,g.x+g.w-wc):g0.x+Math.floor((g0.w-wc)/2);
       r.w=wc;
     }
