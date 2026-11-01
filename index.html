@@ -2651,7 +2651,7 @@ function setSearchEngine(k){cur().searchEngine=k;_seOpen=false;document.getEleme
     pane.setAttribute('style',(bar.getAttribute('style')||'')+';--tc:'+col);
     const tgt=(state.target||'_self');
     pane.innerHTML='<div class="mo-dl-box">'+(links.length?links.map(l=>{const h=hostOf(l.url||'');const href=l.url?(/^[a-z][a-z0-9+.-]*:/i.test(l.url)?l.url:'https://'+l.url):'#';
-      return '<a class="mo-dl-i" href="'+esc(href)+'" target="'+esc(tgt)+'">'+(h?'<img alt="" src="https://www.google.com/s2/favicons?domain='+encodeURIComponent(h)+'&sz=64">':'')+'<span>'+esc(l.name||h||l.url)+'</span></a>';}).join(''):'<div class="mo-dl-empty">No links in this category yet.</div>')+'</div>';
+      return '<a class="mo-dl-i" href="'+esc(href)+'" target="'+esc(tgt)+'">'+(h&&TBo().li==='on'?'<img alt="" src="https://www.google.com/s2/favicons?domain='+encodeURIComponent(h)+'&sz=64">':'')+'<span>'+esc(l.name||h||l.url)+'</span></a>';}).join(''):'<div class="mo-dl-empty">No links in this category yet.</div>')+'</div>';
     document.body.appendChild(pane);
     const r=tab.getBoundingClientRect(),w=pane.offsetWidth,m=8;
     pane.style.left=Math.max(m,Math.min(innerWidth-w-m,r.left+r.width/2-w/2))+'px';
@@ -5740,7 +5740,7 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
       row('Glow',seg('glow',[['on','On'],['off','Off']],'on'))+
       row('Switch animation',seg('anim',[['off','None'],['fade','Fade'],['slide','Slide']],'fade'))+
       row('Links',seg('lm',[['tiles','Icons only'],['list','Dropdown only'],['both','Both']],'tiles'))+
-      ((T.lm==='list'||T.lm==='both')?row('Open list on',seg('lo',[['hover','Hover'],['click','Click']],'hover')):'')+
+      ((T.lm==='list'||T.lm==='both')?row('Open list on',seg('lo',[['hover','Hover'],['click','Click']],'hover'))+row('Icons in the list',seg('li',[['off','Off'],['on','On']],'off')):'')+
     `</div><div style="color:#777;font-size:.7rem;margin:0 0 8px;">Drag it to move it · drag its edges to resize it. It always stays on the grid.</div><div class="mo-pop-btns"><button type="button" data-a="reset">Reset</button><button type="button" data-a="hide" title="Hide the categories bar (bring it back with the eye in Settings → Mosaic, or from Hidden items in edit mode)"><i class="fa-solid fa-eye-slash"></i>&nbsp; Hide</button></div>`;
     const set=(key,v)=>{const pp=cur();pp.moTabs=pp.moTabs||{};if(v===''||v==null)delete pp.moTabs[key];else pp.moTabs[key]=v;if(!Object.keys(pp.moTabs).length)delete pp.moTabs;save();render();};
     pop.oninput=e=>{const t=e.target.dataset||{};
