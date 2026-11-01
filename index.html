@@ -170,6 +170,10 @@ body.link-led.fx-border .link-row a:hover{box-shadow:inset 0 0 0 2px var(--cat-a
 .mo-shape .mo-fav{position:absolute;left:calc(50% - 50%*var(--ics,1));top:calc(50% - 50%*var(--ics,1))}
 .mo-shape .mo-bg{align-items:stretch}
 .mo-shape .mo-head{border-radius:0}
+/* Round tile with the name on a bar (Bar / Both): the bar stays at the top of the circle and the name is centered inside it (the circle cuts the bar's ends, so a left-aligned name would be clipped) */
+.mo-tile.mo-shape.mo-sh-circle.mo-lb-bar .mo-head,.mo-tile.mo-shape.mo-sh-circle.mo-lb-both .mo-head{justify-content:center;padding:0 8px}
+.mo-tile.mo-shape.mo-sh-circle.mo-lb-bar .mo-head .mo-name,.mo-tile.mo-shape.mo-sh-circle.mo-lb-both .mo-head .mo-name{flex:0 1 auto;min-width:0;max-width:64%;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mo-tile.mo-shape.mo-sh-circle.mo-lb-bar .mo-head .mo-hico,.mo-tile.mo-shape.mo-sh-circle.mo-lb-both .mo-head .mo-hico{display:none}
 .mo-lbl{flex:none;width:min(100%,calc(100cqh - var(--lbl-h)));height:calc(var(--mo-lbl-fs,15px)*1.4);display:flex;align-items:center;justify-content:center;text-align:center;font-size:var(--mo-lbl-fs,15px);font-weight:600;line-height:1.2;color:var(--mo-nc,#fff);text-shadow:0 1px 4px rgba(0,0,0,.7);pointer-events:none}
 .mo-shape.mo-sh-square.mo-t-ha-left .mo-lbl{justify-content:flex-start;text-align:left}
 .mo-shape.mo-sh-square.mo-t-ha-right .mo-lbl{justify-content:flex-end;text-align:right}
@@ -1016,6 +1020,7 @@ body.layout-mosaic .wx-pop.wx-down{bottom:auto;top:calc(100% + 12px)}   /* weath
 body.layout-mosaic .wx-compact:has(.wx-pop.wx-down)::before{bottom:auto;top:100%}
 body.layout-mosaic #weather-area.mo-item #weather-grid,body.layout-mosaic #weather-area.mo-item #weather-stats{align-self:center;justify-content:center}   /* tight, exactly as in the columns: the rows never spread out with the field */
 body.layout-mosaic #np-area.mo-item{display:flex!important;align-items:stretch;justify-content:stretch}
+body.layout-mosaic:not(.edit-mode) #np-area.np-hidden.mo-item{visibility:hidden;pointer-events:none}   /* Now playing is off: nothing is drawn (the room it reserves stays, so tiles do not move when you edit) */
 body.layout-mosaic #np-area.mo-item .np-box{flex:1 1 auto;width:100%;max-width:none;align-items:flex-start;justify-content:flex-end;padding-bottom:6px}
 body.layout-mosaic #np-area.mo-item .np-label{align-self:stretch}
 body.layout-mosaic #np-area.mo-item .np-card{max-width:none}
@@ -1900,7 +1905,37 @@ const LED_SVG=(()=>{const N=18,T=34;let r='';for(let k=N-1;k>=0;k--){const L=+(T
 const LED_SVG2=LED_SVG.replace('class="led-svg"','class="led-svg b"');
 function getDefaults(){return{profile:'p0',target:'_self',linkColor:'#cccccc',tabTitle:'Startpage',tabFavicon:'',tabFaviconEmoji:'⭐',cities:[],profileNames:['Profile 1','Profile 2'],profiles:[mkProf(mkCats(5,'Category'),'m'),mkProf(mkCats(3,'Work'),'m')]};}
 
-let state=JSON.parse(localStorage.getItem(KEY))||getDefaults();
+// First run: Mosaic is the default mode, and the categories come filled with common websites
+const FIRST_SITES=[
+  [ // Profile 1
+    ['Social',[['YouTube','https://www.youtube.com'],['Reddit','https://www.reddit.com'],['X','https://x.com'],['Facebook','https://www.facebook.com'],['Instagram','https://www.instagram.com']]],
+    ['Entertainment',[['Netflix','https://www.netflix.com'],['Spotify','https://open.spotify.com'],['Twitch','https://www.twitch.tv'],['IMDb','https://www.imdb.com'],['Disney+','https://www.disneyplus.com']]],
+    ['News & Info',[['Wikipedia','https://www.wikipedia.org'],['BBC News','https://www.bbc.com/news'],['Hacker News','https://news.ycombinator.com'],['Google News','https://news.google.com'],['Reuters','https://www.reuters.com']]],
+    ['Shopping',[['Amazon','https://www.amazon.com'],['eBay','https://www.ebay.com'],['AliExpress','https://www.aliexpress.com'],['Etsy','https://www.etsy.com'],['Temu','https://www.temu.com']]],
+    ['Google',[['Gmail','https://mail.google.com'],['Google Drive','https://drive.google.com'],['Google Maps','https://maps.google.com'],['Translate','https://translate.google.com'],['Calendar','https://calendar.google.com']]]
+  ],
+  [ // Profile 2 (Work)
+    ['Productivity',[['Gmail','https://mail.google.com'],['Calendar','https://calendar.google.com'],['Google Drive','https://drive.google.com'],['Google Docs','https://docs.google.com'],['Notion','https://www.notion.so']]],
+    ['Dev',[['GitHub','https://github.com'],['Stack Overflow','https://stackoverflow.com'],['MDN','https://developer.mozilla.org'],['npm','https://www.npmjs.com'],['Claude','https://claude.ai']]],
+    ['Communication',[['Slack','https://slack.com'],['Zoom','https://zoom.us'],['Teams','https://teams.microsoft.com'],['LinkedIn','https://www.linkedin.com'],['Trello','https://trello.com']]]
+  ]
+];
+function firstRunState(){
+  const d=getDefaults();
+  d.profiles.forEach((p,i)=>{
+    p.layout='mosaic';
+    const set=FIRST_SITES[i]||[];
+    (p.categories||[]).forEach((c,ci)=>{const src=set[ci];if(!src)return;c.title=src[0];c.links=src[1].map(l=>({name:l[0],url:l[1],color:'',linkIcon:{type:'none',src:''}}));});
+  });
+  const cj=o=>JSON.parse(JSON.stringify(o));
+  const cols=d.profiles.map(p=>{const o=cj(p);o.layout='columns';return o;});   // the Column mode keeps the ordinary defaults (clock, search)
+  d.profiles.forEach(p=>{p.layout='mosaic';p.gridC=36;p.showClock=false;p.showSearch=false;p.moFirstRun=true;
+    p.weatherStyle='compact';p.wxPhoto=false;p.wCity=false;p.wShowDay=false;p.wShowDate=false;p.wAqi=p.wUv=p.wPressure=p.wHumidity=p.wVisibility=p.wSunrise=false;   // weather: just the icon and the temperature
+    p.weatherBackdrop=0;p.npBackdrop=0;});   // Mosaic: no clock, no search; the arrangement is made at the first render (it depends on the screen)
+  d.mode='mosaic';d._modeP={columns:{profiles:cols,profileNames:d.profileNames.slice(),profile:'p0'}};
+  return d;
+}
+let state=JSON.parse(localStorage.getItem(KEY))||firstRunState();
 // migrations
 if(!state.profiles){const d=getDefaults();state.profiles=d.profiles;state.profileNames=d.profileNames;state.profile='p0';}
 if(!state.profileNames)state.profileNames=state.profiles.map((_,i)=>'Profile '+(i+1));
@@ -3278,6 +3313,27 @@ async function wxFetch(city){
 }
 function wxCacheGet(city){try{const c=JSON.parse(localStorage.getItem('STARTPAGE_WX'));if(c&&c.k===city.lat+','+city.lon&&Date.now()-c.t<6*3600*1000&&c.d&&c.d.daily)return c.d;}catch(e){}return null;}
 function wxCachePut(city,d){try{localStorage.setItem('STARTPAGE_WX',JSON.stringify({k:city.lat+','+city.lon,t:Date.now(),d}));}catch(e){}}
+// Weather: with no city saved yet, find where the person is (browser location, or an approximate one from the IP address if that is refused)
+let _geoBusy=false;
+async function autoLocate(){
+  try{if(_geoBusy||localStorage.getItem('STARTPAGE_GEO_DONE'))return;}catch(e){return;}
+  if(Array.isArray(state.cities)&&state.cities.length)return;
+  _geoBusy=true;
+  const finish=async(lat,lon,hint)=>{
+    let name=hint||'My location';
+    try{const j=await (await fetch('https://api.bigdatacloud.net/data/reverse-geocode-client?latitude='+lat+'&longitude='+lon+'&localityLanguage=en')).json();name=j.city||j.locality||j.principalSubdivision||name;}catch(e){}
+    if(!Array.isArray(state.cities)||!state.cities.length){addCity(name,Math.round(lat*1e4)/1e4,Math.round(lon*1e4)/1e4);}
+    try{localStorage.setItem('STARTPAGE_GEO_DONE','1');}catch(e){}
+    _geoBusy=false;
+  };
+  const viaIp=async()=>{
+    try{const j=await (await fetch('https://get.geojs.io/v1/ip/geo.json')).json();if(j&&j.latitude&&j.longitude){await finish(+j.latitude,+j.longitude,j.city);return;}}catch(e){}
+    _geoBusy=false;
+  };
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(pos=>finish(pos.coords.latitude,pos.coords.longitude),()=>viaIp(),{timeout:8000,maximumAge:600000});
+  }else viaIp();
+}
 async function updateWeather(){
   const p=cur(),city=state.cities[cityIdx];wxEmptyState(!city&&!!p.showWeather);if(!city||!p.showWeather)return;
   document.getElementById('city-name').textContent=city.name;document.getElementById('city-name').style.color='var(--tx-wx-city-c,'+p.weatherColor+')';
@@ -3588,7 +3644,7 @@ function importData(input){const file=input.files[0];if(!file)return;const r=new
   normImportedProfiles(base.profiles);
   if(!base.tabFaviconEmoji&&!base.tabFavicon)base.tabFaviconEmoji='⭐';
   state=base;localStorage.setItem(KEY,JSON.stringify(state));importPhotoMemory(pmem);saveAndRender();applyTabMeta();try{applyUi();}catch(err2){}renderSettings();updateWeather();try{if(typeof npSync==='function')npSync();}catch(e){}alert('Import successful!');closeModals();}catch(err){alert('Invalid backup: '+err.message);}};r.readAsText(file);input.value='';}
-function resetToDefaults(){if(confirm('Factory reset? This will erase everything.')){state=getDefaults();saveAndRender();renderSettings();updateWeather();}}
+function resetToDefaults(){if(confirm('Factory reset? This will erase everything.')){state=firstRunState();try{localStorage.removeItem('STARTPAGE_GEO_DONE');}catch(e){}saveAndRender();renderSettings();updateWeather();autoLocate();}}
 function handleBgFile(input){const file=input.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{const canvas=document.createElement('canvas');const MAX=1920;let w=img.width,h=img.height;if(w>MAX){h*=MAX/w;w=MAX;}canvas.width=w;canvas.height=h;canvas.getContext('2d').drawImage(img,0,0,w,h);updateBgImg(canvas.toDataURL('image/jpeg',0.7));};img.src=e.target.result;};r.readAsDataURL(file);}
 
 let _bgRaf=null;
@@ -4612,7 +4668,7 @@ var _topH=-1;
 try{const _ts=document.getElementById('top-stack');if(_ts&&window.ResizeObserver)new ResizeObserver(()=>{const h=topStackH();if(h!==_topH){_topH=h;try{applyScaling(true);}catch(e){}}else{try{topAlign();if(_lastKey===null)applyScaling(true);}catch(e){}}}).observe(_ts);}catch(e){}
 var _wxLastFetch=Date.now();
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now()-_wxLastFetch>5*60*1000){_wxLastFetch=Date.now();try{updateWeather();}catch(e){}}});   // coming back to the tab after a while refreshes the weather
-window.onload=()=>{saveAndRender();applyTabMeta();tickClock();setInterval(tickClock,1000);updateWeather();setInterval(()=>{updateWeather();if(cur().bgMode==='unsplash')fetchUnsplashPhoto(true);},30*60*1000);// Wait two frames so the gradient transition suppression completes before revealing
+window.onload=()=>{saveAndRender();applyTabMeta();tickClock();setInterval(tickClock,1000);updateWeather();autoLocate();setInterval(()=>{updateWeather();if(cur().bgMode==='unsplash')fetchUnsplashPhoto(true);},30*60*1000);// Wait two frames so the gradient transition suppression completes before revealing
 Promise.race([Promise.all(_fontWait),new Promise(r=>setTimeout(r,1500))]).then(()=>{window._fontsOk=true;applyScaling(true);requestAnimationFrame(()=>requestAnimationFrame(()=>{document.documentElement.classList.add('ready');document.body.classList.add('page-ready');}));});
 };
 </script>
@@ -4807,6 +4863,15 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
   function render(){
     const p=cur(),mo=document.getElementById('mosaic');if(!p||!mo)return;
     syncGrid(p,mo);
+    if(p.moFirstRun){   // first run: category bar at the top, one row of round tiles, the small weather in the top right corner (proportions of a 36 x 18 grid, scaled to the screen)
+      delete p.moFirstRun;
+      if(ROWS>=9){
+        const th=Math.max(3,Math.round(ROWS/3)),ty=Math.round(ROWS/3),ih=Math.max(2,Math.round(th/2));
+        p.moG=Object.assign({},p.moG,{tabs:{x:Math.floor((COLS-16)/2),y:1,w:16,h:2},weather:{x:COLS-4,y:0,w:2,h:1}});   // weather: top right corner, just left of the edit and settings buttons
+        MCATS(p).forEach(c=>(c.links||[]).forEach((l,i)=>{if(i<5&&!l.hidden){const w=Math.max(1,Math.round(COLS/6));l.mo={x:Math.round(COLS/36)+Math.round(i*COLS*7/36),y:ty,w:Math.round(COLS/6),h:th};}}));
+      }
+      save();
+    }
     {let mg=0;MCATS(p).forEach(c=>(c.links||[]).forEach(l=>{const t=l.tIcon;if(t&&(t.m==='url'||t.m==='file')){if(t.s&&!l.tileImg)l.tileImg=t.s;delete l.tIcon;mg=1;}}));if(mg)save();}
     setTimeout(()=>{try{window.moAutoDefault();}catch(e){}},0);
     if(!p.moDefV2){p.moDefV2=1;if(+p.moGap===14)delete p.moGap;if(+p.moHeadH===26)delete p.moHeadH;save();if(+p.gridC===24){window.moGridCols(36);return;}}
