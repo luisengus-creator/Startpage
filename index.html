@@ -3698,8 +3698,8 @@ function delLink(ci,li){CATS(cur())[ci].links.splice(li,1);saveAndRender();}
 function addProfile(){state.profiles.push(mkProf(mkCats(5,'Category'),'m'));state.profileNames.push('Profile '+state.profiles.length);try{ensureTwins();}catch(e){}saveAndRender();renderSettings();}
 
 // photo choices live outside the main settings: the city photo you settled on, the artist photo you settled on, and the cached photo lists / lookups
-const PHOTO_MEM_KEYS=['STARTPAGE_CITYPICK','STARTPAGE_NP_ARTFAV','STARTPAGE_NP_ARTISTS','STARTPAGE_CITYIMG','STARTPAGE_NP_ARTLIST','STARTPAGE_NP_COVERS','STARTPAGE_PHSIZES','STARTPAGE_PHCUSTOM'];
-function importPhotoMemory(pm){if(!pm||typeof pm!=='object')return;PHOTO_MEM_KEYS.forEach(k=>{if(typeof pm[k]!=='string')return;try{const inc=JSON.parse(pm[k])||{},old=JSON.parse(localStorage.getItem(k))||{};localStorage.setItem(k,JSON.stringify(Object.assign({},old,inc)));}catch(e){}});try{localStorage.setItem('STARTPAGE_ART_V10','1');}catch(e){}_wxPhKey=null;_npArtKey=null;}
+const PHOTO_MEM_KEYS=['STARTPAGE_CITYPICK','STARTPAGE_NP_ARTFAV','STARTPAGE_NP_ARTISTS','STARTPAGE_CITYIMG','STARTPAGE_NP_ARTLIST','STARTPAGE_NP_COVERS','STARTPAGE_PHSIZES','STARTPAGE_PHCUSTOM','sp_photo_cache','np_art_ok'];   // city photo picks + cached photo lists, artist photo picks + lookups, custom photos, sizes
+function importPhotoMemory(pm){if(!pm||typeof pm!=='object')return;PHOTO_MEM_KEYS.forEach(k=>{if(typeof pm[k]!=='string')return;try{const inc=JSON.parse(pm[k])||{},old=JSON.parse(localStorage.getItem(k))||(Array.isArray(inc)?[]:{});localStorage.setItem(k,JSON.stringify(Array.isArray(inc)?Array.from(new Set([].concat(Array.isArray(old)?old:[],inc))).slice(-300):Object.assign({},old,inc)));}catch(e){}});try{localStorage.setItem('STARTPAGE_ART_V10','1');}catch(e){}_wxPhKey=null;_npArtKey=null;}
 // Backup layout: shared stuff (cities, photo preferences) once, then a separate block for Column mode and one for Mosaic mode
 function backupObj(){
   try{syncModeGlobals();}catch(e){}
@@ -3710,7 +3710,10 @@ function backupObj(){
   modes[m]={profiles:_cl(state.profiles),profileNames:_cl(state.profileNames||[]),profile:state.profile,globals:g};
   const par=state._modeP&&state._modeP[other];
   if(par&&Array.isArray(par.profiles)&&par.profiles.length)modes[other]={profiles:_cl(par.profiles),profileNames:_cl(par.profileNames||[]),profile:par.profile||'p0',globals:_cl((state._modeG&&state._modeG[other])||{})};
-  return{backupVersion:2,activeMode:m,shared:{cities:_cl(state.cities||[]),photoMemory:pm},modes};
+  const KNOWN=new Set(['profile','profileNames','profiles','cities','mode','_modeP','_modeG','_gMode','_modeGv','pm'].concat(MODE_GK)),extra={};
+  Object.keys(state).forEach(k=>{if(!KNOWN.has(k)&&state[k]!==undefined)extra[k]=_cl(state[k]);});   // nothing is left out, even a setting added later
+  let geo=null;try{geo=localStorage.getItem('STARTPAGE_GEO_DONE');}catch(e){}
+  return{backupVersion:2,activeMode:m,exportedAt:new Date().toISOString(),shared:{cities:_cl(state.cities||[]),photoMemory:pm,pm:_cl(state.pm||[]),geoDone:geo,extra},modes};
 }
 function normImportedProfiles(arr){(arr||[]).forEach(p=>{if(p){migrateFonts(p);migrateClock(p);}if(p&&!['gradient','photo','unsplash','time'].includes(p.bgMode))p.bgMode='gradient';if(p&&!p.unsplashKey)p.unsplashKey=UNSPLASH_KEY;if(p&&p.unsplashDim===undefined)p.unsplashDim=0.1;if(p&&p.opTime===undefined)p.opTime=1.0;});}
 function exportData(){const now=new Date();const pad=n=>String(n).padStart(2,'0');const stamp=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;const b=new Blob([JSON.stringify(backupObj())],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`startpage_backup_${stamp}.json`;a.click();}
@@ -3723,6 +3726,7 @@ function importData(input){const file=input.files[0];if(!file)return;const r=new
     Object.keys(A.globals||{}).forEach(k=>{base[k]=A.globals[k];});
     base.cities=(imp.shared&&Array.isArray(imp.shared.cities))?imp.shared.cities:[];
     pmem=imp.shared&&imp.shared.photoMemory;
+    if(imp.shared){if(Array.isArray(imp.shared.pm))base.pm=imp.shared.pm.slice();if(imp.shared.extra&&typeof imp.shared.extra==='object')Object.keys(imp.shared.extra).forEach(k=>{base[k]=imp.shared.extra[k];});if(imp.shared.geoDone){try{localStorage.setItem('STARTPAGE_GEO_DONE',imp.shared.geoDone);}catch(e){}}}
     base.mode=act;base._gMode=act;base._modeGv=2;base._modeG={};base._modeG[act]=_cl(A.globals||{});base._modeG[other]=_cl((B&&B.globals)||{});
     if(B&&Array.isArray(B.profiles)&&B.profiles.length){normImportedProfiles(B.profiles);base._modeP={};base._modeP[other]={profiles:B.profiles,profileNames:B.profileNames&&B.profileNames.length?B.profileNames:B.profiles.map((_,i)=>'Profile '+(i+1)),profile:B.profile||'p0'};}
   }else{   // older backups: one flat object
