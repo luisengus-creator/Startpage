@@ -3699,11 +3699,15 @@ function addProfile(){state.profiles.push(mkProf(mkCats(5,'Category'),'m'));stat
 
 // photo choices live outside the main settings: the city photo you settled on, the artist photo you settled on, and the cached photo lists / lookups
 const PHOTO_MEM_KEYS=['STARTPAGE_CITYPICK','STARTPAGE_NP_ARTFAV','STARTPAGE_NP_ARTISTS','STARTPAGE_CITYIMG','STARTPAGE_NP_ARTLIST','STARTPAGE_NP_COVERS','STARTPAGE_PHSIZES','STARTPAGE_PHCUSTOM','sp_photo_cache','np_art_ok'];   // city photo picks + cached photo lists, artist photo picks + lookups, custom photos, sizes
-function importPhotoMemory(pm){if(!pm||typeof pm!=='object')return;PHOTO_MEM_KEYS.forEach(k=>{if(typeof pm[k]!=='string')return;try{const inc=JSON.parse(pm[k])||{},old=JSON.parse(localStorage.getItem(k))||(Array.isArray(inc)?[]:{});localStorage.setItem(k,JSON.stringify(Array.isArray(inc)?Array.from(new Set([].concat(Array.isArray(old)?old:[],inc))).slice(-300):Object.assign({},old,inc)));}catch(e){}});try{localStorage.setItem('STARTPAGE_ART_V10','1');}catch(e){}_wxPhKey=null;_npArtKey=null;}
+// BACKUP RULE: everything the page keeps is saved in the backup automatically. Profile / state settings travel inside the profiles (any new key is included);
+// anything kept in the browser storage under STARTPAGE_*, sp_* or np_* is included too, except the main state (saved separately) and short-lived caches.
+const BACKUP_SKIP=new Set(['STARTPAGE_WX','STARTPAGE_NP_LAST','STARTPAGE_GEO_DONE']);
+function backupStoreKeys(){const out=new Set(PHOTO_MEM_KEYS);try{for(let n=0;n<localStorage.length;n++){const k=localStorage.key(n);if(k&&k!==KEY&&!BACKUP_SKIP.has(k)&&/^(STARTPAGE_|sp_|np_)/.test(k))out.add(k);}}catch(e){}return[...out];}
+function importPhotoMemory(pm){if(!pm||typeof pm!=='object')return;Object.keys(pm).forEach(k=>{if(typeof pm[k]!=='string'||k===KEY||BACKUP_SKIP.has(k)||!/^(STARTPAGE_|sp_|np_)/.test(k))return;try{let inc;try{inc=JSON.parse(pm[k]);}catch(e){inc=undefined;}if(inc===null||typeof inc!=='object'){localStorage.setItem(k,pm[k]);return;}const old=JSON.parse(localStorage.getItem(k))||(Array.isArray(inc)?[]:{});localStorage.setItem(k,JSON.stringify(Array.isArray(inc)?Array.from(new Set([].concat(Array.isArray(old)?old:[],inc))).slice(-300):Object.assign({},old,inc)));}catch(e){}});try{localStorage.setItem('STARTPAGE_ART_V10','1');}catch(e){}_wxPhKey=null;_npArtKey=null;}
 // Backup layout: shared stuff (cities, photo preferences) once, then a separate block for Column mode and one for Mosaic mode
 function backupObj(){
   try{syncModeGlobals();}catch(e){}
-  const pm={};PHOTO_MEM_KEYS.forEach(k=>{try{const v=localStorage.getItem(k);if(v)pm[k]=v;}catch(e){}});
+  const pm={};backupStoreKeys().forEach(k=>{try{const v=localStorage.getItem(k);if(v)pm[k]=v;}catch(e){}});
   const m=curMode(),other=m==='mosaic'?'columns':'mosaic',g={};
   MODE_GK.forEach(k=>{if(state[k]!==undefined)g[k]=_cl(state[k]);});
   const modes={};
