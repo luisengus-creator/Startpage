@@ -2044,9 +2044,29 @@ function setModeProfiles(to){   // swap in the other mode's profiles
   delete state._modeP[to];state.mode=to;
   const pi=parseInt(String(state.profile).replace('p',''));if(isNaN(pi)||pi>=state.profiles.length)state.profile='p0';
 }
+// ── Each profile has its own mode: profile 1 can be Mosaic while profile 2 is Columns ──
+// Both worlds keep the same number of profiles (same index = same profile); state.pm[i] says which world profile i lives in.
+const otherModeOf=m=>m==='mosaic'?'columns':'mosaic';
+function mkTwin(src,target){const o=_cl(src);delete o._modes;o.layout=target;if(target==='columns')Object.keys(o).forEach(k=>{if(/^mo[A-Z]/.test(k)||k==='mosaicTab'||k==='gridC')delete o[k];});return o;}
+function twinWorld(){return state._modeP&&state._modeP[otherModeOf(curMode())];}
+function ensureTwins(){
+  const tw=twinWorld();if(!tw||!Array.isArray(tw.profiles)||!Array.isArray(state.profiles))return;
+  const A=state.profiles,B=tw.profiles,cm=curMode(),om=otherModeOf(cm);tw.profileNames=Array.isArray(tw.profileNames)?tw.profileNames:[];state.profileNames=state.profileNames||[];
+  const n=Math.max(A.length,B.length);
+  while(A.length<n){const i=A.length;A.push(mkTwin(B[i],cm));}
+  while(B.length<n)B.push(mkTwin(A[B.length],om));
+  for(let i=0;i<n;i++){const nm=state.profileNames[i]||tw.profileNames[i]||('Profile '+(i+1));state.profileNames[i]=nm;tw.profileNames[i]=nm;}
+  state.profileNames.length=n;tw.profileNames.length=n;
+  const pm=Array.isArray(state.pm)?state.pm.slice(0,n):[];
+  for(let i=0;i<n;i++)if(pm[i]!=='mosaic'&&pm[i]!=='columns')pm[i]=cm;
+  const ci=curIdx();if(ci>=0&&ci<n)pm[ci]=cm;
+  state.pm=pm;
+}
+function mirrorProf(i,k,v){const tw=twinWorld();if(tw&&tw.profiles&&tw.profiles[i])tw.profiles[i][k]=v;}   // icon / photo / colour are the same in both modes
 function syncModeGlobals(){
   if(!state.profiles||!cur())return;
   migrateModes();
+  ensureTwins();
   const m=curMode();
   state.profiles.forEach(q=>{if(q.layout!==m)q.layout=m;});
   const snap=()=>{const o={};MODE_GK.forEach(k=>{if(state[k]!==undefined)o[k]=state[k];});return o;};
@@ -2425,7 +2445,17 @@ function applyScaling(force){
 window.addEventListener('resize',()=>applyScaling(true));
 new MutationObserver(()=>applyScaling()).observe(document.body,{attributes:true,attributeFilter:['class']});
 
-function switchProfile(idx){state.profile='p'+idx;_lastKey=null;_instantBg=true;saveAndRender();updateWeather();tickClock();if(document.getElementById('settings-modal').style.display==='flex')renderSettings();}
+function switchProfile(idx){
+  const want=(state.pm&&state.pm[idx])||curMode(),chg=want!==curMode();
+  if(chg){try{syncModeGlobals();}catch(e){}setModeProfiles(want);}
+  state.profile='p'+Math.max(0,Math.min(idx,state.profiles.length-1));
+  _lastKey=null;_instantBg=true;saveAndRender();updateWeather();tickClock();
+  if(chg){try{applyTabMeta();}catch(e){}try{applyUi();}catch(e){}}
+  if(document.getElementById('settings-modal').style.display==='flex')renderSettings();}
+function setProfileMode(i,to){   // a profile's mode, from its card
+  to=to==='mosaic'?'mosaic':'columns';state.pm=Array.isArray(state.pm)?state.pm:[];
+  if(i===curIdx()){window.setLayout(to);return;}
+  state.pm[i]=to;localStorage.setItem(KEY,JSON.stringify(state));renderProfileCards();}
 function toggleProfile(){pcHide();switchProfile((curIdx()+1)%state.profiles.length);}
 // ── Profile picker: pause the mouse on the profile icon and the other profiles open on a circle around it ──
 let _pcT=null,_pcC=null;
@@ -3587,27 +3617,27 @@ function renderProfileCards(){
   con.innerHTML=state.profiles.map((p,i)=>{
     const active=state.profile==='p'+i,name=state.profileNames[i]||'Profile '+(i+1);
     const acc='var(--modal-accent,#00d4ff)',ic=p.profileIcon||'fa-solid fa-user',icC=p.profileIconColor||'#ffffff';
-    return`<div style="border:1px solid ${active?acc:'#1e1e1e'};border-radius:10px;padding:11px 12px;margin-bottom:8px;background:${active?'rgba(var(--accent-rgb,0,212,255),0.04)':'#0d0d0d'};"><div style="display:flex;align-items:center;gap:8px;margin-bottom:9px;"><div style="width:26px;height:26px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;background:#111;">${p.profilePhoto?`<img src="${p.profilePhoto}" style="width:26px;height:26px;object-fit:cover;">`:`<i class="${ic}" style="font-size:0.80rem;color:${icC};"></i>`}</div><span style="font-size:0.78rem;font-weight:700;color:${active?acc:'#888'};flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${name}</span>${active?`<span style="font-size:0.62rem;color:${acc};background:rgba(var(--accent-rgb,0,212,255),0.12);padding:3px 8px;border-radius:6px;font-weight:700;border:1px solid rgba(var(--accent-rgb,0,212,255),0.25);">Active</span>`:`<button onclick="switchProfile(${i})" style="font-size:0.62rem;padding:3px 8px;color:${acc};border-color:rgba(var(--accent-rgb,0,212,255),0.3);background:rgba(var(--accent-rgb,0,212,255),0.06);width:auto;">Set Active</button>`}${state.profiles.length>1?`<button class="btn-icon" onclick="deleteProfile(${i})" style="color:#f44;"><i class="fa-solid fa-trash-can"></i></button>`:''}</div><div style="display:flex;gap:5px;margin-bottom:7px;align-items:center;"><input type="text" value="${name}" placeholder="Name..." style="height:26px;font-size:0.75rem;min-width:0;flex:1;" oninput="renameProfile(this.value,${i})"><button class="icon-picker-btn" onclick="event.stopPropagation();pipOpen(this,${i})" style="width:26px;height:26px;flex-shrink:0;"><i class="${ic}" style="color:${icC};font-size:0.80rem;"></i></button><div style="flex-shrink:0;"><input type="color" id="prof-color-${i}" value="${icC}" oninput="updateProfileIconColor(this.value,${i})" style="display:none;width:28px!important;height:26px!important;"><div class="cp-swatch" onclick="cpOpenForProfile(${i})" style="margin:0;background:${icC};"></div></div></div><input type="text" value="${p.profilePhoto&&!p.profilePhoto.startsWith('data:')?p.profilePhoto:''}" placeholder="Photo URL..." oninput="updateProfilePhoto(this.value,${i})" style="height:26px;font-size:0.75rem;margin-bottom:6px;width:100%;box-sizing:border-box;"><div style="display:flex;gap:6px;"><button onclick="triggerPhotoUpload(${i})" style="font-size:0.70rem;padding:4px 8px;flex:1;">Upload</button><button style="color:#f88;font-size:0.70rem;padding:4px 8px;flex:1;" onclick="updateProfilePhoto('',${i})">Remove</button></div></div>`;
+    return`<div style="border:1px solid ${active?acc:'#1e1e1e'};border-radius:10px;padding:11px 12px;margin-bottom:8px;background:${active?'rgba(var(--accent-rgb,0,212,255),0.04)':'#0d0d0d'};"><div style="display:flex;align-items:center;gap:8px;margin-bottom:9px;"><div style="width:26px;height:26px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;background:#111;">${p.profilePhoto?`<img src="${p.profilePhoto}" style="width:26px;height:26px;object-fit:cover;">`:`<i class="${ic}" style="font-size:0.80rem;color:${icC};"></i>`}</div><span style="font-size:0.78rem;font-weight:700;color:${active?acc:'#888'};flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${name}</span>${['columns','mosaic'].map(m=>{const on=((state.pm&&state.pm[i])||curMode())===m;return `<button onclick="setProfileMode(${i},'${m}')" title="Mode of this profile" style="font-size:0.58rem;padding:2px 6px;width:auto;margin:0;border-radius:5px;border:1px solid ${on?acc:'#2a2a2a'};background:${on?'rgba(var(--accent-rgb,0,212,255),0.14)':'transparent'};color:${on?acc:'#777'};">${m==='columns'?'Columns':'Mosaic'}</button>`;}).join('')}${active?`<span style="font-size:0.62rem;color:${acc};background:rgba(var(--accent-rgb,0,212,255),0.12);padding:3px 8px;border-radius:6px;font-weight:700;border:1px solid rgba(var(--accent-rgb,0,212,255),0.25);">Active</span>`:`<button onclick="switchProfile(${i})" style="font-size:0.62rem;padding:3px 8px;color:${acc};border-color:rgba(var(--accent-rgb,0,212,255),0.3);background:rgba(var(--accent-rgb,0,212,255),0.06);width:auto;">Set Active</button>`}${state.profiles.length>1?`<button class="btn-icon" onclick="deleteProfile(${i})" style="color:#f44;"><i class="fa-solid fa-trash-can"></i></button>`:''}</div><div style="display:flex;gap:5px;margin-bottom:7px;align-items:center;"><input type="text" value="${name}" placeholder="Name..." style="height:26px;font-size:0.75rem;min-width:0;flex:1;" oninput="renameProfile(this.value,${i})"><button class="icon-picker-btn" onclick="event.stopPropagation();pipOpen(this,${i})" style="width:26px;height:26px;flex-shrink:0;"><i class="${ic}" style="color:${icC};font-size:0.80rem;"></i></button><div style="flex-shrink:0;"><input type="color" id="prof-color-${i}" value="${icC}" oninput="updateProfileIconColor(this.value,${i})" style="display:none;width:28px!important;height:26px!important;"><div class="cp-swatch" onclick="cpOpenForProfile(${i})" style="margin:0;background:${icC};"></div></div></div><input type="text" value="${p.profilePhoto&&!p.profilePhoto.startsWith('data:')?p.profilePhoto:''}" placeholder="Photo URL..." oninput="updateProfilePhoto(this.value,${i})" style="height:26px;font-size:0.75rem;margin-bottom:6px;width:100%;box-sizing:border-box;"><div style="display:flex;gap:6px;"><button onclick="triggerPhotoUpload(${i})" style="font-size:0.70rem;padding:4px 8px;flex:1;">Upload</button><button style="color:#f88;font-size:0.70rem;padding:4px 8px;flex:1;" onclick="updateProfilePhoto('',${i})">Remove</button></div></div>`;
   }).join('');
 }
-function renameProfile(v,i){state.profileNames[i]=v;localStorage.setItem(KEY,JSON.stringify(state));}
-function deleteProfile(i){if(state.profiles.length<=1)return;state.profiles.splice(i,1);state.profileNames.splice(i,1);state.profile='p0';saveAndRender();renderSettings();}
+function renameProfile(v,i){state.profileNames[i]=v;{const tw=twinWorld();if(tw&&tw.profileNames)tw.profileNames[i]=v;}localStorage.setItem(KEY,JSON.stringify(state));}
+function deleteProfile(i){if(state.profiles.length<=1)return;{const tw=twinWorld();if(tw&&tw.profiles){tw.profiles.splice(i,1);if(tw.profileNames)tw.profileNames.splice(i,1);}}if(Array.isArray(state.pm))state.pm.splice(i,1);state.profiles.splice(i,1);state.profileNames.splice(i,1);switchProfile(0);renderSettings();}
 function updateProfileIconColor(v,i){
-  state.profiles[i].profileIconColor=v;
+  state.profiles[i].profileIconColor=v;mirrorProf(i,'profileIconColor',v);
   // update this card in place (re-drawing the cards here would destroy the colour picker you are still using)
   const card=document.querySelectorAll('#profile-cards-list > div')[i];
   if(card){card.querySelectorAll('i:not(.fa-trash-can)').forEach(e=>{e.style.color=v;});const sw=card.querySelector('.cp-swatch');if(sw)sw.style.background=v;}
   if(state.profile==='p'+i)saveAndRender();else localStorage.setItem(KEY,JSON.stringify(state));
 }
 function cpOpenForProfile(i){cpOpen('prof-color-'+i);}   // every profile has its own colour input id
-function updateProfilePhoto(v,i){state.profiles[i].profilePhoto=v;if(state.profile==='p'+i)saveAndRender();else{localStorage.setItem(KEY,JSON.stringify(state));}renderProfileCards();}
+function updateProfilePhoto(v,i){state.profiles[i].profilePhoto=v;mirrorProf(i,'profilePhoto',v);if(state.profile==='p'+i)saveAndRender();else{localStorage.setItem(KEY,JSON.stringify(state));}renderProfileCards();}
 let _ppIdx=null;
 function triggerPhotoUpload(i){_ppIdx=i;document.getElementById('profile-photo-file').click();}
 function handleProfilePhotoFile(input){const file=input.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{const canvas=document.createElement('canvas');canvas.width=canvas.height=256;const s=Math.min(img.width,img.height);canvas.getContext('2d').drawImage(img,(img.width-s)/2,(img.height-s)/2,s,s,0,0,256,256);const url=canvas.toDataURL('image/jpeg',0.85);updateProfilePhoto(url,_ppIdx);_ppIdx=null;};img.src=e.target.result;};r.readAsDataURL(file);input.value='';}
 
 let _pipIdx=null;
 function pipOpen(anchor,idx){_pipIdx=idx;const grid=document.getElementById('icon-picker-grid');grid.innerHTML=PROF_ICONS.map(ic=>`<div class="ip-cell" onclick="pipPick('${ic}')"><i class="${ic}"></i></div>`).join('');grid.classList.add('open');const r=anchor.getBoundingClientRect();let left=r.left;if(left+192>window.innerWidth-8)left=window.innerWidth-200;let top=r.bottom+4;if(top+260>window.innerHeight-8)top=r.top-264;grid.style.left=left+'px';grid.style.top=top+'px';}
-function pipPick(icon){if(_pipIdx===null)return;state.profiles[_pipIdx].profileIcon=icon;state.profiles[_pipIdx].profilePhoto='';ipClose();saveAndRender();renderSettings();}
+function pipPick(icon){if(_pipIdx===null)return;state.profiles[_pipIdx].profileIcon=icon;state.profiles[_pipIdx].profilePhoto='';mirrorProf(_pipIdx,'profileIcon',icon);mirrorProf(_pipIdx,'profilePhoto','');ipClose();saveAndRender();renderSettings();}
 
 let _ipIdx=null;
 function ipOpen(qi,anchor){const grid=document.getElementById('icon-picker-grid');if(_ipIdx===qi&&grid.classList.contains('open')){ipClose();return;}_ipIdx=qi;grid.innerHTML=ICON_LIST.map(ic=>`<div class="ip-cell" onclick="ipPick('${ic}')"><i class="${ic}"></i></div>`).join('');grid.classList.add('open');const r=anchor.getBoundingClientRect();let left=r.left;if(left+192>window.innerWidth-8)left=window.innerWidth-200;if(left<8)left=8;let top=r.bottom+4;if(top+260>window.innerHeight-8)top=r.top-264;grid.style.left=left+'px';grid.style.top=top+'px';}
@@ -3665,7 +3695,7 @@ function undoDelCat(){
   hideCatUndo();saveAndRender(true);
 }
 function delLink(ci,li){CATS(cur())[ci].links.splice(li,1);saveAndRender();}
-function addProfile(){state.profiles.push(mkProf(mkCats(5,'Category'),'m'));state.profileNames.push('Profile '+state.profiles.length);saveAndRender();renderSettings();}
+function addProfile(){state.profiles.push(mkProf(mkCats(5,'Category'),'m'));state.profileNames.push('Profile '+state.profiles.length);try{ensureTwins();}catch(e){}saveAndRender();renderSettings();}
 
 // photo choices live outside the main settings: the city photo you settled on, the artist photo you settled on, and the cached photo lists / lookups
 const PHOTO_MEM_KEYS=['STARTPAGE_CITYPICK','STARTPAGE_NP_ARTFAV','STARTPAGE_NP_ARTISTS','STARTPAGE_CITYIMG','STARTPAGE_NP_ARTLIST','STARTPAGE_NP_COVERS','STARTPAGE_PHSIZES','STARTPAGE_PHCUSTOM'];
@@ -5821,8 +5851,9 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     }
   };
   window.setLayout=function(v){
-    const to=v==='mosaic'?'mosaic':'columns',chg=to!==curMode();
-    if(chg){try{syncModeGlobals();}catch(e){}setModeProfiles(to);_lastKey=null;_instantBg=true;}
+    const to=v==='mosaic'?'mosaic':'columns',chg=to!==curMode(),idx=curIdx();   // only the profile you are on changes mode
+    if(chg){try{syncModeGlobals();}catch(e){}setModeProfiles(to);state.profile='p'+Math.max(0,Math.min(idx,state.profiles.length-1));_lastKey=null;_instantBg=true;}
+    state.pm=Array.isArray(state.pm)?state.pm:[];state.pm[idx]=to;
     saveAndRender();
     if(chg){try{updateWeather();}catch(e){}try{tickClock();}catch(e){}try{applyTabMeta();}catch(e){}try{applyUi();}catch(e){}}
     try{renderSettings();}catch(e){}
