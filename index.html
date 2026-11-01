@@ -178,7 +178,7 @@ body.link-led.fx-border .link-row a:hover{box-shadow:inset 0 0 0 2px var(--cat-a
 .mo-shape.mo-sh-square.mo-t-ha-left .mo-lbl{justify-content:flex-start;text-align:left}
 .mo-shape.mo-sh-square.mo-t-ha-right .mo-lbl{justify-content:flex-end;text-align:right}
 .mo-shape.mo-sh-circle .mo-lbl{justify-content:center;text-align:center}
-.mo-lbl span{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mo-lbl span{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.45;padding:.1em 0 .18em}   /* room for the tails of g, y, p, j: overflow:hidden (needed for the ellipsis) used to cut them, most visibly once the web font loaded and changed the line height */
 .mo-tile.mo-shape{--mo-lbl-fs:clamp(11px,calc(var(--mo-head-h,25px)*.52*var(--fsz,1)),20px)}
 body.link-led.fx-border .mo-shape .mo-shp::after{content:'';position:absolute;inset:0;border:2px solid var(--cat-accent,#fff);border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .25s ease;z-index:4}
 body.link-led.fx-border .mo-shape:hover .mo-shp::after{opacity:1}
@@ -743,6 +743,16 @@ body.layout-mosaic #mosaic{display:flex}
 @media (prefers-reduced-motion:reduce){.mo-sw-fade .mo-tile,.mo-sw-slide .mo-tile{animation:none}}
 .mo-tab{appearance:none;margin:0;border:0;background:transparent;color:var(--mt-c,#a7aebf);font:inherit;font-family:var(--mt-ff,inherit);font-style:var(--mt-fi,normal);font-size:calc(0.95rem * var(--mt-fs,var(--fsz,1)));font-weight:var(--mt-fw,500);padding:var(--mt-py,9px) var(--mt-px,26px);border-radius:var(--mt-r,var(--widget-radius,0px));cursor:pointer;white-space:nowrap;transition:background .2s,color .2s,box-shadow .2s;width:auto;height:auto;box-shadow:none}
 .mo-tab:hover{color:#fff}
+.mo-dl{position:fixed;z-index:60;padding-top:8px;min-width:140px;max-width:min(92vw,360px);animation:mo-dl-in .22s cubic-bezier(.2,.7,.2,1) backwards}
+@keyframes mo-dl-in{from{opacity:0;transform:translateY(-6px)}}
+.mo-dl-box{background:rgba(26,32,48,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-radius:var(--mo-bar-r,16px);border-radius:min(var(--mo-bar-r,16px),18px);padding:6px;box-shadow:0 14px 36px rgba(0,0,0,.45);max-height:62vh;overflow-y:auto;scrollbar-width:thin}
+.mo-dl-i{display:flex;align-items:center;gap:11px;padding:9px 14px;border-radius:calc(min(var(--mo-bar-r,16px),18px) - 4px);color:#e6e9f2;text-decoration:none;font-family:var(--mt-ff,inherit);font-size:calc(.95rem * var(--mt-fs,var(--fsz,1)));font-weight:var(--mt-fw,500);font-style:var(--mt-fi,normal);white-space:nowrap}
+.mo-dl-i:hover{background:color-mix(in srgb,var(--tc,#38bdf8) 28%,transparent);color:#fff}
+.mo-dl-i img{width:20px;height:20px;border-radius:5px;flex:none;object-fit:contain}
+.mo-dl-i span{overflow:hidden;text-overflow:ellipsis}
+.mo-dl-empty{padding:10px 14px;color:#8a92a6;font-size:.85rem}
+.mo-tab.mo-dl-on{background:linear-gradient(135deg,var(--tc,#38bdf8),var(--tc2,var(--tc,#38bdf8)));color:var(--ink,#0b1220);font-weight:700}
+
 .mo-tab.on{background:linear-gradient(135deg,var(--tc,#38bdf8),var(--tc2,var(--tc,#38bdf8)));color:var(--ink,#0b1220);font-weight:700;box-shadow:0 0 18px color-mix(in srgb,var(--tc,#38bdf8) 60%,transparent)}
 .mo-stage{position:fixed;left:10px;right:10px;bottom:10px;top:10px;z-index:12;pointer-events:none}   /* the whole screen below the tabs: tiles can sit over the weather and now playing too */
 .mo-grid{position:absolute;inset:0;pointer-events:none;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));grid-template-rows:repeat(8,minmax(0,1fr));gap:var(--mo-gap)}
@@ -2592,6 +2602,58 @@ function toggleSeMenu(e){e.stopPropagation();const m=document.getElementById('se
 document.addEventListener('click',e=>{if(_seOpen&&!e.target.closest('.se-dropdown')){_seOpen=false;document.getElementById('se-menu').classList.remove('open');}});
 function renderSearch(){const p=cur();const wrap=document.getElementById('search-bar-wrap');if(!wrap)return;wrap.classList.toggle('search-hidden',p.showSearch===false);const eng=p.searchEngine||'startpage';const se=SE[eng]||SE.startpage;document.getElementById('se-current-img').src=se.fav;document.getElementById('se-current-name').textContent=se.name;document.getElementById('se-menu').innerHTML=Object.entries(SE).map(([k,s])=>`<div class="se-option ${k===eng?'active':''}" onclick="setSearchEngine('${k}')"><img src="${s.fav}" alt="" onerror="this.style.display='none'">${s.name}</div>`).join('');}
 function setSearchEngine(k){cur().searchEngine=k;_seOpen=false;document.getElementById('se-menu').classList.remove('open');saveAndRender();}
+
+// ---- Mosaic: links as a dropdown list under the category bar (Categories bar settings > Links > Dropdown list)
+(function(){
+  let pane=null,openI=-1,tmr=0;
+  const TBo=()=>{const p=cur();return (p&&p.moTabs)||{};};
+  const on=()=>{const p=cur();return !!(p&&p.layout==='mosaic'&&(TBo().lm==='list'||TBo().lm==='both')&&!document.body.classList.contains('edit-mode'));};
+  let reopen;
+  const esc=v=>String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const hostOf=u=>{try{return new URL(/^[a-z][a-z0-9+.-]*:/i.test(u)?u:'https://'+u).hostname;}catch(e){return '';}};
+  function close(){clearTimeout(tmr);if(pane){pane.remove();pane=null;}openI=-1;document.querySelectorAll('.mo-tab.mo-dl-on').forEach(t=>t.classList.remove('mo-dl-on'));}
+  function open(tab){
+    const i=parseInt(tab.dataset.i)||0;if(pane&&openI===i)return;close();
+    const p=cur(),cat=(MCATS(p)||[])[i];if(!cat)return;
+    const bar=tab.closest('.mo-tabs'),col=getComputedStyle(tab).getPropertyValue('--tc')||'#38bdf8';
+    const links=(cat.links||[]).filter(l=>l&&!l.hidden&&(l.url||l.name));
+    pane=document.createElement('div');pane.className='mo-dl';
+    pane.setAttribute('style',(bar.getAttribute('style')||'')+';--tc:'+col);
+    const tgt=(state.target||'_self');
+    pane.innerHTML='<div class="mo-dl-box">'+(links.length?links.map(l=>{const h=hostOf(l.url||'');const href=l.url?(/^[a-z][a-z0-9+.-]*:/i.test(l.url)?l.url:'https://'+l.url):'#';
+      return '<a class="mo-dl-i" href="'+esc(href)+'" target="'+esc(tgt)+'">'+(h?'<img alt="" src="https://www.google.com/s2/favicons?domain='+encodeURIComponent(h)+'&sz=64">':'')+'<span>'+esc(l.name||h||l.url)+'</span></a>';}).join(''):'<div class="mo-dl-empty">No links in this category yet.</div>')+'</div>';
+    document.body.appendChild(pane);
+    const r=tab.getBoundingClientRect(),w=pane.offsetWidth,m=8;
+    pane.style.left=Math.max(m,Math.min(innerWidth-w-m,r.left+r.width/2-w/2))+'px';
+    pane.style.top=Math.round(r.bottom-4)+'px';
+    tab.classList.add('mo-dl-on');openI=i;
+    pane.addEventListener('mouseleave',()=>{if(TBo().lo!=='click')later();});
+    pane.addEventListener('mouseenter',()=>clearTimeout(tmr));
+  }
+  function later(){clearTimeout(tmr);tmr=setTimeout(close,260);}
+  window.moDropClose=close;
+  window.moDropTab=function(tab){
+    if(!on())return false;
+    const i=parseInt(tab.dataset.i)||0,both=TBo().lm==='both',cp=cur(),curTab=parseInt(cp.mosaicTab)||0;
+    if(both&&i!==curTab){reopen=i;return false;}   // Both: the click also switches the tiles to this category; the list reopens once they are drawn
+    if(pane&&openI===i){if(TBo().lo==='click')close();return true;}   // hover mode: it is already open, keep it   // Both: the click also switches the tiles to this category; the list reopens once they are drawn
+    open(tab);return true;
+  };
+  window.moDropReopen=function(){if(reopen===undefined)return;const i=reopen;reopen=undefined;const t=document.querySelector('.mo-tab[data-i="'+i+'"]');if(t&&on())open(t);};
+  document.addEventListener('mouseover',e=>{
+    if(!on()||TBo().lo==='click')return;
+    const t=e.target.closest&&e.target.closest('.mo-tab');
+    if(t){clearTimeout(tmr);open(t);}
+  });
+  document.addEventListener('mouseout',e=>{
+    if(!pane||TBo().lo==='click')return;
+    const to=e.relatedTarget;if(to&&to.closest&&(to.closest('.mo-dl')||to.closest('.mo-tab')))return;
+    later();
+  });
+  document.addEventListener('click',e=>{if(pane&&!(e.target.closest&&(e.target.closest('.mo-dl')||e.target.closest('.mo-tab'))))close();},true);
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
+  window.addEventListener('blur',()=>close());
+})();
 function doSearch(e){e.preventDefault();const q=document.getElementById('search-input').value.trim();if(!q)return;const eng=cur().searchEngine||'startpage';window.open(SE[eng].url+encodeURIComponent(q),state.target||'_self');document.getElementById('search-input').value='';}
 
 // ── Main render ──
@@ -4893,11 +4955,14 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     let ti=parseInt(p.mosaicTab);if(!(ti>=0&&ti<cats.length))ti=0;
     const c=cats[ti];
     const TB=p.moTabs||{},hxT=v=>/^#[0-9a-f]{6}$/i.test(v||'');
-    const tabs=cats.map((x,i)=>{const c1=hxT(TB.ac)?TB.ac:(x.color||'#38bdf8'),c2=hxT(TB.ac2)?TB.ac2:'',ik=hxT(TB.ai)?TB.ai:ink(c1);return `<button class=\"mo-tab${i===ti?' on':''}\" style=\"--tc:${esc(c1)};${c2?`--tc2:${esc(c2)};`:''}--ink:${ik}\" data-i=\"${i}\">${esc(x.title)}</button>`;}).join('');
+    const dropMode=(TB.lm==='list');   // links shown ONLY as a list under the category bar: no tiles at all, in edit mode too
+    try{window.moDropClose&&window.moDropClose();}catch(e){}
+    const tabs=cats.map((x,i)=>{const c1=hxT(TB.ac)?TB.ac:(x.color||'#38bdf8'),c2=hxT(TB.ac2)?TB.ac2:'',ik=hxT(TB.ai)?TB.ai:ink(c1);return `<button class=\"mo-tab${i===ti&&!dropMode?' on':''}\" style=\"--tc:${esc(c1)};${c2?`--tc2:${esc(c2)};`:''}--ink:${ik}\" data-i=\"${i}\">${esc(x.title)}</button>`;}).join('');
     autoTop=0;
     const nHid=Object.keys(p.moW||{}).filter(k=>p.moW[k]&&p.moW[k].hidden).length;
     mo.innerHTML=`<div class=\"mo-tabs${TB.glow==='off'?' mt-noglow':''}\" style=\"${tabsVars(TB)}\">${tabs}</div><div class="mo-editbar"><span>Drag anything to move it · drag edges to resize · click it for its options</span>${nHid?`<button type="button" class="mo-hidbtn">Hidden items (${nHid})</button>`:''}<button type="button" class="mo-addbtn" data-ma="tile" title="Add a new mosaic (tile) to this category"><i class="fa-solid fa-plus"></i>&nbsp;Mosaic</button><button type="button" class="mo-addbtn" data-ma="mosaic" title="Add another category (a new tab with its own mosaics)"><i class="fa-solid fa-plus"></i>&nbsp;Category</button><button type="button" class="mo-delbtn" data-ma="delmosaic" title="Delete this category (the columns are not touched)"><i class="fa-solid fa-trash-can"></i>&nbsp;Category</button><button class="mo-reset" title="Pack this category's tiles automatically again">Reset layout</button></div>`;
     renderSig=applyItems(p,true);
+    try{window.moDropReopen&&window.moDropReopen();}catch(e){}
     // automatic tiles start on the first row under the clock / search / categories bar, so they line up in order below the header (never in the free corners beside it)
     autoTop=ITEMS.filter(q=>(q.key==='clock'||q.key==='search'||q.key==='tabs')&&q.y+q.h<=Math.ceil(ROWS*.6)).reduce((m,q)=>Math.max(m,q.y+q.h),0);
     const L=layoutOf(c);
@@ -4925,7 +4990,7 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     }).join('');
     const frames=ITEMS.filter(q=>!(q.inn&&photoOff(q.key))).map(frameHTML).join('')+ITEMS.filter(q=>q.inn&&!(q.key==='weather'&&gid('weather-area').classList.contains('wx-empty'))).map(innerFrameHTML).join('');
     const warn=L.unplaced.length?`<div class="mo-warn">${L.unplaced.length} tile${L.unplaced.length>1?'s don\'t':' doesn\'t'} fit: make other tiles smaller</div>`:'';
-    mo.insertAdjacentHTML('beforeend',`<div class="mo-stage" style="left:${gap0}px;right:${gap0}px;top:${gap0}px;bottom:${gap0}px"><div class="mo-grid" data-ci="${ti}" style="left:${GX}px;top:${GY}px;width:${COLS*GS+(COLS-1)*gap0}px;height:${ROWS*GH+(ROWS-1)*gap0}px;grid-template-columns:repeat(${COLS},${GS}px);grid-template-rows:repeat(${ROWS},${GH}px)">${cells}${tiles}${frames}<div class="mo-ghost"></div></div>${warn}</div>`);
+    mo.insertAdjacentHTML('beforeend',`<div class="mo-stage" style="left:${gap0}px;right:${gap0}px;top:${gap0}px;bottom:${gap0}px"><div class="mo-grid" data-ci="${ti}" style="left:${GX}px;top:${GY}px;width:${COLS*GS+(COLS-1)*gap0}px;height:${ROWS*GH+(ROWS-1)*gap0}px;grid-template-columns:repeat(${COLS},${GS}px);grid-template-rows:repeat(${ROWS},${GH}px)">${cells}${dropMode?'':tiles}${frames}<div class="mo-ghost"></div></div>${warn}</div>`);
     {const sw=window._moSwap;window._moSwap=undefined;const an=TB.anim||'fade';   // a category was just chosen: animate its tiles in
      if(sw!==undefined&&an!=='off'){const st=mo.querySelector('.mo-stage');if(st){st.style.setProperty('--sw-d',String(sw||1));st.classList.add('mo-sw-'+an);
        st.querySelectorAll('.mo-tile').forEach((t,i)=>{t.style.animationDelay=Math.min(i,14)*60+'ms';});
@@ -5131,7 +5196,7 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     if(!e.target.closest)return;
     if(Date.now()-justDragged<400&&e.target.closest('#mosaic')){e.preventDefault();e.stopPropagation();return;}
     const tab=e.target.closest('.mo-tab');
-    if(tab&&!document.body.classList.contains('edit-mode')){const p=cur();{const o0=parseInt(p.mosaicTab)||0,n0=parseInt(tab.dataset.i)||0;window._moSwap=n0>o0?1:n0<o0?-1:undefined;}p.mosaicTab=parseInt(tab.dataset.i)||0;{const cs=document.getElementById('cat-sel');if(cs){cs.value=String(p.mosaicTab);try{syncCatEditor();}catch(e){}}}save();render();return;}
+    if(tab&&!document.body.classList.contains('edit-mode')){if(window.moDropTab&&window.moDropTab(tab)){e.preventDefault();return;}const p=cur();{const o0=parseInt(p.mosaicTab)||0,n0=parseInt(tab.dataset.i)||0;window._moSwap=n0>o0?1:n0<o0?-1:undefined;}p.mosaicTab=parseInt(tab.dataset.i)||0;{const cs=document.getElementById('cat-sel');if(cs){cs.value=String(p.mosaicTab);try{syncCatEditor();}catch(e){}}}save();render();return;}
     const ma=e.target.closest('[data-ma]');
     if(ma){e.preventDefault();e.stopPropagation();window.moEditAct(ma.dataset.ma);return;}
     const rs=e.target.closest('.mo-reset');
@@ -5640,6 +5705,8 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
       row('Padding X',rng('px',4,60,26,'px'))+row('Padding Y',rng('py',2,30,9,'px'))+row('Gap',rng('gap',0,30,4,'px'))+
       row('Glow',seg('glow',[['on','On'],['off','Off']],'on'))+
       row('Switch animation',seg('anim',[['off','None'],['fade','Fade'],['slide','Slide']],'fade'))+
+      row('Links',seg('lm',[['tiles','Icons only'],['list','Dropdown only'],['both','Both']],'tiles'))+
+      ((T.lm==='list'||T.lm==='both')?row('Open list on',seg('lo',[['hover','Hover'],['click','Click']],'hover')):'')+
     `</div><div style="color:#777;font-size:.7rem;margin:0 0 8px;">Drag it to move it · drag its edges to resize it. It always stays on the grid.</div><div class="mo-pop-btns"><button type="button" data-a="reset">Reset</button><button type="button" data-a="hide" title="Hide the categories bar (bring it back with the eye in Settings → Mosaic, or from Hidden items in edit mode)"><i class="fa-solid fa-eye-slash"></i>&nbsp; Hide</button></div>`;
     const set=(key,v)=>{const pp=cur();pp.moTabs=pp.moTabs||{};if(v===''||v==null)delete pp.moTabs[key];else pp.moTabs[key]=v;if(!Object.keys(pp.moTabs).length)delete pp.moTabs;save();render();};
     pop.oninput=e=>{const t=e.target.dataset||{};
