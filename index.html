@@ -750,6 +750,9 @@ body.layout-mosaic #mosaic{display:flex}
 .mo-dl-i:hover{background:color-mix(in srgb,var(--tc,#38bdf8) 28%,transparent);color:#fff}
 .mo-dl-i img{width:20px;height:20px;border-radius:5px;flex:none;object-fit:contain}
 .mo-dl-i span{overflow:hidden;text-overflow:ellipsis}
+.mo-cus{display:flex;flex-direction:column;gap:4px;flex:1;min-width:0}
+.mo-cu{width:100%;box-sizing:border-box;min-width:0;background:#101010;border:1px solid #2a2a2a;border-radius:6px;color:#ddd;padding:5px 7px;font-size:.72rem}
+.mo-cu::placeholder{color:#666}
 .mo-dl-empty{padding:10px 14px;color:#8a92a6;font-size:.85rem}
 .mo-tab.mo-dl-on{background:linear-gradient(135deg,var(--tc,#38bdf8),var(--tc2,var(--tc,#38bdf8)));color:var(--ink,#0b1220);font-weight:700}
 
@@ -829,6 +832,7 @@ body.edit-mode .mo-opts{opacity:1;pointer-events:auto}
 .mo-upbtn{width:auto;height:26px;padding:0 10px;font-size:.72rem;white-space:nowrap}
 /* settings: layout switch + options that only exist in one layout */
 body.layout-mosaic .col-only{display:none!important}
+body.layout-mosaic.mo-list .cat-links-box.col-only{display:flex!important}   /* Dropdown only: the category link fields are available in Mosaic too */
 /* mosaic: text size is defined by the size of each field, so no font size pickers (the settings-window font keeps its own) */
 body.layout-mosaic select[data-k="size"]:not([onchange^="uiSet"]){display:none!important}
 body:not(.layout-mosaic) .mo-only{display:none!important}
@@ -1296,7 +1300,7 @@ input[type="color"],input[type="color"]::-webkit-color-swatch,input[type="color"
         <div class="flex-row" style="margin-bottom:8px;align-items:center;gap:6px;">
           <label class="eye-toggle col-only" title="Show / hide the category header"><input type="checkbox" id="header-vis-check" onchange="updateCatHeader()"><i class="fa-solid fa-eye"></i><i class="fa-solid fa-eye-slash"></i></label>
           <input type="text" id="cat-title" oninput="updateCat('text')" onblur="saveAndRender()" placeholder="Title" style="flex:1;min-width:0;">
-          <div class="col-only" style="flex:1.3;min-width:0;display:flex;flex-direction:column;gap:6px;">
+          <div class="col-only cat-links-box" style="flex:1.3;min-width:0;display:flex;flex-direction:column;gap:6px;">
             <input type="text" id="cat-url" oninput="updateCat('text')" onblur="saveAndRender()" placeholder="Header link: left half (optional)" title="Link for the left half of the header. If the right-half field is empty, this link covers the whole header." style="min-width:0;width:100%;">
             <input type="text" id="cat-url2" oninput="updateCat('text')" onblur="saveAndRender()" placeholder="Header link: right half (optional)" title="Link for the right half of the header" style="min-width:0;width:100%;">
           </div>
@@ -1930,12 +1934,13 @@ const FIRST_SITES=[
     ['Communication',[['Slack','https://slack.com'],['Zoom','https://zoom.us'],['Teams','https://teams.microsoft.com'],['LinkedIn','https://www.linkedin.com'],['Trello','https://trello.com']]]
   ]
 ];
+const FIRST_COLORS=[['#3b82f6','#a855f7','#22c55e','#f59e0b','#ef4444'],['#06b6d4','#22c55e','#f43f5e']];   // one different colour per category
 function firstRunState(){
   const d=getDefaults();
   d.profiles.forEach((p,i)=>{
     p.layout='mosaic';
     const set=FIRST_SITES[i]||[];
-    (p.categories||[]).forEach((c,ci)=>{const src=set[ci];if(!src)return;c.title=src[0];c.links=src[1].map(l=>({name:l[0],url:l[1],color:'',linkIcon:{type:'none',src:''}}));});
+    (p.categories||[]).forEach((c,ci)=>{const src=set[ci];if(!src)return;c.title=src[0];c.color=(FIRST_COLORS[i]||[])[ci]||c.color;c.links=src[1].map(l=>({name:l[0],url:l[1],color:'',linkIcon:{type:'none',src:''}}));});
   });
   const cj=o=>JSON.parse(JSON.stringify(o));
   const cols=d.profiles.map(p=>{const o=cj(p);o.layout='columns';return o;});   // the Column mode keeps the ordinary defaults (clock, search)
@@ -4892,6 +4897,7 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     return `--card-opacity:${o};--card-rgb:${hexToRgbStr(col)};--card-solid:1;--card-img:none`;};
 
   // where every visible link of a category sits: saved spots first, the rest packed into free space in link order
+  const LP=pl=>((cur().moTabs||{}).lm==='list'?[]:pl);   // Dropdown only: the tiles are not drawn, so they must not block anything
   const OB=()=>ITEMS.map(q=>q.inn?{key:q.key,x:q.inn.x,y:q.inn.y,w:q.inn.w,h:q.inn.h}:q);   // what really blocks others: the Now playing / Weather INFO field, not the photo field around it
   let autoTop=0,ITEMS=[],renderSig='';   // ITEMS: what the page items (clock, search, ...) occupy in the grid; tiles pack around them   // first grid row that is not hidden behind the clock, search bar and tabs
   function layoutOf(c){
@@ -4993,7 +4999,7 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     let ti=parseInt(p.mosaicTab);if(!(ti>=0&&ti<cats.length))ti=0;
     const c=cats[ti];
     const TB=p.moTabs||{},hxT=v=>/^#[0-9a-f]{6}$/i.test(v||'');
-    const dropMode=(TB.lm==='list');   // links shown ONLY as a list under the category bar: no tiles at all, in edit mode too
+    const dropMode=(TB.lm==='list');document.body.classList.toggle('mo-list',dropMode);   // links shown ONLY as a list under the category bar: no tiles at all, in edit mode too
     try{window.moDropClose&&window.moDropClose();}catch(e){}
     const tabs=cats.map((x,i)=>{const c1=hxT(TB.ac)?TB.ac:(x.color||'#38bdf8'),c2=hxT(TB.ac2)?TB.ac2:'',ik=hxT(TB.ai)?TB.ai:ink(c1);return `<button class=\"mo-tab${i===ti&&!dropMode?' on':''}\" style=\"--tc:${esc(c1)};${c2?`--tc2:${esc(c2)};`:''}--ink:${ik}\" data-i=\"${i}\">${esc(x.title)}</button>`;}).join('');
     autoTop=0;
@@ -5134,6 +5140,12 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
   window.moGlowItems=function(){
     const p=cur(),cats=MCATS(p)||[];let ti=parseInt(p.mosaicTab);if(!(ti>=0&&ti<cats.length))ti=0;
     const c=cats[ti];if(!c)return [];
+    if((p.moTabs||{}).lm==='list'){   // only the bar + dropdown (no tiles): the glows come from the CATEGORY colours, one per category, spread across the page in the bar's order
+      const vw=window.innerWidth,vh=window.innerHeight,n=cats.length,res=[];
+      cats.forEach((k,i)=>{const col=hexRgb(k.color)||hexRgb(c.color)||[124,183,255];const w=vw/n,l=w*i,t=vh*0.16,h=vh*0.68;
+        res.push({r:{left:l,top:t,width:w,height:h,right:l+w,bottom:t+h},rgb:col.map(v=>Math.round(v)).join(',')});});
+      return res;
+    }
     const fb=hexRgb(c.color)||[124,183,255],out=[],pend=[];
     document.querySelectorAll('#mosaic .mo-tile').forEach(el=>{
       const l=(c.links||[])[+el.dataset.li];if(!l)return;
@@ -5181,7 +5193,7 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
       const base=wk.slice(0,-3),q=ITEMS.find(z=>z.key===base);if(!q||!q.inn)return;
       e.preventDefault();
       const gr=t.parentElement,r=gr.getBoundingClientRect(),cs=getComputedStyle(gr),gx=parseFloat(cs.columnGap)||0,gy=parseFloat(cs.rowGap)||0,me=q.inn;
-      drag={isW:true,inner:base,wk,mode:hd?'resize':'move',dir:hd?hd.dataset.d:'',t,ci:+gr.dataset.ci,li:-1,sx:e.clientX,sy:e.clientY,o:{x:me.x,y:me.y,w:me.w,h:me.h},n:{x:me.x,y:me.y,w:me.w,h:me.h},last:{x:me.x,y:me.y,w:me.w,h:me.h},B:photoOff(base)?{x:0,y:0,w:COLS,h:ROWS}:{x:q.x,y:q.y,w:q.w,h:q.h},others:layoutOf(MCATS(cur())[+gr.dataset.ci]||{links:[]}).placed.concat(OB().filter(z=>z.key!==base)),pw:(r.width+gx)/COLS,ph:(r.height+gy)/ROWS,ghost:gr.querySelector('.mo-ghost'),ok:true,id:e.pointerId};
+      drag={isW:true,inner:base,wk,mode:hd?'resize':'move',dir:hd?hd.dataset.d:'',t,ci:+gr.dataset.ci,li:-1,sx:e.clientX,sy:e.clientY,o:{x:me.x,y:me.y,w:me.w,h:me.h},n:{x:me.x,y:me.y,w:me.w,h:me.h},last:{x:me.x,y:me.y,w:me.w,h:me.h},B:photoOff(base)?{x:0,y:0,w:COLS,h:ROWS}:{x:q.x,y:q.y,w:q.w,h:q.h},others:LP(layoutOf(MCATS(cur())[+gr.dataset.ci]||{links:[]}).placed).concat(OB().filter(z=>z.key!==base)),pw:(r.width+gx)/COLS,ph:(r.height+gy)/ROWS,ghost:gr.querySelector('.mo-ghost'),ok:true,id:e.pointerId};
       try{t.setPointerCapture(e.pointerId);}catch(_){}
       t.classList.add('drag');showGhost();return;
     }
@@ -5192,7 +5204,7 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     const me=isW?ITEMS.find(q=>q.key===wk):L.placed.find(q=>q.li===li);if(!me)return;
     const r=grid.getBoundingClientRect(),cs=getComputedStyle(grid),gx=parseFloat(cs.columnGap)||0,gy=parseFloat(cs.rowGap)||0;
     drag={isW,wk,mode:hd?'resize':'move',dir:hd?hd.dataset.d:'',t,ci:+grid.dataset.ci,li,sx:e.clientX,sy:e.clientY,o:{x:me.x,y:me.y,w:me.w,h:me.h},n:{x:me.x,y:me.y,w:me.w,h:me.h},last:{x:me.x,y:me.y,w:me.w,h:me.h},
-      others:(isW&&me.inn?[]:(isW?L.placed:L.placed.filter(q=>q.li!==li)).concat(isW?OB().filter(q=>q.key!==wk):OB())),obs:(isW&&me.inn?L.placed.concat(OB().filter(q=>q.key!==wk)):null),innRel:(isW&&me.inn?{dx:me.inn.x-me.x,dy:me.inn.y-me.y,w:me.inn.w,h:me.inn.h}:null),innAbs:(isW&&me.inn?{x:me.inn.x,y:me.inn.y,w:me.inn.w,h:me.inn.h}:null),pw:(r.width+gx)/COLS,ph:(r.height+gy)/ROWS,ghost:grid.querySelector('.mo-ghost'),ok:true,id:e.pointerId};
+      others:(isW&&me.inn?[]:(isW?LP(L.placed):L.placed.filter(q=>q.li!==li)).concat(isW?OB().filter(q=>q.key!==wk):OB())),obs:(isW&&me.inn?LP(L.placed).concat(OB().filter(q=>q.key!==wk)):null),innRel:(isW&&me.inn?{dx:me.inn.x-me.x,dy:me.inn.y-me.y,w:me.inn.w,h:me.inn.h}:null),innAbs:(isW&&me.inn?{x:me.inn.x,y:me.inn.y,w:me.inn.w,h:me.inn.h}:null),pw:(r.width+gx)/COLS,ph:(r.height+gy)/ROWS,ghost:grid.querySelector('.mo-ghost'),ok:true,id:e.pointerId};
     try{t.setPointerCapture(e.pointerId);}catch(_){}
     t.classList.add('drag');showGhost();
   });
@@ -5234,7 +5246,11 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     if(!e.target.closest)return;
     if(Date.now()-justDragged<400&&e.target.closest('#mosaic')){e.preventDefault();e.stopPropagation();return;}
     const tab=e.target.closest('.mo-tab');
-    if(tab&&!document.body.classList.contains('edit-mode')){if(window.moDropTab&&window.moDropTab(tab)){e.preventDefault();return;}const p=cur();{const o0=parseInt(p.mosaicTab)||0,n0=parseInt(tab.dataset.i)||0;window._moSwap=n0>o0?1:n0<o0?-1:undefined;}p.mosaicTab=parseInt(tab.dataset.i)||0;{const cs=document.getElementById('cat-sel');if(cs){cs.value=String(p.mosaicTab);try{syncCatEditor();}catch(e){}}}save();render();return;}
+    if(tab&&!document.body.classList.contains('edit-mode')){
+      {const pp0=cur();if((pp0.moTabs||{}).lm==='list'){const cc=(MCATS(pp0)||[])[parseInt(tab.dataset.i)||0]||{},u1=String(cc.url||'').trim(),u2=String(cc.url2||'').trim();
+        if(u1||u2){const r=tab.getBoundingClientRect(),left=e.clientX<r.left+r.width/2;let u=(u1&&u2)?(left?u1:u2):(u1||u2);if(!/^[a-z][a-z0-9+.-]*:/i.test(u))u='https://'+u;
+          e.preventDefault();if((state.target||'_self')==='_blank')window.open(u,'_blank','noopener');else location.href=u;return;}}}
+      if(window.moDropTab&&window.moDropTab(tab)){e.preventDefault();return;}const p=cur();{const o0=parseInt(p.mosaicTab)||0,n0=parseInt(tab.dataset.i)||0;window._moSwap=n0>o0?1:n0<o0?-1:undefined;}p.mosaicTab=parseInt(tab.dataset.i)||0;{const cs=document.getElementById('cat-sel');if(cs){cs.value=String(p.mosaicTab);try{syncCatEditor();}catch(e){}}}save();render();return;}
     const ma=e.target.closest('[data-ma]');
     if(ma){e.preventDefault();e.stopPropagation();window.moEditAct(ma.dataset.ma);return;}
     const rs=e.target.closest('.mo-reset');
@@ -5528,7 +5544,7 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
   let ro=window.ResizeObserver?new ResizeObserver(()=>refit()):{observe(){}};
   function applyItems(p,on){
     const all=collect();
-    if(!on){all.forEach(it=>{it.el.classList.remove('mo-item','mo-gone','mo-icon','mo-in');['--ix','--iy','--is','--iw','--ih','--in-x','--in-y','--in-w','--in-h'].forEach(v=>it.el.style.removeProperty(v));opOff(it);});{const nb=document.querySelector('#np-area .np-box');if(nb)nb.classList.remove('np-vert');}window._moRect={};ITEMS=[];try{phLayout('wx');phLayout('np');}catch(e){}return '';}
+    if(!on){all.forEach(it=>{it.el.classList.remove('mo-item','mo-gone','mo-icon','mo-in');['--ix','--iy','--is','--iw','--ih','--in-x','--in-y','--in-w','--in-h'].forEach(v=>it.el.style.removeProperty(v));opOff(it);});{const nb=document.querySelector('#np-area .np-box');if(nb)nb.classList.remove('np-vert');}window._moRect={};ITEMS=[];document.body.classList.remove('mo-list');try{phLayout('wx');phLayout('np');}catch(e){}return '';}
     {const tv=document.getElementById('mo-tabs-vis');if(tv)tv.checked=!wc(p,'tabs').hidden;}   // the eye in Settings always shows the real state, whichever way the bar was hidden
     const gap=gapOf(p),cell=GS+gap,cellY=GH+gap,live=[];window._moRect={};
     all.forEach(it=>{
@@ -5719,6 +5735,19 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     openWPop(k);
   }
   window.moTabsVis=function(on){const pp=cur(),w=ws(pp,'tabs');if(on){delete w.hidden;delete w.name;}else{w.hidden=true;w.name='Categories bar';}save();try{closePop();}catch(e){}render();};
+  // Dropdown only <-> icons: each mode remembers where the bar was, and the tiles come back exactly where they were
+  function moTabsMode(pp,old,nw){
+    const was=old==='list',will=nw==='list';if(was===will)return;
+    pp.moTabsGeo=pp.moTabsGeo||{};pp.moG=pp.moG||{};const cp=o=>o?JSON.parse(JSON.stringify(o)):null,G=pp.moTabsGeo;
+    if(will){   // leaving the icons: remember the bar and every tile where they are; the bar goes to its dropdown-only place
+      G.tiles=cp(pp.moG.tabs);G.mo=(MCATS(pp)||[]).map(c=>(c.links||[]).map(l=>cp(l.mo)));
+      if(G.list)pp.moG.tabs=cp(G.list);
+    }else{      // back to the icons: the bar returns to where it was, then the tiles to their own places
+      G.list=cp(pp.moG.tabs);
+      if(Object.prototype.hasOwnProperty.call(G,'tiles')){if(G.tiles)pp.moG.tabs=cp(G.tiles);else delete pp.moG.tabs;}
+      if(G.mo)(MCATS(pp)||[]).forEach((c,ci)=>(c.links||[]).forEach((l,li)=>{const m=G.mo[ci]&&G.mo[ci][li];if(m)l.mo=cp(m);}));
+    }
+  }
   function openTabsPop(k,b,op,curTab,cats){
     const p=cur(),T=p.moTabs||{},hx=v=>/^#[0-9a-f]{6}$/i.test(v||'');
     const sw=(id,val,fb,title)=>`<input type="color" id="${id}" value="${hx(val)?val:fb}" data-t="${id.replace('mtp-','')}" style="display:none"><div class="cp-swatch" onclick="cpOpen('${id}')" style="background:${hx(val)?val:fb}" title="${title}"></div>`;
@@ -5729,7 +5758,8 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     const act2=hx(T.ac2)?`<span class="cf-c2">${sw('mtp-ac2',T.ac2,'#7c3aed','Second gradient color')}<button type="button" class="btn-icon" data-ta="ac2off" title="Remove gradient"><i class="fa-solid fa-xmark"></i></button></span>`:`<button type="button" class="cp-add" data-ta="ac2on" title="Add a second color (gradient)">+</button>`;
     const catCol=(cats[curTab]&&cats[curTab].color)||'#38bdf8';
     pop.classList.add('mo-wide');
-    b.innerHTML=`<div style="color:#999;font-size:.7rem;margin:0 0 6px;">Show category</div><div class="mo-pop-btns" style="margin-bottom:10px;">${cats.map((x,i)=>`<button type="button" data-tab="${i}" class="${i===curTab?'on':''}">${esc(x.title||'Untitled')}</button>`).join('')}</div>`+
+    b.innerHTML=`<div style="color:#999;font-size:.7rem;margin:0 0 6px;">Show category</div><div class="mo-pop-btns" style="margin-bottom:10px;">${cats.map((x,i)=>`<button type="button" data-tab="${i}" class="${i===curTab?'on':''}">${esc(x.title||'Untitled')}</button>`).join('')}<button type="button" data-a="addcat" title="Add a new category" style="font-weight:700">+</button></div>`+
+    `<div style="color:#999;font-size:.7rem;margin:0 0 6px;">Category colors (tab, glow and background gradient)</div><div class="mo-set" style="margin-bottom:10px">${cats.map((x,i)=>`<div class="mo-sr"><span class="mo-sl">${esc(x.title||'Untitled')}</span><div class="mo-sc" style="display:flex;align-items:center;gap:10px;width:100%">${sw('mtp-cc'+i,x.color,'#38bdf8','Color of '+(x.title||'this category'))}${T.lm==='list'?`<div class="mo-cus"><input type="text" class="mo-cu" data-cu="${i}:url" value="${esc(x.url||'')}" placeholder="Left half link" title="Link opened by clicking the left half of the tab (if it is the only link, the whole tab)"><input type="text" class="mo-cu" data-cu="${i}:url2" value="${esc(x.url2||'')}" placeholder="Right half link" title="Link opened by clicking the right half of the tab"></div>`:''}</div></div>`).join('')}</div>`+
     `<div class="mo-set" style="margin-bottom:10px">`+
       row('Opacity',`<input type="range" data-f="op" min="0" max="1" step=".01" value="${op}"><b>${pct(op)}</b>`)+
       row('Font',fontSel)+
@@ -5746,9 +5776,11 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
       row('Links',seg('lm',[['tiles','Icons only'],['list','Dropdown only'],['both','Both']],'tiles'))+
       ((T.lm==='list'||T.lm==='both')?row('Open list on',seg('lo',[['hover','Hover'],['click','Click']],'hover'))+row('Icons in the list',seg('li',[['off','Off'],['on','On']],'off')):'')+
     `</div><div style="color:#777;font-size:.7rem;margin:0 0 8px;">Drag it to move it · drag its edges to resize it. It always stays on the grid.</div><div class="mo-pop-btns"><button type="button" data-a="reset">Reset</button><button type="button" data-a="hide" title="Hide the categories bar (bring it back with the eye in Settings → Mosaic, or from Hidden items in edit mode)"><i class="fa-solid fa-eye-slash"></i>&nbsp; Hide</button></div>`;
-    const set=(key,v)=>{const pp=cur();pp.moTabs=pp.moTabs||{};if(v===''||v==null)delete pp.moTabs[key];else pp.moTabs[key]=v;if(!Object.keys(pp.moTabs).length)delete pp.moTabs;save();render();};
+    const set=(key,v)=>{const pp=cur();pp.moTabs=pp.moTabs||{};if(key==='lm')moTabsMode(pp,pp.moTabs.lm||'tiles',v||'tiles');if(v===''||v==null)delete pp.moTabs[key];else pp.moTabs[key]=v;if(!Object.keys(pp.moTabs).length)delete pp.moTabs;save();render();};
     pop.oninput=e=>{const t=e.target.dataset||{};
       if(t.f==='op'){const v=+e.target.value,pp=cur();ws(pp,k).op=v;e.target.nextElementSibling.textContent=pct(v);const it2=collect().find(z=>z.key===k);if(it2)applyOp(pp,it2);save();return;}
+      if(t.cu){const [ci,f]=t.cu.split(':'),cc=(MCATS(cur())||[])[+ci];if(cc){const v=e.target.value.trim();if(v)cc[f]=v;else delete cc[f];save();}return;}   // category link (left / right half of its tab)
+      if(t.t&&/^cc\d+$/.test(t.t)){const pp=cur(),cc=(MCATS(pp)||[])[+t.t.slice(2)];if(cc&&/^#[0-9a-f]{6}$/i.test(e.target.value)){cc.color=e.target.value;save();render();}return;}   // one colour per category
       if(t.t){let v=e.target.value;if(e.target.type==='range'){v=+v;const u=e.target.nextElementSibling;if(u)u.textContent=v+(t.t==='fs'?'%':'px');}set(t.t,v);}};
     pop.onchange=pop.oninput;
     pop.onclick=e=>{const tb=e.target.closest('[data-tab]');if(tb){const pp=cur();{const o0=parseInt(pp.mosaicTab)||0,n0=parseInt(tb.dataset.tab)||0;window._moSwap=n0>o0?1:n0<o0?-1:undefined;}pp.mosaicTab=parseInt(tb.dataset.tab)||0;save();closePop();render();return;}
@@ -5761,7 +5793,8 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
       const a=e.target.closest('[data-a]');if(!a)return;const pp=cur();
       if(a.dataset.a==='close')closePop();
       else if(a.dataset.a==='reset'){if(pp.moG)delete pp.moG[k];if(pp.moW)delete pp.moW[k];delete pp.moTabs;save();closePop();render();}
-      else if(a.dataset.a==='hide'){moTabsVis(false);}};
+      else if(a.dataset.a==='hide'){moTabsVis(false);}
+      else if(a.dataset.a==='addcat'){window.moEditAct('mosaic');const c2=MCATS(cur());openTabsPop(k,b,op,parseInt(cur().mosaicTab)||0,c2);placePop();}};
     placePop();
   }
   function openWPop(k,anchor){
@@ -5843,7 +5876,7 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     if(a==='mosaic'){
       const nm=prompt('Name of the new category:','Category '+(cats.length+1));if(nm===null)return;
       const last=cats[cats.length-1],base=last?{font:last.font,fontStyle:last.fontStyle,fontSize:last.fontSize}:{};
-      cats.push(Object.assign({title:(nm.trim()||'Category '+(cats.length+1)),color:'#00d4ff',url:'',links:[]},base));
+      cats.push(Object.assign({title:(nm.trim()||'Category '+(cats.length+1)),color:['#3b82f6','#a855f7','#22c55e','#f59e0b','#ef4444','#06b6d4','#f43f5e','#eab308'][cats.length%8],url:'',links:[]},base));
       p.mosaicTab=cats.length-1;save();render();try{renderSettings();}catch(err){}return;
     }
     if(a==='tile'){
