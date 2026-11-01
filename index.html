@@ -741,12 +741,12 @@ body.layout-mosaic #mosaic{display:flex}
 .mo-sw-fade .mo-tile{animation:mo-sw-fade .8s cubic-bezier(.25,.6,.3,1) backwards}
 .mo-sw-slide .mo-tile{animation:mo-sw-slide .9s cubic-bezier(.25,.6,.3,1) backwards}
 @media (prefers-reduced-motion:reduce){.mo-sw-fade .mo-tile,.mo-sw-slide .mo-tile{animation:none}}
-.mo-tab{appearance:none;margin:0;border:0;background:transparent;color:var(--mt-c,#a7aebf);font:inherit;font-family:var(--mt-ff,inherit);font-style:var(--mt-fi,normal);font-size:calc(0.95rem * var(--mt-fs,var(--fsz,1)));font-weight:var(--mt-fw,500);padding:var(--mt-py,9px) var(--mt-px,26px);border-radius:var(--mt-r,var(--widget-radius,0px));cursor:pointer;white-space:nowrap;transition:background .2s,color .2s,box-shadow .2s;width:auto;height:auto;box-shadow:none}
+.mo-tab{appearance:none;margin:0;border:0;background:transparent;color:var(--mt-c,#a7aebf);font:inherit;font-family:var(--mt-ff,inherit);font-style:var(--mt-fi,normal);font-size:calc(0.95rem * var(--mt-fs,var(--fsz,1)) * var(--mt-f,1));font-weight:var(--mt-fw,500);padding:var(--mt-py,9px) var(--mt-px,26px);border-radius:var(--mt-r,var(--widget-radius,0px));cursor:pointer;white-space:nowrap;transition:background .2s,color .2s,box-shadow .2s;width:auto;height:auto;box-shadow:none}
 .mo-tab:hover{color:#fff}
 .mo-dl{position:fixed;z-index:60;padding-top:8px;min-width:140px;max-width:min(92vw,360px);animation:mo-dl-in .22s cubic-bezier(.2,.7,.2,1) backwards}
 @keyframes mo-dl-in{from{opacity:0;transform:translateY(-6px)}}
 .mo-dl-box{background:rgba(26,32,48,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-radius:var(--mo-bar-r,16px);border-radius:min(var(--mo-bar-r,16px),18px);padding:6px;box-shadow:0 14px 36px rgba(0,0,0,.45);max-height:62vh;overflow-y:auto;scrollbar-width:thin}
-.mo-dl-i{display:flex;align-items:center;gap:11px;padding:9px 14px;border-radius:calc(min(var(--mo-bar-r,16px),18px) - 4px);color:#e6e9f2;text-decoration:none;font-family:var(--mt-ff,inherit);font-size:calc(.95rem * var(--mt-fs,var(--fsz,1)));font-weight:var(--mt-fw,500);font-style:var(--mt-fi,normal);white-space:nowrap}
+.mo-dl-i{display:flex;align-items:center;gap:11px;padding:9px 14px;border-radius:calc(min(var(--mo-bar-r,16px),18px) - 4px);color:#e6e9f2;text-decoration:none;font-family:var(--mt-ff,inherit);font-size:calc(.95rem * var(--mt-fs,var(--fsz,1)) * var(--mt-f,1));font-weight:var(--mt-fw,500);font-style:var(--mt-fi,normal);white-space:nowrap}
 .mo-dl-i:hover{background:color-mix(in srgb,var(--tc,#38bdf8) 28%,transparent);color:#fff}
 .mo-dl-i img{width:20px;height:20px;border-radius:5px;flex:none;object-fit:contain}
 .mo-dl-i span{overflow:hidden;text-overflow:ellipsis}
@@ -1044,7 +1044,7 @@ body.layout-mosaic #np-area .np-box.np-vert .np-cover{width:calc(var(--np-maxw,2
 body.layout-mosaic #np-area .np-box.np-vert .np-ph{font-size:calc(var(--np-maxw,240px) * .22)}
 body.layout-mosaic #np-area .np-box.np-vert .np-meta{align-items:center;align-self:center;max-width:var(--np-maxw)}
 body.layout-mosaic #np-area .np-box.np-vert .np-row{justify-content:center}
-.mo-tabs{background:rgba(var(--mt-bar-rgb,32,38,56),var(--mo-tabs-a,.62))}
+.mo-tabs{background:linear-gradient(90deg,rgba(var(--mt-bar-rgb,32,38,56),var(--mo-tabs-a,.62)),rgba(var(--mt-bar-rgb2,var(--mt-bar-rgb,32,38,56)),var(--mo-tabs-a,.62)))}
 .mo-tabs.mt-noglow .mo-tab.on{box-shadow:none}
 .mo-w{display:none;position:relative;z-index:2;align-items:center;justify-content:center;box-sizing:border-box;border:1.5px dashed rgba(255,255,255,.75);border-radius:6px;background:rgba(255,255,255,.06);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
 body.edit-mode .mo-w{display:flex;pointer-events:auto}
@@ -2324,7 +2324,7 @@ function cpPick(c){if(!_cpId)return;const inp=document.getElementById(_cpId);if(
 function cpNative(c){if(!_cpId)return;const inp=document.getElementById(_cpId);if(!inp)return;inp.value=c;inp.dispatchEvent(new Event('input',{bubbles:true}));const sw=inp.nextElementSibling;if(sw&&sw.classList.contains('cp-swatch'))sw.style.background=c;}
 function cpClose(){document.getElementById('cp-palette').classList.remove('open');_cpId=null;}
 function cpSync(id){const inp=document.getElementById(id);if(!inp)return;const sw=inp.nextElementSibling;if(sw&&sw.classList.contains('cp-swatch'))sw.style.background=inp.value;}
-document.addEventListener('click',e=>{const pal=document.getElementById('cp-palette');if(!pal||!pal.classList.contains('open'))return;if(pal.contains(e.target)||e.target.classList.contains('cp-swatch'))return;cpClose();});
+document.addEventListener('click',e=>{const pal=document.getElementById('cp-palette');if(!pal||!pal.classList.contains('open'))return;if(pal.contains(e.target)||e.target.classList.contains('cp-swatch'))return;cpClose();},true);   // capture: the option windows stop clicks from bubbling, which kept the palette open
 
 // ── Layout helpers ──
 function updateSectionStates(){const p=cur();const cs=document.getElementById('clock-sub'),ws=document.getElementById('weather-sub'),ss=document.getElementById('search-sub');if(cs)cs.className=p.showClock?'sub-enabled':'sub-disabled';const sr=document.getElementById('search-rest');if(sr)sr.className=(p.showSearch!==false)?'sub-enabled':'sub-disabled';const wr=document.getElementById('weather-rest');if(wr)wr.className=p.showWeather?'sub-enabled':'sub-disabled';const cr=document.getElementById('clock-rest');if(cr)cr.className=p.showClock?'sub-enabled':'sub-disabled';const ds=document.getElementById('clock-date-sub');if(ds)ds.className=(p.clockShowDate!==false)?'sub-enabled':'sub-disabled';if(ws)ws.className=p.showWeather?'sub-enabled':'sub-disabled';if(ss)ss.className=(p.showSearch!==false)?'sub-enabled':'sub-disabled';}
@@ -2762,7 +2762,16 @@ function meshSpec(p){
   glowSources(p).forEach(o=>{
     const r=o.r;if(r.right<0||r.left>vw||r.bottom<0||r.top>vh)return;
     let rgb;try{rgb=o.rgb.split(',').map(Number);}catch(e){return;}
-    src.push({cx:Math.round(r.left+r.width/2),cy:Math.round(r.top+r.height/2),sx:Math.round(r.width*0.75+vw*0.06),sy:Math.round(r.height*0.75+vh*0.10),a:Math.pow(r.width*r.height,0.3),rgb:meshTune(rgb)});
+    const mx=r.left+r.width/2,my=r.top+r.height/2,sx0=r.width*0.75+vw*0.06,sy0=r.height*0.75+vh*0.10,dir=p.glowDir||'ud';
+    let cx=mx,cy=my,sx=sx0,sy=sy0;   // Glow direction (Settings > Background > Gradient > Auto): the shape of the glow around each source
+    if(dir==='ud'){sx=sx0*0.85;sy=sy0*1.5;}
+    else if(dir==='lr'){sx=sx0*2.0;sy=sy0*0.75;}
+    else if(dir==='all'){sx=sx0*1.7;sy=sy0*1.7;}
+    else if(dir==='down'){sx=sx0*0.9;sy=sy0*1.6;cy=my+sy0*0.9;}
+    else if(dir==='up'){sx=sx0*0.9;sy=sy0*1.6;cy=my-sy0*0.9;}
+    else if(dir==='left'){sx=sx0*1.9;sy=sy0*0.85;cx=mx-sx0*0.9;}
+    else if(dir==='right'){sx=sx0*1.9;sy=sy0*0.85;cx=mx+sx0*0.9;}
+    src.push({cx:Math.round(cx),cy:Math.round(cy),sx:Math.round(sx),sy:Math.round(sy),a:Math.pow(r.width*r.height,0.3),rgb:meshTune(rgb)});
   });
   return {kind:'mesh',src,amb:0.22,peak:0.88,shade:Math.max(-1,Math.min(1,p.gradShade||0))};
 }
@@ -5170,8 +5179,8 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     
     if(hx(T.tc))o.push('--mt-c:'+T.tc);
     if(hx(T.bc))o.push('--mt-bar-rgb:'+hexToRgbStr(T.bc));
-    const px=n(T.px,4,60),py=n(T.py,2,30),gp=n(T.gap,0,30);
-    if(px!=null)o.push('--mt-px:'+px+'px');if(py!=null)o.push('--mt-py:'+py+'px');if(gp!=null)o.push('--mt-gap:'+gp+'px');
+    if(hx(T.bc2))o.push('--mt-bar-rgb2:'+hexToRgbStr(T.bc2));   // a second colour makes the bar a gradient
+    {const fs=n(T.fs,50,150);if(fs!=null)o.push('--mt-f-want:'+(fs/100));}   // Font size slider (50-150%, 100% in the middle); the fit code in applyItems applies it
     const R={square:'0px',round:'10px',pill:'999px'};
     if(R[T.r])o.push('--mt-r:'+R[T.r]);
     if(R[T.br])o.push('--mo-bar-r:'+(T.br==='round'?'16px':R[T.br]));
@@ -5552,6 +5561,7 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
       if(wc(p,it.key).hidden){el.classList.add('mo-gone');el.classList.remove('mo-item');return;}
       el.classList.remove('mo-gone');el.classList.add('mo-item');el.classList.toggle('mo-icon',!!it.icon);el.classList.remove('mo-in');
       el.style.setProperty('--ix','0px');el.style.setProperty('--iy','0px');el.style.setProperty('--is','1');el.style.removeProperty('--iw');el.style.removeProperty('--ih');
+      if(it.kind==='tabs'){el.style.setProperty('--mt-f','1');el.style.removeProperty('--mt-px');el.style.removeProperty('--mt-py');}   // the bar is measured at its normal text size
       try{ro.observe(el);if(it.bd==='clock')[...el.children].forEach(c=>ro.observe(c));}catch(e){}
       live.push(it);
     });
@@ -5613,6 +5623,12 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
         const s=Math.max(.05,Math.min(bw/it.nw,bh/it.nh,4));
         st.setProperty('--ix',L0+'px');st.setProperty('--iy',T0+'px');st.setProperty('--is',String(s));
         st.setProperty('--iw',(bw/s)+'px');st.setProperty('--ih',(bh/s)+'px');
+        {const f=parseFloat(st.getPropertyValue('--mt-f-want'))||1;   // Font size slider: the text really gets smaller / bigger; the tab padding gives way when the text needs the room
+         st.setProperty('--mt-f',String(f));
+         if(f>1){const n=Math.max(1,it.el.querySelectorAll('.mo-tab').length);let px=26,py=9;
+           for(let k=0;k<4;k++){const ox=it.el.scrollWidth-it.el.clientWidth,oy=it.el.scrollHeight-it.el.clientHeight;if(ox<=0.5&&oy<=0.5)break;
+             if(ox>0.5){px=Math.max(2,px-ox/(2*n)-0.5);st.setProperty('--mt-px',px+'px');}
+             if(oy>0.5){py=Math.max(1,py-oy/2-0.5);st.setProperty('--mt-py',py+'px');}}}}
       }else{
         const s=Math.max(.05,Math.min(bw/it.nw,bh/it.nh,4));
         st.setProperty('--ix',(L0+(bw-it.nw*s)/2)+'px');st.setProperty('--iy',(T0+(bh-it.nh*s)/2)+'px');st.setProperty('--is',String(s));
@@ -5756,6 +5772,7 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     const rng=(key,min,max,def,unit)=>{const v=Number.isFinite(+T[key])&&T[key]!==''&&T[key]!=null?+T[key]:def;return `<input type="range" data-t="${key}" min="${min}" max="${max}" step="1" value="${v}"><b>${v}${unit}</b>`;};
     const fontSel=`<select data-t="ff"><option value="">Default</option>${FONTS.map(f=>`<option value="${esc(f)}"${T.ff===f?' selected':''}>${esc(f)}</option>`).join('')}</select>`;
     const act2=hx(T.ac2)?`<span class="cf-c2">${sw('mtp-ac2',T.ac2,'#7c3aed','Second gradient color')}<button type="button" class="btn-icon" data-ta="ac2off" title="Remove gradient"><i class="fa-solid fa-xmark"></i></button></span>`:`<button type="button" class="cp-add" data-ta="ac2on" title="Add a second color (gradient)">+</button>`;
+    const bar2=hx(T.bc2)?`<span class="cf-c2">${sw('mtp-bc2',T.bc2,'#3b2f6b','Second bar color')}<button type="button" class="btn-icon" data-ta="bc2off" title="Remove gradient"><i class="fa-solid fa-xmark"></i></button></span>`:`<button type="button" class="cp-add" data-ta="bc2on" title="Add a second color (gradient)">+</button>`;
     const catCol=(cats[curTab]&&cats[curTab].color)||'#38bdf8';
     pop.classList.add('mo-wide');
     b.innerHTML=`<div style="color:#999;font-size:.7rem;margin:0 0 6px;">Show category</div><div class="mo-pop-btns" style="margin-bottom:10px;">${cats.map((x,i)=>`<button type="button" data-tab="${i}" class="${i===curTab?'on':''}">${esc(x.title||'Untitled')}</button>`).join('')}<button type="button" data-a="addcat" title="Add a new category" style="font-weight:700">+</button></div>`+
@@ -5767,10 +5784,10 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
       row('Text color',sw('mtp-tc',T.tc,'#a7aebf','Tab text color')+`<button type="button" class="btn-icon" data-ta="tcoff" title="Reset"><i class="fa-solid fa-rotate-left"></i></button>`)+
       row('Active tab',`<div class="color-field cf-grad">${sw('mtp-ac',T.ac,catCol,'Active tab color')}${act2}<button type="button" class="btn-icon" data-ta="acoff" title="Use each category's own color"><i class="fa-solid fa-rotate-left"></i></button></div>`)+
       row('Active text',sw('mtp-ai',T.ai,'#0b1220','Active tab text color')+`<button type="button" class="btn-icon" data-ta="aioff" title="Automatic"><i class="fa-solid fa-rotate-left"></i></button>`)+
-      row('Bar color',sw('mtp-bc',T.bc,'#202638','Bar color')+`<button type="button" class="btn-icon" data-ta="bcoff" title="Reset"><i class="fa-solid fa-rotate-left"></i></button>`)+
+      row('Bar color',`<div class="color-field cf-grad">${sw('mtp-bc',T.bc,'#202638','Bar color')}${bar2}<button type="button" class="btn-icon" data-ta="bcoff" title="Reset"><i class="fa-solid fa-rotate-left"></i></button></div>`)+
       row('Buttons',seg('r',[['square','Square'],['round','Round'],['pill','Pill']],''))+
       row('Bar shape',seg('br',[['square','Square'],['round','Round'],['pill','Pill']],''))+
-      row('Padding X',rng('px',4,60,26,'px'))+row('Padding Y',rng('py',2,30,9,'px'))+row('Gap',rng('gap',0,30,4,'px'))+
+      row('Font size',rng('fs',50,150,100,'%'))+
       row('Glow',seg('glow',[['on','On'],['off','Off']],'on'))+
       row('Switch animation',seg('anim',[['off','None'],['fade','Fade'],['slide','Slide']],'fade'))+
       row('Links',seg('lm',[['tiles','Icons only'],['list','Dropdown only'],['both','Both']],'tiles'))+
@@ -5788,7 +5805,9 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
       const ta=e.target.closest('[data-ta]');if(ta){const pp=cur(),a=ta.dataset.ta;
         if(a==='ac2on'){const T2=pp.moTabs||{};set('ac2',autoColor2(/^#[0-9a-f]{6}$/i.test(T2.ac||'')?T2.ac:catCol));}
         else if(a==='ac2off')set('ac2','');else if(a==='acoff'){set('ac2','');set('ac','');}
-        else if(a==='tcoff')set('tc','');else if(a==='aioff')set('ai','');else if(a==='bcoff')set('bc','');
+        else if(a==='tcoff')set('tc','');else if(a==='aioff')set('ai','');else if(a==='bcoff'){set('bc2','');set('bc','');}
+        else if(a==='bc2on'){const T2=pp.moTabs||{};set('bc2',autoColor2(/^#[0-9a-f]{6}$/i.test(T2.bc||'')?T2.bc:'#202638'));}
+        else if(a==='bc2off')set('bc2','');
         openTabsPop(k,b,op,curTab,cats);placePop();return;}
       const a=e.target.closest('[data-a]');if(!a)return;const pp=cur();
       if(a.dataset.a==='close')closePop();
