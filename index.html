@@ -304,7 +304,7 @@ body.link-led.fx-neon .mo-tile:hover .mo-name,body.link-led.fx-neon .mo-tile:hov
 .wx-dot{position:absolute;left:50%;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px rgba(0,0,0,0.55),0 0 8px rgba(255,255,255,0.6);font-style:normal}
 .wx-lo{opacity:0.45}
 .wx-compact{display:flex;align-items:center;gap:calc(0.75rem * var(--wx-k,1));padding:calc(0.35rem * var(--wx-k,1)) calc(1rem * var(--wx-k,1));border-radius:999px;position:relative;background:rgba(255,255,255,calc(0.04 * var(--weather-on,1)))}
-.wx-cnow{line-height:1}
+.wx-cnow{line-height:1;display:inline-flex;align-items:center}   /* the number is as tall as the weather icon next to it */
 .wx-ctrig{display:flex;align-items:center;gap:calc(0.75rem * var(--wx-k,1));position:static}
 .wx-pop{position:absolute;bottom:calc(100% + var(--wx-pop-up,0px) + 12px);left:50%;transform:translateX(-50%) translateY(6px);margin-left:var(--wx-pop-shift,0px);opacity:0;pointer-events:none;transition:opacity 0.2s ease,transform 0.2s ease;z-index:20}
 .wx-compact{cursor:default}
@@ -907,6 +907,13 @@ body.edit-mode .mo-tile.mo-t-nolift:hover,body.edit-mode .mo-tile.mo-t-lift:hove
 .mo-sr.mo-half .mo-sc input[type=range]{min-width:50px}
 .mo-sr.mo-half .mo-seg button{padding:0 10px}
 .mo-sr>.mo-sl{color:#bbb;font-weight:600}
+.mo-onel{display:flex;flex-wrap:nowrap;align-items:center;gap:5px;min-width:0;width:100%}   /* a settings row that always stays on ONE line: everything squeezes to fit */
+.mo-onel .mo-seg{flex:0 1 auto;min-width:0}
+.mo-onel .mo-seg button{padding:0 8px;white-space:nowrap}
+.mo-onel .cf-grad{flex:0 1 auto;min-width:0;width:auto;gap:4px;flex-wrap:nowrap}
+.mo-onel .cf-c2{flex:0 1 auto;min-width:0;gap:4px}
+.mo-onel .cp-swatch{flex:0 1 34px;min-width:14px;width:34px}
+.mo-onel .btn-icon,.mo-onel .cp-add{flex:none}
 .mo-sc{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}
 .mo-sc input[type=text],.mo-sc select{flex:1;min-width:0;height:28px;font-size:.74rem;padding:0 8px}
 .mo-sc input[type=range]{flex:1;min-width:90px;margin:0}
@@ -1008,6 +1015,8 @@ body.layout-mosaic .s-field:has(#clock-pos-group),body.layout-mosaic .s-field:ha
 body.layout-mosaic .top-bar,body.layout-mosaic .top-bar>.nav-group,body.layout-mosaic .top-bar>#clock-display,body.layout-mosaic #search-bar-wrap,body.layout-mosaic #top-stack,body.layout-mosaic #bottom-dock{pointer-events:none}
 body.layout-mosaic #bottom-dock{z-index:21}
 body.layout-mosaic .dock-glow{display:none!important}
+body.layout-mosaic #weather-area.mo-item.wx-tinted{overflow:visible}
+body.layout-mosaic #weather-area.mo-item.wx-tinted::before{content:'';position:absolute;left:-90%;right:-90%;top:-140%;bottom:-140%;z-index:-1;pointer-events:none;border-radius:50%;background:radial-gradient(ellipse at center,rgba(var(--wx-tint,150,160,185),.34) 0%,rgba(var(--wx-tint,150,160,185),.26) 20%,rgba(var(--wx-tint,150,160,185),.14) 45%,rgba(var(--wx-tint,150,160,185),.05) 70%,rgba(var(--wx-tint,150,160,185),0) 100%)}   /* Weather > Glow in Mosaic: the dock glow is not drawn here, so the field itself glows in the colour of the current weather */
 .mo-gone{display:none!important}
 body.layout-mosaic .mo-item{position:fixed!important;left:var(--ix,0px)!important;top:var(--iy,0px)!important;right:auto!important;bottom:auto!important;margin:0!important;transform:none!important;transform-origin:0 0!important;scale:var(--is,1)!important;width:var(--iw,max-content)!important;height:var(--ih,auto)!important;max-width:none!important;max-height:none!important;z-index:21!important;box-sizing:border-box;pointer-events:auto}
 body.layout-mosaic .mo-item.mo-icon{width:1.9rem!important;height:1.9rem!important}
@@ -1106,7 +1115,13 @@ body.layout-mosaic #np-area.mo-item{background-color:rgba(var(--np-rgb,0,0,0),ca
 body.layout-mosaic #np-area.mo-item .np-box{background:none!important}
 body.layout-mosaic #weather-area.mo-item{background-color:rgba(var(--weather-rgb,0,0,0),calc(var(--weather-backdrop,0) * var(--weather-solid,1)));background-image:var(--weather-img,none);background-origin:border-box;background-repeat:no-repeat;border-radius:var(--widget-radius)}
 body.layout-mosaic #weather-area.mo-item .weather-bg-wrap{background:none!important}
-body.layout-mosaic #weather-area.mo-item .weather-bg-wrap,body.layout-mosaic #weather-area.mo-item.mo-in .weather-bg-wrap{justify-content:center!important;align-items:center!important}   /* the content sits in the exact middle of its field, both ways (it used to hug the bottom) */
+body.layout-mosaic #weather-area.mo-item .weather-bg-wrap,body.layout-mosaic #weather-area.mo-item.mo-in .weather-bg-wrap{justify-content:center!important;align-items:center!important}
+body.layout-mosaic #weather-area.mo-item.wx-ha-left .weather-bg-wrap{align-items:flex-start!important;padding-left:var(--wx-m,0px)}   /* Align: push the content to the left / right of its info field (up and down stays centred) */
+body.layout-mosaic #weather-area.mo-item.wx-ha-right .weather-bg-wrap{align-items:flex-end!important;padding-right:var(--wx-m,0px)}   /* the content sits in the exact middle of its field, both ways (it used to hug the bottom) */
+body.layout-mosaic #weather-area.mo-item.wx-ha-left #weather-grid,body.layout-mosaic #weather-area.mo-item.wx-ha-left #weather-stats{align-self:flex-start!important;justify-content:flex-start}   /* the rows used to be pinned to the centre (align-self), which beat the Align setting */
+body.layout-mosaic #weather-area.mo-item.wx-ha-right #weather-grid,body.layout-mosaic #weather-area.mo-item.wx-ha-right #weather-stats{align-self:flex-end!important;justify-content:flex-end}
+body.layout-mosaic #weather-area.mo-item.wx-ha-left .weather-bg-wrap>div:has(#city-name){justify-content:flex-start!important}
+body.layout-mosaic #weather-area.mo-item.wx-ha-right .weather-bg-wrap>div:has(#city-name){justify-content:flex-end!important}
 body.layout-mosaic #np-area.mo-item .np-box{padding:0!important;gap:0!important;overflow:hidden}
 body.layout-mosaic #np-area.mo-item.mo-in .np-box,body.layout-mosaic #weather-area.mo-item.mo-in .weather-bg-wrap{position:absolute;left:var(--in-x,0px);top:var(--in-y,0px);width:var(--in-w,100%);height:var(--in-h,100%);max-width:none;flex:none;margin:0!important;box-sizing:border-box;justify-content:flex-end}
 /* photo fields (weather / now playing) stay behind the tiles: click a tile over one and it moves; click the free part of the field to move the field */
@@ -1658,6 +1673,7 @@ function toggleFontDD(e,fid){
   menu.classList.add('open');_fddOpen=fid;
 }
 document.addEventListener('click',e=>{if(_fddOpen&&!e.target.closest('.font-dd,#settings-modal select'))closeAllFontDD();});
+document.addEventListener('mousedown',e=>{if(_fddOpen&&!e.target.closest('.font-dd-menu,.font-dd,#settings-modal select,#mo-pop select'))closeAllFontDD();},true);   // a click anywhere else closes an open list, even where the click itself is swallowed (Mosaic popovers)
 // the menu is positioned once on open, so close it if the page scrolls or resizes underneath it (it would detach from its button)
 document.addEventListener('scroll',e=>{if(_fddOpen&&!(e.target.closest&&e.target.closest('.font-dd-menu')))closeAllFontDD();},true);
 window.addEventListener('resize',()=>{if(_fddOpen)closeAllFontDD();});
@@ -1677,26 +1693,27 @@ function selectFontDD(fid,f){
 // Delegated, so selects created later by renderSettings() work with no extra wiring.
 let _selDD=null,_selDDFor=null;
 document.addEventListener('mousedown',e=>{
-  const sel=e.target.closest&&e.target.closest('#settings-modal select');
+  const sel=e.target.closest&&e.target.closest('#settings-modal select,#mo-pop select');
   if(!sel||sel.closest('.font-dd')||sel.disabled)return;
   e.preventDefault();sel.focus();
   if(_selDDFor===sel&&_selDD&&_selDD.classList.contains('open')){closeAllFontDD();_selDDFor=null;return;}
   openSelectDD(sel);
 },true);
 function openSelectDD(sel){
-  const modal=sel.closest('.modal');if(!modal)return;
+  const modal=sel.closest('.modal')||sel.closest('#mo-pop');if(!modal)return;   // also the Mosaic option popovers (categories bar font ...)
   closeAllFontDD();
   if(!_selDD||_selDD.parentNode!==modal){if(_selDD)_selDD.remove();_selDD=document.createElement('div');_selDD.className='font-dd-menu';modal.appendChild(_selDD);}
   const menu=_selDD;_selDDFor=sel;
   menu.innerHTML='';
   Array.from(sel.options).forEach(o=>{
     const d=document.createElement('div');d.className='font-dd-option'+(o.value===sel.value?' active':'');d.textContent=o.textContent;
+    if(FONTS.includes(o.value)){try{ensureFont(o.value);}catch(e){}d.style.fontFamily="'"+o.value+"',system-ui,sans-serif";}   // a font list shows every font in its own typeface
     if(o.disabled){d.style.opacity='0.4';d.style.pointerEvents='none';}
     d.onclick=()=>{sel.value=o.value;sel.dispatchEvent(new Event('change',{bubbles:true}));closeAllFontDD();_selDDFor=null;};
     menu.appendChild(d);
   });
   const zp=sel.closest('.settings-panel'),z=(zp&&parseFloat(zp.style.zoom))||1;
-  const r=sel.getBoundingClientRect(),cbr=modal.getBoundingClientRect(),ox=cbr.left+modal.clientLeft,oy=cbr.top+modal.clientTop;
+  const r=sel.getBoundingClientRect(),cbr=modal.getBoundingClientRect(),isPop=modal.id==='mo-pop',ox=isPop?0:cbr.left+modal.clientLeft,oy=isPop?0:cbr.top+modal.clientTop;   // the popover is not transformed, so its menu uses window coordinates
   const M=8,vh=window.innerHeight,vw=window.innerWidth;
   menu.style.zoom=z!==1?z:'';menu.style.minWidth=(r.width/z)+'px';menu.style.maxHeight='';menu.style.visibility='hidden';menu.classList.add('open');
   const mw=menu.offsetWidth*z,mh=menu.offsetHeight*z;
@@ -2778,7 +2795,7 @@ function meshSpec(p){
   return {kind:'mesh',src,amb:0.22,peak:0.88,shade:Math.max(-1,Math.min(1,p.gradShade||0))};
 }
 function autoGlowLayers(p){
-  if(document.body.classList.contains('layout-mosaic')&&typeof window.moGlowItems==='function')return meshSpec(p);
+  if(document.body.classList.contains('layout-mosaic')&&typeof window.moGlowItems==='function'&&(p.moTabs||{}).lm!=='list')return meshSpec(p);   // Dropdown only has no tiles: it uses the Columns-mode glow below
   const cols=glowSources(p),layers=[],vh=window.innerHeight,vw=window.innerWidth,mode=p.glowDir||'ud';
   const full=(rgb,cx,cy,rx,ry)=>layers.push({rgb,cx,cy,rx,ry,x0:cx-rx,x1:cx+rx,y0:cy-ry,y1:cy+ry});
   const half=(rgb,cx,cy,rx,ry,side)=>{const o={rgb,cx,cy,rx,ry,x0:cx-rx,x1:cx+rx,y0:cy-ry,y1:cy+ry};
@@ -3346,6 +3363,25 @@ document.addEventListener('mouseout',e=>{
   const p=g.querySelector(':scope>.wx-pop');if(p)p.classList.remove('on');
 });
 
+// Compact weather: the number is made EXACTLY as tall as the weather icon next to it (the real drawn height of both glyphs is measured, so it holds for any font), and the two are centred on each other
+function wxMatchH(root){
+  const ic=root.querySelector('.wx-ctrig>i'),nu=root.querySelector('.wx-cnow');if(!ic||!nu)return;
+  const run=()=>{try{
+    if(!ic.isConnected||!nu.isConnected)return;
+    const cs=getComputedStyle(ic),ns=getComputedStyle(nu),fs=parseFloat(cs.fontSize);if(!(fs>0))return;
+    const ch=(getComputedStyle(ic,'::before').content||'').replace(/^["']|["']$/g,'');if(!ch||ch==='none'||ch==='normal')return;
+    const ctx=(wxMatchH.c||(wxMatchH.c=document.createElement('canvas'))).getContext('2d'),M=200;
+    ctx.textBaseline='alphabetic';
+    ctx.font=`${cs.fontStyle} ${cs.fontWeight} ${M}px ${cs.fontFamily}`;const mi=ctx.measureText(ch);
+    ctx.font=`${ns.fontStyle} ${ns.fontWeight} ${M}px ${ns.fontFamily}`;const mn=ctx.measureText('9');
+    const hi=mi.actualBoundingBoxAscent+mi.actualBoundingBoxDescent,hn=mn.actualBoundingBoxAscent+mn.actualBoundingBoxDescent;if(!(hi>0&&hn>0))return;
+    const nfs=fs*hi/hn;nu.style.fontSize=nfs+'px';nu.style.position='relative';nu.style.top='0px';
+    const mid=(m,f,lhs)=>{const k=f/M,A=m.fontBoundingBoxAscent*k,D=m.fontBoundingBoxDescent*k,lh=isNaN(parseFloat(lhs))?A+D:parseFloat(lhs);return ((lh-(A+D))/2+A-(m.actualBoundingBoxAscent-m.actualBoundingBoxDescent)/2*k)-lh/2;};
+    nu.style.top=(mid(mi,fs,cs.lineHeight)-mid(mn,nfs,getComputedStyle(nu).lineHeight))+'px';
+    try{window.moRefit&&window.moRefit();}catch(e){}
+  }catch(e){}};
+  run();try{document.fonts&&document.fonts.ready.then(run);}catch(e){}
+}
 function wxRerender(){if(_wxRaw)renderWxGrid();else updateWeather();}
 function setWxStyle(st){const p=cur();p.weatherStyle=st;syncWxStyle(p);saveAndRender();wxRerender();try{renderTx();}catch(e){}}
 function wxCityChange(){const p=cur();p.wCity=document.getElementById('w-city').checked;saveAndRender();wxRerender();try{renderTx();}catch(e){}}
@@ -3402,11 +3438,12 @@ function renderWxGrid(){
   return c?`<div class="wx-pop"><div class="wx-pop-in"><div class="wx-hgrid">${c}</div></div></div>`:'';};
   let html='';
   if(style==='compact'){
-    html=`<div class="wx-compact" style="color:${col}"><div class="wx-ctrig"><i class="fa-solid ${nowInfo.icon} ${an(nowInfo)}" style="color:${icc(nowInfo)};font-size:${F(1.6,'wx-temp')}"></i><span class="wx-cnow" style="${txVars('wx-temp')}color:var(--tx-wx-temp-c,inherit);font-size:${F(0.9,'wx-temp')}">${curT}°</span></div><div class="wx-pop"><div class="wx-pop-in">${hr?`<div class="wx-pv"><div class="wx-pvd">${cardCols('wx-pdays','wx-ptemp')}</div><div class="wx-pvh">${nextHours(24)}</div></div><div class="wx-pdots"><i></i><i></i></div>`:cardCols('wx-pdays','wx-ptemp')}</div></div></div>`;
+    html=`<div class="wx-compact" style="color:${col}"><div class="wx-ctrig"><i class="fa-solid ${nowInfo.icon} ${an(nowInfo)}" style="color:${icc(nowInfo)};font-size:${F(1.6,'wx-temp')}"></i><span class="wx-cnow" style="${txVars('wx-temp')}color:var(--tx-wx-temp-c,inherit);font-size:${F(1.7,'wx-temp')}">${curT}°</span></div><div class="wx-pop"><div class="wx-pop-in">${hr?`<div class="wx-pv"><div class="wx-pvd">${cardCols('wx-pdays','wx-ptemp')}</div><div class="wx-pvh">${nextHours(24)}</div></div><div class="wx-pdots"><i></i><i></i></div>`:cardCols('wx-pdays','wx-ptemp')}</div></div></div>`;
   }else{
     html=cardCols('wx-days','wx-temp',true);
   }
   grid.innerHTML=html;
+  try{wxMatchH(grid);}catch(e){}
   try{wxPopFit();}catch(e){}
   applyWxArea(p);
   if(wa)wa.style.setProperty('--wx-tint',nowInfo.tint);{const dk=document.getElementById('bottom-dock');if(dk)dk.style.setProperty('--wx-tint',nowInfo.tint);}
@@ -4880,7 +4917,7 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
   mkSizes();
   const esc=x=>String(x==null?'':x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const host=u=>{try{const h=new URL(/^[a-z][a-z0-9+.-]*:/i.test(u)?u:'https://'+u).hostname.replace(/^www\./,'');if(/^\d+(\.\d+){3}$/.test(h)||h.indexOf(':')>-1)return h;const p=h.split('.');if(p.length<=2)return h;const SLD=/^(co|com|org|net|gov|edu|ac|or|ne|go|gob|nom)$/i;const n=(p[p.length-1].length===2&&SLD.test(p[p.length-2]))?3:2;return p.slice(-n).join('.');}catch(e){return '';}};
-  const ink=c=>{const m=/^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(String(c||'').trim());if(!m)return '#0b1220';let h=m[1];if(h.length===3)h=h.replace(/./g,x=>x+x);const n=parseInt(h,16);return (0.299*(n>>16&255)+0.587*(n>>8&255)+0.114*(n&255))>150?'#0b1220':'#ffffff';};
+  const ink=c=>{const m=/^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(String(c||'').trim());if(!m)return '#0b1220';let h=m[1];if(h.length===3)h=h.replace(/./g,x=>x+x);const n=parseInt(h,16);return (0.299*(n>>16&255)+0.587*(n>>8&255)+0.114*(n&255))>205?'#0b1220':'#ffffff';};   // white text by default; dark only on near-white colours
   const ov=(a,b)=>a.x<b.x+b.w&&b.x<a.x+a.w&&a.y<b.y+b.h&&b.y<a.y+a.h;
   const fit=o=>{if(!o||![o.x,o.y,o.w,o.h].every(Number.isInteger)||o.w<1||o.h<1||o.x<0||o.y<0||o.w>COLS||o.h>ROWS)return null;return {x:Math.min(o.x,COLS-o.w),y:Math.min(o.y,ROWS-o.h),w:o.w,h:o.h};};
   const okGeo=o=>!!o&&[o.x,o.y,o.w,o.h].every(Number.isInteger)&&o.w>=1&&o.h>=1&&o.x>=0&&o.y>=0&&o.x+o.w<=COLS&&o.y+o.h<=ROWS;
@@ -5012,10 +5049,12 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     const TB=p.moTabs||{},hxT=v=>/^#[0-9a-f]{6}$/i.test(v||'');
     const dropMode=(TB.lm==='list');document.body.classList.toggle('mo-list',dropMode);   // links shown ONLY as a list under the category bar: no tiles at all, in edit mode too
     try{window.moDropClose&&window.moDropClose();}catch(e){}
-    const tabs=cats.map((x,i)=>{const c1=x.color||'#38bdf8',c2=hxT(x.color2)?x.color2:'',ik=ink(c1);   // every tab always wears its category's colour; the text colour is automatic unless you set one
+    const cust=TB.bm==='custom',cu1=hxT(TB.ba)?TB.ba:'#38bdf8',cu2=hxT(TB.ba2)?TB.ba2:'';
+    const tabs=cats.map((x,i)=>{const c1=cust?cu1:(x.color||'#38bdf8'),c2=cust?cu2:(hxT(x.color2)?x.color2:''),ik=ink(c1);   // every tab always wears its category's colour; the text colour is automatic unless you set one
       return `<button class="mo-tab${i===ti&&!dropMode?' on':''}" style="--tc:${esc(c1)};${c2?`--tc2:${esc(c2)};`:''}--ink:${ik}" data-i="${i}">${esc(x.title)}</button>`;}).join('');
     autoTop=0;
     const nHid=Object.keys(p.moW||{}).filter(k=>p.moW[k]&&p.moW[k].hidden).length;
+    const oldStage=mo.querySelector(':scope>.mo-stage');if(oldStage)oldStage.remove();   // kept in memory: if nothing in it changed it goes straight back (no rebuilt tiles, no reloaded icons = no flicker)
     mo.innerHTML=`<div class=\"mo-tabs${TB.glow==='off'?' mt-noglow':''}\" style=\"${tabsVars(TB)}\">${tabs}</div><div class="mo-editbar"><span>Drag anything to move it · drag edges to resize · click it for its options</span>${nHid?`<button type="button" class="mo-hidbtn">Hidden items (${nHid})</button>`:''}<button type="button" class="mo-addbtn" data-ma="tile" title="Add a new mosaic (tile) to this category"><i class="fa-solid fa-plus"></i>&nbsp;Mosaic</button><button type="button" class="mo-addbtn" data-ma="mosaic" title="Add another category (a new tab with its own mosaics)"><i class="fa-solid fa-plus"></i>&nbsp;Category</button><button type="button" class="mo-delbtn" data-ma="delmosaic" title="Delete this category (the columns are not touched)"><i class="fa-solid fa-trash-can"></i>&nbsp;Category</button><button class="mo-reset" title="Pack this category's tiles automatically again">Reset layout</button></div>`;
     renderSig=applyItems(p,true);
     try{window.moDropReopen&&window.moDropReopen();}catch(e){}
@@ -5046,7 +5085,9 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     }).join('');
     const frames=ITEMS.filter(q=>!(q.inn&&photoOff(q.key))).map(frameHTML).join('')+ITEMS.filter(q=>q.inn&&!(q.key==='weather'&&gid('weather-area').classList.contains('wx-empty'))).map(innerFrameHTML).join('');
     const warn=L.unplaced.length?`<div class="mo-warn">${L.unplaced.length} tile${L.unplaced.length>1?'s don\'t':' doesn\'t'} fit: make other tiles smaller</div>`:'';
-    mo.insertAdjacentHTML('beforeend',`<div class="mo-stage" style="left:${gap0}px;right:${gap0}px;top:${gap0}px;bottom:${gap0}px"><div class="mo-grid" data-ci="${ti}" style="left:${GX}px;top:${GY}px;width:${COLS*GS+(COLS-1)*gap0}px;height:${ROWS*GH+(ROWS-1)*gap0}px;grid-template-columns:repeat(${COLS},${GS}px);grid-template-rows:repeat(${ROWS},${GH}px)">${cells}${dropMode?'':tiles}${frames}<div class="mo-ghost"></div></div>${warn}</div>`);
+    {const stageHtml=`<div class="mo-stage" style="left:${gap0}px;right:${gap0}px;top:${gap0}px;bottom:${gap0}px"><div class="mo-grid" data-ci="${ti}" style="left:${GX}px;top:${GY}px;width:${COLS*GS+(COLS-1)*gap0}px;height:${ROWS*GH+(ROWS-1)*gap0}px;grid-template-columns:repeat(${COLS},${GS}px);grid-template-rows:repeat(${ROWS},${GH}px)">${cells}${dropMode?'':tiles}${frames}<div class="mo-ghost"></div></div>${warn}</div>`;
+     if(oldStage&&oldStage._sig===stageHtml&&window._moSwap===undefined&&!oldStage.querySelector('.mo-ghost[style*="display"],.drag,.mo-drop,.mo-tile[style*="transform"]')){mo.appendChild(oldStage);}   // a stage with drag leftovers (green ghost box, dragged tile) is always rebuilt clean
+     else{mo.insertAdjacentHTML('beforeend',stageHtml);const ns=mo.querySelector(':scope>.mo-stage');if(ns)ns._sig=stageHtml;}}
     {const sw=window._moSwap;window._moSwap=undefined;const an=TB.anim||'fade';   // a category was just chosen: animate its tiles in
      if(sw!==undefined&&an!=='off'){const st=mo.querySelector('.mo-stage');if(st){st.style.setProperty('--sw-d',String(sw||1));st.classList.add('mo-sw-'+an);
        st.querySelectorAll('.mo-tile').forEach((t,i)=>{t.style.animationDelay=Math.min(i,14)*60+'ms';});
@@ -5152,10 +5193,11 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
   window.moGlowItems=function(){
     const p=cur(),cats=MCATS(p)||[];let ti=parseInt(p.mosaicTab);if(!(ti>=0&&ti<cats.length))ti=0;
     const c=cats[ti];if(!c)return [];
-    if((p.moTabs||{}).lm==='list'){   // only the bar + dropdown (no tiles): the glows come from the CATEGORY colours, one per category, spread across the page in the bar's order
+    if((p.moTabs||{}).lm==='list'){   // only the bar + dropdown (no tiles): the same as Columns mode - one glow per category, in the category's own colour, behind a card-sized slot; the slots sit side by side in the centre of the page, in the bar's order
       const vw=window.innerWidth,vh=window.innerHeight,n=cats.length,res=[];
-      cats.forEach((k,i)=>{const col=hexRgb(k.color)||hexRgb(c.color)||[124,183,255];const w=vw/n,l=w*i,t=vh*0.16,h=vh*0.68;
-        res.push({r:{left:l,top:t,width:w,height:h,right:l+w,bottom:t+h},rgb:col.map(v=>Math.round(v)).join(',')});});
+      const gap=19,cw=Math.max(60,Math.min(240,(vw*0.92-gap*(n-1))/n)),tw=cw*n+gap*(n-1),x0=(vw-tw)/2,t=vh*0.25,h=vh*0.5;
+      cats.forEach((k,i)=>{if(!hexRgb(k.color))return;const col=hexRgb(k.color);const l=x0+i*(cw+gap);
+        res.push({r:{left:l,top:t,width:cw,height:h,right:l+cw,bottom:t+h},rgb:col.map(v=>Math.round(v)).join(',')});});
       return res;
     }
     const fb=hexRgb(c.color)||[124,183,255],out=[],pend=[];
@@ -5614,12 +5656,14 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
         let IN=null,iw_=bw,ih_=bh;
         if(it.bd==='weather'||it.bd==='np'){IN=innerOf(p,it.key,g,it);iw_=IN.w*GS+(IN.w-1)*gap;ih_=IN.h*GH+(IN.h-1)*gap;}   // the info is fitted into its own inner field
         it._in=IN;
-        const M_=it.bd==='weather'?wxMargin():0,s=it.bd==='weather'?Math.max(.05,Math.min(6,(ih_-2*M_)/nh,(iw_-2*M_)/nw)):(it.bd==='np')?Math.max(.05,Math.min(6,ih_/nh,(IN&&photoOff(it.key)?(COLS*GS+(COLS-1)*gap):bw)/nw)):Math.max(.05,Math.min(bw/nw,bh/nh,6));   // weather / now playing: real size (set by their font sizes), never blown up with the window
+        const M_=it.bd==='weather'?wxMargin():0,s=it.bd==='weather'?(wxExact(vis,G,gap)||Math.max(.05,Math.min(6,(ih_-2*M_)/nh,(iw_-2*M_)/nw))):(it.bd==='np')?Math.max(.05,Math.min(6,ih_/nh,(IN&&photoOff(it.key)?(COLS*GS+(COLS-1)*gap):bw)/nw)):Math.max(.05,Math.min(bw/nw,bh/nh,6));   // weather / now playing: real size (set by their font sizes), never blown up with the window
         // photo off: the field is just the info field (no photo field behind it), so its backdrop is drawn exactly there and nowhere else
         const oi=!!IN&&photoOff(it.key),X=oi?gap+GX+IN.x*cell:L0,Y=oi?gap+GY+IN.y*cellY:T0,W=oi?iw_:bw,H=oi?ih_:bh;
         st.setProperty('--ix',X+'px');st.setProperty('--iy',Y+'px');st.setProperty('--is',String(s));
+        if(it.bd==='weather'){const wa=p.moWxAlign;it.el.classList.toggle('wx-ha-left',wa==='left');it.el.classList.toggle('wx-ha-right',wa==='right');st.setProperty('--wx-m',(M_/s)+'px');}
         st.setProperty('--iw',(W/s)+'px');st.setProperty('--ih',(H/s)+'px');
         if(IN){st.setProperty('--in-x',(oi?0:(IN.x-g.x)*cell/s)+'px');st.setProperty('--in-y',(oi?0:(IN.y-g.y)*cellY/s)+'px');st.setProperty('--in-w',(iw_/s)+'px');st.setProperty('--in-h',(ih_/s)+'px');it.el.classList.add('mo-in');}
+        if(it.bd==='weather'){it.el._geo={W,H,iw_,ih_,M_,hasIN:!!IN,inx:IN&&!oi?(IN.x-g.x)*cell:0,iny:IN&&!oi?(IN.y-g.y)*cellY:0};window._moLast={vis,G,gap};}   // kept so the weather can be re-scaled later without re-running the whole layout
         if(it.bd==='weather')(window._moRect=window._moRect||{}).wx={x:L0,y:T0,w:bw,h:bh,s};
         if(it.bd==='np')(window._moRect=window._moRect||{}).np={x:L0,y:T0,w:bw,h:bh,s};
       }else if(it.kind==='tabs'){   // categories bar: text scales to fit, and the bar itself always fills the whole area
@@ -5645,6 +5689,36 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
   // the info field of Now playing / Weather: a block of grid cells that always stays inside the field (saved relative to it in p.moIn)
   // is the photo (weather photo / artist photo) of this field switched off? Then there is no photo field, only the info field
   function photoOff(key){const p=cur()||{};return key==='weather'?p.wxPhoto===false:key==='np'?p.npArtist===false:false;}
+  // Weather (compact) in Mosaic: the weather icon, and the number (made equally tall in wxMatchH), are drawn EXACTLY as tall on screen as the
+  // pen / gear icons next to them. The size of those glyphs is measured (their real drawn height, not their box) and the weather content is scaled to match.
+  function glyphInk(i){
+    try{const cs=getComputedStyle(i),fs=parseFloat(cs.fontSize),ch=(getComputedStyle(i,'::before').content||'').replace(/^["']|["']$/g,'');
+      if(!(fs>0)||!ch||ch==='none'||ch==='normal')return null;
+      const M=200,ctx=(glyphInk.c||(glyphInk.c=document.createElement('canvas'))).getContext('2d');
+      ctx.font=`${cs.fontStyle} ${cs.fontWeight} ${M}px ${cs.fontFamily}`;const m=ctx.measureText(ch),h=m.actualBoundingBoxAscent+m.actualBoundingBoxDescent;
+      return h>0?{fs,r:h/M}:null;}catch(e){return null;}
+  }
+  function wxExact(vis,G,gap){
+    try{
+      const wi=document.querySelector('#weather-grid .wx-ctrig>i');if(!wi)return 0;
+      const gw=glyphInk(wi);if(!gw)return 0;
+      let sum=0,n=0;
+      ['edit','settings'].forEach(k=>{
+        const it=vis.find(z=>z.key===k),g=G[k];if(!it||!g||!it.el||!(it.nw>0)||!(it.nh>0))return;
+        const ic=it.el.querySelector('i'),gi=ic&&glyphInk(ic);if(!gi)return;
+        const bw=g.w*GS+(g.w-1)*gap,bh=g.h*GH+(g.h-1)*gap,sp=Math.max(.05,Math.min(bw/it.nw,bh/it.nh,4));   // the same scale the pen / gear get
+        sum+=gi.fs*gi.r*sp;n++;});
+      if(!n)return 0;
+      return Math.max(.05,Math.min(8,(sum/n)/(gw.fs*gw.r)));
+    }catch(e){return 0;}
+  }
+  window.moRefit=function(){try{   // light refresh: only the weather's scale is recomputed (frames, tiles and the rest of the layout are left alone)
+    const L=window._moLast,wa=document.getElementById('weather-area');if(!L||!wa||!wa._geo)return;
+    const sc=wxExact(L.vis,L.G,L.gap);if(!sc)return;const q=wa._geo,st=wa.style;
+    st.setProperty('--is',String(sc));st.setProperty('--wx-m',(q.M_/sc)+'px');st.setProperty('--iw',(q.W/sc)+'px');st.setProperty('--ih',(q.H/sc)+'px');
+    if(q.hasIN){st.setProperty('--in-x',(q.inx/sc)+'px');st.setProperty('--in-y',(q.iny/sc)+'px');st.setProperty('--in-w',(q.iw_/sc)+'px');st.setProperty('--in-h',(q.ih_/sc)+'px');}
+    if(window._moRect&&window._moRect.wx)window._moRect.wx.s=sc;
+  }catch(e){}};
   function wxMargin(){return .18*Math.min(GS,GH);}   // an icon button's glyph sits about 18% of a cell in from the edge of its field
   function innerOf(p,key,g0,it){
     const off=photoOff(key),g=off?{x:0,y:0,w:COLS,h:ROWS}:g0;   // photo off: the whole grid is the room of the info field
@@ -5775,7 +5849,9 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     const rng=(key,min,max,def,unit)=>{const v=Number.isFinite(+T[key])&&T[key]!==''&&T[key]!=null?+T[key]:def;return `<input type="range" data-t="${key}" min="${min}" max="${max}" step="1" value="${v}"><b>${v}${unit}</b>`;};
     const fontSel=`<select data-t="ff"><option value="">Default</option>${FONTS.map(f=>`<option value="${esc(f)}"${T.ff===f?' selected':''}>${esc(f)}</option>`).join('')}</select>`;
     const bar2=hx(T.bc2)?`<span class="cf-c2">${sw('mtp-bc2',T.bc2,'#3b2f6b','Second bar color')}<button type="button" class="btn-icon" data-ta="bc2off" title="Remove gradient"><i class="fa-solid fa-xmark"></i></button></span>`:`<button type="button" class="cp-add" data-ta="bc2on" title="Add a second color (gradient)">+</button>`;
+    const ba2=hx(T.ba2)?`<span class="cf-c2">${sw('mtp-ba2',T.ba2,'#7c3aed','Second button color')}<button type="button" class="btn-icon" data-ta="ba2off" title="Remove gradient"><i class="fa-solid fa-xmark"></i></button></span>`:`<button type="button" class="cp-add" data-ta="ba2on" title="Add a second color (gradient)">+</button>`;
     const catCol=(cats[curTab]&&cats[curTab].color)||'#38bdf8';
+    const btnCol=T.bm==='custom'?`<div class="color-field cf-grad">${sw('mtp-ba',T.ba,'#38bdf8','Button color')}${ba2}</div>`:'';
     pop.classList.add('mo-wide');
     b.innerHTML=`<div style="color:#999;font-size:.7rem;margin:0 0 6px;">Show category</div><div class="mo-pop-btns" style="margin-bottom:10px;">${cats.map((x,i)=>`<button type="button" data-tab="${i}" class="${i===curTab?'on':''}">${esc(x.title||'Untitled')}</button>`).join('')}<button type="button" data-a="addcat" title="Add a new category" style="font-weight:700">+</button></div>`+
     `<div style="color:#999;font-size:.7rem;margin:0 0 6px;">Category colors (tab, glow and background gradient)</div><div class="mo-set" style="margin-bottom:10px">${cats.map((x,i)=>`<div class="mo-sr"><span class="mo-sl">${esc(x.title||'Untitled')}</span><div class="mo-sc" style="display:flex;align-items:center;gap:10px;width:100%">${sw('mtp-cc'+i,x.color,'#38bdf8','Color of '+(x.title||'this category'))}${T.lm==='list'?`<div class="mo-cus"><input type="text" class="mo-cu" data-cu="${i}:url" value="${esc(x.url||'')}" placeholder="Left half link" title="Link opened by clicking the left half of the tab (if it is the only link, the whole tab)"><input type="text" class="mo-cu" data-cu="${i}:url2" value="${esc(x.url2||'')}" placeholder="Right half link" title="Link opened by clicking the right half of the tab"></div>`:''}</div></div>`).join('')}</div>`+
@@ -5783,8 +5859,9 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
       row('Opacity',`<input type="range" data-f="op" min="0" max="1" step=".01" value="${op}"><b>${pct(op)}</b>`)+
       row('Font',fontSel)+
       row('Weight',seg('fw',[['normal','Normal'],['bold','Bold']],'normal')+seg('fi',[['off','Upright'],['on','Italic']],'off'))+
-      row('Text color',sw('mtp-tc',T.tc,'#0b1220','Tab text color (automatic when not set)')+`<button type="button" class="btn-icon" data-ta="tcoff" title="Automatic"><i class="fa-solid fa-rotate-left"></i></button>`)+
+      row('Text color',sw('mtp-tc',T.tc,ink(T.bm==='custom'&&hx(T.ba)?T.ba:catCol),'Tab text color (automatic when not set; shown for the selected category)')+`<button type="button" class="btn-icon" data-ta="tcoff" title="Automatic"><i class="fa-solid fa-rotate-left"></i></button>`)+
       row('Bar color',`<div class="color-field cf-grad">${sw('mtp-bc',T.bc,'#202638','Bar color')}${bar2}<button type="button" class="btn-icon" data-ta="bcoff" title="Reset"><i class="fa-solid fa-rotate-left"></i></button></div>`)+
+      row('Button color',`<div class="mo-onel">${seg('bm',[['cat','Category'],['custom','Custom']],'cat')}${btnCol}</div>`)+
       row('Buttons',seg('r',[['square','Square'],['round','Round'],['pill','Pill']],''))+
       row('Bar shape',seg('br',[['square','Square'],['round','Round'],['pill','Pill']],''))+
       row('Font size',rng('fs',50,150,100,'%'))+
@@ -5801,9 +5878,11 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
       if(t.t){let v=e.target.value;if(e.target.type==='range'){v=+v;const u=e.target.nextElementSibling;if(u)u.textContent=v+(t.t==='fs'?'%':'px');}set(t.t,v);}};
     pop.onchange=pop.oninput;
     pop.onclick=e=>{const tb=e.target.closest('[data-tab]');if(tb){const pp=cur();{const o0=parseInt(pp.mosaicTab)||0,n0=parseInt(tb.dataset.tab)||0;window._moSwap=n0>o0?1:n0<o0?-1:undefined;}pp.mosaicTab=parseInt(tb.dataset.tab)||0;save();closePop();render();return;}
-      const sg=e.target.closest('[data-ts]');if(sg){const [kk,vv]=sg.dataset.ts.split(':');set(kk,vv);openTabsPop(k,b,op,curTab,cats);placePop();return;}
+      const sg=e.target.closest('[data-ts]');if(sg){const [kk,vv]=sg.dataset.ts.split(':');if(kk==='bm'&&vv==='custom'&&!hx((cur().moTabs||{}).ba)){const pp0=cur();pp0.moTabs=pp0.moTabs||{};pp0.moTabs.ba=catCol;}set(kk,vv);openTabsPop(k,b,op,curTab,cats);placePop();return;}
       const ta=e.target.closest('[data-ta]');if(ta){const pp=cur(),a=ta.dataset.ta;
-        if(a==='tcoff')set('tc','');else if(a==='bcoff'){set('bc2','');set('bc','');}
+        if(a==='ba2on'){const T2=pp.moTabs||{};set('ba2',autoColor2(/^#[0-9a-f]{6}$/i.test(T2.ba||'')?T2.ba:'#38bdf8'));}
+        else if(a==='ba2off')set('ba2','');
+        else if(a==='tcoff')set('tc','');else if(a==='bcoff'){set('bc2','');set('bc','');}
         else if(a==='bc2on'){const T2=pp.moTabs||{};set('bc2',autoColor2(/^#[0-9a-f]{6}$/i.test(T2.bc||'')?T2.bc:'#202638'));}
         else if(a==='bc2off')set('bc2','');
         openTabsPop(k,b,op,curTab,cats);placePop();return;}
@@ -5821,13 +5900,14 @@ try{[['wx-photo-img','.wx-photo-bg','wx-ph'],['np-artist-img','.np-artist-bg','n
     const b=mkPop(q.name,anchor||(fr||it.el).getBoundingClientRect());
     const cats=(MCATS(p)||[]),curTab=parseInt(p.mosaicTab)||0;
     if(q.kind==='tabs'){openTabsPop(k,b,op,curTab,cats);return;}
-    b.innerHTML=(q.kind==='tabs'?`<div style=\"color:#999;font-size:.7rem;margin:0 0 6px;\">Show category</div><div class="mo-pop-btns" style="margin-bottom:10px;">${cats.map((x,i)=>`<button type="button" data-tab="${i}" class="${i===curTab?'on':''}">${esc(x.title||'Untitled')}</button>`).join('')}</div>`:'')+(q.hasOp?prow('Opacity','op',0,1,.01,op,pct(op)):'')+
+    b.innerHTML=(q.kind==='tabs'?`<div style=\"color:#999;font-size:.7rem;margin:0 0 6px;\">Show category</div><div class="mo-pop-btns" style="margin-bottom:10px;">${cats.map((x,i)=>`<button type="button" data-tab="${i}" class="${i===curTab?'on':''}">${esc(x.title||'Untitled')}</button>`).join('')}</div>`:'')+(q.hasOp?prow('Opacity','op',0,1,.01,op,pct(op)):'')+(q.key==='weather'?`<div style="color:#999;font-size:.7rem;margin:6px 0 6px;">Align content in the field (up and down stays as it is)</div><div class="mo-pop-btns" style="margin-bottom:10px;">${[['','Center'],['left','Left'],['right','Right']].map(([v,t])=>`<button type="button" data-wa="${v}" class="${(p.moWxAlign||'')===v?'on':''}">${t}</button>`).join('')}</div>`:'')+
       `<div style="color:#777;font-size:.7rem;margin:0 0 8px;">Drag it to move it${q.icon?'':' · drag its edges to resize it'}. It always stays on the grid.${q.inn?' The info field inside it moves and resizes the same way.':''}</div><div class="mo-pop-btns"><button type="button" data-a="reset">Reset</button>${q.kind==='tabs'?'':'<button type="button" class="del" data-a="del"><i class="fa-solid fa-trash-can"></i>&nbsp; Delete</button>'}</div>`;
     pop.oninput=e=>{if(!(e.target.dataset&&e.target.dataset.f==='op'))return;const v=+e.target.value,pp=cur();ws(pp,k).op=v;e.target.nextElementSibling.textContent=pct(v);const it2=collect().find(z=>z.key===k);if(it2)applyOp(pp,it2);save();};
     pop.onclick=e=>{const tb=e.target.closest('[data-tab]');if(tb){const pp=cur();{const o0=parseInt(pp.mosaicTab)||0,n0=parseInt(tb.dataset.tab)||0;window._moSwap=n0>o0?1:n0<o0?-1:undefined;}pp.mosaicTab=parseInt(tb.dataset.tab)||0;save();closePop();render();return;}
+      const wa=e.target.closest('[data-wa]');if(wa){const pp=cur(),v=wa.dataset.wa;if(v)pp.moWxAlign=v;else delete pp.moWxAlign;save();render();pop.querySelectorAll('[data-wa]').forEach(x=>x.classList.toggle('on',x===wa));return;}
       const a=e.target.closest('[data-a]');if(!a)return;const pp=cur();
       if(a.dataset.a==='close')closePop();
-      else if(a.dataset.a==='reset'){if(pp.moG)delete pp.moG[k];if(pp.moW)delete pp.moW[k];if(pp.moIn)delete pp.moIn[k];save();closePop();render();}
+      else if(a.dataset.a==='reset'){if(k==='weather')delete pp.moWxAlign;if(pp.moG)delete pp.moG[k];if(pp.moW)delete pp.moW[k];if(pp.moIn)delete pp.moIn[k];save();closePop();render();}
       else if(a.dataset.a==='del'){const w=ws(pp,k);w.hidden=true;w.name=q.name;save();closePop();render();}};
     mountFor(k);placePop();
   }
