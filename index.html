@@ -369,6 +369,7 @@ body.link-led.fx-neon .mo-tile:hover .mo-name,body.link-led.fx-neon .mo-tile:hov
 #ph-pop .php-add{display:flex;gap:6px;margin-top:8px}
 #ph-pop .php-add input{flex:1;min-width:0;height:26px;box-sizing:border-box;padding:0 8px;font-size:0.74rem;background:#151b20;border:1px solid #2a3238;border-radius:6px;color:#ddd;outline:none}
 #ph-pop .php-add input:focus{border-color:#00d4ff}
+#ph-pop .php-cov{display:none;gap:6px;margin-top:8px;flex-wrap:wrap}
 #ph-pop .php-size{margin-top:6px;font-size:0.7rem;color:#8a949c;text-align:left}
 .php-note{flex:1;color:#8a949c;font-size:0.72rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wx-photo-bg img:not([src]){display:none}
@@ -1216,7 +1217,7 @@ input[type="color"],input[type="color"]::-webkit-color-swatch,input[type="color"
       <div class="np-card" onclick="npManual(event)" title="Click to refresh">
         <div class="np-artist-bg"><img id="np-artist-img" alt=""></div>
         <div class="np-side-glow"><img id="np-side-img" alt=""></div>
-        <div class="np-cover"><img id="np-img" alt=""><div class="np-ph" id="np-ph"><i class="fa-solid fa-music"></i></div></div>
+        <div class="np-cover" onclick="npCovClick(event)" title="Click to change the cover" style="cursor:pointer"><img id="np-img" alt=""><div class="np-ph" id="np-ph"><i class="fa-solid fa-music"></i></div></div>
         <div class="np-meta">
           <div class="np-row np-title" id="np-title"><i class="fa-solid fa-music"></i><span id="np-title-t"></span></div>
           <div class="np-row np-artist" id="np-artist"><i class="fa-solid fa-user"></i><span id="np-artist-t"></span></div>
@@ -3751,12 +3752,12 @@ function delLink(ci,li){CATS(cur())[ci].links.splice(li,1);saveAndRender();}
 function addProfile(){state.profiles.push(mkProf(mkCats(5,'Category'),'m'));state.profileNames.push('Profile '+state.profiles.length);try{ensureTwins();}catch(e){}saveAndRender();renderSettings();}
 
 // photo choices live outside the main settings: the city photo you settled on, the artist photo you settled on, and the cached photo lists / lookups
-const PHOTO_MEM_KEYS=['STARTPAGE_CITYPICK','STARTPAGE_NP_ARTFAV','STARTPAGE_NP_ARTISTS','STARTPAGE_CITYIMG','STARTPAGE_NP_ARTLIST','STARTPAGE_NP_COVERS','STARTPAGE_PHSIZES','STARTPAGE_PHCUSTOM','sp_photo_cache','np_art_ok'];   // city photo picks + cached photo lists, artist photo picks + lookups, custom photos, sizes
+const PHOTO_MEM_KEYS=['STARTPAGE_NP_CUSTOMCOVER','STARTPAGE_CITYPICK','STARTPAGE_NP_ARTFAV','STARTPAGE_NP_ARTISTS','STARTPAGE_CITYIMG','STARTPAGE_NP_ARTLIST','STARTPAGE_NP_COVERS','STARTPAGE_PHSIZES','STARTPAGE_PHCUSTOM','sp_photo_cache','np_art_ok'];   // city photo picks + cached photo lists, artist photo picks + lookups, custom photos, sizes
 // BACKUP RULE: everything the page keeps is saved in the backup automatically. Profile / state settings travel inside the profiles (any new key is included);
 // anything kept in the browser storage under STARTPAGE_*, sp_* or np_* is included too, except the main state (saved separately) and short-lived caches.
 const BACKUP_SKIP=new Set(['STARTPAGE_WX','STARTPAGE_NP_LAST','STARTPAGE_GEO_DONE']);
 function backupStoreKeys(){const out=new Set(PHOTO_MEM_KEYS);try{for(let n=0;n<localStorage.length;n++){const k=localStorage.key(n);if(k&&k!==KEY&&!BACKUP_SKIP.has(k)&&/^(STARTPAGE_|sp_|np_)/.test(k))out.add(k);}}catch(e){}return[...out];}
-function importPhotoMemory(pm){if(!pm||typeof pm!=='object')return;Object.keys(pm).forEach(k=>{if(typeof pm[k]!=='string'||k===KEY||BACKUP_SKIP.has(k)||!/^(STARTPAGE_|sp_|np_)/.test(k))return;try{let inc;try{inc=JSON.parse(pm[k]);}catch(e){inc=undefined;}if(inc===null||typeof inc!=='object'){localStorage.setItem(k,pm[k]);return;}const old=JSON.parse(localStorage.getItem(k))||(Array.isArray(inc)?[]:{});localStorage.setItem(k,JSON.stringify(Array.isArray(inc)?Array.from(new Set([].concat(Array.isArray(old)?old:[],inc))).slice(-300):Object.assign({},old,inc)));}catch(e){}});try{localStorage.setItem('STARTPAGE_ART_V10','1');}catch(e){}_wxPhKey=null;_npArtKey=null;}
+function importPhotoMemory(pm){if(!pm||typeof pm!=='object')return;Object.keys(pm).forEach(k=>{if(typeof pm[k]!=='string'||k===KEY||BACKUP_SKIP.has(k)||!/^(STARTPAGE_|sp_|np_)/.test(k))return;try{let inc;try{inc=JSON.parse(pm[k]);}catch(e){inc=undefined;}if(inc===null||typeof inc!=='object'){localStorage.setItem(k,pm[k]);return;}const old=JSON.parse(localStorage.getItem(k))||(Array.isArray(inc)?[]:{});localStorage.setItem(k,JSON.stringify(Array.isArray(inc)?Array.from(new Set([].concat(Array.isArray(old)?old:[],inc))).slice(-300):Object.assign({},old,inc)));}catch(e){}});try{localStorage.setItem('STARTPAGE_ART_V10','1');}catch(e){}_wxPhKey=null;_npArtKey=null;try{_npShown=null;}catch(e){}}
 // Backup layout: shared stuff (cities, photo preferences) once, then a separate block for Column mode and one for Mosaic mode
 function backupObj(){
   try{syncModeGlobals();}catch(e){}
@@ -3989,7 +3990,7 @@ async function npFindCovers(artist,album,title,order){
 // ── Artist photo behind the cover ──
 // Sources, best first: TheAudioDB by MusicBrainz ID (wide band/fanart photos) -> Wikidata photo via MusicBrainz -> TheAudioDB by exact name -> Deezer by exact name.
 // Every source must match the artist exactly (by ID, or by identical name), and results are cached per artist.
-let _npLastO=null,_npArtKey=null,_npArtSeq=0,_npArtNorm='',_npArtLoading='',_npArtRestored=false;
+let _npArtLoadT=0,_npLastO=null,_npArtKey=null,_npArtSeq=0,_npArtNorm='',_npArtLoading='',_npArtRestored=false;
 const NP_AV='STARTPAGE_NP_ARTISTS';
 function npArtStore(){try{return JSON.parse(localStorage.getItem(NP_AV))||{};}catch(e){return{};}}
 function npArtSave(k,u){const c=npArtStore();c[k]={u:u,t:Date.now()};const ks=Object.keys(c);try{localStorage.setItem(NP_AV,JSON.stringify(c));}catch(e){}}
@@ -4055,23 +4056,29 @@ async function npArtistLoad(o){
   if(!bg||!img)return;
   if(!p||p.npArtist===false||!o||!o.artist){return;}
   const k=npArtKeyOf(o),nk=_npNorm(o.artist);
-  if(k===_npArtKey&&(img.getAttribute('src')||_npArtLoading===k))return;   // same artist: keep the photo already shown (or already being loaded)
-  if(img.getAttribute('src')&&nk===_npArtNorm){_npArtKey=k;return;}       // same artist, only the key changed (name -> MusicBrainz id): no reload, no blink
-  _npArtKey=k;_npArtNorm=nk;_npArtLoading=k;const seq=++_npArtSeq;bg.classList.remove('on');
+  // a picture that failed to load (e.g. a network hiccup right after a refresh) is never kept: it is dropped here so the next check loads it again
+  if(img.getAttribute('src')&&img.complete&&!img.naturalWidth&&!_npArtLoading){img.removeAttribute('src');bg.classList.remove('on');_npArtKey=null;_npArtNorm='';_npArtRestored=false;}
+  const busy=_npArtLoading===k&&Date.now()-_npArtLoadT<30000;
+  if((k===_npArtKey&&(img.getAttribute('src')||busy))||(img.getAttribute('src')&&nk===_npArtNorm)){   // same artist: keep the photo already shown (or already being loaded); no reload, no blink
+    _npArtKey=k;
+    if(img.getAttribute('src')&&img.naturalWidth&&!bg.classList.contains('on')&&!_npArtLoading&&document.body.classList.contains('page-ready')){try{npArtFit();}catch(e){}requestAnimationFrame(()=>{if(img.getAttribute('src')&&img.naturalWidth)bg.classList.add('on');});}   // loaded but still hidden: show it
+    return;
+  }
+  _npArtKey=k;_npArtNorm=nk;_npArtLoading=k;_npArtLoadT=Date.now();const seq=++_npArtSeq;bg.classList.remove('on');
   let u='',fvBad=false,viaFav=false;
-  {const fv=npArtFavGet(k);
+  {const fv=_npFavSkip.has(k)?'':npArtFavOf(o);
    if(fv){
      if(npArtOkGet(fv)){u=fv;viaFav=true;}   // already checked once: shown straight away
-     else if(await npImgOk(fv)){if(await npImgBlank(fv))fvBad=true;else{u=fv;viaFav=true;npArtOkAdd(fv);}}   // a remembered picture that is only a blank silhouette is dropped
+     else if(await npImgOk(fv,9000,1)){u=fv;viaFav=true;npArtOkAdd(fv);}   // a photo you picked yourself is trusted: no size or 'blank' test, so a small or black-and-white photo is not thrown away
    }}
   if(!u){try{u=await npFindArtistImage(o.artist,o.artistMbid);}catch(e){}}
   if(seq!==_npArtSeq)return;
   _npArtLoading='';
   if(!u){img.removeAttribute('src');try{npArtPopSync();}catch(e){}return;}
-  {const a=jget(NP_FV);if(!a[k]||fvBad){a[k]=u;jset(NP_FV,a);npArtOkAdd(u);}}   // the first photo shown stays for this artist, until you choose another
+  {if(fvBad||!npArtFavOf(o))npArtFavSet(o,u);}   // the first photo shown stays for this artist, until you choose another
   img.onload=()=>{if(seq===_npArtSeq){try{npArtFit();}catch(e){}requestAnimationFrame(()=>{if(seq===_npArtSeq)bg.classList.add('on');});}};
   img.onerror=()=>{if(seq!==_npArtSeq||!viaFav)return;   // a remembered photo that no longer loads: look for another
-    const a=jget(NP_FV);delete a[k];jset(NP_FV,a);img.removeAttribute('src');_npArtKey=null;_npArtNorm='';npArtistLoad(o);};
+    _npFavSkip.add(k);img.removeAttribute('src');_npArtKey=null;_npArtNorm='';npArtistLoad(o);};
   img.src=u;try{npArtPopSync();}catch(e){}
 }
 // On open, show the artist photo of the last song straight away (no wait for the network, no fade), like the city photo.
@@ -4081,7 +4088,7 @@ function npArtistRestore(p){
   if(!bg||!img||img.getAttribute('src')||_npArtLoading)return;
   let c=null;try{c=JSON.parse(localStorage.getItem(NP_CK));}catch(e){}
   if(!c||!c.artist||c.user!==npIdent(p)||!c.playing||!c._t||Date.now()-c._t>6*3600*1000)return;
-  const k=npArtKeyOf(c),fv=npArtFavGet(k);
+  const k=npArtKeyOf(c),fv=npArtFavOf(c);
   if(!fv||!npArtOkGet(fv))return;
   _npArtKey=k;_npArtNorm=_npNorm(c.artist);_npArtRestored=true;
   bg.style.transition='none';
@@ -4097,7 +4104,7 @@ function npArtistRestore(p){
     if(document.body.classList.contains('page-ready'))go();
     else{const t=setInterval(()=>{if(document.body.classList.contains('page-ready')||!img.getAttribute('src')){clearInterval(t);if(img.getAttribute('src'))go();}},30);}
   };
-  img.onerror=()=>{bg.style.transition='';npArtistUnrestore();};
+  img.onerror=()=>{bg.style.transition='';_npArtRestored=true;npArtistUnrestore();try{if(_npLastO)npArtistLoad(_npLastO);}catch(e){}};
   img.src=fv;
 }
 function npArtistUnrestore(){
@@ -4111,6 +4118,7 @@ function npGlowState(){
   gl.classList.toggle('on',!!(npOn(p)&&p.npGlow===true&&ar.classList.contains('np-ready')&&!ar.classList.contains('np-idle')&&gl.getAttribute('src')&&gl.dataset.ok==='1'));
 }
 function npSetCover(urls,o,key,pl){
+  {const cc=npCcGet(o);if(cc)urls=[cc];}   // a cover you set yourself wins over every online source
   const img=document.getElementById('np-img'),glow=document.getElementById('np-glow'),ph=document.getElementById('np-ph');
   let i=0;
   const fail=()=>{img.style.display='none';ph.style.display='flex';glow.removeAttribute('src');{const sg=document.getElementById('np-side-img');if(sg)sg.removeAttribute('src');}glow.dataset.ok='0';npGlowState();
@@ -4123,6 +4131,108 @@ function npSetCover(urls,o,key,pl){
   glow.dataset.ok='0';img.style.display='none';ph.style.display='flex';npGlowState();
   if(urls.length)next();else fail();
 }
+
+// ── Album cover: click the cover to pick another one, paste an image or give a link (same window as the artist photo) ──
+const NP_CC='STARTPAGE_NP_CUSTOMCOVER';
+function npCcKey(o){return o&&o.artist?_npNorm(o.artist)+'|'+_npNorm(o.album||o.title):'';}
+function npCcRec(o){
+  const k=npCcKey(o);if(!k)return{u:'',l:[]};
+  let r=jget(NP_CC)[k];if(typeof r==='string')r={u:r,l:[r]};
+  return r&&typeof r==='object'?{u:r.u||'',l:Array.isArray(r.l)?r.l:[]}:{u:'',l:[]};
+}
+function npCcGet(o){return npCcRec(o).u;}
+function npCcSaveRec(o,r){
+  const k=npCcKey(o);if(!k)return false;
+  const a=jget(NP_CC);
+  if(!r.u&&!r.l.length)delete a[k];else a[k]={u:r.u,l:r.l.slice(0,12)};
+  const ks=Object.keys(a);if(ks.length>40)ks.slice(0,ks.length-40).forEach(x=>delete a[x]);
+  try{localStorage.setItem(NP_CC,JSON.stringify(a));return true;}catch(e){return false;}
+}
+function npCovMsg(t){const c=document.getElementById('php-count');if(c)c.textContent=t;}
+function npCcUse(u){
+  const o=_npLastO;if(!o||!o.artist)return false;
+  const r=npCcRec(o);r.u=u;
+  if(!npCcSaveRec(o,r)){npCovMsg('The browser has no room left to save this cover');return false;}
+  _npShown=null;_npFbDone.clear();npRender(o);   // show it straight away
+  return true;
+}
+function npCcAdd(u){
+  const o=_npLastO;if(!o||!o.artist)return false;
+  const r=npCcRec(o);r.l=[u].concat(r.l.filter(x=>x!==u));r.u=u;
+  if(!npCcSaveRec(o,r)){npCovMsg('The browser has no room left to save this cover');return false;}
+  if(_npCovKey===npCcKey(o))_npCovList=[u].concat(_npCovList.filter(x=>x!==u));
+  _npShown=null;_npFbDone.clear();npRender(o);
+  return true;
+}
+function npCcAuto(){
+  const o=_npLastO;if(!o||!o.artist)return;
+  const r=npCcRec(o);if(!r.u){npCovMsg('Already using the automatic cover');return;}
+  r.u='';npCcSaveRec(o,r);_npShown=null;_npFbDone.clear();npRender(o);phPopRender();
+}
+// every cover that can be offered: the ones you added, the exact album from each source, then other albums of the same artist
+let _npCovList=[],_npCovKey='';
+async function npCoverCandidates(o){
+  const out=[],add=u=>{if(u&&!out.includes(u))out.push(u);};
+  npCcRec(o).l.forEach(add);(o.urls||[]).forEach(add);
+  const A=o.artist,B=o.album,T=o.title,big=u=>String(u||'').replace(/\/\d+x\d+(bb)?\./,'/600x600bb.');
+  const exact=await Promise.all(['lbmap','itunes','deezer','mbsearch'].map(id=>npFindCovers(A,B,T,[id]).catch(()=>[])));
+  exact.forEach(l=>(l||[]).forEach(add));
+  const loose=await Promise.all([
+    (async()=>{const r=await fetch('https://itunes.apple.com/search?media=music&limit=25&entity=album&term='+encodeURIComponent(A));if(!r.ok)return[];const j=await r.json();return(j.results||[]).filter(x=>x.artworkUrl100&&_npSameArtist(A,x.artistName)).map(x=>big(x.artworkUrl100));})().catch(()=>[]),
+    (async()=>{const j=await npJsonp('https://api.deezer.com/search/album?limit=25&q='+encodeURIComponent('artist:"'+A+'"'));return((j&&j.data)||[]).filter(x=>_npSameArtist(A,(x.artist||{}).name)).map(x=>x.cover_xl||x.cover_big);})().catch(()=>[])
+  ]);
+  loose.forEach(l=>l.forEach(u=>{if(out.length<40)add(u);}));
+  return out;
+}
+function npCoverStep(d){
+  const l=_npCovList,n=l.length;if(n<2){npCovMsg(n?'Only 1 cover found':'No covers found: paste one below');return;}
+  const im=document.getElementById('np-img'),c=(im&&im.getAttribute('src'))||'',i=l.indexOf(c);
+  npCcUse(l[(((i<0?(d>0?-1:0):i)+d)%n+n)%n]);phPopRender();
+}
+function npCovFrame(){const e=document.querySelector('#np-area .np-cover');if(!e)return null;const r=e.getBoundingClientRect();return{x:r.left,y:r.top,w:r.width,h:r.height};}
+function npCovClick(ev){
+  if(document.body.classList.contains('edit-mode'))return;
+  if(!_npLastO||!_npLastO.artist)return;
+  ev.stopPropagation();
+  const pop=document.getElementById('ph-pop');
+  if(pop&&pop.style.display!=='none'&&_phKind==='cov'){phPopClose();return;}
+  phPopOpen('cov',ev.clientX,ev.clientY);
+}
+function npCcFromBlob(blob){
+  return new Promise(res=>{
+    const url=URL.createObjectURL(blob),im=new Image();
+    im.onload=()=>{
+      const m=600,r=Math.min(1,m/Math.max(im.naturalWidth,im.naturalHeight)),w=Math.round(im.naturalWidth*r),h=Math.round(im.naturalHeight*r);
+      const c=document.createElement('canvas');c.width=w;c.height=h;
+      const x=c.getContext('2d');x.fillStyle='#000';x.fillRect(0,0,w,h);x.drawImage(im,0,0,w,h);
+      URL.revokeObjectURL(url);res(c.toDataURL('image/jpeg',0.9));
+    };
+    im.onerror=()=>{URL.revokeObjectURL(url);res('');};
+    im.src=url;
+  });
+}
+async function npCcSetBlob(blob){
+  npCovMsg('Reading the image…');
+  const d=await npCcFromBlob(blob);
+  if(!d){npCovMsg('That is not an image I can read');return;}
+  if(npCcAdd(d))phPopRender();
+}
+function npCcPaste(ev){
+  if(_phKind!=='cov')return;
+  const items=(ev.clipboardData&&ev.clipboardData.items)||[];
+  for(const it of items){if(it.type&&it.type.indexOf('image/')===0){const f=it.getAsFile();if(f){ev.preventDefault();npCcSetBlob(f);return;}}}
+}
+async function npCcFromClipboard(){
+  try{
+    const its=await navigator.clipboard.read();
+    for(const it of its){const t=it.types.find(x=>x.indexOf('image/')===0);if(t){npCcSetBlob(await it.getType(t));return;}}
+    npCovMsg('No image copied yet (right click a cover → Copy image)');
+  }catch(e){npCovMsg('The browser blocked clipboard access: click the link box and press Ctrl+V');}
+}
+function npCcFile(inp){const f=inp.files&&inp.files[0];inp.value='';if(f)npCcSetBlob(f);}
+document.addEventListener('paste',ev=>{   // Ctrl+V anywhere while the cover window is open (outside the link box, which handles it itself)
+  if(_phKind!=='cov')return;const t=ev.target;if(t&&t.id==='php-url')return;npCcPaste(ev);
+});
 function npAgo(ts){if(!ts)return'';const m=Math.max(0,Math.round((Date.now()/1000-ts)/60));if(m<1)return'just now';if(m<60)return m+' min ago';const h=Math.round(m/60);if(h<24)return h+' h ago';return Math.round(h/24)+' d ago';}
 function npRender(o){
   const p=cur(),area=document.getElementById('np-area');if(!o||!npOn(p))return;
@@ -4460,6 +4570,12 @@ function jget(k){try{return JSON.parse(localStorage.getItem(k))||{};}catch(e){re
 function jset(k,o){try{localStorage.setItem(k,JSON.stringify(o));}catch(e){}}
 function npArtKeyOf(o){return o?(o.artistMbid||_npNorm(o.artist)):'';}
 function npArtFavGet(k){const v=jget(NP_FV)[k]||'';return npIsPh(v)?'':v;}
+// The same artist can arrive under two keys (MusicBrainz id when the listen carries one, plain name when it does not),
+// so the photo you pick is remembered under both and found again whichever one the next load uses.
+const _npFavSkip=new Set();
+function npArtKeysOf(o){const ks=[];if(o){if(o.artistMbid)ks.push(o.artistMbid);const n=_npNorm(o.artist);if(n)ks.push(n);}return ks;}
+function npArtFavOf(o){for(const k of npArtKeysOf(o)){const v=npArtFavGet(k);if(v)return v;}return '';}
+function npArtFavSet(o,u){const a=jget(NP_FV);npArtKeysOf(o).forEach(k=>{a[k]=u;});jset(NP_FV,a);npArtOkAdd(u);}
 try{if(localStorage.getItem('STARTPAGE_ART_V10')!=='1'){[NP_AL,NP_FV,NP_AV].forEach(k=>localStorage.removeItem(k));localStorage.setItem('STARTPAGE_ART_V10','1');}}catch(e){}
 let _npArtList=[],_npArtListKey='';
 async function npArtistCandidates(o){
@@ -4482,7 +4598,7 @@ async function npArtistSet(u){
   bg.classList.remove('on');
   img.onload=()=>{if(seq===_npArtStepSeq)bg.classList.add('on');npArtPopSync();};
   img.src=u;
-  {const a=jget(NP_FV);a[k]=u;jset(NP_FV,a);}
+  npArtFavSet(o,u);
   npArtPopSync();
 }
 async function wxPhotoSet(u){
@@ -4516,7 +4632,7 @@ async function npArtistStep(d){
       img.onload=()=>{if(seq===_npArtStepSeq)bg.classList.add('on');npArtPopSync();};
       img.onerror=()=>{_npArtBad.add(u);npArtPopSync();};
       img.src=u;
-      {const a=jget(NP_FV);a[k]=u;jset(NP_FV,a);}   // remembered for this artist
+      npArtFavSet(o,u);   // remembered for this artist
       npArtPopSync();
       return;
     }
@@ -4560,7 +4676,8 @@ function phEl(){
    +'<div class="php-grid" id="php-grid"></div>'
    +'<div class="php-row"><button onclick="phPopStep(-1)" title="Previous photo">‹</button><button onclick="phPopStep(1)" title="Next photo">›</button><span class="php-note" id="php-count"></span></div>'
    +'<div class="php-size" id="php-size"></div>'
-   +'<div class="php-add"><input id="php-url" type="text" placeholder="Paste an image link…" spellcheck="false" onkeydown="if(event.key===\'Enter\')phPopAddUrl()"><button onclick="phPopAddUrl()" title="Use this link">Add</button></div>';
+   +'<div class="php-cov" id="php-cov"><button onclick="npCcFromClipboard()" title="Paste the copied image">Paste image</button><button onclick="document.getElementById(\'php-file\').click()" title="Choose an image file">Upload</button><button onclick="npCcAuto()" title="Back to the automatic cover">Automatic</button><input type="file" id="php-file" accept="image/*" style="display:none" onchange="npCcFile(this)"></div>'
+   +'<div class="php-add"><input id="php-url" type="text" placeholder="Paste an image link…" onpaste="npCcPaste(event)" spellcheck="false" onkeydown="if(event.key===\'Enter\')phPopAddUrl()"><button onclick="phPopAddUrl()" title="Use this link">Add</button></div>';
   document.body.appendChild(e);return e;
 }
 function phPopClose(){const e=document.getElementById('ph-pop');if(e)e.style.display='none';_phKind='';_phSig='';}
@@ -4573,10 +4690,11 @@ function phPopOpen(kind,x,y){
 function phPopPlace(){
   const e=document.getElementById('ph-pop');if(!e||e.style.display==='none')return;
   const w=e.offsetWidth,h=e.offsetHeight,vw=document.documentElement.clientWidth,vh=window.innerHeight,m=8,gap=14;
-  const fr=(window._phFrame||{})[_phKind==='art'?'np':'wx'],c=_phClick||{x:vw/2,y:vh/2};
+  const fr=_phKind==='cov'?npCovFrame():(window._phFrame||{})[_phKind==='art'?'np':'wx'],c=_phClick||{x:vw/2,y:vh/2};
   const cx=x=>Math.max(m,Math.min(vw-w-m,x)),cy=y=>Math.max(m,Math.min(vh-h-m,y));
   let x=null,y=null;
-  if(fr){
+  if(_phKind==='cov'&&fr&&fr.y-gap-h>=m){x=cx(fr.x);y=fr.y-gap-h;}
+  else if(fr){
     if(fr.x+fr.w+gap+w<=vw-m){x=fr.x+fr.w+gap;y=cy(c.y-h/2);}
     else if(fr.x-gap-w>=m){x=fr.x-gap-w;y=cy(c.y-h/2);}
     else if(fr.y-gap-h>=m){y=fr.y-gap-h;x=cx(c.x-w/2);}
@@ -4590,6 +4708,7 @@ async function phPopAddUrl(){
   const inp=document.getElementById('php-url'),cnt=document.getElementById('php-count');if(!inp||!cnt)return;
   const u=(inp.value||'').trim();
   if(!/^https?:\/\/\S+$/i.test(u)){cnt.textContent='Paste a full image link (https://…)';return;}
+  if(_phKind==='cov'){if(!_npLastO||!_npLastO.artist){cnt.textContent='No song playing';return;}cnt.textContent='Checking the link…';if(!await npImgOk(u,15000,1)&&!await npImgOk(u,15000,1)){cnt.textContent='That link is not an image I can load';return;}if(npCcAdd(u)){inp.value='';phPopRender();}return;}
   let key='';
   if(_phKind==='art'){const o=_npLastO;if(!o||!o.artist){cnt.textContent='No artist playing';return;}key='art|'+npArtKeyOf(o);}
   else{const city=state.cities&&state.cities[cityIdx];if(!city){cnt.textContent='No city';return;}key='city|'+wxPickK(city);}
@@ -4601,12 +4720,13 @@ async function phPopAddUrl(){
   inp.value='';phSortBySize(L);phPopPick(u);phPopRender();
 }
 function phThumb(u){return /upload\.wikimedia\.org\/wikipedia\/commons\/thumb\//.test(u)?u.replace(/\/\d+px-/,'/250px-'):u;}
-function phPopStep(d){if(_phKind==='art')npArtistStep(d);else if(_phKind==='city')wxPhotoStep(d);}
-function phPopPick(u){if(_phKind==='art')npArtistSet(u);else if(_phKind==='city')wxPhotoSet(u);}
+function phPopStep(d){if(_phKind==='art')npArtistStep(d);else if(_phKind==='cov')npCoverStep(d);else if(_phKind==='city')wxPhotoStep(d);}
+function phPopPick(u){if(_phKind==='art')npArtistSet(u);else if(_phKind==='cov'){npCcUse(u);phPopRender();}else if(_phKind==='city')wxPhotoSet(u);}
 function cur_(){return(typeof cur==='function'&&cur())||{};}
 function phPopRender(){
   const e=document.getElementById('ph-pop');if(!e||e.style.display==='none'||!_phKind)return;
   const g=id=>document.getElementById(id);let list=[],cur='',title='',note='';
+  {const cv=g('php-cov');if(cv)cv.style.display=_phKind==='cov'?'flex':'none';const ui=g('php-url');if(ui)ui.placeholder=_phKind==='cov'?'Paste an image link, or the image itself (Ctrl+V)…':'Paste an image link…';}
   if(_phKind==='art'){
     const o=_npLastO,img=document.getElementById('np-artist-img');cur=(img&&img.getAttribute('src'))||'';
     title='Artist photo'+(o&&o.artist?' · '+o.artist:'');
@@ -4614,18 +4734,25 @@ function phPopRender(){
     if(o&&_npArtListKey===k)list=_npArtList;
     else if(o&&o.artist){_npArtListKey=k;_npArtList=[];npArtistCandidates(o).then(l=>{if(npArtKeyOf(_npLastO)===k){_npArtList=l;phPopRender();}}).catch(()=>{});note='Looking for photos…';}
     const i=list.indexOf(cur);if(list.length)note=(i>=0?(i+1)+' / ':'')+list.length+' photos';
+  }else if(_phKind==='cov'){
+    const o=_npLastO,im=document.getElementById('np-img');cur=(im&&im.getAttribute('src'))||'';
+    title='Album cover'+(o&&o.artist?' · '+o.artist+(o.album?' – '+o.album:''):'');
+    const k=npCcKey(o);
+    if(o&&o.artist&&_npCovKey===k)list=_npCovList;
+    else if(o&&o.artist){_npCovKey=k;_npCovList=[];npCoverCandidates(o).then(l=>{if(npCcKey(_npLastO)===k){_npCovList=l;_phSig='';phPopRender();}}).catch(()=>{});note='Looking for covers…';}
+    const i=list.indexOf(cur);if(list.length)note=(i>=0?(i+1)+' / ':'')+list.length+' covers';else if(_npCovKey===k&&!note)note='No covers found: paste one below';
   }else{
     const city=state.cities&&state.cities[cityIdx];list=_wxPhList;cur=_wxPhCur;
     title='City photo'+(city?' · '+city.name:'');
     const i=list.indexOf(cur);note=(list.length?(i>=0?(i+1)+' / ':'')+list.length+' photos':'No photos found');
   }
   g('php-title').textContent=title;g('php-count').textContent=note;
-  {const im=document.getElementById(_phKind==='art'?'np-artist-img':'wx-photo-img'),sz=g('php-size'),w=im&&im.naturalWidth,h=im&&im.naturalHeight;
-   sz.textContent=(w&&h)?`This photo: ${w} × ${h} px`+(document.body.classList.contains('layout-mosaic')?'':` · frame ${Math.round(((_phKind==='art'?cur_().npArtS:cur_().wxPhotoS)??35))}% of the page`):'';}
+  {const im=document.getElementById(_phKind==='art'?'np-artist-img':_phKind==='cov'?'np-img':'wx-photo-img'),sz=g('php-size'),w=im&&im.naturalWidth,h=im&&im.naturalHeight;
+   sz.textContent=(w&&h)?`This photo: ${w} × ${h} px`+((document.body.classList.contains('layout-mosaic')||_phKind==='cov')?'':` · frame ${Math.round(((_phKind==='art'?cur_().npArtS:cur_().wxPhotoS)??35))}% of the page`):'';}
   const sig=_phKind+'|'+list.join(',');
   if(sig!==_phSig){
     _phSig=sig;const grid=g('php-grid');grid.textContent='';
-    list.slice(0,60).forEach(u=>{const im=document.createElement('img');im.className='php-t';im.loading='lazy';im.dataset.u=u;im.src=phThumb(u);im.onerror=()=>{if(im.src!==u)im.src=u;};im.onclick=()=>phPopPick(u);grid.appendChild(im);});
+    list.slice(0,60).forEach(u=>{const im=document.createElement('img');im.className='php-t';if(_phKind==='cov')im.style.aspectRatio='1/1';im.loading='lazy';im.dataset.u=u;im.src=phThumb(u);im.onerror=()=>{if(im.src!==u)im.src=u;};im.onclick=()=>phPopPick(u);grid.appendChild(im);});
   }
   g('php-grid').querySelectorAll('.php-t').forEach(im=>{const c=im.dataset.u===cur;im.classList.toggle('cur',c);if(c&&_phSig!==_phScrolled){_phScrolled=_phSig;im.scrollIntoView({block:'nearest'});}});
   try{phPopPlace();}catch(e){}
